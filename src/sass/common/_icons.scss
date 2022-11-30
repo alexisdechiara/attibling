@@ -13,6 +13,10 @@
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  &.big {
+    font-size: 32px;
+  }
 }
 
 .icon-moon:before {
@@ -149,4 +153,7 @@
 }
 .icon-behance:before {
   content: "\e951";
+}
+.icon-user:before {
+  content: "\e911";
 }

@@ -18,6 +18,24 @@
     }
   }
 
+  &.biggest {
+    line-height: 1.3;
+    font-size: 0.75rem;
+    margin-bottom: 25px;
+
+    @include respond-to('small') {
+      font-size: 1.250rem;
+    }
+
+    @include respond-to('medium') {
+      font-size: 1.750rem;
+    }
+  }
+
+  &.in-homepage {
+    font-family: 'Noto Serif', serif;
+  }
+
   &.with-picture {
     color: $white;
   }

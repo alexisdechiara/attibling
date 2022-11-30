@@ -24,6 +24,10 @@
       min-height: 565px;
     }
 
+    &:has(.m-hero__picture:not(.in-post)) {
+      min-height: 100vh;
+    }
+
     .m-hero-title {
       color: $white;
     }

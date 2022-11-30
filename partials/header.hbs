@@ -16,7 +16,15 @@ This header template is shared across all the pages.
       </a>
     {{else}}
       <a href="{{@site.url}}" class="m-site-name in-mobile-topbar">
-        {{@site.title}}
+        {{#if @custom.use_geekly_logo}}
+          <span class="geekly-blue">G</span>
+          <span class="geekly-red">E</span>
+          <span class="geekly-green">E</span>
+          <span class="geekly-yellow">K</span>
+          <span class="geekly-manwrite">ly</span>
+        {{else}}
+          {{@site.title}}
+        {{/if}}
       </a>
     {{/if}}
     <button class="m-icon-button in-mobile-topbar {{^if @custom.enable_native_search}}js-open-search{{/if}}" {{#if @custom.enable_native_search}}data-ghost-search{{/if}} aria-label="{{t "Open search"}}">
@@ -45,7 +53,15 @@ This header template is shared across all the pages.
                 {{else}}
                 <li class="only-desktop">
                   <a href="{{@site.url}}" class="m-site-name in-desktop-menu">
-                    {{@site.title}}
+                    {{#if @custom.use_geekly_logo}}
+                      <span class="geekly-blue">G</span>
+                      <span class="geekly-red">E</span>
+                      <span class="geekly-green">E</span>
+                      <span class="geekly-yellow">K</span>
+                      <span class="geekly-manwrite">ly</span>
+                    {{else}}
+                      {{@site.title}}
+                    {{/if}}
                   </a>
                 </li>
               {{/if}}
@@ -131,6 +147,17 @@ This header template is shared across all the pages.
                 <span class="icon-sunny sun" aria-hidden="true"></span>
               </div>
             </div>
+            {{#unless @member}}
+                {{#unless @site.members_invite_only}}
+                    <a class="subsribe-button" href="#/portal/signup" data-portal="signup">Inscription</a>
+                {{else}}
+                    <a class="login-button" href="#/portal/signin" data-portal="signin">Connexion</a>
+                {{/unless}}
+            {{else}}
+                <a class="m-icon-button in-menu-main" href="#/portal/account" data-portal="account">
+                  <span class="icon-user big" aria-hidden="true"></span>
+                </a>
+            {{/unless}}
           </div>
         </div>
       </div>

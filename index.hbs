@@ -27,17 +27,27 @@ into the {body} of the default.hbs template --}}
   {{!-- Inject styles of the hero image to make it responsive --}}
   {{> hero background=@site.cover_image}}
   <div class="m-hero__content" data-animate="fade-down">
-    <h1 class="m-hero-title bigger">{{@site.title}}</h1>
+    <h1 class="m-hero-title m-site-name biggest">
+      {{#if @custom.use_geekly_logo}}
+          <span class="geekly-blue">G</span>
+          <span class="geekly-red">E</span>
+          <span class="geekly-green">E</span>
+          <span class="geekly-yellow">K</span>
+          <span class="geekly-manwrite">ly</span>
+        {{else}}
+          {{@site.title}}
+        {{/if}}
+    </h1>
     {{#if @site.description}}
-      <p class="m-hero-description bigger">{{@site.description}}</p>
+      <p class="m-hero-description biggest in-homepage">{{@site.description}}</p>
     {{/if}}
-    {{#if @custom.use_custom_cta}}
+    {{!-- {{#if @custom.use_custom_cta}}
       <a href="{{@custom.custom_cta_url}}" class="m-button filled">{{@custom.custom_cta_text}}</a>
     {{else}}
       {{#if @site.members_enabled}}
         <a href="{{@site.url}}/newsletter" class="m-button filled js-newsletter">{{t "Subscribe"}}</a>
       {{/if}}
-    {{/if}}
+    {{/if}} --}}
   </div>
   </section>
   <div class="l-content">
@@ -66,13 +76,13 @@ into the {body} of the default.hbs template --}}
                         {{/if}}
                       </div>
                       <div class="m-featured-article__meta">
-                        <a href="{{primary_author.url}}" class="m-featured-article__author js-tooltip" aria-label="{{primary_author.name}}" data-tippy-content="{{t "Posted by"}} {{primary_author.name}} {{authors autolink="false" from="2" prefix=(t "Among with") separator=" , "}}">
+                        {{!-- <a href="{{primary_author.url}}" class="m-featured-article__author js-tooltip" aria-label="{{primary_author.name}}" data-tippy-content="{{t "Posted by"}} {{primary_author.name}} {{authors autolink="false" from="2" prefix=(t "Among with") separator=" , "}}">
                           {{#if primary_author.profile_image}}
                             <div style="background-image: url({{img_url primary_author.profile_image size="xs"}});"></div>
                           {{else}}
                             <div style="background-image: url({{asset "images/default-avatar-square-small.jpg"}});"></div>
                           {{/if}}
-                        </a>
+                        </a> --}}
                         {{#if primary_tag}}
                           <a href="{{primary_tag.url}}" class="m-featured-article__tag">{{primary_tag.name}}</a>
                         {{/if}}
