@@ -143,7 +143,7 @@ var requestTicking = function requestTicking() {
 };
 
 var updating = function updating() {
-  var progressMax = lastDocumentHeight - lastWindowHeight;
+  var progressMax = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".js-post-content").height();
   var percent = Math.ceil(lastScrollingY / progressMax * 100);
 
   if (percent <= 100) {

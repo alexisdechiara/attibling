@@ -12,14 +12,15 @@
   }
 
   &.in-post {
+    color: inherit;
     letter-spacing: 0.5px;
     font-size: 2rem;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 
     @include respond-to('medium') {
       letter-spacing: 0.7px;
-      font-size: 2.625rem;
-      margin-bottom: 20px;
+      font-size: 3rem;
+      margin-bottom: 30px;
     }
   }
 

@@ -52,24 +52,14 @@
 				"default": false,
 				"group": "homepage"
 			},
-			"use_custom_cta_text": {
-				"type": "boolean",
-				"default": false,
-				"group": "homepage"
-			},
-			"custom_cta_text": {
+			"subsription_text": {
 				"type": "text",
 				"default": "Subscribe",
 				"group": "homepage"
 			},
-			"use_custom_cta_url": {
-				"type": "boolean",
-				"default": false,
-				"group": "homepage"
-			},
-			"custom_cta_url": {
+			"login_text": {
 				"type": "text",
-				"default": "/newsletter",
+				"default": "Login",
 				"group": "homepage"
 			}
 		}

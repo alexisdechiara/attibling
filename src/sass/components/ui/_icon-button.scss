@@ -9,7 +9,7 @@
   background-color: transparent;
   @extend .content-centered;
   @extend .no-appearance;
-  @extend .focusable;
+  // @extend .focusable;
 
   &.outlined {
     border: 1px solid var(--primary-foreground-color);
@@ -183,24 +183,21 @@
   }
 
   &.in-share {
+    display: none;
     color: var(--titles-color);
-    font-size: 0.75rem;
     text-decoration: none;
-    width: 31px;
-    height: 31px;
-    margin: 0 25px;
+    font-size: 1rem;
+    width: 48px;
+    height: 48px;
+    margin: 0 0 20px 0;
 
-    @include respond-to("large") {
-      font-size: 0.875rem;
-      width: 40px;
-      height: 40px;
-      margin: 0 0 20px 0;
+    @include respond-to('small') {
+      display: block;
     }
 
-    @include respond-to("extra-large") {
-      font-size: 1rem;
-      width: 50px;
-      height: 50px;
+    @include respond-to('largest') {
+      width: 64px;
+      height: 64px;
     }
   }
 

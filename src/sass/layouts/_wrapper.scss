@@ -32,6 +32,10 @@
     @include respond-to('medium') {
       max-width: 960px;
     }
+
+    @include respond-to('extra-large') {
+      max-width: calc(100% - 512px);
+    }
   }
 
   &.in-comments {

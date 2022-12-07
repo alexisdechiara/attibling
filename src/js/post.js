@@ -54,7 +54,7 @@ const requestTicking = () => {
 };
 
 const updating = () => {
-  const progressMax = lastDocumentHeight - lastWindowHeight;
+  const progressMax = $(".js-post-content").height();
   const percent = Math.ceil((lastScrollingY / progressMax) * 100);
 
   if (percent <= 100) {

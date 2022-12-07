@@ -149,13 +149,13 @@ This header template is shared across all the pages.
             </div>
             {{#unless @member}}
                 {{#unless @site.members_invite_only}}
-                    <a class="subsribe-button" href="#/portal/signup" data-portal="signup">Inscription</a>
+                    <a class="subsribe-button" href="#/portal/signup" data-portal="signup">{{@custom.subsription_text}}</a>
                 {{else}}
-                    <a class="login-button" href="#/portal/signin" data-portal="signin">Connexion</a>
+                    <a class="login-button" href="#/portal/signin" data-portal="signin">{{@custom.login_text}}</a>
                 {{/unless}}
             {{else}}
                 <a class="m-icon-button in-menu-main" href="#/portal/account" data-portal="account">
-                  <span class="icon-user big" aria-hidden="true"></span>
+                  <span class="icon-user medium" aria-hidden="true"></span>
                 </a>
             {{/unless}}
           </div>

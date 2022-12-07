@@ -1,0 +1,14 @@
+.m-heading__tag {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  letter-spacing: 0.2px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-decoration: none !important;
+
+  @include respond-to('medium') {
+    font-size: 1rem;
+  }
+}
