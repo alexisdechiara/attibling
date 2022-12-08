@@ -17,11 +17,7 @@
     background-color: $black;
 
     @include respond-to('medium') {
-      min-height: 450px;
-    }
-
-    @include respond-to('extra-large') {
-      min-height: 565px;
+      min-height: 80vh;
     }
 
     &:has(.m-hero__picture:not(.in-post)) {

@@ -505,13 +505,14 @@ textarea,
   --primary-subtle-color: #0470ee;
   --secondary-subtle-color: #f4f8fd;
   --titles-color: #333;
+  --titles-light-color: #fff;
   --link-color: #133467;
   --primary-border-color: #9b9b9b;
   --secondary-border-color: aliceblue;
   --article-shadow-normal: 0 10px 10px rgba(0, 0, 0, 0.08);
   --article-shadow-hover: 0 4px 60px 0 rgba(0, 0, 0, 0.2);
   --transparent-background-color: rgba(255, 255, 255, 0.99);
-  --footer-background-color: #133467;
+  --footer-background-color: #080808;
   --submenu-shadow-color-opacity: 0.25;
   --button-shadow-color-normal: rgba(108, 108, 108, 0.2);
   --button-shadow-color-hover: rgba(108, 108, 108, 0.3);
@@ -532,6 +533,7 @@ textarea,
   --primary-subtle-color: #2c2fe6;
   --secondary-subtle-color: #141920;
   --titles-color: #b4b4b4;
+  --titles-light-color: #b4b4b4;
   --link-color: #b6b7f6;
   --primary-border-color: #1d1d1d;
   --secondary-border-color: #0f0f0f;
@@ -1499,6 +1501,7 @@ fieldset {
   background-color: var(--background-color);
   will-change: transform;
   transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.3s ease;
 }
 @media only screen and (min-width: 48rem) {
   .m-header {
@@ -1531,6 +1534,25 @@ fieldset {
 }
 .m-header.with-picture {
   background-color: var(--background-color);
+}
+.m-header.covered {
+  background-color: transparent !important;
+  transition: background-color 0.5s ease;
+}
+.m-header.covered .m-mobile-topbar .in-mobile-topbar {
+  color: white !important;
+  transition: color 0.3s ease;
+}
+@media only screen and (min-width: 48rem) {
+  .m-header.covered .m-nav__left *, .m-header.covered .m-nav__right * {
+    color: white !important;
+  }
+}
+.m-header.covered.headroom--pinned {
+  box-shadow: none !important;
+}
+.m-header.in-homepage .m-site-name {
+  display: none;
 }
 
 .m-mobile-topbar {
@@ -1625,6 +1647,7 @@ fieldset {
 
 .m-nav__left {
   margin-bottom: 30px;
+  display: flex;
 }
 @media only screen and (min-width: 48rem) {
   .m-nav__left {
@@ -1703,7 +1726,7 @@ fieldset {
 .m-nav__right {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 1rem;
 }
 @media only screen and (min-width: 48rem) {
@@ -1712,6 +1735,7 @@ fieldset {
     position: relative;
     padding-left: 20px;
     padding-right: 5px;
+    justify-content: flex-end;
   }
 }
 @media only screen and (min-width: 48rem) {
@@ -1724,7 +1748,6 @@ fieldset {
     width: 20px;
     height: 100%;
     z-index: 2;
-    background: linear-gradient(90deg, var(--header-menu-gradient-first-color) 0, var(--header-menu-gradient-second-color));
   }
 }
 
@@ -1774,6 +1797,12 @@ fieldset {
   opacity: 1;
   z-index: 10;
   transform: scale(1);
+}
+.m-menu.opened .m-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100vh - 70px);
 }
 @media only screen and (min-width: 48rem) {
   .m-menu {
@@ -1848,6 +1877,7 @@ fieldset {
 
 .m-submenu {
   padding-top: 25px;
+  height: auto;
 }
 @media only screen and (min-width: 48rem) {
   .m-submenu {
@@ -2070,11 +2100,13 @@ fieldset {
 .m-tags li a {
   color: var(--link-color) !important;
 }
+.m-tags li a:hover {
+  opacity: 0.75;
+  transition: opacity 0.2s ease-in-out;
+}
 
 .m-toggle-darkmode {
-  position: fixed;
-  left: 20px;
-  bottom: 45px;
+  position: relative;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -2134,9 +2166,7 @@ _:-ms-fullscreen, :root .m-toggle-darkmode {
 }
 
 .subsribe-button, .login-button {
-  position: fixed;
-  right: 20px;
-  bottom: 45px;
+  position: relative;
   height: 28px;
   z-index: 2;
   display: flex;
@@ -2177,12 +2207,7 @@ _:-ms-fullscreen, :root .m-toggle-darkmode {
 }
 @media only screen and (min-width: 48rem) {
   .m-hero.with-picture {
-    min-height: 450px;
-  }
-}
-@media only screen and (min-width: 80rem) {
-  .m-hero.with-picture {
-    min-height: 565px;
+    min-height: 80vh;
   }
 }
 .m-hero.with-picture:has(.m-hero__picture:not(.in-post)) {
@@ -2448,7 +2473,7 @@ _:-ms-fullscreen, :root .m-toggle-darkmode {
   }
 }
 .m-heading__title.in-post {
-  color: inherit;
+  color: var(--titles-light-color);
   letter-spacing: 0.5px;
   font-size: 2rem;
   margin-bottom: 20px;
@@ -2500,6 +2525,7 @@ _:-ms-fullscreen, :root .m-toggle-darkmode {
   font-weight: 600;
   margin-bottom: 15px;
   text-decoration: none !important;
+  color: var(--titles-light-color);
 }
 @media only screen and (min-width: 48rem) {
   .m-heading__tag {
@@ -2558,6 +2584,7 @@ _:-ms-fullscreen, :root .m-toggle-darkmode {
 }
 .m-heading__meta__avatars .m-heading__meta__avatar a {
   height: 100%;
+  color: var(--titles-light-color);
 }
 
 .m-article-card {

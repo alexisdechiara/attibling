@@ -12,7 +12,7 @@
   }
 
   &.in-post {
-    color: inherit;
+    color: var(--titles-light-color);
     letter-spacing: 0.5px;
     font-size: 2rem;
     margin-bottom: 20px;

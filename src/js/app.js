@@ -138,8 +138,10 @@ $(() => {
 
     if (submenuIsOpen) {
       showSubmenu();
+      $header.removeClass("covered");
     } else {
       hideSubmenu();
+      changeHeaderBackground();
     }
   });
 
@@ -241,27 +243,40 @@ $(() => {
     }
   }
 
-  if ($header.length > 0) {
-    const headroom = new Headroom($header[0], {
-      tolerance: {
-        down: 10,
-        up: 20
-      },
-      offset: 15,
-      onUnpin: () => {
-        if (!isMobile() && secondaryMenuTippy) {
-          const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
+  $(window).on("scroll", () => {
+		changeHeaderBackground();
+  });
 
-          if (
-            desktopSecondaryMenuTippy &&
-            desktopSecondaryMenuTippy.state.isVisible
-          ) {
-            desktopSecondaryMenuTippy.hide();
-          }
-        }
-      }
-    });
-    headroom.init();
+  const changeHeaderBackground = () => {
+		if ($header.hasClass("with-picture")) {
+			if ($header.offset().top < $header.height()) {
+				$header.addClass("covered");
+			} else {
+				$header.removeClass("covered");
+			}
+		} else {
+			$header.removeClass("covered");
+		}
+  };
+
+  if ($header.length > 0) {
+		const headroom = new Headroom($header[0], {
+			tolerance: {
+				down: 40,
+				up: 20,
+			},
+			offset: 15,
+			onUnpin: () => {
+				if (!isMobile() && secondaryMenuTippy) {
+					const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
+
+					if (desktopSecondaryMenuTippy && desktopSecondaryMenuTippy.state.isVisible) {
+						desktopSecondaryMenuTippy.hide();
+					}
+				}
+			},
+		});
+		headroom.init();
   }
 
   if ($recentSlider.length > 0) {

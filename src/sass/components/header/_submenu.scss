@@ -1,5 +1,6 @@
 .m-submenu {
   padding-top: 25px;
+  height: auto;
 
   @include respond-to("medium") {
     visibility: hidden;

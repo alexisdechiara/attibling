@@ -150,8 +150,10 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()(function () {
 
     if (submenuIsOpen) {
       showSubmenu();
+      $header.removeClass("covered");
     } else {
       hideSubmenu();
+      changeHeaderBackground();
     }
   });
   $openSearch.on('click', function () {
@@ -236,10 +238,26 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()(function () {
     }
   }
 
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()(window).on("scroll", function () {
+    changeHeaderBackground();
+  });
+
+  var changeHeaderBackground = function changeHeaderBackground() {
+    if ($header.hasClass("with-picture")) {
+      if ($header.offset().top < $header.height()) {
+        $header.addClass("covered");
+      } else {
+        $header.removeClass("covered");
+      }
+    } else {
+      $header.removeClass("covered");
+    }
+  };
+
   if ($header.length > 0) {
     var headroom = new (headroom_js__WEBPACK_IMPORTED_MODULE_1___default())($header[0], {
       tolerance: {
-        down: 10,
+        down: 40,
         up: 20
       },
       offset: 15,

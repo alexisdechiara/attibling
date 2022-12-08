@@ -21,7 +21,7 @@ into the {body} of the default.hbs template --}}
 {{!< default}}
 
 {{!-- Special header.hbs partial to generate the <header> tag --}}
-{{> header background=@site.cover_image}}
+{{> header background=@site.cover_image homepage=true}}
 
 <main class="main-wrap">
   {{!-- Inject styles of the hero image to make it responsive --}}
