@@ -319,4 +319,32 @@ $(() => {
 
   tryToRemoveNewsletter();
   trySearchFeature();
+
+
+  var cover = $(".m-hero__picture");
+  var coverPosition = 0;
+
+  function prlx() {
+		if (cover.length >= 1) {
+			var windowPosition = $(window).scrollTop();
+			windowPosition > 0 ? (coverPosition = Math.floor(windowPosition * 0.5)) : (coverPosition = 0);
+			cover.css({
+				"-webkit-transform": "translate3d(0, " + coverPosition + "px, 0)",
+				transform: "translate3d(0, " + coverPosition + "px, 0)",
+			});
+		}
+  }
+  prlx();
+
+  $(window).on({
+		scroll: function () {
+			prlx();
+		},
+		resize: function () {
+			prlx();
+		},
+		orientationchange: function () {
+			prlx();
+		},
+  });
 });

@@ -18,8 +18,8 @@
         {{/if}}
       </a> --}}
       {{#if featured}}
-        <a href="{{url}}" class="m-article-card__featured js-tooltip" data-tippy-content="{{t "Featured"}}" aria-label="{{t "Featured"}}">
-          <span class="icon-star" aria-hidden="true"></span>
+        <a href="{{url}}" class="m-article-card__featured js-tooltip" data-tippy-content="{{t "Tendance"}}" aria-label="{{t "Tendance"}}">
+          <span class="icon-fire" aria-hidden="true"></span>
         </a>
       {{/if}}
     </div>
@@ -36,9 +36,9 @@
           </h2>
         </div>
         <div class="m-article-card__timestamp">
-          <span>{{date published_at timeago="true"}}</span>
+          <span>{{date published_at timeago="true" locale="fr-fr" timezone="Europe/Paris"}}</span>
           <span>&bull;</span>
-          <span>{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
+          <span>{{reading_time minute=(t "1 min de lecture") minutes=(t "% min de lecture")}}</span>
         </div>
       </a>
     </div>
@@ -51,7 +51,7 @@
       <div class="m-heading no-margin">
         <h3>{{t "No posts found"}}</h3>
         <p>
-          {{t "Apparently there are no posts at the moment, check again later."}}
+          {{t "Apparemment, il n'y a pas de postes pour le moment, revenez plus tard."}}
         </p>
       </div>
     </div>

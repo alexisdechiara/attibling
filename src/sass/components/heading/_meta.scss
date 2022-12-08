@@ -9,6 +9,7 @@
   padding: 0;
 
   &__author {
+    width: fit-content;
 		color: white;
 		font-weight: 500;
 		margin: 0;
@@ -35,8 +36,8 @@
       position: relative;
       overflow: hidden;
       margin: 0;
-      border: 2px solid var(--background-color);
-      background: var(--background-color);
+      border: 2px solid white;
+      background: white;
       box-sizing: border-box;
 
       &:not(:first-child) {
@@ -54,7 +55,6 @@
 
 			a {
 				height: 100%;
-        color: var(--titles-light-color);
 			}
 		}
 	}

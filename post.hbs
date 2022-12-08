@@ -28,9 +28,17 @@ into the {body} of the default.hbs template --}}
     {{> hero background=feature_image}}
     {{#if feature_image}}
       <header class="m-hero__content m-heading in-post l-wrapper" data-animate="fade-down">
-        {{#if tags}}
-          <a href="{{primary_tag.url}}" class="m-heading__tag">{{primary_tag.name}}</a>
-        {{/if}}
+        <div class="m-heading__tags">
+          {{#if tags}}
+            <a href="{{primary_tag.url}}" class="m-heading__tag">{{primary_tag.name}}</a>
+          {{/if}}
+          {{#if featured}}
+            <div class="m-heading__tag m-heading__tag--feature">
+              <span class="icon-fire"></span>
+              <span>{{t "Tendance"}}</span>
+            </div>
+          {{/if}}
+        </div>
         <h1 class="m-heading__title in-post">{{title}}</h1>
         <div class="m-heading__meta">
           <div class="m-heading__meta__avatars">
@@ -48,7 +56,7 @@ into the {body} of the default.hbs template --}}
           </div>
           <div>
             <h4 class="m-heading__meta__author">{{authors separator=", "}}</h4>
-            <time datetime="{{date format='DD-MM-YYYY'}}">{{date format="DD MMM YYYY"}}</time> &bull; {{reading_time minute=(t "1 min de lecture") minutes=(t "% min de lecture")}}
+            <time datetime="{{date format='DD-MM-YYYY:HH-mm'}}">{{date format="DD MMM YYYY à HH-mm"}}</time> &bull; {{reading_time minute=(t "1 min de lecture") minutes=(t "% min de lecture")}}
           </div>
         </div>
       </header>

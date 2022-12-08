@@ -55,7 +55,7 @@
       transition: color 0.3s ease;
     }
 
-    & .m-nav__left *, & .m-nav__right * {
+    & .m-nav__left *:has(:not(.m-site-name)), & .m-nav__right * {
       @include respond-to('medium') {
         color: white !important;
       }

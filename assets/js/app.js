@@ -311,6 +311,32 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()(function () {
   (0,shave__WEBPACK_IMPORTED_MODULE_3__["default"])('.js-article-card-title-no-image', 250);
   tryToRemoveNewsletter();
   trySearchFeature();
+  var cover = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".m-hero__picture");
+  var coverPosition = 0;
+
+  function prlx() {
+    if (cover.length >= 1) {
+      var windowPosition = jquery__WEBPACK_IMPORTED_MODULE_0___default()(window).scrollTop();
+      windowPosition > 0 ? coverPosition = Math.floor(windowPosition * 0.5) : coverPosition = 0;
+      cover.css({
+        "-webkit-transform": "translate3d(0, " + coverPosition + "px, 0)",
+        transform: "translate3d(0, " + coverPosition + "px, 0)"
+      });
+    }
+  }
+
+  prlx();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()(window).on({
+    scroll: function scroll() {
+      prlx();
+    },
+    resize: function resize() {
+      prlx();
+    },
+    orientationchange: function orientationchange() {
+      prlx();
+    }
+  });
 });
 
 /***/ }),
