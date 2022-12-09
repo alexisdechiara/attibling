@@ -1,4 +1,4 @@
-.m-toggle-darkmode {
+.m-switch-theme {
   position: relative;
   width: 28px;
   height: 28px;
@@ -51,16 +51,20 @@
     color: var(--titles-color);
     font-size: 0.9375rem;
 
-    &.moon {
-      display: var(--toggle-darkmode-button-display-moon);
+    &.light-theme-icon {
+      display: none;
     }
 
-    &.sun {
-      display: var(--toggle-darkmode-button-display-sun);
+    &.light-theme-icon {
+      display: none;
+    }
+
+    &.auto-theme-icon {
+      display: none;
     }
   }
 }
 
-_:-ms-fullscreen, :root .m-toggle-darkmode {
+_:-ms-fullscreen, :root .m-switch-theme {
   display: none;
 }

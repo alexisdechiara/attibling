@@ -570,7 +570,7 @@ textarea,
   white-space: nowrap;
 }
 
-.focusable:focus, .m-toggle-darkmode input:focus, .m-button:focus {
+.focusable:focus, .m-switch-theme input:focus, .m-button:focus {
   box-shadow: 0 0 0 2px var(--primary-subtle-color) !important;
 }
 
@@ -580,7 +580,7 @@ textarea,
   justify-content: center;
 }
 
-.no-appearance, .m-toggle-darkmode input, .m-input, .m-icon-button, .m-button {
+.no-appearance, .m-switch-theme input, .m-input, .m-icon-button, .m-button {
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
        appearance: none !important;
@@ -2113,7 +2113,7 @@ fieldset {
   transition: opacity 0.2s ease-in-out;
 }
 
-.m-toggle-darkmode {
+.m-switch-theme {
   position: relative;
   width: 28px;
   height: 28px;
@@ -2122,14 +2122,14 @@ fieldset {
   z-index: 2;
 }
 @media only screen and (min-width: 48rem) {
-  .m-toggle-darkmode {
+  .m-switch-theme {
     position: relative;
     left: auto;
     bottom: auto;
     z-index: auto;
   }
 }
-.m-toggle-darkmode input {
+.m-switch-theme input {
   position: absolute;
   top: 0;
   left: 0;
@@ -2141,10 +2141,10 @@ fieldset {
   cursor: pointer;
   z-index: 2;
 }
-.m-toggle-darkmode input::-moz-focus-inner {
+.m-switch-theme input::-moz-focus-inner {
   border: 0;
 }
-.m-toggle-darkmode div {
+.m-switch-theme div {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2158,18 +2158,21 @@ fieldset {
   background-color: var(--toggle-darkmode-background-color);
   z-index: 1;
 }
-.m-toggle-darkmode span {
+.m-switch-theme span {
   color: var(--titles-color);
   font-size: 0.9375rem;
 }
-.m-toggle-darkmode span.moon {
-  display: var(--toggle-darkmode-button-display-moon);
+.m-switch-theme span.light-theme-icon {
+  display: none;
 }
-.m-toggle-darkmode span.sun {
-  display: var(--toggle-darkmode-button-display-sun);
+.m-switch-theme span.light-theme-icon {
+  display: none;
+}
+.m-switch-theme span.auto-theme-icon {
+  display: none;
 }
 
-_:-ms-fullscreen, :root .m-toggle-darkmode {
+_:-ms-fullscreen, :root .m-switch-theme {
   display: none;
 }
 

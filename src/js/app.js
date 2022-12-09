@@ -32,215 +32,253 @@ $(() => {
   const $inputSearch = $('.js-input-search');
   const $searchResults = $('.js-search-results');
   const $searchNoResults = $('.js-no-results');
-  const $toggleDarkMode = $('.js-toggle-darkmode');
-  const $mainNav = $('.js-main-nav');
-  const $mainNavLeft = $('.js-main-nav-left');
-  const $newsletterElements = $('.js-newsletter');
-  const $nativeComments = $('.js-native-comments > div > iframe')[0];
-  const currentSavedTheme = localStorage.getItem('theme');
+  const $themeSwitcher = $(".js-switch-theme");
+  const $mainNav = $(".js-main-nav");
+  const $mainNavLeft = $(".js-main-nav-left");
+  const $newsletterElements = $(".js-newsletter");
+  const $nativeComments = $(".js-native-comments > div > iframe")[0];
+  const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
   let fuse = null;
   let submenuIsOpen = false;
   let secondaryMenuTippy = null;
 
   const showSubmenu = () => {
-    $header.addClass('submenu-is-active');
-    $toggleSubmenu.addClass('active');
-    $submenu.removeClass('closed').addClass('opened');
+		$header.addClass("submenu-is-active");
+		$toggleSubmenu.addClass("active");
+		$submenu.removeClass("closed").addClass("opened");
   };
 
   const hideSubmenu = () => {
-    $header.removeClass('submenu-is-active');
-    $toggleSubmenu.removeClass('active');
-    $submenu.removeClass('opened').addClass('closed');
+		$header.removeClass("submenu-is-active");
+		$toggleSubmenu.removeClass("active");
+		$submenu.removeClass("opened").addClass("closed");
   };
 
   const toggleScrollVertical = () => {
-    $body.toggleClass('no-scroll-y');
+		$body.toggleClass("no-scroll-y");
   };
 
   const tryToRemoveNewsletter = () => {
-    if (typeof disableNewsletter !== 'undefined' && disableNewsletter) {
-      $newsletterElements.remove();
-    }
+		if (typeof disableNewsletter !== "undefined" && disableNewsletter) {
+			$newsletterElements.remove();
+		}
   };
 
   const trySearchFeature = () => {
-    if (typeof ghostSearchApiKey !== 'undefined') {
-      getAllPosts(ghostHost, ghostSearchApiKey);
-    } else {
-      $openSearch.css('visibility', 'hidden');
-      $closeSearch.remove();
-      $search.remove();
-    }
+		if (typeof ghostSearchApiKey !== "undefined") {
+			getAllPosts(ghostHost, ghostSearchApiKey);
+		} else {
+			$openSearch.css("visibility", "hidden");
+			$closeSearch.remove();
+			$search.remove();
+		}
   };
 
   const getAllPosts = (host, key) => {
-    const api = new GhostContentAPI({
-      url: host,
-      key,
-      version: 'v5.0'
-    });
-    const allPosts = [];
-    const fuseOptions = {
-      shouldSort: true,
-      ignoreLocation: true,
-      findAllMatches: true,
-      includeScore: true,
-      minMatchCharLength: 2,
-      keys: ['title', 'custom_excerpt', 'tags.name']
-    };
+		const api = new GhostContentAPI({
+			url: host,
+			key,
+			version: "v5.0",
+		});
+		const allPosts = [];
+		const fuseOptions = {
+			shouldSort: true,
+			ignoreLocation: true,
+			findAllMatches: true,
+			includeScore: true,
+			minMatchCharLength: 2,
+			keys: ["title", "custom_excerpt", "tags.name"],
+		};
 
-    api.posts
-      .browse({
-        limit: 'all',
-        include: 'tags',
-        fields: 'id, title, url, published_at, custom_excerpt'
-      })
-      .then(posts => {
-        for (let i = 0, len = posts.length; i < len; i++) {
-          allPosts.push(posts[i]);
-        }
+		api.posts
+			.browse({
+				limit: "all",
+				include: "tags",
+				fields: "id, title, url, published_at, custom_excerpt",
+			})
+			.then(posts => {
+				for (let i = 0, len = posts.length; i < len; i++) {
+					allPosts.push(posts[i]);
+				}
 
-        fuse = new Fuse(allPosts, fuseOptions);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+				fuse = new Fuse(allPosts, fuseOptions);
+			})
+			.catch(err => {
+				console.log(err);
+			});
   };
 
   const toggleDesktopTopbarOverflow = disableOverflow => {
-    if (!isMobile()) {
-      if (disableOverflow) {
-        $mainNav.addClass('toggle-overflow');
-        $mainNavLeft.addClass('toggle-overflow');
-      } else {
-        $mainNav.removeClass('toggle-overflow');
-        $mainNavLeft.removeClass('toggle-overflow');
-      }
-    }
+		if (!isMobile()) {
+			if (disableOverflow) {
+				$mainNav.addClass("toggle-overflow");
+				$mainNavLeft.addClass("toggle-overflow");
+			} else {
+				$mainNav.removeClass("toggle-overflow");
+				$mainNavLeft.removeClass("toggle-overflow");
+			}
+		}
   };
 
-  $openMenu.on('click', () => {
-    $header.addClass('mobile-menu-opened');
-    $menu.addClass('opened');
-    toggleScrollVertical();
+  $openMenu.on("click", () => {
+		$header.addClass("mobile-menu-opened");
+		$menu.addClass("opened");
+		toggleScrollVertical();
   });
 
-  $closeMenu.on('click', () => {
-    $header.removeClass('mobile-menu-opened');
-    $menu.removeClass('opened');
-    toggleScrollVertical();
+  $closeMenu.on("click", () => {
+		$header.removeClass("mobile-menu-opened");
+		$menu.removeClass("opened");
+		toggleScrollVertical();
   });
 
-  $toggleSubmenu.on('click', () => {
-    submenuIsOpen = !submenuIsOpen;
+  $toggleSubmenu.on("click", () => {
+		submenuIsOpen = !submenuIsOpen;
 
-    if (submenuIsOpen) {
-      showSubmenu();
-      $header.removeClass("covered");
-    } else {
-      hideSubmenu();
-      changeHeaderBackground();
-    }
+		if (submenuIsOpen) {
+			showSubmenu();
+			$header.removeClass("covered");
+		} else {
+			hideSubmenu();
+			changeHeaderBackground();
+		}
   });
 
-  $openSearch.on('click', () => {
-    $search.addClass('opened');
-    setTimeout(() => {
-      $inputSearch.trigger('focus');
-    }, 400);
-    toggleScrollVertical();
+  $openSearch.on("click", () => {
+		$search.addClass("opened");
+		setTimeout(() => {
+			$inputSearch.trigger("focus");
+		}, 400);
+		toggleScrollVertical();
   });
 
-  $closeSearch.on('click', () => {
-    $inputSearch.trigger('blur');
-    $search.removeClass('opened');
-    toggleScrollVertical();
+  $closeSearch.on("click", () => {
+		$inputSearch.trigger("blur");
+		$search.removeClass("opened");
+		toggleScrollVertical();
   });
 
-  $inputSearch.on('keyup', () => {
-    if ($inputSearch.val().length > 0 && fuse) {
-      const results = fuse.search($inputSearch.val());
-      const bestResults = results.filter(result => {
-        if (result.score <= 0.5) {
-          return result;
-        }
-      });
+  $inputSearch.on("keyup", () => {
+		if ($inputSearch.val().length > 0 && fuse) {
+			const results = fuse.search($inputSearch.val());
+			const bestResults = results.filter(result => {
+				if (result.score <= 0.5) {
+					return result;
+				}
+			});
 
-      let htmlString = '';
+			let htmlString = "";
 
-      if (bestResults.length > 0) {
-        for (let i = 0, len = bestResults.length; i < len; i++) {
-          htmlString += `
+			if (bestResults.length > 0) {
+				for (let i = 0, len = bestResults.length; i < len; i++) {
+					htmlString += `
           <article class="m-result">\
             <a href="${bestResults[i].item.url}" class="m-result__link">\
               <h3 class="m-result__title">${bestResults[i].item.title}</h3>\
-              <span class="m-result__date">${formatDate(
-                bestResults[i].item.published_at
-              )}</span>\
+              <span class="m-result__date">${formatDate(bestResults[i].item.published_at)}</span>\
             </a>\
           </article>`;
-        }
+				}
 
-        $searchNoResults.hide();
-        $searchResults.html(htmlString);
-        $searchResults.show();
-      } else {
-        $searchResults.html('');
-        $searchResults.hide();
-        $searchNoResults.show();
-      }
-    } else {
-      $searchResults.html('');
-      $searchResults.hide();
-      $searchNoResults.hide();
-    }
+				$searchNoResults.hide();
+				$searchResults.html(htmlString);
+				$searchResults.show();
+			} else {
+				$searchResults.html("");
+				$searchResults.hide();
+				$searchNoResults.show();
+			}
+		} else {
+			$searchResults.html("");
+			$searchResults.hide();
+			$searchNoResults.hide();
+		}
   });
 
-  $toggleDarkMode.on('change', () => {
-    if ($toggleDarkMode.is(':checked')) {
-      $('html').attr('data-theme', 'dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      $('html').attr('data-theme', 'light');
-      localStorage.setItem('theme', 'light');
-    }
+  $themeSwitcher.on("click", () => {
+		if (localStorage.getItem("theme") === "light") {
+			$setAutoTheme();
+		} else if (localStorage.getItem("theme") === "dark") {
+			$setLightTheme();
+		} else {
+			$setDarkTheme();
+		}
 
-    if ($nativeComments) {
-      $nativeComments.contentDocument.location.reload(true);
-    }
+		if ($nativeComments) {
+			$nativeComments.contentDocument.location.reload(true);
+		}
   });
 
-  $toggleDarkMode.on('mouseenter', () => {
-    toggleDesktopTopbarOverflow(true);
+  const $resetThemeIcons = () => {
+		$(".light-theme-icon").css("display", "none");
+		$(".dark-theme-icon").css("display", "none");
+		$(".auto-theme-icon").css("display", "none");
+  };
+
+  const $setLightTheme = () => {
+		$resetThemeIcons();
+		$("html").attr("data-theme", "light");
+		localStorage.setItem("theme", "light");
+		$(".light-theme-icon").css("display", "block");
+  };
+
+  const $setDarkTheme = () => {
+		$resetThemeIcons();
+		$("html").attr("data-theme", "dark");
+		localStorage.setItem("theme", "dark");
+		$(".dark-theme-icon").css("display", "block");
+  };
+
+  const $setAutoTheme = () => {
+		console.log($darkColorsScheme);
+		if (window.matchMedia && $darkColorsScheme.matches) {
+			$("html").attr("data-theme", "dark");
+		} else {
+			localStorage.setItem("theme", "light");
+		}
+		$resetThemeIcons();
+		localStorage.setItem("theme", "auto");
+		$(".auto-theme-icon").css("display", "block");
+  };
+
+  $darkColorsScheme.addEventListener("change", () => {
+		$setAutoTheme();
   });
 
-  $toggleDarkMode.on('mouseleave', () => {
-    toggleDesktopTopbarOverflow(false);
+  $themeSwitcher.on("mouseenter", () => {
+		toggleDesktopTopbarOverflow(true);
   });
 
-  $(window).on('click', e => {
-    if (submenuIsOpen) {
-      if ($submenuOption && !$submenuOption.contains(e.target)) {
-        submenuIsOpen = false;
-        hideSubmenu();
-      }
-    }
+  $themeSwitcher.on("mouseleave", () => {
+		toggleDesktopTopbarOverflow(false);
   });
 
-  $(document).on('keyup', e => {
-    if (e.key === 'Escape' && $search.hasClass('opened')) {
-      $closeSearch.trigger('click');
-    }
+  $(window).on("click", e => {
+		if (submenuIsOpen) {
+			if ($submenuOption && !$submenuOption.contains(e.target)) {
+				submenuIsOpen = false;
+				hideSubmenu();
+			}
+		}
   });
 
-  if (currentSavedTheme) {
-    if (currentSavedTheme === 'dark') {
-      $toggleDarkMode.each(function() {
-        $(this).attr('checked', true);
-      });
-    }
+  $(document).on("keyup", e => {
+		if (e.key === "Escape" && $search.hasClass("opened")) {
+			$closeSearch.trigger("click");
+		}
+  });
+
+  if (localStorage.getItem("theme")) {
+		if (localStorage.getItem("theme") === "light") {
+			$setLightTheme();
+		} else if (localStorage.getItem("theme") === "dark") {
+			$setDarkTheme();
+		} else {
+			$setAutoTheme();
+		}
+  } else {
+		$setAutoTheme();
   }
 
   $(window).on("scroll", () => {
