@@ -51,16 +51,6 @@
 				"type": "boolean",
 				"default": false,
 				"group": "homepage"
-			},
-			"subsription_text": {
-				"type": "text",
-				"default": "Subscribe",
-				"group": "homepage"
-			},
-			"login_text": {
-				"type": "text",
-				"default": "Login",
-				"group": "homepage"
 			}
 		}
 	},

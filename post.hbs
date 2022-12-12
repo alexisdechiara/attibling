@@ -35,7 +35,7 @@ into the {body} of the default.hbs template --}}
           {{#if featured}}
             <div class="m-heading__tag m-heading__tag--feature">
               <span class="icon-fire"></span>
-              <span>{{t "Tendance"}}</span>
+              <span>{{t "Featured"}}</span>
             </div>
           {{/if}}
         </div>
@@ -56,7 +56,7 @@ into the {body} of the default.hbs template --}}
           </div>
           <div>
             <h4 class="m-heading__meta__author">{{authors separator=", "}}</h4>
-            <time datetime="{{date format='DD-MM-YYYY:HH-mm'}}">{{date format="DD MMM YYYY à HH-mm"}}</time> &bull; {{reading_time minute=(t "1 min de lecture") minutes=(t "% min de lecture")}}
+            <time datetime="{{date format="lll"}}">{{date format="lll"}}</time> &bull; {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}
           </div>
         </div>
       </header>
@@ -92,7 +92,7 @@ into the {body} of the default.hbs template --}}
               {{!-- List of tags  --}}
               <section class="m-article-footer">
                 <div class="m-article-footer__share">
-                  <span class="m-article-footer__label">{{t "Partager"}}</span>
+                  <span class="m-article-footer__label">{{t "Share"}}</span>
                   <a title="Twitter" aria-label="Twitter" class="m-article-footer__share__item twitter" href="https://twitter.com/share?text={{title}}&url={{url absolute="true"}}" target="_blank" rel="noopener" aria-label="Twitter">
                     <span class="icon-twitter" aria-hidden="true"></i>
                   </a>
@@ -220,7 +220,7 @@ into the {body} of the default.hbs template --}}
           {{#if related}}
             <section class="m-recommended">
               <div class="l-wrapper in-recommended">
-                <h3 class="m-section-title in-recommended">{{t "Recommandé pour vous"}}</h3>
+                <h3 class="m-section-title in-recommended">{{t "Recommended for you"}}</h3>
                 <div class="m-recommended-articles">
                   <div class="m-recommended-slider swiper js-recommended-slider">
                     <div class="swiper-wrapper">

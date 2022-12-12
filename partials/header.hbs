@@ -103,7 +103,7 @@ This header template is shared across all the pages.
                                     <h3 class="m-recent-article__title js-recent-article-title" title="{{title}}">
                                       {{title}}
                                     </h3>
-                                    <span class="m-recent-article__date">{{date published_at timeago="true" locale="fr-fr" timezone="Europe/Paris"}}</span>
+                                    <span class="m-recent-article__date">{{date published_at timeago="true" locale=@site.locale timezone=@site.timezone}}</span>
                                   </a>
                                 </div>
                               {{/foreach}}
@@ -150,9 +150,9 @@ This header template is shared across all the pages.
             </div>
             {{#unless @member}}
                 {{#unless @site.members_invite_only}}
-                    <a class="subsribe-button" href="#/portal/signup" data-portal="signup">{{@custom.subsription_text}}</a>
+                    <a class="subsribe-button" href="#/portal/signup" data-portal="signup">{{t "Subscribe"}}</a>
                 {{else}}
-                    <a class="login-button" href="#/portal/signin" data-portal="signin">{{@custom.login_text}}</a>
+                    <a class="login-button" href="#/portal/signin" data-portal="signin">{{t "Login"}}</a>
                 {{/unless}}
             {{else}}
                 <a class="m-icon-button in-menu-main" href="#/portal/account" data-portal="account">
