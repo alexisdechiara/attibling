@@ -20,7 +20,6 @@
 
 .m-nav__left {
   margin-bottom: 30px;
-  display: flex;
 
   @include respond-to('medium') {
     display: flex;

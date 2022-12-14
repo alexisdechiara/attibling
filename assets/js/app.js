@@ -232,8 +232,6 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()(function () {
   };
 
   var $setAutoTheme = function $setAutoTheme() {
-    console.log($darkColorsScheme);
-
     if (window.matchMedia && $darkColorsScheme.matches) {
       jquery__WEBPACK_IMPORTED_MODULE_0___default()("html").attr("data-theme", "dark");
     } else {

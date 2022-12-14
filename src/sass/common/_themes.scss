@@ -52,4 +52,7 @@
   --header-menu-gradient-first-color: rgba(17, 17, 17, 0);
   --header-menu-gradient-second-color: rgba(17, 17, 17, 0.65);
   --kg-card-img-invert-color: 1;
+  & img {
+    filter: brightness(.8) contrast(1.2);
+  }
 }

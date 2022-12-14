@@ -9,6 +9,7 @@
     <title>{{meta_title}}</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark">
 
     {{!-- Preload assets --}}
     <link rel="preload" href="{{asset "css/app.css"}}" as="style" />
@@ -115,17 +116,31 @@
     {{/if}}
 
     {{!-- This script sets the correct theme mode (light or dark) --}}
-    <script>
+    {{!-- <script>
       if (typeof Storage !== 'undefined') {
-        const currentSavedTheme = localStorage.getItem('theme')
-
-        if (currentSavedTheme && currentSavedTheme === 'dark') {
+        if (localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark')
-        } else {
+        } else if () {
           document.documentElement.setAttribute('data-theme', 'light')
         }
+        if (localStorage.getItem("theme")) {
+          if (localStorage.getItem("theme") === "light") {
+            document.documentElement.setAttribute('data-theme', 'light')
+          } else if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.setAttribute('data-theme', 'dark')
+          } else {
+            $setAutoTheme();
+            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)")) {
+              document.documentElement.setAttribute('data-theme', 'dark')
+            } else {
+              document.documentElement.setAttribute('data-theme', 'light')
+            }
+          }
+        } else {
+          $setAutoTheme();
+        }
       }
-    </script>
+    </script> --}}
   </head>
   <body class="{{body_class}}">
     {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}

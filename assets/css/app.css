@@ -553,6 +553,9 @@ textarea,
   --header-menu-gradient-second-color: rgba(17, 17, 17, 0.65);
   --kg-card-img-invert-color: 1;
 }
+[data-theme=dark] img {
+  filter: brightness(0.8) contrast(1.2);
+}
 
 /** Helpers */
 .hide {
@@ -1655,7 +1658,6 @@ fieldset {
 
 .m-nav__left {
   margin-bottom: 30px;
-  display: flex;
 }
 @media only screen and (min-width: 48rem) {
   .m-nav__left {
@@ -2221,7 +2223,7 @@ _:-ms-fullscreen, :root .m-switch-theme {
     min-height: 80vh;
   }
 }
-.m-hero.with-picture:has(.m-hero__picture:not(.in-post)) {
+.m-hero.with-picture.in-homepage {
   min-height: 100vh;
 }
 .m-hero.with-picture .m-hero-title {

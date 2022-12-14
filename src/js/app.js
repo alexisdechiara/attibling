@@ -231,7 +231,6 @@ $(() => {
   };
 
   const $setAutoTheme = () => {
-		console.log($darkColorsScheme);
 		if (window.matchMedia && $darkColorsScheme.matches) {
 			$("html").attr("data-theme", "dark");
 		} else {

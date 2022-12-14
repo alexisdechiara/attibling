@@ -20,7 +20,7 @@
       min-height: 80vh;
     }
 
-    &:has(.m-hero__picture:not(.in-post)) {
+    &.in-homepage {
       min-height: 100vh;
     }
 
