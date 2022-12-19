@@ -18,6 +18,13 @@
     opacity: 1;
     z-index: 10;
     @include transform(scale(1));
+
+    & .m-nav {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: calc(100vh - 70px);
+    }
   }
 
   @include respond-to('medium') {

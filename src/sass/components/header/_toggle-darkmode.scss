@@ -1,7 +1,5 @@
-.m-toggle-darkmode {
-  position: fixed;
-  right: $mobile-space;
-  bottom: 45px;
+.m-switch-theme {
+  position: relative;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -10,9 +8,8 @@
 
   @include respond-to('medium') {
     position: relative;
-    right: auto;
+    left: auto;
     bottom: auto;
-    margin-left: 20px;
     z-index: auto;
   }
 
@@ -54,16 +51,20 @@
     color: var(--titles-color);
     font-size: 0.9375rem;
 
-    &.moon {
-      display: var(--toggle-darkmode-button-display-moon);
+    &.light-theme-icon {
+      display: none;
     }
 
-    &.sun {
-      display: var(--toggle-darkmode-button-display-sun);
+    &.light-theme-icon {
+      display: none;
+    }
+
+    &.auto-theme-icon {
+      display: none;
     }
   }
 }
 
-_:-ms-fullscreen, :root .m-toggle-darkmode {
+_:-ms-fullscreen, :root .m-switch-theme {
   display: none;
 }

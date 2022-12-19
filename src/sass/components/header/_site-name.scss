@@ -1,4 +1,9 @@
 .m-site-name {
+
+  display: flex;
+  justify-content: center;
+  gap: 0;
+
   &.in-mobile-topbar {
     color: var(--titles-color);
     font-weight: 600;
@@ -6,5 +11,33 @@
 
   &.in-desktop-menu {
     font-weight: 700;
+  }
+}
+
+.geekly {
+    
+  &-blue {
+    font-family: 'Poppins', sans-serif;
+    color: #4285F4;
+  }
+
+  &-red {
+    font-family: 'Poppins', sans-serif;
+    color: #DB4437;
+  }
+
+  &-green {
+    font-family: 'Poppins', sans-serif;
+    color: #0F9D58;
+  }
+
+  &-yellow {
+    font-family: 'Poppins', sans-serif;
+    color: #F4B400;
+  }
+
+  &-manwrite {
+    font-family: 'Pacifico', cursive;
+    font-weight: 400;
   }
 }

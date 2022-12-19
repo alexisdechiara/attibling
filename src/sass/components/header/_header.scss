@@ -7,6 +7,7 @@
   background-color: var(--background-color);
   will-change: transform;
   @include transition(transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1));
+  transition: all 0.3s ease;
 
   @include respond-to('medium') {
     padding: 15px 0;
@@ -43,5 +44,31 @@
 
   &.with-picture {
     background-color: var(--background-color);
+  }
+
+  &.covered {
+    background-color: transparent !important;
+    transition: background-color 0.5s ease;
+
+    & .m-mobile-topbar .in-mobile-topbar {
+      color: white !important;
+      transition: color 0.3s ease;
+    }
+
+    & .m-nav__left *:has(:not(.m-site-name)), & .m-nav__right * {
+      @include respond-to('medium') {
+        color: white !important;
+      }
+    }
+
+    &.headroom--pinned {
+      box-shadow: none !important
+    }
+  }
+
+  &.in-homepage {
+    & .m-site-name {
+      display: none;
+    }
   }
 }

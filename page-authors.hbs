@@ -41,9 +41,9 @@ into the {body} of the default.hbs template --}}
               <article class="m-article-card as-author">
                 <div class="m-article-card__picture">
                   {{#if profile_image}}
-                    <img clasS="m-article-card__picture-background" src="{{img_url profile_image size="m"}}" loading="lazy" alt="">
+                    <img class="m-article-card__picture-background" src="{{img_url profile_image size="m"}}" loading="lazy" alt="">
                   {{else}}
-                    <img clasS="m-article-card__picture-background" src="{{asset "images/default-avatar-rectangle.jpg"}}" loading="lazy" alt="">
+                    <img class="m-article-card__picture-background" src="{{asset "images/default-avatar-rectangle.jpg"}}" loading="lazy" alt="">
                   {{/if}}
                   <a href="{{url}}" class="m-article-card__picture-link" aria-label="{{name}}"></a>
                   <h3 class="m-article-card__name">{{name}}</h3>

@@ -30,6 +30,11 @@
 
     a {
       color: var(--link-color) !important;
+
+      &:hover {
+        opacity: 0.75;
+        transition: opacity 0.2s ease-in-out;
+      }
     }
   }
 }

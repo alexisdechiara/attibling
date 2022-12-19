@@ -9,6 +9,7 @@
     <title>{{meta_title}}</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark">
 
     {{!-- Preload assets --}}
     <link rel="preload" href="{{asset "css/app.css"}}" as="style" />
@@ -22,6 +23,9 @@
     {{!-- Styles & Scripts --}}
     <style>
       /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory */
+
+      /* Google fonts */
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
       /* source-sans-pro-regular */
       @font-face {
@@ -118,17 +122,31 @@
     {{/if}}
 
     {{!-- This script sets the correct theme mode (light or dark) --}}
-    <script>
+    {{!-- <script>
       if (typeof Storage !== 'undefined') {
-        const currentSavedTheme = localStorage.getItem('theme')
-
-        if (currentSavedTheme && currentSavedTheme === 'dark') {
+        if (localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark')
-        } else {
+        } else if () {
           document.documentElement.setAttribute('data-theme', 'light')
         }
+        if (localStorage.getItem("theme")) {
+          if (localStorage.getItem("theme") === "light") {
+            document.documentElement.setAttribute('data-theme', 'light')
+          } else if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.setAttribute('data-theme', 'dark')
+          } else {
+            $setAutoTheme();
+            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)")) {
+              document.documentElement.setAttribute('data-theme', 'dark')
+            } else {
+              document.documentElement.setAttribute('data-theme', 'light')
+            }
+          }
+        } else {
+          $setAutoTheme();
+        }
       }
-    </script>
+    </script> --}}
   </head>
   <body class="{{body_class}}">
     {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}

@@ -21,4 +21,21 @@
       margin-bottom: 10px;
     }
   }
+
+  &.biggest {
+    letter-spacing: 0px;
+    font-size: 4rem;
+    margin-top: -64px;
+    margin-bottom: -5px;
+
+    @include respond-to('small') {
+      font-size: 7rem;
+      margin-bottom: -10px ;
+    }
+
+    @include respond-to('medium') {
+      font-size: 10rem;
+      margin-bottom: -15px ;
+    }
+  }
 }
