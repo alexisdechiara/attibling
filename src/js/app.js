@@ -63,15 +63,15 @@ $(() => {
 		}
 	};
 
-	const trySearchFeature = () => {
-		if (typeof ghostSearchApiKey !== "undefined") {
-			getAllPosts(ghostHost, ghostSearchApiKey);
-		} else {
-			$openSearch.css("visibility", "hidden");
-			$closeSearch.remove();
-			$search.remove();
-		}
-	};
+  const trySearchFeature = () => {
+    if (typeof ghostSearchApiKey !== 'undefined' && typeof nativeSearchEnabled === 'undefined') {
+      getAllPosts(ghostHost, ghostSearchApiKey);
+    } else {
+      $openSearch.css('visibility', 'hidden');
+      $closeSearch.remove();
+      $search.remove();
+    }
+  };
 
 	const getAllPosts = (host, key) => {
 		const api = new GhostContentAPI({
