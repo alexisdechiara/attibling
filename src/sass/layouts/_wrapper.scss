@@ -7,10 +7,6 @@
   @include respond-to('medium') {
     max-width: 1200px;
   }
-  
-  @include respond-to('largest') {
-    max-width: calc(100% - 256px);
-  }
 
   @include respond-to('extra-large') {
     padding: 0;
@@ -34,7 +30,7 @@
     }
 
     @include respond-to('extra-large') {
-      max-width: calc(100% - 512px);
+      max-width: 1024px;
     }
   }
 
