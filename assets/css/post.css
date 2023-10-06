@@ -1518,6 +1518,9 @@
   font-size: 1.25rem;
   font-weight: 500;
 }
+.toc ol {
+  margin-bottom: 0;
+}
 .toc > .toc-list {
   margin: 0;
   padding-left: 1em;
@@ -1527,6 +1530,7 @@
 .toc > .toc-list li {
   list-style: none;
   line-height: 1.5em;
+  margin-bottom: 0;
 }
 .toc-link::before {
   background-color: #eee;
