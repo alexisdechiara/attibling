@@ -999,7 +999,12 @@
 }
 @media only screen and (min-width: 80rem) {
   .m-share {
-    right: 100px;
+    right: 75px;
+  }
+}
+@media only screen and (min-width: 90rem) {
+  .m-share {
+    right: 150px;
   }
 }
 .m-share a {
@@ -1021,11 +1026,6 @@
   .rtl .m-share {
     right: auto;
     left: 75px;
-  }
-}
-@media only screen and (min-width: 80rem) {
-  .rtl .m-share {
-    left: 175px;
   }
 }
 
@@ -1489,4 +1489,84 @@
 .m-article-footer__tags a:focus, .m-article-footer__tags a:hover {
   color: white;
   opacity: 0.9;
+}
+
+.m-toc {
+  z-index: 3;
+  position: absolute;
+  right: 150px;
+  top: 5vh;
+  bottom: 50vh;
+  height: auto;
+  background-color: transparent;
+}
+
+.toc-container {
+  padding: 1em;
+  padding-top: 3em;
+  height: 100%;
+  position: -webkit-sticky;
+  position: sticky;
+  display: none;
+  background-color: white;
+  border-radius: 16px;
+}
+@media only screen and (min-width: 2000px) {
+  .toc-container {
+    display: block;
+    top: 10vh;
+    height: auto;
+  }
+}
+
+.toc {
+  overflow-y: auto;
+  padding-top: 1em;
+  padding-left: 1em;
+}
+.toc-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.toc > .toc-list {
+  margin: 0;
+  padding-left: 1em;
+  overflow: hidden;
+  position: relative;
+}
+.toc > .toc-list li {
+  list-style: none;
+  line-height: 1.5em;
+}
+.toc-link::before {
+  background-color: #eee;
+  content: " ";
+  display: inline-block;
+  height: inherit;
+  left: 0;
+  margin-top: -1px;
+  position: absolute;
+  width: 2px;
+}
+.toc a.toc-link {
+  color: currentColor;
+  height: 100%;
+}
+.toc .is-collapsible {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: all 300ms ease-in-out;
+}
+.toc .is-collapsible.is-collapsed {
+  max-height: 0;
+}
+.toc .is-position-fixed {
+  position: fixed !important;
+  top: 0;
+}
+.toc .is-active-link {
+  font-weight: 700;
+}
+.toc .is-active-link::before {
+  background-color: var(--primary-subtle-color);
 }

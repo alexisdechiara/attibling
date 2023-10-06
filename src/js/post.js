@@ -8,12 +8,12 @@ import { isMobile, adjustImageGallery, managePostImages, makeImagesZoomable } fr
 
 let $animationWrapper = null;
 let $progressCircle = null;
-let lastScrollingY = window.pageYOffset;
+let lastScrollingY = window.scrollY;
 let circumference = 0;
 let isTicking = false;
 
 const onScrolling = () => {
-	lastScrollingY = window.pageYOffset;
+	lastScrollingY = window.scrollY;
 	requestTicking();
 };
 
@@ -29,7 +29,6 @@ const adjustShare = timeout => {
 };
 
 const onResizing = () => {
-	setHeights();
 	adjustShare(100);
 
 	setTimeout(() => {
@@ -47,7 +46,7 @@ const requestTicking = () => {
 };
 
 const updating = () => {
-	const progressMax = $(".js-post-content").height();
+	const progressMax = $(".js-post-content").height() - (window.innerHeight / 2);
 	const percent = Math.ceil((lastScrollingY / progressMax) * 100);
 
 	if (percent <= 100) {
@@ -55,11 +54,6 @@ const updating = () => {
 	}
 
 	isTicking = false;
-};
-
-const setHeights = () => {
-	lastWindowHeight = window.innerHeight;
-	lastDocumentHeight = $(document).height();
 };
 
 const setCircleStyles = () => {
@@ -89,7 +83,6 @@ const setProgress = percent => {
 const prepareProgressCircle = () => {
 	$progressCircle = $(".js-progress");
 
-	setHeights();
 	setCircleStyles();
 	updating();
 

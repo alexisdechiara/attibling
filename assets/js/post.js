@@ -103,12 +103,12 @@ __webpack_require__.r(__webpack_exports__);
 
 var $animationWrapper = null;
 var $progressCircle = null;
-var lastScrollingY = window.pageYOffset;
+var lastScrollingY = window.scrollY;
 var circumference = 0;
 var isTicking = false;
 
 var onScrolling = function onScrolling() {
-  lastScrollingY = window.pageYOffset;
+  lastScrollingY = window.scrollY;
   requestTicking();
 };
 
@@ -124,7 +124,6 @@ var adjustShare = function adjustShare(timeout) {
 };
 
 var onResizing = function onResizing() {
-  setHeights();
   adjustShare(100);
   setTimeout(function () {
     setCircleStyles();
@@ -141,7 +140,7 @@ var requestTicking = function requestTicking() {
 };
 
 var updating = function updating() {
-  var progressMax = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".js-post-content").height();
+  var progressMax = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".js-post-content").height() - window.innerHeight / 2;
   var percent = Math.ceil(lastScrollingY / progressMax * 100);
 
   if (percent <= 100) {
@@ -149,11 +148,6 @@ var updating = function updating() {
   }
 
   isTicking = false;
-};
-
-var setHeights = function setHeights() {
-  lastWindowHeight = window.innerHeight;
-  lastDocumentHeight = jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).height();
 };
 
 var setCircleStyles = function setCircleStyles() {
@@ -179,7 +173,6 @@ var setProgress = function setProgress(percent) {
 
 var prepareProgressCircle = function prepareProgressCircle() {
   $progressCircle = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".js-progress");
-  setHeights();
   setCircleStyles();
   updating();
   setTimeout(function () {

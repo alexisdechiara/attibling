@@ -2112,8 +2112,8 @@ fieldset {
 
 .m-switch-theme {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   overflow: hidden;
   z-index: 2;
@@ -2169,18 +2169,17 @@ fieldset {
   display: none;
 }
 
-_:-ms-fullscreen, :root .m-switch-theme {
+_:-ms-fullscreen,
+:root .m-switch-theme {
   display: none;
 }
 
 .subsribe-button, .login-button {
   position: relative;
-  height: 28px;
   z-index: 2;
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  height: 32px;
+  padding: 8px 16px;
   color: #fff;
   border-radius: 64px;
   background-color: var(--primary-subtle-color);
@@ -2553,12 +2552,10 @@ _:-ms-fullscreen, :root .m-switch-theme {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  height: 22px;
   width: auto;
-  padding: 0 8px;
+  padding: 4px 8px;
   border-radius: 16px;
   color: black;
-  padding: 0 8px;
   background-color: white;
 }
 .m-heading__tags .m-heading__tag--feature span:first-child {

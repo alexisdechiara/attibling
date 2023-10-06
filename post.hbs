@@ -29,14 +29,15 @@ into the {body} of the default.hbs template --}}
     {{#if feature_image}}
       <header class="m-hero__content m-heading in-post l-wrapper" data-animate="fade-down">
         <div class="m-heading__tags">
-          {{#if tags}}
-            <a href="{{primary_tag.url}}" class="m-heading__tag">{{primary_tag.name}}</a>
-          {{/if}}
           {{#if featured}}
             <div class="m-heading__tag m-heading__tag--feature">
               <span class="icon-fire"></span>
               <span>{{t "Featured"}}</span>
             </div>
+          {{/if}}
+          {{#if tags}}
+            <a href="{{primary_tag.url}}" class="m-heading__tag m-heading__tag--feature">{{primary_tag.name}}</a>
+            <div class="m-heading__tag"/>{{tags from="2" to="2"}}</div>
           {{/if}}
         </div>
         <h1 class="m-heading__title in-post">{{title}}</h1>
@@ -74,20 +75,26 @@ into the {body} of the default.hbs template --}}
   <article>
     <div class="l-content in-post pos-relative">
       <div class="m-share js-sticky">
-        <div class="m-share__content">
+        <aside class="m-share__content">
           <button class="m-icon-button filled in-share progress js-scrolltop" aria-label="{{t "Scroll to top"}}">
             <span class="icon-arrow-top" aria-hidden="true"></span>
             <svg aria-hidden="true">
               <circle class="progress-ring__circle js-progress" fill="transparent" r="0" />
             </svg>
           </button>
-        </div>
+        </aside>
+      </div>
+      <div class="m-toc">
+        <aside class="toc-container js-sticky">
+          <span class="toc-title">{{t "Summary"}}</span>
+          <div class="toc"></div>
+        </aside>
       </div>
       {{!-- Everything inside the #post tags pulls data from the post --}}
       {{#post}}
         <div class="l-wrapper in-post {{#unless feature_image}}no-image{{/unless}} js-animation-wrapper" data-animate="fade-up">
           <div class="l-post-content js-progress-content">
-            <div class="pos-relative js-post-content">
+            <div class="pos-relative js-post-content post-content">
               {{content}}
               {{!-- List of tags  --}}
               <section class="m-article-footer">
@@ -247,4 +254,15 @@ into the {body} of the default.hbs template --}}
 {{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
 {{#contentFor "scripts"}}
   <script defer src="{{asset "js/post.js"}}"></script>
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '.toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '.post-content',
+      // Which headings to grab inside of the contentSelector element.
+      // For headings inside relative or absolute positioned containers within content.
+      hasInnerContainers: true,
+    });
+  </script>
 {{/contentFor}}
