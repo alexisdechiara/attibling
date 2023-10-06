@@ -1,7 +1,8 @@
 .m-toc {
   z-index: 3;
   position: absolute;
-  right: 150px;
+  right: -2em;
+  transform: translateX(100%);
   top: 5vh;
   bottom: 50vh;
   height: auto;
@@ -14,8 +15,10 @@
   height: 100%;
   position: sticky;
   display: none;
+  overflow-x: hidden;
+  width: 20vw;
 
-  @media only screen and (min-width: "2000px") {
+  @media only screen and (min-width: "1800px") {
     display: block;
     top: 10vh;
     height: auto;
@@ -49,6 +52,7 @@
 
   &-link::before {
     background-color: #eee;
+    box-sizing: content-box;
     content: " ";
     display: inline-block;
     height: inherit;
@@ -61,6 +65,7 @@
   a.toc-link {
     color: currentColor;
     height: 100%;
+    text-decoration: none;
   }
 
   .is-collapsible {

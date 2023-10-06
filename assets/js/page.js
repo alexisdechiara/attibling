@@ -33,7 +33,6 @@ var formatDate = function formatDate(date) {
       day: "numeric"
     });
   }
-
   return "";
 };
 var getParameterByName = function getParameterByName(name, url) {
@@ -47,7 +46,6 @@ var getParameterByName = function getParameterByName(name, url) {
 };
 var adjustImageGallery = function adjustImageGallery() {
   var images = document.querySelectorAll(".kg-gallery-image img");
-
   for (var i = 0, len = images.length; i < len; i++) {
     var container = images[i].closest(".kg-gallery-image");
     var width = images[i].attributes.width.value;
@@ -68,7 +66,6 @@ var makeImagesZoomable = function makeImagesZoomable($, mediumZoom) {
   zoom.on("opened", function () {
     setTimeout(function () {
       var $mediumZoomImages = $(".medium-zoom-image--opened");
-
       if ($mediumZoomImages.length > 1) {
         $mediumZoomImages.last().hide();
       }
@@ -85,11 +82,11 @@ var makeImagesZoomable = function makeImagesZoomable($, mediumZoom) {
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "./node_modules/.pnpm/jquery@3.6.0/node_modules/jquery/dist/jquery.js");
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fitvids__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fitvids */ "./node_modules/fitvids/index.js");
+/* harmony import */ var fitvids__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fitvids */ "./node_modules/.pnpm/fitvids@2.0.0/node_modules/fitvids/index.js");
 /* harmony import */ var fitvids__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fitvids__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var medium_zoom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! medium-zoom */ "./node_modules/medium-zoom/dist/medium-zoom.esm.js");
+/* harmony import */ var medium_zoom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! medium-zoom */ "./node_modules/.pnpm/medium-zoom@1.0.6/node_modules/medium-zoom/dist/medium-zoom.esm.js");
 /* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./helpers */ "./js/helpers.js");
 
 

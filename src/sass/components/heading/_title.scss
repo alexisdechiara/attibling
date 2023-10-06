@@ -4,6 +4,7 @@
   line-height: 1.3;
   font-size: 1.750rem;
   margin: 0 0 10px;
+  font-family: 'Montserrat', sans-serif;
 
   @include respond-to('medium') {
     letter-spacing: 0.5px;

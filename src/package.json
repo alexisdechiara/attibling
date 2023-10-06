@@ -30,7 +30,7 @@
 		"7zip": "0.0.6",
 		"@babel/preset-react": "^7.14.5",
 		"@tryghost/admin-api": "^1.4.0",
-		"browser-sync": "^2.26.14",
+		"browser-sync": "^2.29.3",
 		"browser-sync-webpack-plugin": "^2.3.0",
 		"concurrently": "^6.0.0",
 		"dotenv": "^8.2.0",
@@ -55,7 +55,8 @@
 		"medium-zoom": "^1.0.6",
 		"shave": "^2.5.10",
 		"swiper": "^8.0.3",
-		"tippy.js": "^6.2.4"
+		"tippy.js": "^6.2.4",
+		"tocbot": "^4.21.2"
 	},
 	"optionalDependencies": {
 		"win-node-env": "^0.4.0"

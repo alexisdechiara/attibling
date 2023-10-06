@@ -1,4 +1,5 @@
-/** Mixins */ /** Colors */
+/** Mixins */
+/** Colors */
 /** Config  */
 :root {
   --show-fade-animation: 1;
@@ -27,7 +28,7 @@
 }
 @media only screen and (min-width: 64rem) {
   .m-featured-slider.swiper {
-    width: calc(66.6666666667% - 40px);
+    width: calc(100% - (100% / 3) - 40px);
     margin: 0 20px 40px 20px;
     overflow: unset;
   }

@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*! sanitize.css v7.0.2 | CC0 License | github.com/csstools/sanitize.css */
 /* Document
  * ========================================================================== */
@@ -8,8 +9,10 @@
 *,
 ::before,
 ::after {
-  background-repeat: no-repeat; /* 1 */
-  box-sizing: border-box; /* 2 */
+  background-repeat: no-repeat;
+  /* 1 */
+  box-sizing: border-box;
+  /* 2 */
 }
 
 /**
@@ -18,8 +21,10 @@
  */
 ::before,
 ::after {
-  text-decoration: inherit; /* 1 */
-  vertical-align: inherit; /* 2 */
+  text-decoration: inherit;
+  /* 1 */
+  vertical-align: inherit;
+  /* 2 */
 }
 
 /**
@@ -32,12 +37,16 @@
  * 6. Breaks words to prevent overflow in all browsers (opinionated).
  */
 html {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Oxygen, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 2 */
-  line-height: 1.15; /* 3 */
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Oxygen, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* 2 */
+  line-height: 1.15;
+  /* 3 */
   -moz-tab-size: 4;
     -o-tab-size: 4;
-       tab-size: 4; /* 4 */
-  word-break: break-word; /* 6 */
+       tab-size: 4;
+  /* 4 */
+  word-break: break-word;
+  /* 6 */
 }
 
 /* Sections
@@ -65,8 +74,10 @@ h1 {
  * 2. Show the overflow in Edge and IE.
  */
 hr {
-  height: 0; /* 1 */
-  overflow: visible; /* 2 */
+  height: 0;
+  /* 1 */
+  overflow: visible;
+  /* 2 */
 }
 
 /**
@@ -90,8 +101,10 @@ nav ul {
  * 2. Correct the odd `em` font sizing in all browsers.
  */
 pre {
-  font-family: Menlo, Consolas, Roboto Mono, Ubuntu Monospace, Oxygen Mono, Liberation Mono, monospace; /* 1 */
-  font-size: 1em; /* 2 */
+  font-family: Menlo, Consolas, Roboto Mono, Ubuntu Monospace, Oxygen Mono, Liberation Mono, monospace;
+  /* 1 */
+  font-size: 1em;
+  /* 2 */
 }
 
 /* Text-level semantics
@@ -128,8 +141,10 @@ strong {
 code,
 kbd,
 samp {
-  font-family: Menlo, Consolas, Roboto Mono, Ubuntu Monospace, Oxygen Mono, Liberation Mono, monospace; /* 1 */
-  font-size: 1em; /* 2 */
+  font-family: Menlo, Consolas, Roboto Mono, Ubuntu Monospace, Oxygen Mono, Liberation Mono, monospace;
+  /* 1 */
+  font-size: 1em;
+  /* 2 */
 }
 
 /**
@@ -145,14 +160,18 @@ small {
  *    in all browsers (opinionated).
  */
 ::-moz-selection {
-  background-color: #b3d4fc; /* 1 */
-  color: #000; /* 1 */
+  background-color: #b3d4fc;
+  /* 1 */
+  color: #000;
+  /* 1 */
   text-shadow: none;
 }
 
 ::selection {
-  background-color: #b3d4fc; /* 1 */
-  color: #000; /* 1 */
+  background-color: #b3d4fc;
+  /* 1 */
+  color: #000;
+  /* 1 */
   text-shadow: none;
 }
 
@@ -244,8 +263,10 @@ select {
  * 2. Remove the inheritance of text transform in Edge, Firefox, and IE.
  */
 button {
-  overflow: visible; /* 1 */
-  text-transform: none; /* 2 */
+  overflow: visible;
+  /* 1 */
+  text-transform: none;
+  /* 2 */
 }
 
 /**
@@ -277,10 +298,14 @@ input {
  * 2. Correct the color inheritance from `fieldset` elements in IE.
  */
 legend {
-  color: inherit; /* 2 */
-  display: table; /* 1 */
-  max-width: 100%; /* 1 */
-  white-space: normal; /* 1 */
+  color: inherit;
+  /* 2 */
+  display: table;
+  /* 1 */
+  max-width: 100%;
+  /* 1 */
+  white-space: normal;
+  /* 1 */
 }
 
 /**
@@ -288,8 +313,10 @@ legend {
  * 2. Add the correct vertical alignment in Chrome, Firefox, and Opera.
  */
 progress {
-  display: inline-block; /* 1 */
-  vertical-align: baseline; /* 2 */
+  display: inline-block;
+  /* 1 */
+  vertical-align: baseline;
+  /* 2 */
 }
 
 /**
@@ -305,9 +332,12 @@ select {
  * 3. Change the resize direction on textareas in all browsers (opinionated).
  */
 textarea {
-  margin: 0; /* 1 */
-  overflow: auto; /* 2 */
-  resize: vertical; /* 3 */
+  margin: 0;
+  /* 1 */
+  overflow: auto;
+  /* 2 */
+  resize: vertical;
+  /* 3 */
 }
 
 /**
@@ -323,8 +353,10 @@ textarea {
  * 2. Correct the outline style in Safari.
  */
 [type=search] {
-  -webkit-appearance: textfield; /* 1 */
-  outline-offset: -2px; /* 2 */
+  -webkit-appearance: textfield;
+  /* 1 */
+  outline-offset: -2px;
+  /* 2 */
 }
 
 /**
@@ -355,8 +387,10 @@ textarea {
  * 2. Change font properties to `inherit` in Safari.
  */
 ::-webkit-file-upload-button {
-  -webkit-appearance: button; /* 1 */
-  font: inherit; /* 2 */
+  -webkit-appearance: button;
+  /* 1 */
+  font: inherit;
+  /* 2 */
 }
 
 /**
@@ -392,7 +426,6 @@ dialog {
   color: black;
   display: block;
   height: -moz-fit-content;
-  height: -webkit-fit-content;
   height: fit-content;
   left: 0;
   margin: auto;
@@ -400,7 +433,6 @@ dialog {
   position: absolute;
   right: 0;
   width: -moz-fit-content;
-  width: -webkit-fit-content;
   width: fit-content;
 }
 
@@ -446,8 +478,10 @@ label,
 select,
 summary,
 textarea,
-[tabindex] { /* 1 */
-  touch-action: manipulation; /* 2 */
+[tabindex] {
+  /* 1 */
+  touch-action: manipulation;
+  /* 2 */
 }
 
 /**
@@ -492,7 +526,8 @@ textarea,
   position: absolute;
 }
 
-/** Mixins */ /** Colors */
+/** Mixins */
+/** Colors */
 /** Config  */
 :root {
   --show-fade-animation: 1;
@@ -671,223 +706,223 @@ textarea,
 }
 
 .icon-fire:before {
-  content: "\e900";
+  content: "";
 }
 
 .icon-eclipse:before {
-  content: "\e901";
+  content: "";
 }
 
 .icon-rss:before {
-  content: "\e902";
+  content: "";
 }
 
 .icon-menu-burger:before {
-  content: "\e903";
+  content: "";
 }
 
 .icon-share:before {
-  content: "\e904";
+  content: "";
 }
 
 .icon-envelope:before {
-  content: "\e905";
+  content: "";
 }
 
 .icon-paper-plane:before {
-  content: "\e906";
+  content: "";
 }
 
 .icon-facebook-f:before {
-  content: "\e907";
+  content: "";
 }
 
 .icon-linkedin-in:before {
-  content: "\e908";
+  content: "";
 }
 
 .icon-user:before {
-  content: "\e909";
+  content: "";
 }
 
 .icon-star:before {
-  content: "\e90a";
+  content: "";
 }
 
 .icon-arrow-right:before {
-  content: "\e90b";
+  content: "";
 }
 
 .icon-arrow-left:before {
-  content: "\e90c";
+  content: "";
 }
 
 .icon-chevron-down:before {
-  content: "\e90d";
+  content: "";
 }
 
 .icon-close:before {
-  content: "\e90f";
+  content: "";
 }
 
 .icon-arrow-top:before {
-  content: "\e911";
+  content: "";
 }
 
 .icon-comments:before {
-  content: "\e913";
+  content: "";
 }
 
 .icon-facebook:before {
-  content: "\e914";
+  content: "";
 }
 
 .icon-globe:before {
-  content: "\e915";
+  content: "";
 }
 
 .icon-menu:before {
-  content: "\e916";
+  content: "";
 }
 
 .icon-more:before {
-  content: "\e917";
+  content: "";
 }
 
 .icon-search:before {
-  content: "\e918";
+  content: "";
 }
 
 .icon-twitter:before {
-  content: "\e919";
+  content: "";
 }
 
 .icon-imdb:before {
-  content: "\e91a";
+  content: "";
 }
 
 .icon-vk:before {
-  content: "\e91b";
+  content: "";
 }
 
 .icon-moon:before {
-  content: "\e91c";
+  content: "";
 }
 
 .icon-sunny:before {
-  content: "\e91d";
+  content: "";
 }
 
 .icon-user-fill:before {
-  content: "\e91e";
+  content: "";
 }
 
 .icon-steam:before {
-  content: "\e91f";
+  content: "";
 }
 
 .icon-twitch:before {
-  content: "\e920";
+  content: "";
 }
 
 .icon-youtube:before {
-  content: "\e921";
+  content: "";
 }
 
 .icon-vimeo:before {
-  content: "\e922";
+  content: "";
 }
 
 .icon-whatsapp:before {
-  content: "\e923";
+  content: "";
 }
 
 .icon-reddit:before {
-  content: "\e924";
+  content: "";
 }
 
 .icon-spotify:before {
-  content: "\e926";
+  content: "";
 }
 
 .icon-telegram:before {
-  content: "\e927";
+  content: "";
 }
 
 .icon-soundcloud:before {
-  content: "\e928";
+  content: "";
 }
 
 .icon-flickr:before {
-  content: "\e929";
+  content: "";
 }
 
 .icon-letterboxd:before {
-  content: "\e92a";
+  content: "";
 }
 
 .icon-odnoklassniki:before {
-  content: "\e92b";
+  content: "";
 }
 
 .icon-pinterest:before {
-  content: "\e92c";
+  content: "";
 }
 
 .icon-tiktok:before {
-  content: "\e92d";
+  content: "";
 }
 
 .icon-tumblr:before {
-  content: "\e92e";
+  content: "";
 }
 
 .icon-xing:before {
-  content: "\e92f";
+  content: "";
 }
 
 .icon-mixcloud:before {
-  content: "\e930";
+  content: "";
 }
 
 .icon-mixer:before {
-  content: "\e931";
+  content: "";
 }
 
 .icon-wechat:before {
-  content: "\e932";
+  content: "";
 }
 
 .icon-deviantart:before {
-  content: "\e933";
+  content: "";
 }
 
 .icon-discord:before {
-  content: "\e934";
+  content: "";
 }
 
 .icon-instagram:before {
-  content: "\e935";
+  content: "";
 }
 
 .icon-linkedin:before {
-  content: "\e936";
+  content: "";
 }
 
 .icon-snapchat:before {
-  content: "\e937";
+  content: "";
 }
 
 .icon-gitlab:before {
-  content: "\e938";
+  content: "";
 }
 
 .icon-github:before {
-  content: "\e939";
+  content: "";
 }
 
 .icon-behance:before {
-  content: "\e951";
+  content: "";
 }
 
 /** Global styles */
@@ -951,21 +986,12 @@ fieldset {
 }
 
 [data-animate^=fade] {
-  opacity: calc((var(--show-fade-animation) - 1) * -1);
-  -webkit-animation: fadeAnimation 500ms linear forwards;
+  opacity: calc((var(--show-fade-animation) + (-1)) * -1);
   animation: fadeAnimation 500ms linear forwards;
-}
-@-webkit-keyframes fadeAnimation {
-  0% {
-    opacity: calc((var(--show-fade-animation) - 1) * -1);
-  }
-  100% {
-    opacity: 1;
-  }
 }
 @keyframes fadeAnimation {
   0% {
-    opacity: calc((var(--show-fade-animation) - 1) * -1);
+    opacity: calc((var(--show-fade-animation) + (-1)) * -1);
   }
   100% {
     opacity: 1;
@@ -973,22 +999,11 @@ fieldset {
 }
 
 [data-animate=fade-up] {
-  -webkit-animation: fadeUpAnimation 500ms cubic-bezier(0.77,0,0.18,1) 300ms forwards;
   animation: fadeUpAnimation 500ms cubic-bezier(0.77,0,0.18,1) 300ms forwards;
-}
-@-webkit-keyframes fadeUpAnimation {
-  0% {
-    opacity: calc((var(--show-fade-animation) - 1) * -1);
-    transform: translateY(calc(100px * var(--show-fade-animation)));
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 @keyframes fadeUpAnimation {
   0% {
-    opacity: calc((var(--show-fade-animation) - 1) * -1);
+    opacity: calc((var(--show-fade-animation) + (-1)) * -1);
     transform: translateY(calc(100px * var(--show-fade-animation)));
   }
   100% {
@@ -998,22 +1013,11 @@ fieldset {
 }
 
 [data-animate=fade-down] {
-  -webkit-animation: fadeDownAnimation 500ms cubic-bezier(0.77,0,0.18,1) forwards;
   animation: fadeDownAnimation 500ms cubic-bezier(0.77,0,0.18,1) forwards;
-}
-@-webkit-keyframes fadeDownAnimation {
-  0% {
-    opacity: calc((var(--show-fade-animation) - 1) * -1);
-    transform: translateY(calc((100px * -1) * var(--show-fade-animation)));
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 @keyframes fadeDownAnimation {
   0% {
-    opacity: calc((var(--show-fade-animation) - 1) * -1);
+    opacity: calc((var(--show-fade-animation) + (-1)) * -1);
     transform: translateY(calc((100px * -1) * var(--show-fade-animation)));
   }
   100% {
@@ -1155,19 +1159,7 @@ fieldset {
   width: 25%;
   height: 2px;
   background-color: #fff;
-  -webkit-animation: loading 1s infinite;
   animation: loading 1s infinite;
-}
-@-webkit-keyframes loading {
-  0% {
-    transform: translatex(0);
-  }
-  50% {
-    transform: translatex(300%);
-  }
-  100% {
-    transform: translatex(0);
-  }
 }
 @keyframes loading {
   0% {
@@ -1907,20 +1899,8 @@ fieldset {
 @media only screen and (min-width: 48rem) {
   .m-submenu.opened {
     visibility: visible;
-    -webkit-backface-visibility: visible !important;
-            backface-visibility: visible !important;
-    -webkit-animation: openSubmenuAnimation 0.3s both;
+    backface-visibility: visible !important;
     animation: openSubmenuAnimation 0.3s both;
-  }
-  @-webkit-keyframes openSubmenuAnimation {
-    from {
-      opacity: 0;
-      transform: translate3d(0, -5%, 0);
-    }
-    to {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
   }
   @keyframes openSubmenuAnimation {
     from {
@@ -1935,22 +1915,8 @@ fieldset {
 }
 @media only screen and (min-width: 48rem) {
   .m-submenu.closed {
-    -webkit-backface-visibility: visible !important;
-            backface-visibility: visible !important;
-    -webkit-animation: closeSubmenuAnimation 0.3s both;
+    backface-visibility: visible !important;
     animation: closeSubmenuAnimation 0.3s both;
-  }
-  @-webkit-keyframes closeSubmenuAnimation {
-    from {
-      visibility: visible;
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
-    to {
-      visibility: hidden;
-      opacity: 0;
-      transform: translate3d(0, -2.5%, 0);
-    }
   }
   @keyframes closeSubmenuAnimation {
     from {
@@ -2003,7 +1969,6 @@ fieldset {
   }
 }
 .m-recent-articles ul {
-  cursor: -webkit-grab;
   cursor: grab;
 }
 .m-recent-articles .swiper-slide {
@@ -2052,8 +2017,7 @@ fieldset {
   height: 100%;
   -o-object-fit: cover;
      object-fit: cover;
-  -webkit-backface-visibility: visible !important;
-          backface-visibility: visible !important;
+  backface-visibility: visible !important;
   transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
@@ -2471,6 +2435,7 @@ _:-ms-fullscreen,
   line-height: 1.3;
   font-size: 1.75rem;
   margin: 0 0 10px;
+  font-family: "Montserrat", sans-serif;
 }
 @media only screen and (min-width: 48rem) {
   .m-heading__title {
@@ -2526,7 +2491,6 @@ _:-ms-fullscreen,
 .m-heading__tags {
   display: flex;
   flex-direction: row;
-  height: -webkit-fit-content;
   height: -moz-fit-content;
   height: fit-content;
   align-items: center;
@@ -2573,7 +2537,6 @@ _:-ms-fullscreen,
   padding: 0;
 }
 .m-heading__meta__author {
-  width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
   color: white;
@@ -2641,7 +2604,7 @@ _:-ms-fullscreen,
 }
 @media only screen and (min-width: 48rem) {
   .m-article-card {
-    width: calc(50% - 20px);
+    width: calc((100% / 2) - 20px);
     height: 420px;
     margin-left: 10px;
     margin-right: 10px;
@@ -2650,7 +2613,7 @@ _:-ms-fullscreen,
 }
 @media only screen and (min-width: 64rem) {
   .m-article-card {
-    width: calc(33.3333333333% - 40px);
+    width: calc((100% / 3) - 40px);
     margin-left: 20px;
     margin-right: 20px;
     margin-bottom: 40px;
