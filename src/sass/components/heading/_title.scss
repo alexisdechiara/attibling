@@ -18,9 +18,9 @@
     font-size: 2rem;
     margin-bottom: 20px;
 
-    @include respond-to('medium') {
+    @include respond-to('extra-large') {
       letter-spacing: 0.7px;
-      font-size: 3rem;
+      font-size: 3vw;
       margin-bottom: 30px;
     }
   }

@@ -2,7 +2,14 @@
   z-index: 3;
   position: absolute;
   right: -2em;
-  transform: translateX(100%);
+
+  @include respond-to('large') { 
+    transform: translateX(66%);
+  }
+
+  @include respond-to('largest') { 
+    transform: translateX(100%);
+  }
   top: 5vh;
   bottom: 50vh;
   height: auto;
@@ -10,18 +17,23 @@
 }
 
 .toc-container {
-  padding: 1em;
+  padding-right: 1em;
   padding-top: 3em;
   height: 100%;
   position: sticky;
   display: none;
   overflow-x: hidden;
-  width: 20vw;
+  top: 10vh;
+  height: auto;
 
-  @media only screen and (min-width: "1800px") {
+  @include respond-to('large') { 
     display: block;
-    top: 10vh;
-    height: auto;
+    width: 25vw;
+  }
+
+  @include respond-to('largest') { 
+    padding-left: 1em;
+    width: 20vw;
   }
 
   background-color: white;

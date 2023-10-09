@@ -88,14 +88,14 @@ into the {body} of the default.hbs template --}}
         {{!-- Everything inside the #post tags pulls data from the post --}}
         {{#post}}
         <div class="l-wrapper in-post {{#unless feature_image}}no-image{{/unless}} js-animation-wrapper" data-animate="fade-up">
+          <div class="m-toc">
+            <aside class="toc-container js-sticky">
+              <span class="toc-title">{{t "Summary"}}</span>
+              <div class="toc"></div>
+            </aside>
+            </div>
           <div class="l-post-content js-progress-content">
             <div class="pos-relative js-post-content post-content">
-              <div class="m-toc">
-                <aside class="toc-container js-sticky">
-                  <span class="toc-title">{{t "Summary"}}</span>
-                  <div class="toc"></div>
-                </aside>
-              </div>
               {{content}}
               {{!-- List of tags  --}}
               <section class="m-article-footer">

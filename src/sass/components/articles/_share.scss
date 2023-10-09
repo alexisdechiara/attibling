@@ -1,13 +1,17 @@
 .m-share {
   bottom: 0;
   z-index: 3;
-  position: absolute;
+  position: fixed;
   top: 80vh;
   left: auto;
   right: 50px;
   height: auto;
   background-color: transparent;
   @include bs(0 0 0 transparent);
+
+  @include respond-to("large") {
+    position: absolute;
+  }
 
   @include respond-to("extra-large") {
     right: 75px;

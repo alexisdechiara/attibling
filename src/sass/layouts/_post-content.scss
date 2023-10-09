@@ -1,13 +1,18 @@
 .l-post-content {
   padding-bottom: 15px;
+  
+  @include respond-to("large") {
+    transform: translateX(-15%);
+  }
+
+  @include respond-to("largest") {
+    transform: translateX(0);
+  }
 
   @include respond-to("largest") {
     min-height: 400px;
     margin: 0 auto;
-
-    @include respond-to("largest") {
-      padding-bottom: 30px;
-    }
+    padding-bottom: 30px;
   }
 
   h1,
@@ -124,6 +129,7 @@
     font-size: 1.125rem;
     padding-left: 20px;
     margin: 0 0 20px 0;
+    list-style: none;
 
     @include respond-to("largest") {
       letter-spacing: 0.3px;
@@ -134,8 +140,34 @@
     }
   }
 
+  ul li::before {
+    content: "•";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+    color: var(--primary-subtle-color); /* Change the color */
+    font-weight: bold; /* If you want it to be bold */
+    display: inline-block; /* Needed to add space between the bullet and the text */
+    width: 1em; /* Also needed for space (tweak if needed) */
+    margin-left: -1em; /* Also needed for space (tweak if needed) */
+  }
+
+  ol {
+    counter-reset: li;
+
+    & li {
+      counter-increment: li;
+  
+      &:before {
+        content: counter(li)"."; 
+        color: var(--primary-subtle-color);
+        display: inline-block; 
+        font-weight: bold;
+        width: 1.5em;
+        margin-left: -1.5em
+      }
+    } 
+  }
+
   li {
-    margin-bottom: 20px;
+    margin-bottom: 1em;
   }
 
   img,
@@ -304,6 +336,7 @@
     font-size: 1.125rem;
     font-style: italic;
     font-family: 'Noto Serif', serif;
+    text-align: justify;
     padding: 0 40px;
     margin: 0 0 25px;
 
@@ -337,12 +370,27 @@
     }
 
     &:before {
-      content: '"';
+      content: '❞';
+      transform: scale(-100%, -100%);
       position: absolute;
       top: 0;
       left: 0;
       color: var(--primary-foreground-color);
-      line-height: 1;
+      line-height: 0;
+      font-size: 2.625rem;
+
+      @include respond-to("largest") {
+        font-size: 4rem;
+      }
+    }
+
+    &:after {
+      content: '❞';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      color: var(--primary-foreground-color);
+      line-height: 0;
       font-size: 2.625rem;
 
       @include respond-to("largest") {

@@ -1057,12 +1057,20 @@ fieldset {
 }
 @media only screen and (min-width: 48rem) {
   .l-wrapper.in-post {
-    max-width: 960px;
+    max-width: 80vw;
   }
 }
-@media only screen and (min-width: 80rem) {
+@media only screen and (min-width: 64rem) {
   .l-wrapper.in-post {
-    max-width: 1024px;
+    max-width: 60vw;
+  }
+  .l-wrapper.in-post.m-heading {
+    max-width: 80vw;
+  }
+}
+@media only screen and (min-width: 90rem) {
+  .l-wrapper.in-post.m-heading {
+    max-width: 60vw;
   }
 }
 .l-wrapper.in-comments {
@@ -1344,7 +1352,6 @@ fieldset {
   }
 }
 .m-icon-button.in-share {
-  display: none;
   color: var(--titles-color);
   text-decoration: none;
   font-size: 1rem;
@@ -2450,10 +2457,10 @@ _:-ms-fullscreen,
   font-size: 2rem;
   margin-bottom: 20px;
 }
-@media only screen and (min-width: 48rem) {
+@media only screen and (min-width: 80rem) {
   .m-heading__title.in-post {
     letter-spacing: 0.7px;
-    font-size: 3rem;
+    font-size: 3vw;
     margin-bottom: 30px;
   }
 }
