@@ -1,7 +1,7 @@
 .m-share {
   bottom: 0;
   z-index: 3;
-  position: absolute;
+  position: fixed;
   top: 80vh;
   left: auto;
   right: 50px;
@@ -9,8 +9,16 @@
   background-color: transparent;
   @include bs(0 0 0 transparent);
 
-  @include respond-to('extra-large') {
-    right: 100px;
+  @include respond-to("large") {
+    position: absolute;
+  }
+
+  @include respond-to("extra-large") {
+    right: 75px;
+  }
+
+  @include respond-to("largest") {
+    right: 150px;
   }
 
   a {
@@ -20,7 +28,7 @@
   a:first-of-type {
     margin-left: 0;
 
-    @include respond-to('large') {
+    @include respond-to("large") {
       margin-bottom: 0;
     }
   }
@@ -32,13 +40,9 @@
 
 .rtl {
   .m-share {
-    @include respond-to('large') {
+    @include respond-to("large") {
       right: auto;
       left: 75px;
-    }
-
-    @include respond-to('extra-large') {
-      left: 175px;
     }
   }
 }
@@ -49,7 +53,7 @@
   justify-content: center;
   height: 100%;
 
-  @include respond-to('large') {
+  @include respond-to("large") {
     position: sticky;
     top: calc(100vh - 112px);
     flex-direction: column-reverse;

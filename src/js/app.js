@@ -215,7 +215,6 @@ $(() => {
 	};
 
 	const $setLightTheme = () => {
-		console.log("set light theme");
 		$resetThemeIcons();
 		$("html").attr("data-theme", "light");
 		localStorage.setItem("theme", "light");
@@ -223,7 +222,6 @@ $(() => {
 	};
 
 	const $setDarkTheme = () => {
-		console.log("set dark theme");
 		$resetThemeIcons();
 		$("html").attr("data-theme", "dark");
 		localStorage.setItem("theme", "dark");
@@ -231,7 +229,6 @@ $(() => {
 	};
 
 	const $setAutoTheme = () => {
-		console.log("set light theme");
 		if (window.matchMedia && $darkColorsScheme.matches) {
 			$("html").attr("data-theme", "dark");
 		} else {
@@ -270,7 +267,6 @@ $(() => {
 	});
 
 	if (localStorage.getItem("theme")) {
-		console.log("1");
 		if (localStorage.getItem("theme") === "light") {
 			$setLightTheme();
 		} else if (localStorage.getItem("theme") === "dark") {
@@ -279,7 +275,6 @@ $(() => {
 			$setAutoTheme();
 		}
 	} else {
-		console.log("2");
 		$setAutoTheme();
 	}
 

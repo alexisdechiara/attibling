@@ -26,11 +26,21 @@
 
   &.in-post {
     @include respond-to('medium') {
-      max-width: 960px;
+      max-width: 80vw;
     }
 
-    @include respond-to('extra-large') {
-      max-width: 1024px;
+    @include respond-to('large') {
+      max-width: 60vw;
+      
+      &.m-heading {
+        max-width: 80vw;
+      }
+    }
+
+    @include respond-to('largest') {      
+      &.m-heading {
+        max-width: 60vw;
+      }
     }
   }
 

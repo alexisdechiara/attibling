@@ -4,6 +4,7 @@
   line-height: 1.3;
   font-size: 1.750rem;
   margin: 0 0 10px;
+  font-family: 'Montserrat', sans-serif;
 
   @include respond-to('medium') {
     letter-spacing: 0.5px;
@@ -17,9 +18,9 @@
     font-size: 2rem;
     margin-bottom: 20px;
 
-    @include respond-to('medium') {
+    @include respond-to('extra-large') {
       letter-spacing: 0.7px;
-      font-size: 3rem;
+      font-size: 3vw;
       margin-bottom: 30px;
     }
   }
