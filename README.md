@@ -1,88 +1,85 @@
-# Liebling
+# Attibling
 
-Liebling is a beautiful and clean Ghost theme that is easy and comfortable to use. **It's free** and you can use it for any kind of content you might have. Now with dark mode 🌓!
+Attibling is a Ghost theme forked from [Liebling](https://github.com/eddiesigner/liebling) in which I added [Attila](https://github.com/zutrinken/attila)'s UI for the post part.
 
-If you find this theme useful, please consider to make a donation to support its development! 🙏🏼
-
-<a href="https://ko-fi.com/eddiesigner" target="_blank"><img src="https://res.cloudinary.com/edev/image/upload/v1583011476/button_y8hgt8.png" alt="Donate" style="width: 250px !important; height: 60px !important;" width="250" height="60"></a>
-
-## Ghost 5
-
-This theme has been optimized for Ghost 5, if you are looking for a Ghost 4 compatible version please refer to [this link](https://github.com/eddiesigner/liebling/releases/tag/v1.5.2).
-
-## Preview
-
-You can see a live demo here: [https://liebling.eduardogomez.io](https://liebling.eduardogomez.io)
-
-![](https://res.cloudinary.com/edev/image/upload/v1583792928/liebling/liebling-promo-desktop.jpg)
-<br><br>
-![](https://res.cloudinary.com/edev/image/upload/v1570370297/liebling/liebling-promo-mobile.jpg)
-
-## Download
-
-To get the latest version please head over the [releases page](https://github.com/eddiesigner/liebling/releases) and download the file `liebling.zip` of the latest release.
-
-## Documentation
-
-To know how to enable the search, comments, newsletter and more, please head to the [Wiki](https://github.com/eddiesigner/liebling/wiki).
+This theme was modified for the blog [GEEKLY](https://geekly.blog/) by [Alexis De Chiara](https://alexisdechiara.fr/) and is accessible for **free**, however, make sure you modify the elements presented in this README so as not to redirect to the blog.
 
 ## Features
 
 ### General features
 
-* Clean and beautiful design
-* Lightning fast
-* Lightweight and high performance
-* Fully responsive, looks great on any device
-* Compatible with modern browsers
+✅ Clean and beautiful design
+✅ Lightning fast
+✅ Lightweight and high performance
+✅ Fully responsive, looks great on any device
+✅ Compatible with modern browsers
 
 ### Ghost features
 
-* Subscription form
-* Multiple authors
-* Logo support
-* Secondary menu
-* Accent color
-* Featured posts and pages
-* Post, Page, Tag, Authors, pages
-* Koenig editor
-* Bookmark card
-* Gallery card
-* Button card
-* NFT card
-* Callouts
-* Toggles
-* Quotes
-* Products
-* Audio
-* Video
-* File uploads
-* Headers
-* Blog title and description
-* Cover image for Home, Post, Page, Tag, Author pages
-* Author avatar, bio, location, website and social links
-* Facebook and Twitter social links
-* Reading time
-* Next and Previous post navigation
-* Primary tag in posts
+✅ Subscription form
+✅ Multiple authors
+✅ Logo support
+✅ Secondary menu
+✅ Accent color
+✅ Featured posts and pages
+✅ Post, Page, Tag, Authors, pages
+✅ Koenig editor
+✅ Bookmark card
+✅ Gallery card
+✅ Button card
+✅ NFT card
+✅ Callouts
+✅ Toggles
+✅ Quotes
+✅ Products
+✅ Audio
+✅ Video
+✅ File uploads
+✅ Headers
+✅ Blog title and description
+✅ Cover image for Home, Post, Page, Tag, Author pages
+✅ Author avatar, bio, location, website and social links
+✅ Facebook and Twitter social links
+✅ Reading time
+✅ Next and Previous post navigation
+✅ Primary tag in posts
 
-### Liebling unique features
+### Attibling unique features
 
-* Dark mode
-* Search
-* Custom settings
-* Custom Subscribe page
-* Custom authors page
-* Custom error page
-* Medium style image zoom
-* Comments with Disqus
-* Share post on Facebook and Twitter
-* Slider for featured posts
-* Support for normal, wide and full images in posts
-* Reading progress indicator
-* RTL language support
+✅ Ultrawide screen
+✅ Dark mode
+✅ Search
+✅ Custom settings
+✅ Custom Subscribe page
+✅ Custom authors page
+✅ Custom error page
+✅ Medium style image zoom
+✅ Comments with Disqus
+✅ Share post on Facebook, X (Formerly Twitter), LinkedIn and by mail
+✅ Slider for featured posts
+✅ Support for normal, wide and full images in posts
+✅ Reading progress indicator
+✅ RTL language support
+
+### Non-compatible features
+
+🆗 Announcement bar (available but it is showed hover the navbar)
+
+## Preview
+
+![GEEKLY homepage](assets\geekly-homepage.webp)
+
+## Download
+
+To get the latest version please head over the [releases page](https://github.com/alexisdechiara/attibling/releases) and download the file `attibling.zip` of the latest release.
+
+## Documentation
+
+To know how to enable the search, comments, newsletter and more, please head to the [Liebling Wiki](https://github.com/eddiesigner/liebling/wiki).
 
 ## Localization
+
+This theme has the same translations as the liebling themes with some additions of my own concerning the new features added.
 
 * English
 * Spanish
@@ -91,8 +88,8 @@ To know how to enable the search, comments, newsletter and more, please head to 
 * Bulgarian by [clappingmonkey](https://github.com/clappingmonkey)
 * Vietnamese by [hiensarahly](https://github.com/hiensarahly)
 * Italian by [vignini](https://github.com/vignini)
-* French by [v1nc3nt-fr](https://github.com/v1nc3nt-fr)
-* Informal french by [v1nc3nt-fr](https://github.com/v1nc3nt-fr)
+* French by [v1nc3nt-fr](https://github.com/v1nc3nt-fr) and [alexisdechiara](https://github.com/alexisdechiara)
+* Informal french by [v1nc3nt-fr](https://github.com/v1nc3nt-fr) and [alexisdechiara](https://github.com/alexisdechiara)
 * Portuguese by [ivomota](https://github.com/ivomota)
 * Arabic by [allamiro](https://github.com/allamiro)
 * Polish by [otlet](https://github.com/otlet)
@@ -117,40 +114,17 @@ To know how to enable the search, comments, newsletter and more, please head to 
 * Slovak by [jjuris](https://github.com/jjuris)
 * Thai by [Parinya T.](https://github.com/pickyzz)
 
-## Tests performed
+## Help and support
 
-* W3C Markup Validation: [Correct validation](https://validator.w3.org/nu/?doc=https%3A%2F%2Fliebling.eduardogomez.io%2F)
-* Ghost GScan: [100/100 points](https://gscan.ghost.org/)
-* GTmetrix PageSpeed Score: **A (97%)**
-* PageSpeed Insights: **94/100** (mobile) **99/100** (desktop)
-* Pingdom Performance Grade: **A 91**
+If you have any questions or troubles with the Theme, please look at the [Liebling](https://github.com/eddiesigner/liebling/issues)'s and [Attila](https://github.com/zutrinken/attila/issues)'s issues first before opening an issue for [this repository](https://github.com/alexisdechiara/attibling).
 
-## Theme development
+## Live demo
 
-Thanks to [D3473R](https://github.com/D3473R) 💪🏼 for creating a development environment with Docker. From now on you can work on this theme without installing a Ghost instance on your local machine. With two commands you have an instant development setup and you can build the theme for production.
+You can see a live demo of the originals theme here:
 
-Please take a look to this page to see how it works: https://github.com/eddiesigner/liebling/wiki/Theme-development-with-Docker
-
-## Help and Support
-
-If you have any questions or troubles with this product, please feel free to open an issue [here](https://github.com/eddiesigner/liebling/issues).
-
-## Contributing
-
-Contributions are very welcome. First, please read the [Pull Request Guidelines](https://github.com/eddiesigner/liebling/wiki/Pull-Request-Guidelines) on the wiki.
-
-## Related
-
-* [Galerie](https://eddiesigner.gumroad.com/l/KgroF) - Modern and versatile theme that stands out for its sleek design, it's incredibly fast, it offers a great user experience and it has many options to customise it.
-
-* [Firma](https://gum.co/ZXLha) - Ghost theme that can be used by startups to large companies to publish any kind of articles related to their business. It stands out for its clean design and is able to adapt to any company's identity.
-
-* [Weiss Pro](https://gum.co/pzvDn) - Modern and beautiful Ghost theme ready to make your content shine.
+* Liebling - [https://liebling.eduardogomez.io](https://liebling.eduardogomez.io)
+* Attila - [https://attila.peteramende.de](https://attila.peteramende.de/)
 
 ## License
 
-Copyright (c) 2019-present Eduardo Gómez. Released under the [MIT license](https://github.com/eddiesigner/liebling/blob/master/LICENSE).
-
-## Credits
-
-All the photos I used in this theme were taken from [Unsplash](https://unsplash.com)
+Copyright (c) 2023-present Alexis De Chiara. Released under the [MIT license](https://github.com/alexisdechiara/attibling/blob/master/LICENSE).
