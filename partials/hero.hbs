@@ -4,7 +4,7 @@ for it, and apply those styles to the <header> tag.
 --}}
 
 {{#if background}}
-  <section class="m-hero with-picture {{#if homepage}} in-homepage {{/if}}" data-animate="fade">
+  <section class="m-hero with-picture {{#if homepage}} in-homepage {{/if}} {{#is "post"}}in-post{{/is}}" data-animate="fade">
     <div class="m-hero__picture {{#is "post"}}in-post{{/is}}">
       <img
         srcset="

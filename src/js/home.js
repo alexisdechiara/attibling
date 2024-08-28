@@ -1,6 +1,7 @@
 import $ from "jquery";
 import shave from "shave";
-import Swiper, { Navigation, A11y } from "swiper";
+import Swiper from 'swiper';
+import { FreeMode, A11y } from "swiper/modules";
 import "swiper/css";
 
 $(() => {

@@ -25,53 +25,61 @@
       /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory */
 
       /* Google fonts */
-      // Noto Sans & Serif + Pacifico & Poppins
-      @import url('https://api.fonts.coollabs.io/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');      
-      // Pacifico
-      @import url('https://api.fonts.coollabs.io/css2?family=Pacifico&display=swap');
+      // Noto Sans
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+KR:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+      // Noto Serif
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap');
       // Poppins
-      @import url('https://api.fonts.coollabs.io/css2?family=Poppins:wght@600;700&display=swap');      
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+      // Manrope
+      @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
       // Montserrat
-      @import url('https://api.fonts.coollabs.io/css2?family=Montserrat:ital,wght@0,700;1,700&display=swap');
-
-      // Noto Color Emoji
-      @import url('https://api.fonts.coollabs.io/css2?family=Noto+Color+Emoji&display=swap');
-
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;1,700&display=swap');
       
-      /* source-sans-pro-regular */
+      /* Pacifico */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Pacifico';
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: local('SourceSansPro-Regular'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-regular.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-regular.woff'}}") format('woff');
+        src: local('Pacifico-Regular'),
+            url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2'),
+            url("{{asset 'fonts/pacifico/pacifico.woff'}}") format('woff');
       }
-      
 
-      /* source-sans-pro-600 */
+      /* Product Sans Regular */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Product Sans';
         font-style: normal;
-        font-weight: 600;
+        font-weight: 400;
         font-display: swap;
-        src: local('SourceSansPro-SemiBold'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-600.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-600.woff'}}") format('woff');
+        src: local('ProductSans-Regular'),
+            url("{{asset 'fonts/product-sans/product-sans-regular.woff2'}}") format('woff2'),
+            url("{{asset 'fonts/product-sans/product-sans-regular.woff'}}") format('woff');
       }
-      
 
-      /* source-sans-pro-700 */
+      /* Product Sans Medium */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Product Sans';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: local('ProductSans-Regular'),
+            url("{{asset 'fonts/product-sans/product-sans-medium.woff2'}}") format('woff2'),
+            url("{{asset 'fonts/product-sans/product-sans-medium.woff'}}") format('woff');
+      }
+
+      /* Product Sans Bold */
+      @font-face {
+        font-family: 'Product Sans';
         font-style: normal;
         font-weight: 700;
         font-display: swap;
-        src: local('SourceSansPro-Bold'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-700.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-700.woff'}}") format('woff');
+        src: local('ProductSans-Regular'),
+            url("{{asset 'fonts/product-sans/product-sans-bold.woff2'}}") format('woff2'),
+            url("{{asset 'fonts/product-sans/product-sans-bold.woff'}}") format('woff');
       }
+
 
       /* iconmoon */
       @font-face {
