@@ -39,7 +39,8 @@ This theme was modified for the blog [GEEKLY](https://geekly.blog/) by [Alexis D
 ✅ Blog title and description
 ✅ Cover image for Home, Post, Page, Tag, Author pages
 ✅ Author avatar, bio, location, website and social links
-✅ Facebook and Twitter social links
+✅ Social links for X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube and Instagram (site and authors)
+✅ Native search (Ghost 6)
 ✅ Reading time
 ✅ Next and Previous post navigation
 ✅ Primary tag in posts
@@ -113,6 +114,16 @@ This theme has the same translations as the liebling themes with some additions 
 * Swedish by [momeenme](https://github.com/momeenme)
 * Slovak by [jjuris](https://github.com/jjuris)
 * Thai by [Parinya T.](https://github.com/pickyzz)
+* Croatian (from upstream Liebling)
+
+## Requirements
+
+Ghost 6.0 or later (the social links use the `{{social_url}}` helper, which Ghost 5.0 does not have).
+
+## Credits
+
+* [Liebling](https://github.com/eddiesigner/liebling) by Eduardo Gómez (MIT)
+* [Attila](https://github.com/zutrinken/attila) by Peter Amende (MIT): post layout, and the X, Bluesky, Threads and Mastodon icons in `partials/icons/` (Copyright (c) 2015-2025 Peter Amende, MIT license)
 
 ## Help and support
 
