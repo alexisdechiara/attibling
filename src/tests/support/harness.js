@@ -1,10 +1,11 @@
 // Test harness: serves the theme's built assets and HTML fixtures from disk
 // through Playwright request interception, and stubs the Ghost Content API.
-const fs = require("node:fs");
-const path = require("node:path");
-const { chromium } = require("playwright");
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
 
-const REPO_ROOT = path.resolve(__dirname, "..", "..", "..");
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const SITE = "http://theme.test";
 const GHOST_HOST = "http://blog.test";
 const POSTS_API = `${GHOST_HOST}/ghost/api/content/posts/`;
@@ -199,4 +200,4 @@ const waitFor = async (fn, { timeout = 3000, interval = 25 } = {}) => {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = { launch, close, open, waitFor, sleep, REPO_ROOT, SITE, GHOST_HOST, POSTS_API, defaultPosts };
+export { launch, close, open, waitFor, sleep, REPO_ROOT, SITE, GHOST_HOST, POSTS_API, defaultPosts };

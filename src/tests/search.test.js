@@ -1,6 +1,6 @@
-const { describe, it, before, after } = require("node:test");
-const assert = require("node:assert/strict");
-const { launch, close, open, waitFor, GHOST_HOST } = require("./support/harness");
+import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
+import assert from "node:assert/strict";
+import { launch, close, open, waitFor, GHOST_HOST } from "./support/harness.js";
 
 const isOpened = page => page.evaluate(() => document.querySelector(".js-search").classList.contains("opened"));
 const resultsShown = page => page.locator(".js-search-results").isVisible();
@@ -15,7 +15,7 @@ const results = page =>
 			href: node.querySelector("a.m-result__link").getAttribute("href"),
 			title: node.querySelector(".m-result__title").textContent,
 			date: node.querySelector(".m-result__date").textContent,
-		}))
+		})),
 	);
 
 describe("search", () => {
@@ -46,7 +46,7 @@ describe("search", () => {
 		await page.locator(".m-nav__right .js-open-search").click();
 		assert.equal(
 			await waitFor(() => page.evaluate(() => document.activeElement.classList.contains("js-input-search"))),
-			true
+			true,
 		);
 		await dispose();
 	});

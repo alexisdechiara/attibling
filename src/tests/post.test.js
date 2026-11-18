@@ -1,6 +1,6 @@
-const { describe, it, before, after } = require("node:test");
-const assert = require("node:assert/strict");
-const { launch, close, open, waitFor } = require("./support/harness");
+import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
+import assert from "node:assert/strict";
+import { launch, close, open, waitFor } from "./support/harness.js";
 
 describe("post page", () => {
 	before(launch);
@@ -9,7 +9,7 @@ describe("post page", () => {
 	it("makes content images zoomable, except linked images and cards", async () => {
 		const { page, dispose } = await open({ fixture: "post.html" });
 		const zoomable = await page.$$eval(".js-post-content img", imgs =>
-			Object.fromEntries(imgs.map(img => [img.alt, img.classList.contains("js-zoomable")]))
+			Object.fromEntries(imgs.map(img => [img.alt, img.classList.contains("js-zoomable")])),
 		);
 		assert.deepEqual(zoomable, { plain: true, linked: false, bookmark: false });
 		await dispose();

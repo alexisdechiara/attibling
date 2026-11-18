@@ -1,6 +1,6 @@
-const { describe, it, before, after } = require("node:test");
-const assert = require("node:assert/strict");
-const { launch, close, open, waitFor } = require("./support/harness");
+import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
+import assert from "node:assert/strict";
+import { launch, close, open, waitFor } from "./support/harness.js";
 
 const classes = (page, selector) => page.evaluate(sel => [...document.querySelector(sel).classList], selector);
 
@@ -65,8 +65,7 @@ describe("header", () => {
 
 	it("moves the hero picture on scroll (parallax)", async () => {
 		const { page, dispose } = await open();
-		const transform = () =>
-			page.evaluate(() => getComputedStyle(document.querySelector(".m-hero__picture")).transform);
+		const transform = () => page.evaluate(() => getComputedStyle(document.querySelector(".m-hero__picture")).transform);
 
 		await page.evaluate(() => window.scrollTo(0, 200));
 		assert.equal(await waitFor(async () => (await transform()) === "matrix(1, 0, 0, 1, 0, 100)"), true);
@@ -78,9 +77,7 @@ describe("header", () => {
 		const { page, dispose } = await open({ reducedMotion: "reduce" });
 		await page.evaluate(() => window.scrollTo(0, 200));
 		await page.waitForTimeout(150);
-		const transform = await page.evaluate(
-			() => getComputedStyle(document.querySelector(".m-hero__picture")).transform
-		);
+		const transform = await page.evaluate(() => getComputedStyle(document.querySelector(".m-hero__picture")).transform);
 		assert.equal(transform, "none");
 		await dispose();
 	});

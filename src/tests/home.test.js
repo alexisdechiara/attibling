@@ -1,6 +1,6 @@
-const { describe, it, before, after } = require("node:test");
-const assert = require("node:assert/strict");
-const { launch, close, open, waitFor } = require("./support/harness");
+import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
+import assert from "node:assert/strict";
+import { launch, close, open, waitFor } from "./support/harness.js";
 
 describe("home page", () => {
 	before(launch);
@@ -11,9 +11,9 @@ describe("home page", () => {
 		assert.deepEqual(errors.map(String), []);
 		assert.equal(
 			await waitFor(() =>
-				page.evaluate(() => document.querySelector(".js-featured-slider").classList.contains("swiper-initialized"))
+				page.evaluate(() => document.querySelector(".js-featured-slider").classList.contains("swiper-initialized")),
 			),
-			true
+			true,
 		);
 		await dispose();
 	});
@@ -21,7 +21,9 @@ describe("home page", () => {
 	it("moves to the next featured post with the next button", async () => {
 		const { page, dispose } = await open();
 		const activeTitle = () =>
-			page.evaluate(() => document.querySelector(".swiper-slide-active .m-featured-article__title").getAttribute("title"));
+			page.evaluate(() =>
+				document.querySelector(".swiper-slide-active .m-featured-article__title").getAttribute("title"),
+			);
 
 		assert.equal(await waitFor(async () => (await activeTitle()) === "Featured post 1"), true);
 		await page.locator(".js-featured-slider .swiper-button-next").click();

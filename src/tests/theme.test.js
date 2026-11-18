@@ -1,13 +1,13 @@
-const { describe, it, before, after } = require("node:test");
-const assert = require("node:assert/strict");
-const { launch, close, open, waitFor } = require("./support/harness");
+import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
+import assert from "node:assert/strict";
+import { launch, close, open, waitFor } from "./support/harness.js";
 
 const themeState = page =>
 	page.evaluate(() => ({
 		theme: document.documentElement.getAttribute("data-theme"),
 		stored: localStorage.getItem("theme"),
 		icons: ["light", "dark", "auto"].filter(
-			name => getComputedStyle(document.querySelector(`.${name}-theme-icon`)).display !== "none"
+			name => getComputedStyle(document.querySelector(`.${name}-theme-icon`)).display !== "none",
 		),
 	}));
 
