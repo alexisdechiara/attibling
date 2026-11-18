@@ -32,6 +32,14 @@
 									<a href="/" class="m-site-name in-desktop-menu">Fixture blog</a>
 								</li>
 								<li class="nav-home"><a href="/">Home</a></li>
+								<li class="more">
+									<span>
+										<button type="button" class="js-open-secondary-menu" popovertarget="secondary-navigation">
+											More
+											<span class="icon-chevron-down" aria-hidden="true"></span>
+										</button>
+									</span>
+								</li>
 								<li class="submenu-option js-submenu-option">
 									<button class="m-icon-button in-menu-main more js-toggle-submenu" aria-label="Open submenu">
 										<span class="icon-more" aria-hidden="true"></span>
@@ -57,7 +65,7 @@
 							<button class="m-icon-button in-menu-main" data-ghost-search aria-label="Open search">
 								<span class="icon-search" aria-hidden="true"></span>
 							</button>
-							<div class="m-switch-theme js-tooltip" data-tippy-content="Switch theme" tabindex="0">
+							<div class="m-switch-theme" data-tooltip="Switch theme" data-tooltip-position="bottom">
 								<label for="switch-theme" class="sr-only">Switch theme</label>
 								<input id="switch-theme" type="button" class="js-switch-theme">
 								<div>
@@ -70,6 +78,13 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div id="secondary-navigation" class="m-dropdown js-secondary-menu" popover>
+			<ul class="m-secondary-menu">
+				<li class="nav-about"><a href="/about/">About</a></li>
+				<li class="nav-contact"><a href="/contact/">Contact</a></li>
+			</ul>
 		</div>
 	</header>
 
@@ -158,6 +173,9 @@
 						<div class="m-article-card__picture">
 							<a href="/card-1/" class="m-article-card__picture-link" aria-hidden="true" tabindex="-1"></a>
 							<img class="m-article-card__picture-background" src="/src/tests/fixtures/pixel.svg" alt="">
+							<a href="/card-1/" class="m-article-card__featured" data-tooltip="Featured" data-tooltip-position="left" aria-label="Featured">
+								<span class="icon-fire" aria-hidden="true"></span>
+							</a>
 						</div>
 						<div class="m-article-card__info">
 							<a href="/tag/one/" class="m-article-card__tag">One</a>

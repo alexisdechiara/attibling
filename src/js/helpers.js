@@ -47,6 +47,54 @@ export const setEmbedRatios = () => {
 	});
 };
 
+// A menu opened by a button through the Popover API (popovertarget), which closes it on Escape
+// and on a click outside. Where CSS anchor positioning is missing it is placed below the button
+// here (--dropdown-top/left); where the Popover API is missing, .is-open is toggled instead.
+// Returns { isOpen, close }; onToggle(open) runs whenever it opens or closes.
+export const setUpPopover = (button, panel, { onToggle = () => {}, place = true } = {}) => {
+	const native = Object.hasOwn(HTMLElement.prototype, "popover");
+	const anchored = CSS.supports("position-area: bottom");
+	const isOpen = () => (native ? panel.matches(":popover-open") : panel.classList.contains("is-open"));
+	const position = () => {
+		if (place && (!native || !anchored)) {
+			const box = button.getBoundingClientRect();
+			panel.dataset.placed = "";
+			panel.style.setProperty("--dropdown-top", `${box.bottom + 10}px`);
+			panel.style.setProperty("--dropdown-left", `${box.left + box.width / 2}px`);
+		}
+	};
+
+	if (native) {
+		panel.addEventListener("beforetoggle", event => {
+			if (event.newState === "open") position();
+		});
+		panel.addEventListener("toggle", event => onToggle(event.newState === "open"));
+		return { isOpen, close: () => isOpen() && panel.hidePopover() };
+	}
+
+	// Without the Popover API the browser ignores these attributes: handle the button here
+	button.removeAttribute("popovertarget");
+	panel.removeAttribute("popover");
+	const toggle = open => {
+		if (open) position();
+		panel.classList.toggle("is-open", open);
+		button.setAttribute("aria-expanded", String(open));
+		onToggle(open);
+	};
+	toggle(false);
+	button.addEventListener("click", () => toggle(!isOpen()));
+	document.addEventListener("click", event => {
+		if (isOpen() && !panel.contains(event.target) && !button.contains(event.target)) toggle(false);
+	});
+	document.addEventListener("keydown", event => {
+		if (event.key === "Escape" && isOpen()) {
+			toggle(false);
+			button.focus();
+		}
+	});
+	return { isOpen, close: () => isOpen() && toggle(false) };
+};
+
 export const onReady = callback => {
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", callback, { once: true });

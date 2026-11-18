@@ -35,6 +35,8 @@ const close = async () => {
  *  - fixture: file name in tests/fixtures (default "home.html")
  *  - comments: HTML injected in place of <!--COMMENTS-->
  *  - storage: object of localStorage entries set before any script runs
+ *  - initScript: function run in the page before any of its scripts
+ *  - lang: value of the lang attribute of <html> (default "en")
  *  - colorScheme, reducedMotion, viewport: browser context options
  */
 const open = async (options = {}) => {
@@ -42,6 +44,8 @@ const open = async (options = {}) => {
 		fixture = "home.html",
 		comments = "",
 		storage = null,
+		initScript = null,
+		lang = "en",
 		colorScheme = "light",
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
@@ -67,6 +71,10 @@ const open = async (options = {}) => {
 		}, storage);
 	}
 
+	if (initScript) {
+		await context.addInitScript(initScript);
+	}
+
 	// Record every localStorage write made by the page.
 	await context.addInitScript(() => {
 		window.__storageWrites = [];
@@ -90,7 +98,10 @@ const open = async (options = {}) => {
 			}
 			let body = fs.readFileSync(file);
 			if (file.endsWith(".html")) {
-				body = body.toString().replace("<!--COMMENTS-->", comments);
+				body = body
+					.toString()
+					.replace("<!--COMMENTS-->", comments)
+					.replace('<html lang="en">', `<html lang="${lang}">`);
 			}
 			return route.fulfill({
 				status: 200,
@@ -135,6 +146,14 @@ const waitFor = async (fn, { timeout = 3000, interval = 25 } = {}) => {
 	return last;
 };
 
+// Waits until the entrance animations (data-animate) have finished moving things into place.
+const settle = page =>
+	page.waitForFunction(() =>
+		[...document.querySelectorAll("[data-animate]")].every(el =>
+			el.getAnimations().every(animation => animation.playState === "finished"),
+		),
+	);
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-export { launch, close, open, waitFor, sleep, REPO_ROOT, SITE };
+export { launch, close, open, waitFor, settle, sleep, REPO_ROOT, SITE };

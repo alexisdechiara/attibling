@@ -26,6 +26,7 @@ const removedLibraries = {
 	"headroom.js": "cutsTheMustard",
 	"fuse.js": "Pattern length exceeds",
 	"@tryghost/content-api": "Accept-Version",
+	"tippy.js": "data-tippy-root",
 };
 
 describe("built bundles", () => {

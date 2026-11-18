@@ -13,6 +13,7 @@
 @import "./components/ui/section-title.css";
 @import "./components/ui/small-text.css";
 @import "./components/ui/not-found.css";
+@import "./components/ui/tooltip.css";
 @import "./components/header/header.css";
 @import "./components/header/mobile-topbar.css";
 @import "./components/header/logo.css";

@@ -1,0 +1,65 @@
+/* Tooltips: the text of data-tooltip in a small dark box, above the element (or below or to its
+   left with data-tooltip-position), shown on hover and keyboard focus. The element is named by
+   its own label or aria-label, so the tooltip is decoration and is hidden from assistive tech. */
+
+:where([data-tooltip]) {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  content: attr(data-tooltip) / "";
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 9999;
+  width: max-content;
+  max-width: 350px;
+  padding: 5px 9px;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+  translate: -50% 0;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.25s,
+    visibility 0.25s;
+}
+
+[data-tooltip]:is(:hover, :focus-visible, :focus-within)::after {
+  visibility: visible;
+  opacity: 1;
+  transition-duration: 0.3s;
+}
+
+[data-tooltip-position="bottom"]::after {
+  top: calc(100% + 10px);
+  bottom: auto;
+}
+
+[data-tooltip-position="left"]::after {
+  top: 50%;
+  right: calc(100% + 10px);
+  bottom: auto;
+  left: auto;
+  translate: 0 -50%;
+}
+
+.rtl [data-tooltip-position="left"]::after {
+  right: auto;
+  left: calc(100% + 10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-tooltip]::after {
+    transition: none;
+  }
+}

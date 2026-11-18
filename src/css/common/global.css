@@ -52,10 +52,6 @@ fieldset {
   position: relative;
 }
 
-.tippy-popper * {
-  text-align: left !important;
-}
-
 .medium-zoom-overlay {
   background-color: var(--background-color) !important;
 }

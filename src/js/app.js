@@ -1,9 +1,7 @@
-import tippy from "tippy.js";
-import "tippy.js/dist/tippy.css";
 import Swiper from "swiper";
 import { FreeMode, A11y } from "swiper/modules";
 import "swiper/css";
-import { isRTL, isMobile, onReady, contentHeight } from "./helpers";
+import { isRTL, isMobile, onReady, contentHeight, setUpPopover } from "./helpers";
 
 onReady(() => {
 	if (isRTL()) {
@@ -22,13 +20,12 @@ onReady(() => {
 	const $recentSlider = document.querySelector(".js-recent-slider");
 	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
 	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
-	const $mainNav = document.querySelectorAll(".js-main-nav, .js-main-nav-left");
 	const $newsletterElements = document.querySelectorAll(".js-newsletter");
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
 	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 	let submenuIsOpen = false;
-	let secondaryMenuTippy = null;
+	let secondaryMenu = null;
 
 	const showSubmenu = () => {
 		$header.classList.add("submenu-is-active");
@@ -55,12 +52,6 @@ onReady(() => {
 	const tryToRemoveNewsletter = () => {
 		if (typeof disableNewsletter !== "undefined" && disableNewsletter) {
 			$newsletterElements.forEach(el => el.remove());
-		}
-	};
-
-	const toggleDesktopTopbarOverflow = disableOverflow => {
-		if (!isMobile()) {
-			$mainNav.forEach(el => el.classList.toggle("toggle-overflow", disableOverflow));
 		}
 	};
 
@@ -156,16 +147,6 @@ onReady(() => {
 		}
 	});
 
-	$themeSwitcher.forEach(el => {
-		el.addEventListener("mouseenter", () => {
-			toggleDesktopTopbarOverflow(true);
-		});
-
-		el.addEventListener("mouseleave", () => {
-			toggleDesktopTopbarOverflow(false);
-		});
-	});
-
 	window.addEventListener("click", e => {
 		if (submenuIsOpen) {
 			if ($submenuOption && !$submenuOption.contains(e.target)) {
@@ -221,12 +202,8 @@ onReady(() => {
 	// thresholds headroom.js used: a scroll of more than 40px down (20px up) between two frames,
 	// and always shown within 15px of the top.
 	const onHeaderUnpin = () => {
-		if (!isMobile() && secondaryMenuTippy) {
-			const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
-
-			if (desktopSecondaryMenuTippy && desktopSecondaryMenuTippy.state.isVisible) {
-				desktopSecondaryMenuTippy.hide();
-			}
+		if (!isMobile()) {
+			secondaryMenu?.close();
 		}
 	};
 
@@ -274,25 +251,8 @@ onReady(() => {
 	}
 
 	if ($openSecondaryMenu) {
-		const template = document.getElementById("secondary-navigation-template");
-
-		secondaryMenuTippy = tippy(".js-open-secondary-menu", {
-			appendTo: document.body,
-			content: template.innerHTML,
-			allowHTML: true,
-			arrow: true,
-			trigger: "click",
-			interactive: true,
-			onShow() {
-				toggleDesktopTopbarOverflow(true);
-			},
-			onHidden() {
-				toggleDesktopTopbarOverflow(false);
-			},
-		});
+		secondaryMenu = setUpPopover($openSecondaryMenu, document.querySelector(".js-secondary-menu"));
 	}
-
-	tippy(".js-tooltip");
 
 	tryToRemoveNewsletter();
 
