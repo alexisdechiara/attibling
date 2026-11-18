@@ -57,10 +57,10 @@ into the {body} of the default.hbs template --}}
       <div class="l-grid">
         {{#get "posts" filter="featured:true" include="authors,tags" limit="5" as |featured|}}
           {{#if featured}}
-            <div class="m-featured-slider swiper js-featured-slider">
-              <div class="m-featured-slider__list swiper-wrapper">
+            <div class="m-featured-slider js-featured-slider">
+              <div class="m-featured-slider__list js-slider-track" id="featured-slider">
                 {{#foreach featured}}
-                  <div class="m-featured-slider__list__item swiper-slide">
+                  <div class="m-featured-slider__list__item">
                     <article class="m-featured-article {{#unless feature_image}}no-picture{{/unless}}">
                       <div class="m-featured-article__picture">
                         {{#if feature_image}}
@@ -107,12 +107,14 @@ into the {body} of the default.hbs template --}}
                   </div>
                 {{/foreach}}
               </div>
-              <button class="m-icon-button in-featured-articles swiper-button-prev js-featured-slider-button" aria-label="{{t "Previous"}}">
-                <span class="icon-arrow-left" aria-hidden="true"></span>
-              </button>
-              <button class="m-icon-button in-featured-articles swiper-button-next js-featured-slider-button" aria-label="{{t "Next"}}">
-                <span class="icon-arrow-right" aria-hidden="true"></span>
-              </button>
+              {{#if featured.[1]}}
+                <button type="button" class="m-icon-button in-featured-articles as-prev js-slider-prev" aria-label="{{t "Previous"}}" aria-controls="featured-slider">
+                  <span class="icon-arrow-left" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="m-icon-button in-featured-articles as-next js-slider-next" aria-label="{{t "Next"}}" aria-controls="featured-slider">
+                  <span class="icon-arrow-right" aria-hidden="true"></span>
+                </button>
+              {{/if}}
             </div>
           {{/if}}
         {{/get}}

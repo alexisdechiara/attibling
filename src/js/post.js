@@ -1,8 +1,5 @@
 import mediumZoom from "medium-zoom";
-import Swiper from "swiper";
-import { Navigation, A11y } from "swiper/modules";
 import tocbot from "tocbot";
-import "swiper/css";
 import {
 	isMobile,
 	setEmbedRatios,
@@ -102,38 +99,11 @@ const prepareProgressCircle = () => {
 onReady(() => {
 	$animationWrapper = document.querySelectorAll(".js-animation-wrapper");
 	const $scrollButton = document.querySelectorAll(".js-scrolltop");
-	const $recommendedSlider = document.querySelector(".js-recommended-slider");
 
 	setEmbedRatios();
 
 	adjustImageGallery();
 	adjustShare(1000);
-
-	if ($recommendedSlider) {
-		const recommendedSwiper = new Swiper(".js-recommended-slider", {
-			modules: [Navigation, A11y],
-			navigation: {
-				nextEl: ".swiper-button-next",
-				prevEl: ".swiper-button-prev",
-			},
-			slidesPerView: 1,
-			allowTouchMove: true,
-			loop: true,
-			a11y: true,
-			breakpoints: {
-				720: {
-					slidesPerView: 2,
-					allowTouchMove: true,
-					loop: true,
-				},
-				1024: {
-					slidesPerView: 3,
-					allowTouchMove: false,
-					loop: false,
-				},
-			},
-		});
-	}
 
 	$scrollButton.forEach(el =>
 		el.addEventListener("click", () => {

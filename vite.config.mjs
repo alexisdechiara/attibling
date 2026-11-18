@@ -20,29 +20,6 @@ const lightningcssTargets = Object.fromEntries(
 const js = ["app", "home", "post", "page"];
 const css = ["app", "home", "listing", "post", "newsletter", "tags", "404"];
 
-// CSS imported from JS (swiper, tippy.js) is injected as a <style> element at the end of
-// <head> when the module runs, as the previous webpack build did, so it keeps its place in
-// the cascade after the theme stylesheets.
-const injectImportedCss = () => ({
-	name: "attibling:inject-imported-css",
-	enforce: "pre",
-	async resolveId(source, importer) {
-		if (!importer || !/\.m?js$/.test(importer) || !source.includes("css")) return null;
-		const resolved = await this.resolve(source, importer, { skipSelf: true });
-		return resolved && resolved.id.endsWith(".css") ? `\0inject-css:${resolved.id}.js` : null;
-	},
-	load(id) {
-		if (!id.startsWith("\0inject-css:")) return null;
-		const file = id.slice("\0inject-css:".length, -".js".length);
-		return [
-			`import css from ${JSON.stringify(`${file}?inline`)};`,
-			`const style = document.createElement("style");`,
-			`style.textContent = css;`,
-			`document.head.appendChild(style);`,
-		].join("\n");
-	},
-});
-
 // The build writes into assets/, which also holds committed images, fonts and HTML, so it
 // cannot empty its output directory: remove the previous JS and CSS output instead.
 const cleanBuiltAssets = () => ({
@@ -105,7 +82,7 @@ ${rows.join("\n\n")}
 export default defineConfig({
 	base: "./",
 	publicDir: false,
-	plugins: [injectImportedCss(), cleanBuiltAssets(), cssByteOrderMark(), librejsTable()],
+	plugins: [cleanBuiltAssets(), cssByteOrderMark(), librejsTable()],
 	css: {
 		transformer: "lightningcss",
 		lightningcss: { targets: lightningcssTargets },

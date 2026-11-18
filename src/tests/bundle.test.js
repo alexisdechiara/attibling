@@ -27,6 +27,7 @@ const removedLibraries = {
 	"fuse.js": "Pattern length exceeds",
 	"@tryghost/content-api": "Accept-Version",
 	"tippy.js": "data-tippy-root",
+	swiper: "swiper-wrapper",
 };
 
 describe("built bundles", () => {

@@ -95,6 +95,59 @@ export const setUpPopover = (button, panel, { onToggle = () => {}, place = true 
 	return { isOpen, close: () => isOpen() && toggle(false) };
 };
 
+// A scroll-snap strip (.js-slider-track) with previous and next buttons, which scroll it by one
+// slide and are disabled at either end. Works in right-to-left pages, where scrollLeft is negative.
+export const setUpSlider = slider => {
+	const track = slider.querySelector(".js-slider-track");
+	const prev = slider.querySelector(".js-slider-prev");
+	const next = slider.querySelector(".js-slider-next");
+	if (!track || !prev || !next) return;
+
+	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+	const forward = () => (getComputedStyle(track).direction === "rtl" ? -1 : 1);
+	// The slide a button is scrolling to: a click while the strip is still moving goes on from it
+	let target = null;
+	const update = () => {
+		const position = Math.abs(track.scrollLeft);
+		const focused = document.activeElement;
+		if (target !== null && Math.abs(position - target * track.clientWidth) < 2) target = null;
+		prev.disabled = position < 1;
+		next.disabled = position + track.clientWidth > track.scrollWidth - 1;
+		// Do not leave keyboard focus on a button that has just been disabled
+		if (focused?.disabled && (focused === prev || focused === next)) (focused === prev ? next : prev).focus();
+	};
+	const go = steps => {
+		const last = Math.round(track.scrollWidth / track.clientWidth) - 1;
+		const current = target ?? Math.round(Math.abs(track.scrollLeft) / track.clientWidth);
+		target = Math.min(Math.max(current + steps, 0), last);
+		track.scrollTo({
+			left: target * track.clientWidth * forward(),
+			behavior: reducedMotion.matches ? "instant" : "smooth",
+		});
+	};
+
+	prev.addEventListener("click", () => go(-1));
+	next.addEventListener("click", () => go(1));
+	track.addEventListener("scroll", throttleToFrame(update), { passive: true });
+	window.addEventListener("resize", throttleToFrame(update), { passive: true });
+	update();
+};
+
+// Runs callback at most once per animation frame.
+export const throttleToFrame = callback => {
+	let ticking = false;
+
+	return () => {
+		if (!ticking) {
+			ticking = true;
+			requestAnimationFrame(() => {
+				ticking = false;
+				callback();
+			});
+		}
+	};
+};
+
 export const onReady = callback => {
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", callback, { once: true });

@@ -1,8 +1,13 @@
-.m-featured-slider.swiper {
+/* The featured posts: a strip of full-width slides that snaps to one post at a time. It scrolls
+   by touch, trackpad and keyboard; home.js wires the previous and next buttons. */
+.m-featured-slider {
   grid-column: span 1 / span 1;
+  /* A grid item may not grow past its column to fit the strip */
+  min-width: 0;
   height: 350px;
   position: relative;
-  overflow: hidden !important;
+  overflow: hidden;
+  border-radius: 10px;
   transition: all 0.25s cubic-bezier(0.02, 0.01, 0.47, 1);
 
   @media (width >= 48rem) {
@@ -20,20 +25,29 @@
   }
 }
 
-.m-featured-slider:not(:root:root) {
-  overflow: hidden !important;
-}
-
 .m-featured-slider__list {
+  display: flex;
   list-style-type: none;
   padding: 0;
   margin: 0;
   height: 100%;
   border-radius: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .m-featured-slider__list__item {
+  flex: 0 0 100%;
   height: 100%;
   overflow: hidden;
   border-radius: 10px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }

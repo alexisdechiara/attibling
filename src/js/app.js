@@ -1,7 +1,4 @@
-import Swiper from "swiper";
-import { FreeMode, A11y } from "swiper/modules";
-import "swiper/css";
-import { isRTL, isMobile, onReady, contentHeight, setUpPopover } from "./helpers";
+import { isRTL, isMobile, onReady, contentHeight, setUpPopover, throttleToFrame } from "./helpers";
 
 onReady(() => {
 	if (isRTL()) {
@@ -17,7 +14,6 @@ onReady(() => {
 	const $toggleSubmenu = document.querySelectorAll(".js-toggle-submenu");
 	const $submenuOption = document.querySelector(".js-submenu-option");
 	const $submenu = document.querySelectorAll(".js-submenu");
-	const $recentSlider = document.querySelector(".js-recent-slider");
 	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
 	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
 	const $newsletterElements = document.querySelectorAll(".js-newsletter");
@@ -164,20 +160,6 @@ onReady(() => {
 		$setAutoTheme(false);
 	}
 
-	const throttleToFrame = callback => {
-		let ticking = false;
-
-		return () => {
-			if (!ticking) {
-				ticking = true;
-				requestAnimationFrame(() => {
-					ticking = false;
-					callback();
-				});
-			}
-		};
-	};
-
 	window.addEventListener(
 		"scroll",
 		throttleToFrame(() => changeHeaderBackground()),
@@ -239,15 +221,6 @@ onReady(() => {
 		$header.classList.add("headroom");
 		updateHeader();
 		window.addEventListener("scroll", throttleToFrame(updateHeader), { passive: true });
-	}
-
-	if ($recentSlider) {
-		const recentSwiper = new Swiper(".js-recent-slider", {
-			modules: [FreeMode, A11y],
-			freeMode: true,
-			slidesPerView: "auto",
-			a11y: true,
-		});
 	}
 
 	if ($openSecondaryMenu) {
