@@ -65,10 +65,11 @@ export const setUpPopover = (button, panel, { onToggle = () => {}, place = true 
 	};
 
 	if (native) {
+		// beforetoggle fires synchronously, as the popover opens or closes
 		panel.addEventListener("beforetoggle", event => {
 			if (event.newState === "open") position();
+			onToggle(event.newState === "open");
 		});
-		panel.addEventListener("toggle", event => onToggle(event.newState === "open"));
 		return { isOpen, close: () => isOpen() && panel.hidePopover() };
 	}
 
@@ -77,9 +78,10 @@ export const setUpPopover = (button, panel, { onToggle = () => {}, place = true 
 	panel.removeAttribute("popover");
 	const toggle = open => {
 		if (open) position();
+		const changed = isOpen() !== open;
 		panel.classList.toggle("is-open", open);
 		button.setAttribute("aria-expanded", String(open));
-		onToggle(open);
+		if (changed) onToggle(open);
 	};
 	toggle(false);
 	button.addEventListener("click", () => toggle(!isOpen()));

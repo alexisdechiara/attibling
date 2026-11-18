@@ -1,10 +1,23 @@
+/* A popover on desktop, opened by the ••• button (in the top layer while open, so it is placed
+   against the viewport, below the header); always shown inside the mobile menu. Its look follows
+   the .opened and .closed classes set by app.js. */
 .m-submenu {
-  padding-top: 25px;
+  display: block;
+  position: static;
+  inset: auto;
+  width: auto;
   height: auto;
+  margin: 0;
+  padding: 25px 0 0;
+  border: 0;
+  overflow: visible;
+  color: inherit;
+  background: none;
 
   @media (width >= 48rem) {
     visibility: hidden;
     position: fixed;
+    /* 45px below the top of the menu bar, its containing block (.m-menu has a transform)... */
     top: 45px;
     left: 0;
     width: 100%;
@@ -20,6 +33,14 @@
 
   @media (width >= 80rem) {
     padding: 32px 0 23px 0;
+  }
+
+  /* ...or, in the top layer while open, of the viewport: the menu bar starts below the header
+     padding (or below the announcement bar, see header.css) */
+  &:popover-open {
+    @media (width >= 48rem) {
+      top: calc(45px + var(--menu-bar-top, 15px));
+    }
   }
 
   &.opened {

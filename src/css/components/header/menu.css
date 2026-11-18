@@ -18,6 +18,10 @@
     opacity: 1;
     z-index: 10;
     transform: scale(1);
+    /* Visible at once, so that focus can move into the menu as it opens */
+    transition:
+      all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+      visibility 0s;
 
     & .m-nav {
       display: flex;

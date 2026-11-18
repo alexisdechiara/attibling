@@ -1,6 +1,6 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
-import { launch, close, open, waitFor } from "./support/harness.js";
+import { launch, close, open, waitFor, settle } from "./support/harness.js";
 
 const classes = (page, selector) => page.evaluate(sel => [...document.querySelector(sel).classList], selector);
 
@@ -20,6 +20,23 @@ describe("header", () => {
 		assert.ok(!(await classes(page, ".js-header")).includes("mobile-menu-opened"));
 		assert.ok(!(await classes(page, ".js-menu")).includes("opened"));
 		assert.ok(!(await classes(page, "body")).includes("no-scroll-y"));
+
+		await dispose();
+	});
+
+	it("moves focus into the mobile menu, closes it on Escape and gives focus back", async () => {
+		const { page, dispose } = await open({ viewport: { width: 375, height: 700 } });
+		const focused = () => page.evaluate(() => document.activeElement.className);
+
+		await page.locator(".js-open-menu").focus();
+		await page.keyboard.press("Enter");
+		assert.ok((await classes(page, ".js-menu")).includes("opened"));
+		assert.match(await focused(), /js-close-menu/);
+
+		await page.keyboard.press("Escape");
+		assert.ok(!(await classes(page, ".js-menu")).includes("opened"));
+		assert.ok(!(await classes(page, "body")).includes("no-scroll-y"));
+		assert.match(await focused(), /js-open-menu/);
 
 		await dispose();
 	});
@@ -47,6 +64,54 @@ describe("header", () => {
 		assert.ok(!(await classes(page, ".js-toggle-submenu")).includes("active"));
 		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
 
+		await dispose();
+	});
+
+	it("closes the submenu on Escape and gives focus back to its button", async () => {
+		const { page, dispose } = await open();
+		await page.locator(".js-toggle-submenu").focus();
+		await page.keyboard.press("Enter");
+		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
+		await page.waitForTimeout(400);
+		const shown = await page.evaluate(() => {
+			const box = document.querySelector(".js-submenu").getBoundingClientRect();
+			const hit = document.elementFromPoint(box.left + 10, box.bottom - 10);
+			return { below: Math.round(box.top) === 60, onTop: Boolean(hit?.closest(".js-submenu")), width: box.width };
+		});
+		assert.deepEqual(shown, { below: true, onTop: true, width: 1280 });
+
+		await page.keyboard.press("Escape");
+		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
+		assert.ok(!(await classes(page, ".js-header")).includes("submenu-is-active"));
+		assert.equal(await page.evaluate(() => document.activeElement.classList.contains("js-toggle-submenu")), true);
+		await dispose();
+	});
+
+	it("closes the submenu when the header hides on scroll", async () => {
+		const { page, dispose } = await open();
+		await settle(page);
+		await page.locator(".js-toggle-submenu").click();
+		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
+		await page.evaluate(() => window.scrollTo(0, 1500));
+		assert.equal(await waitFor(async () => (await classes(page, ".js-submenu")).includes("closed")), true);
+		await dispose();
+	});
+
+	it("still opens and closes the submenu without the Popover API", async () => {
+		const { page, dispose } = await open({
+			initScript: () => {
+				for (const name of ["popover", "showPopover", "hidePopover", "togglePopover"])
+					delete HTMLElement.prototype[name];
+			},
+		});
+		const toggle = page.locator(".js-toggle-submenu");
+		await toggle.click();
+		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
+		await page.keyboard.press("Escape");
+		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
+		await toggle.click();
+		await page.mouse.click(5, 790);
+		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
 		await dispose();
 	});
 

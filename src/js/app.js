@@ -12,7 +12,6 @@ onReady(() => {
 	const $closeMenu = document.querySelectorAll(".js-close-menu");
 	const $menu = document.querySelectorAll(".js-menu");
 	const $toggleSubmenu = document.querySelectorAll(".js-toggle-submenu");
-	const $submenuOption = document.querySelector(".js-submenu-option");
 	const $submenu = document.querySelectorAll(".js-submenu");
 	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
 	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
@@ -20,25 +19,23 @@ onReady(() => {
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
 	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-	let submenuIsOpen = false;
 	let secondaryMenu = null;
+	let submenu = null;
 
-	const showSubmenu = () => {
-		$header.classList.add("submenu-is-active");
-		$toggleSubmenu.forEach(el => el.classList.add("active"));
+	// The submenu is a popover (see setUpPopover); these classes drive its look and animation
+	const onSubmenuToggle = open => {
+		$header.classList.toggle("submenu-is-active", open);
+		$toggleSubmenu.forEach(el => el.classList.toggle("active", open));
 		$submenu.forEach(el => {
-			el.classList.remove("closed");
-			el.classList.add("opened");
+			el.classList.toggle("opened", open);
+			el.classList.toggle("closed", !open);
 		});
-	};
 
-	const hideSubmenu = () => {
-		$header.classList.remove("submenu-is-active");
-		$toggleSubmenu.forEach(el => el.classList.remove("active"));
-		$submenu.forEach(el => {
-			el.classList.remove("opened");
-			el.classList.add("closed");
-		});
+		if (open) {
+			$header.classList.remove("covered");
+		} else {
+			changeHeaderBackground();
+		}
 	};
 
 	const toggleScrollVertical = () => {
@@ -51,35 +48,37 @@ onReady(() => {
 		}
 	};
 
+	// The mobile menu covers the page: focus moves into it, Escape closes it and focus goes back
+	// to the button that opened it.
+	let menuOpener = null;
+
+	const isMenuOpen = () => $header.classList.contains("mobile-menu-opened");
+
+	const closeMenu = () => {
+		$header.classList.remove("mobile-menu-opened");
+		$menu.forEach(menu => menu.classList.remove("opened"));
+		toggleScrollVertical();
+		menuOpener?.focus();
+		menuOpener = null;
+	};
+
 	$openMenu.forEach(el =>
 		el.addEventListener("click", () => {
 			$header.classList.add("mobile-menu-opened");
 			$menu.forEach(menu => menu.classList.add("opened"));
 			toggleScrollVertical();
+			menuOpener = el;
+			$closeMenu[0]?.focus();
 		}),
 	);
 
-	$closeMenu.forEach(el =>
-		el.addEventListener("click", () => {
-			$header.classList.remove("mobile-menu-opened");
-			$menu.forEach(menu => menu.classList.remove("opened"));
-			toggleScrollVertical();
-		}),
-	);
+	$closeMenu.forEach(el => el.addEventListener("click", closeMenu));
 
-	$toggleSubmenu.forEach(el =>
-		el.addEventListener("click", () => {
-			submenuIsOpen = !submenuIsOpen;
-
-			if (submenuIsOpen) {
-				showSubmenu();
-				$header.classList.remove("covered");
-			} else {
-				hideSubmenu();
-				changeHeaderBackground();
-			}
-		}),
-	);
+	document.addEventListener("keydown", e => {
+		if (e.key === "Escape" && isMenuOpen()) {
+			closeMenu();
+		}
+	});
 
 	$themeSwitcher.forEach(el =>
 		el.addEventListener("click", () => {
@@ -143,15 +142,6 @@ onReady(() => {
 		}
 	});
 
-	window.addEventListener("click", e => {
-		if (submenuIsOpen) {
-			if ($submenuOption && !$submenuOption.contains(e.target)) {
-				submenuIsOpen = false;
-				hideSubmenu();
-			}
-		}
-	});
-
 	if (localStorage.getItem("theme") === "light") {
 		$setLightTheme(false);
 	} else if (localStorage.getItem("theme") === "dark") {
@@ -186,6 +176,7 @@ onReady(() => {
 	const onHeaderUnpin = () => {
 		if (!isMobile()) {
 			secondaryMenu?.close();
+			submenu?.close();
 		}
 	};
 
@@ -221,6 +212,10 @@ onReady(() => {
 		$header.classList.add("headroom");
 		updateHeader();
 		window.addEventListener("scroll", throttleToFrame(updateHeader), { passive: true });
+	}
+
+	if ($toggleSubmenu[0] && $submenu[0]) {
+		submenu = setUpPopover($toggleSubmenu[0], $submenu[0], { onToggle: onSubmenuToggle, place: false });
 	}
 
 	if ($openSecondaryMenu) {
