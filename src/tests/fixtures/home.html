@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Fixture home</title>
 	<link rel="stylesheet" type="text/css" href="/assets/css/app.css" />
+	<link rel="stylesheet" type="text/css" href="/assets/css/home.css" />
 	<!--GLOBALS-->
 </head>
 <body class="home-template">
@@ -80,6 +81,80 @@
 			</div>
 		</section>
 		<div class="l-content" style="height: 4000px;">
+			<div class="l-wrapper" data-animate="fade-up">
+				<div class="l-grid">
+					<div class="m-featured-slider swiper js-featured-slider">
+						<div class="m-featured-slider__list swiper-wrapper">
+								<div class="m-featured-slider__list__item swiper-slide">
+									<article class="m-featured-article no-picture">
+										<div class="m-featured-article__picture"></div>
+										<div class="m-featured-article__meta">
+											<a href="/tag/one/" class="m-featured-article__tag">One</a>
+										</div>
+										<div class="m-featured-article__ribbon">
+											<span class="icon-fire"></span>
+											<span>Featured</span>
+										</div>
+										<a href="/featured-1/" class="m-featured-article__content">
+											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 1">Featured post 1 with a rather long title that wraps over lines</h2>
+											<div class="m-featured-article__timestamp">
+												<span>2 days ago</span>
+												<span>&bull;</span>
+												<span>1 min read</span>
+											</div>
+										</a>
+									</article>
+								</div>
+								<div class="m-featured-slider__list__item swiper-slide">
+									<article class="m-featured-article no-picture">
+										<div class="m-featured-article__picture"></div>
+										<div class="m-featured-article__meta">
+											<a href="/tag/one/" class="m-featured-article__tag">One</a>
+										</div>
+										<div class="m-featured-article__ribbon">
+											<span class="icon-fire"></span>
+											<span>Featured</span>
+										</div>
+										<a href="/featured-2/" class="m-featured-article__content">
+											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 2">Featured post 2 with a rather long title that wraps over lines</h2>
+											<div class="m-featured-article__timestamp">
+												<span>2 days ago</span>
+												<span>&bull;</span>
+												<span>1 min read</span>
+											</div>
+										</a>
+									</article>
+								</div>
+								<div class="m-featured-slider__list__item swiper-slide">
+									<article class="m-featured-article no-picture">
+										<div class="m-featured-article__picture"></div>
+										<div class="m-featured-article__meta">
+											<a href="/tag/one/" class="m-featured-article__tag">One</a>
+										</div>
+										<div class="m-featured-article__ribbon">
+											<span class="icon-fire"></span>
+											<span>Featured</span>
+										</div>
+										<a href="/featured-3/" class="m-featured-article__content">
+											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 3">Featured post 3 with a rather long title that wraps over lines</h2>
+											<div class="m-featured-article__timestamp">
+												<span>2 days ago</span>
+												<span>&bull;</span>
+												<span>1 min read</span>
+											</div>
+										</a>
+									</article>
+								</div>
+						</div>
+						<button class="m-icon-button in-featured-articles swiper-button-prev js-featured-slider-button" aria-label="Previous">
+							<span class="icon-arrow-left" aria-hidden="true"></span>
+						</button>
+						<button class="m-icon-button in-featured-articles swiper-button-next js-featured-slider-button" aria-label="Next">
+							<span class="icon-arrow-right" aria-hidden="true"></span>
+						</button>
+					</div>
+				</div>
+			</div>
 			<p class="js-outside">Some content outside the submenu.</p>
 		</div>
 	</main>
@@ -108,5 +183,6 @@
 	<script defer src="/assets/js/manifest.js"></script>
 	<script defer src="/assets/js/vendor.js"></script>
 	<script defer src="/assets/js/app.js"></script>
+	<script defer src="/assets/js/home.js"></script>
 </body>
 </html>

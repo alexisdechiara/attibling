@@ -3,7 +3,7 @@ import mediumZoom from "medium-zoom";
 import fitvids from "fitvids";
 import shave from "shave";
 import Swiper from 'swiper';
-import { FreeMode, A11y } from "swiper/modules";
+import { Navigation, A11y } from "swiper/modules";
 import tocbot from "tocbot";
 import "swiper/css";
 import { isMobile, adjustImageGallery, managePostImages, makeImagesZoomable } from "./helpers";
