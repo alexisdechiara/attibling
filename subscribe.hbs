@@ -19,7 +19,7 @@ into the {body} of the default.hbs template --}}
 <main id="main">
   <div class="l-wrapper" data-animate="fade-down">
     <a href="{{@site.url}}" class="m-back">
-      <span class="m-back__icon icon-arrow-left"></span>
+      {{> "icons/arrow-left" class="m-back__icon"}}
       <span>{{t "Back to home"}}</span>
     </a>
   </div>

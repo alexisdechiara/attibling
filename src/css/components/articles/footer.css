@@ -60,7 +60,7 @@
     background-color: #2997ee;
   }
 
-  & span {
+  & .m-icon-svg {
     text-decoration: none;
     color: white;
     font-size: small;

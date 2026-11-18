@@ -7,12 +7,12 @@ Each link is guarded by {{#if <platform>}} on purpose: {{social_url}} looks the 
 on the current author first and then falls back to the site's own account (@site), so an
 unguarded call would show the site's account on every author.
 The X account is still stored in the "twitter" field (social_url type="twitter" outputs an x.com URL).
-Platforms with a glyph in the icon font use it; the others use an inline SVG from partials/icons/.
+Each icon is an inline SVG from partials/icons/.
 --}}
 {{#if website}}
   <li>
     <a href="{{website}}" target="_blank" rel="noopener" aria-label="{{t "Website"}}">
-      <span class="icon-globe" aria-hidden="true"></span>
+      {{> "icons/globe"}}
     </a>
   </li>
 {{/if}}
@@ -26,14 +26,14 @@ Platforms with a glyph in the icon font use it; the others use an inline SVG fro
 {{#if facebook}}
   <li>
     <a href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">
-      <span class="icon-facebook" aria-hidden="true"></span>
+      {{> "icons/facebook"}}
     </a>
   </li>
 {{/if}}
 {{#if linkedin}}
   <li>
     <a href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">
-      <span class="icon-linkedin" aria-hidden="true"></span>
+      {{> "icons/linkedin"}}
     </a>
   </li>
 {{/if}}
@@ -61,21 +61,21 @@ Platforms with a glyph in the icon font use it; the others use an inline SVG fro
 {{#if tiktok}}
   <li>
     <a href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">
-      <span class="icon-tiktok" aria-hidden="true"></span>
+      {{> "icons/tiktok"}}
     </a>
   </li>
 {{/if}}
 {{#if youtube}}
   <li>
     <a href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">
-      <span class="icon-youtube" aria-hidden="true"></span>
+      {{> "icons/youtube"}}
     </a>
   </li>
 {{/if}}
 {{#if instagram}}
   <li>
     <a href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">
-      <span class="icon-instagram" aria-hidden="true"></span>
+      {{> "icons/instagram"}}
     </a>
   </li>
 {{/if}}

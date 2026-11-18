@@ -90,7 +90,7 @@ into the {body} of the default.hbs template --}}
                         {{/if}}
                       </div>
                       <div class="m-featured-article__ribbon">
-                        <span class="icon-fire"></span>
+                        {{> "icons/fire"}}
                         <span>{{t "Featured"}}</span>
                       </div>
                       <a href="{{url}}" class="m-featured-article__content">
@@ -108,10 +108,10 @@ into the {body} of the default.hbs template --}}
                 {{/foreach}}
               </div>
               <button class="m-icon-button in-featured-articles swiper-button-prev js-featured-slider-button" aria-label="{{t "Previous"}}">
-                <span class="icon-arrow-left" aria-hidden="true"></span>
+                {{> "icons/arrow-left"}}
               </button>
               <button class="m-icon-button in-featured-articles swiper-button-next js-featured-slider-button" aria-label="{{t "Next"}}">
-                <span class="icon-arrow-right" aria-hidden="true"></span>
+                {{> "icons/arrow-right"}}
               </button>
             </div>
           {{/if}}

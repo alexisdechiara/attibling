@@ -165,7 +165,7 @@
     right: 25px;
   }
 
-  span {
+  .m-icon-svg {
     color: inherit;
     font-size: 0.75rem;
   }
@@ -259,10 +259,6 @@
       color: var(--primary-foreground-color);
       font-size: 0.938rem;
       cursor: pointer;
-
-      span {
-        color: inherit;
-      }
     }
   }
 }

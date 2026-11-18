@@ -31,7 +31,7 @@ into the {body} of the default.hbs template --}}
       <div class="m-heading__tags">
         {{#if featured}}
         <div class="m-heading__tag m-heading__tag--feature">
-          <span class="icon-fire"></span>
+          {{> "icons/fire"}}
           <span>{{t "Featured"}}</span>
         </div>
         {{/if}}
@@ -79,7 +79,7 @@ into the {body} of the default.hbs template --}}
         <div class="m-share js-sticky">
           <aside class="m-share__content" aria-label="{{t "Reading progress"}}">
             <button class="m-icon-button filled in-share progress js-scrolltop" aria-label="{{t "Scroll to top"}}">
-              <span class="icon-arrow-top" aria-hidden="true"></span>
+              {{> "icons/arrow-top"}}
               <svg aria-hidden="true">
                 <circle class="progress-ring__circle js-progress" fill="transparent" r="0" />
               </svg>
@@ -103,16 +103,16 @@ into the {body} of the default.hbs template --}}
                 <div class="m-article-footer__share">
                   <span class="m-article-footer__label">{{t "Share"}}</span>
                   <a title="X" aria-label="X" class="m-article-footer__share__item twitter" href="https://x.com/intent/tweet?text={{encode title}}&amp;url={{encode (url absolute="true")}}" target="_blank" rel="noopener">
-                    <span class="icon-twitter" aria-hidden="true"></span>
+                    {{> "icons/twitter"}}
                   </a>
                   <a title="Facebook" aria-label="Facebook" class="m-article-footer__share__item facebook" href="https://www.facebook.com/sharer/sharer.php?u={{encode (url absolute="true")}}" target="_blank" rel="noopener">
-                    <span class="icon-facebook-f" aria-hidden="true"></span>
+                    {{> "icons/facebook-f"}}
                   </a>
                   <a title="LinkedIn" aria-label="LinkedIn" class="m-article-footer__share__item linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url={{encode (url absolute="true")}}" target="_blank" rel="noopener">
-                    <span class="icon-linkedin-in" aria-hidden="true"></span>
+                    {{> "icons/linkedin-in"}}
                   </a>
                   <a title="Email" aria-label="Email" class="m-article-footer__share__item email" href="mailto:?subject={{encode title}}&amp;body={{encode (url absolute="true")}}">
-                    <span class="icon-envelope" aria-hidden="true"></span>
+                    {{> "icons/envelope"}}
                   </a>
                 </div>
                 {{#if tags}}

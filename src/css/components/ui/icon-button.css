@@ -204,7 +204,7 @@
   &.progress {
     position: relative;
 
-    svg {
+    svg:not(.m-icon-svg) {
       position: absolute;
       left: 0;
       top: 0;

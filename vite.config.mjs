@@ -55,22 +55,6 @@ const cleanBuiltAssets = () => ({
 	},
 });
 
-// The icon font glyphs end up as raw UTF-8 characters in the minified CSS. Start such files
-// with a byte order mark, as the Sass build did, so they decode as UTF-8 even when a server
-// or proxy sends them without a charset.
-const cssByteOrderMark = () => ({
-	name: "attibling:css-bom",
-	apply: "build",
-	generateBundle(options, bundle) {
-		for (const file of Object.values(bundle)) {
-			if (file.type !== "asset" || !file.fileName.endsWith(".css")) continue;
-			const source = typeof file.source === "string" ? file.source : Buffer.from(file.source).toString("utf8");
-			// oxlint-disable-next-line no-control-regex
-			if (/[^\u0000-\u007f]/.test(source) && !source.startsWith("\ufeff")) file.source = `\ufeff${source}`;
-		}
-	},
-});
-
 // assets/html/javascript.html is the LibreJS licence table (linked from the footer): it lists
 // every built script, so it is regenerated from the bundle, hashed chunk names included.
 const librejsTable = () => ({
@@ -105,7 +89,7 @@ ${rows.join("\n\n")}
 export default defineConfig({
 	base: "./",
 	publicDir: false,
-	plugins: [injectImportedCss(), cleanBuiltAssets(), cssByteOrderMark(), librejsTable()],
+	plugins: [injectImportedCss(), cleanBuiltAssets(), librejsTable()],
 	css: {
 		transformer: "lightningcss",
 		lightningcss: { targets: lightningcssTargets },

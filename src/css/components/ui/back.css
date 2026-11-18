@@ -24,7 +24,7 @@
 
 .rtl {
   .m-back {
-    span:first-of-type {
+    .m-icon-svg {
       order: 2;
     }
   }

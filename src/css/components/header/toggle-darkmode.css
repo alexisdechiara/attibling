@@ -57,7 +57,7 @@
     z-index: 1;
   }
 
-  span {
+  .m-icon-svg {
     color: var(--titles-color);
     font-size: 0.9375rem;
 

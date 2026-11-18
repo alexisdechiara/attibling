@@ -32,7 +32,7 @@
   color: black;
   background-color: white;
 
-  span:first-child {
+  .m-icon-svg {
     margin-right: 4px;
   }
 }
