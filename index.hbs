@@ -23,17 +23,19 @@ into the {body} of the default.hbs template --}}
 {{!-- Special header.hbs partial to generate the <header> tag --}}
 {{> header background=@site.cover_image homepage=true}}
 
-<main class="main-wrap">
+<main id="main" class="main-wrap">
   {{!-- Inject styles of the hero image to make it responsive --}}
   {{> hero background=@site.cover_image homepage=true}}
   <div class="m-hero__content" data-animate="fade-down">
     <h1 class="m-hero-title m-site-name biggest">
       {{#if @custom.use_geekly_logo}}
-          <span class="geekly-blue">G</span>
-          <span class="geekly-red">E</span>
-          <span class="geekly-green">E</span>
-          <span class="geekly-yellow">K</span>
-          <span class="geekly-manwrite">ly</span>
+          {{!-- The letters are decorative: assistive tech reads the site title instead of "G E E K ly" --}}
+          <span class="sr-only">{{@site.title}}</span>
+          <span class="geekly-blue" aria-hidden="true">G</span>
+          <span class="geekly-red" aria-hidden="true">E</span>
+          <span class="geekly-green" aria-hidden="true">E</span>
+          <span class="geekly-yellow" aria-hidden="true">K</span>
+          <span class="geekly-manwrite" aria-hidden="true">ly</span>
         {{else}}
           {{@site.title}}
         {{/if}}

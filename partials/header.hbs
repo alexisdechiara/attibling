@@ -17,11 +17,13 @@ This header template is shared across all the pages.
     {{else}}
       <a href="{{@site.url}}" class="m-site-name in-mobile-topbar">
         {{#if @custom.use_geekly_logo}}
-          <span class="geekly-blue">G</span>
-          <span class="geekly-red">E</span>
-          <span class="geekly-green">E</span>
-          <span class="geekly-yellow">K</span>
-          <span class="geekly-manwrite">ly</span>
+          {{!-- The letters are decorative: assistive tech reads the site title instead of "G E E K ly" --}}
+          <span class="sr-only">{{@site.title}}</span>
+          <span class="geekly-blue" aria-hidden="true">G</span>
+          <span class="geekly-red" aria-hidden="true">E</span>
+          <span class="geekly-green" aria-hidden="true">E</span>
+          <span class="geekly-yellow" aria-hidden="true">K</span>
+          <span class="geekly-manwrite" aria-hidden="true">ly</span>
         {{else}}
           {{@site.title}}
         {{/if}}
@@ -54,11 +56,13 @@ This header template is shared across all the pages.
                 <li class="only-desktop">
                   <a href="{{@site.url}}" class="m-site-name in-desktop-menu">
                     {{#if @custom.use_geekly_logo}}
-                      <span class="geekly-blue">G</span>
-                      <span class="geekly-red">E</span>
-                      <span class="geekly-green">E</span>
-                      <span class="geekly-yellow">K</span>
-                      <span class="geekly-manwrite">ly</span>
+                      {{!-- The letters are decorative: assistive tech reads the site title instead of "G E E K ly" --}}
+                      <span class="sr-only">{{@site.title}}</span>
+                      <span class="geekly-blue" aria-hidden="true">G</span>
+                      <span class="geekly-red" aria-hidden="true">E</span>
+                      <span class="geekly-green" aria-hidden="true">E</span>
+                      <span class="geekly-yellow" aria-hidden="true">K</span>
+                      <span class="geekly-manwrite" aria-hidden="true">ly</span>
                     {{else}}
                       {{@site.title}}
                     {{/if}}
@@ -95,9 +99,9 @@ This header template is shared across all the pages.
                                   <a href="{{url}}" class="m-recent-article">
                                     <div class="m-recent-article__picture {{#unless feature_image}}no-picture{{/unless}}">
                                       {{#if feature_image}}
-                                        <img src="{{img_url feature_image size="s"}}" loading="lazy" alt="">
+                                        <img src="{{img_url feature_image size="s"}}" loading="lazy" decoding="async" alt="">
                                       {{else}}
-                                        <img src="{{asset "images/no-image.png"}}" loading="lazy" alt="">
+                                        <img src="{{asset "images/no-image.png"}}" width="256" height="256" loading="lazy" decoding="async" alt="">
                                       {{/if}}
                                     </div>
                                     <h3 class="m-recent-article__title js-recent-article-title" title="{{title}}">
