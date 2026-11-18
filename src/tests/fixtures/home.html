@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Fixture home</title>
+	<link rel="stylesheet" type="text/css" href="/assets/css/app.css" />
+	<link rel="stylesheet" type="text/css" href="/assets/css/home.css" />
+	<!--GLOBALS-->
+</head>
+<body class="home-template">
+	<header class="m-header with-picture covered in-homepage js-header">
+		<div class="m-mobile-topbar" data-animate="fade-down">
+			<button class="m-icon-button in-mobile-topbar js-open-menu" aria-label="Open menu">
+				<span class="icon-menu" aria-hidden="true"></span>
+			</button>
+			<a href="/" class="m-site-name in-mobile-topbar">Fixture blog</a>
+			<button class="m-icon-button in-mobile-topbar js-open-search" aria-label="Open search">
+				<span class="icon-search" aria-hidden="true"></span>
+			</button>
+		</div>
+
+		<div class="m-menu js-menu">
+			<button class="m-icon-button outlined as-close-menu js-close-menu" aria-label="Close menu">
+				<span class="icon-close"></span>
+			</button>
+			<div class="m-menu__main" data-animate="fade-down">
+				<div class="l-wrapper">
+					<div class="m-nav js-main-nav">
+						<nav class="m-nav__left js-main-nav-left" role="navigation" aria-label="Main menu">
+							<ul>
+								<li class="only-desktop">
+									<a href="/" class="m-site-name in-desktop-menu">Fixture blog</a>
+								</li>
+								<li class="nav-home"><a href="/">Home</a></li>
+								<li class="submenu-option js-submenu-option">
+									<button class="m-icon-button in-menu-main more js-toggle-submenu" aria-label="Open submenu">
+										<span class="icon-more" aria-hidden="true"></span>
+									</button>
+									<div class="m-submenu js-submenu">
+										<div class="l-wrapper in-submenu">
+											<section class="m-recent-articles">
+												<h3 class="m-submenu-title in-recent-articles">Recent articles</h3>
+												<div class="m-not-found in-recent-articles">No recent articles</div>
+											</section>
+											<section class="m-tags">
+												<h3 class="m-submenu-title">Tags</h3>
+												<ul>
+													<li><a href="/tag/one/">One</a></li>
+												</ul>
+											</section>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</nav>
+						<div class="m-nav__right">
+							<button class="m-icon-button in-menu-main js-open-search" aria-label="Open search">
+								<span class="icon-search" aria-hidden="true"></span>
+							</button>
+							<div class="m-switch-theme js-tooltip" data-tippy-content="Switch theme" tabindex="0">
+								<label for="switch-theme" class="sr-only">Switch theme</label>
+								<input id="switch-theme" type="button" class="js-switch-theme">
+								<div>
+									<span class="icon-moon dark-theme-icon" aria-hidden="true"></span>
+									<span class="icon-sunny light-theme-icon" aria-hidden="true"></span>
+									<span class="icon-eclipse auto-theme-icon" aria-hidden="true"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<main class="main-wrap">
+		<section class="m-hero with-picture in-homepage" data-animate="fade">
+			<div class="m-hero__picture">
+				<img src="/src/tests/fixtures/pixel.svg" alt="" />
+			</div>
+		</section>
+		<div class="l-content" style="height: 4000px;">
+			<div class="l-wrapper" data-animate="fade-up">
+				<div class="l-grid">
+					<div class="m-featured-slider swiper js-featured-slider">
+						<div class="m-featured-slider__list swiper-wrapper">
+								<div class="m-featured-slider__list__item swiper-slide">
+									<article class="m-featured-article no-picture">
+										<div class="m-featured-article__picture"></div>
+										<div class="m-featured-article__meta">
+											<a href="/tag/one/" class="m-featured-article__tag">One</a>
+										</div>
+										<div class="m-featured-article__ribbon">
+											<span class="icon-fire"></span>
+											<span>Featured</span>
+										</div>
+										<a href="/featured-1/" class="m-featured-article__content">
+											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 1">Featured post 1 with a rather long title that wraps over lines</h2>
+											<div class="m-featured-article__timestamp">
+												<span>2 days ago</span>
+												<span>&bull;</span>
+												<span>1 min read</span>
+											</div>
+										</a>
+									</article>
+								</div>
+								<div class="m-featured-slider__list__item swiper-slide">
+									<article class="m-featured-article no-picture">
+										<div class="m-featured-article__picture"></div>
+										<div class="m-featured-article__meta">
+											<a href="/tag/one/" class="m-featured-article__tag">One</a>
+										</div>
+										<div class="m-featured-article__ribbon">
+											<span class="icon-fire"></span>
+											<span>Featured</span>
+										</div>
+										<a href="/featured-2/" class="m-featured-article__content">
+											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 2">Featured post 2 with a rather long title that wraps over lines</h2>
+											<div class="m-featured-article__timestamp">
+												<span>2 days ago</span>
+												<span>&bull;</span>
+												<span>1 min read</span>
+											</div>
+										</a>
+									</article>
+								</div>
+								<div class="m-featured-slider__list__item swiper-slide">
+									<article class="m-featured-article no-picture">
+										<div class="m-featured-article__picture"></div>
+										<div class="m-featured-article__meta">
+											<a href="/tag/one/" class="m-featured-article__tag">One</a>
+										</div>
+										<div class="m-featured-article__ribbon">
+											<span class="icon-fire"></span>
+											<span>Featured</span>
+										</div>
+										<a href="/featured-3/" class="m-featured-article__content">
+											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 3">Featured post 3 with a rather long title that wraps over lines</h2>
+											<div class="m-featured-article__timestamp">
+												<span>2 days ago</span>
+												<span>&bull;</span>
+												<span>1 min read</span>
+											</div>
+										</a>
+									</article>
+								</div>
+						</div>
+						<button class="m-icon-button in-featured-articles swiper-button-prev js-featured-slider-button" aria-label="Previous">
+							<span class="icon-arrow-left" aria-hidden="true"></span>
+						</button>
+						<button class="m-icon-button in-featured-articles swiper-button-next js-featured-slider-button" aria-label="Next">
+							<span class="icon-arrow-right" aria-hidden="true"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+			<p class="js-outside">Some content outside the submenu.</p>
+		</div>
+	</main>
+
+	<div class="m-search js-search" role="dialog" aria-modal="true" aria-label="Search">
+		<button class="m-icon-button outlined as-close-search js-close-search" aria-label="Close search">
+			<span class="icon-close" aria-hidden="true"></span>
+		</button>
+		<div class="m-search__content">
+			<form class="m-search__form">
+				<div class="pos-relative">
+					<span class="icon-search m-search-icon" aria-hidden="true"></span>
+					<label for="search-input" class="sr-only">Type to search</label>
+					<input id="search-input" type="text" class="m-input in-search js-input-search" placeholder="Type to search">
+				</div>
+			</form>
+			<div class="js-search-results hide"></div>
+			<p class="m-not-found align-center hide js-no-results">
+				No results for your search, try something different.
+			</p>
+		</div>
+	</div>
+
+	<!--COMMENTS-->
+
+	<script defer src="/assets/js/manifest.js"></script>
+	<script defer src="/assets/js/vendor.js"></script>
+	<script defer src="/assets/js/app.js"></script>
+	<script defer src="/assets/js/home.js"></script>
+</body>
+</html>

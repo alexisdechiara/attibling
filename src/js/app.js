@@ -1,79 +1,98 @@
-import $ from "jquery";
 import Headroom from "headroom.js";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import shave from "shave";
 import GhostContentAPI from "@tryghost/content-api";
-import Fuse from 'fuse.js'
-import Swiper from 'swiper';
+import Fuse from "fuse.js";
+import Swiper from "swiper";
 import { FreeMode, A11y } from "swiper/modules";
 import "swiper/css";
-import { isRTL, formatDate, isMobile } from "./helpers";
-import tocbot from 'tocbot'
+import { isRTL, formatDate, isMobile, onReady, contentHeight } from "./helpers";
 
-$(() => {
+onReady(() => {
 	if (isRTL()) {
-		$("html").attr("dir", "rtl").addClass("rtl");
+		document.documentElement.setAttribute("dir", "rtl");
+		document.documentElement.classList.add("rtl");
 	}
 
-	const $body = $("body");
-	const $header = $(".js-header");
-	const $openMenu = $(".js-open-menu");
-	const $closeMenu = $(".js-close-menu");
-	const $menu = $(".js-menu");
-	const $toggleSubmenu = $(".js-toggle-submenu");
-	const $submenuOption = $(".js-submenu-option")[0];
-	const $submenu = $(".js-submenu");
-	const $recentSlider = $(".js-recent-slider");
-	const $openSecondaryMenu = $(".js-open-secondary-menu");
-	const $openSearch = $(".js-open-search");
-	const $closeSearch = $(".js-close-search");
-	const $search = $(".js-search");
-	const $inputSearch = $(".js-input-search");
-	const $searchResults = $(".js-search-results");
-	const $searchNoResults = $(".js-no-results");
-	const $themeSwitcher = $(".js-switch-theme");
-	const $mainNav = $(".js-main-nav");
-	const $mainNavLeft = $(".js-main-nav-left");
-	const $newsletterElements = $(".js-newsletter");
-	const $nativeComments = $(".js-native-comments > div > iframe")[0];
+	const $body = document.body;
+	const $header = document.querySelector(".js-header");
+	const $openMenu = document.querySelectorAll(".js-open-menu");
+	const $closeMenu = document.querySelectorAll(".js-close-menu");
+	const $menu = document.querySelectorAll(".js-menu");
+	const $toggleSubmenu = document.querySelectorAll(".js-toggle-submenu");
+	const $submenuOption = document.querySelector(".js-submenu-option");
+	const $submenu = document.querySelectorAll(".js-submenu");
+	const $recentSlider = document.querySelector(".js-recent-slider");
+	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
+	const $openSearch = document.querySelectorAll(".js-open-search");
+	const $closeSearch = document.querySelector(".js-close-search");
+	const $search = document.querySelector(".js-search");
+	const $inputSearch = document.querySelector(".js-input-search");
+	const $searchResults = document.querySelector(".js-search-results");
+	const $searchNoResults = document.querySelector(".js-no-results");
+	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
+	const $mainNav = document.querySelectorAll(".js-main-nav, .js-main-nav-left");
+	const $newsletterElements = document.querySelectorAll(".js-newsletter");
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
+	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 	let fuse = null;
+	let postsRequested = false;
 	let submenuIsOpen = false;
 	let secondaryMenuTippy = null;
 
 	const showSubmenu = () => {
-		$header.addClass("submenu-is-active");
-		$toggleSubmenu.addClass("active");
-		$submenu.removeClass("closed").addClass("opened");
+		$header.classList.add("submenu-is-active");
+		$toggleSubmenu.forEach(el => el.classList.add("active"));
+		$submenu.forEach(el => {
+			el.classList.remove("closed");
+			el.classList.add("opened");
+		});
 	};
 
 	const hideSubmenu = () => {
-		$header.removeClass("submenu-is-active");
-		$toggleSubmenu.removeClass("active");
-		$submenu.removeClass("opened").addClass("closed");
+		$header.classList.remove("submenu-is-active");
+		$toggleSubmenu.forEach(el => el.classList.remove("active"));
+		$submenu.forEach(el => {
+			el.classList.remove("opened");
+			el.classList.add("closed");
+		});
 	};
 
 	const toggleScrollVertical = () => {
-		$body.toggleClass("no-scroll-y");
+		$body.classList.toggle("no-scroll-y");
+	};
+
+	const showElement = (el, visible) => {
+		if (el) {
+			el.style.display = visible ? "block" : "none";
+		}
 	};
 
 	const tryToRemoveNewsletter = () => {
 		if (typeof disableNewsletter !== "undefined" && disableNewsletter) {
-			$newsletterElements.remove();
+			$newsletterElements.forEach(el => el.remove());
 		}
 	};
 
-  const trySearchFeature = () => {
-    if (typeof ghostSearchApiKey !== 'undefined' && typeof nativeSearchEnabled === 'undefined') {
-      getAllPosts(ghostHost, ghostSearchApiKey);
-    } else {
-      $openSearch.css('visibility', 'hidden');
-      $closeSearch.remove();
-      $search.remove();
-    }
-  };
+	const isSearchEnabled = () =>
+		typeof ghostSearchApiKey !== "undefined" && typeof nativeSearchEnabled === "undefined";
+
+	const trySearchFeature = () => {
+		if (!isSearchEnabled()) {
+			$openSearch.forEach(el => (el.style.visibility = "hidden"));
+			$closeSearch?.remove();
+			$search?.remove();
+		}
+	};
+
+	const loadPostsOnce = () => {
+		if (!postsRequested && isSearchEnabled()) {
+			postsRequested = true;
+			getAllPosts(ghostHost, ghostSearchApiKey);
+		}
+	};
 
 	const getAllPosts = (host, key) => {
 		const api = new GhostContentAPI({
@@ -103,168 +122,199 @@ $(() => {
 				}
 
 				fuse = new Fuse(allPosts, fuseOptions);
+				runSearch();
 			})
 			.catch(err => {
+				postsRequested = false;
 				console.log(err);
 			});
 	};
 
+	const buildSearchResult = item => {
+		const article = document.createElement("article");
+		const link = document.createElement("a");
+		const title = document.createElement("h3");
+		const date = document.createElement("span");
+
+		article.className = "m-result";
+		link.className = "m-result__link";
+		link.href = item.url;
+		title.className = "m-result__title";
+		title.textContent = item.title;
+		date.className = "m-result__date";
+		date.textContent = formatDate(item.published_at);
+
+		link.append(title, date);
+		article.appendChild(link);
+
+		return article;
+	};
+
 	const toggleDesktopTopbarOverflow = disableOverflow => {
 		if (!isMobile()) {
-			if (disableOverflow) {
-				$mainNav.addClass("toggle-overflow");
-				$mainNavLeft.addClass("toggle-overflow");
-			} else {
-				$mainNav.removeClass("toggle-overflow");
-				$mainNavLeft.removeClass("toggle-overflow");
-			}
+			$mainNav.forEach(el => el.classList.toggle("toggle-overflow", disableOverflow));
 		}
 	};
 
-  tocbot.init({
-    // Where to render the table of contents.
-    tocSelector: '.toc',
-    // Where to grab the headings to build the table of contents.
-    contentSelector: '.post-content',
-    headingSelector: 'h2, h3, h4',
-    // Which headings to grab inside of the contentSelector element.
-    // For headings inside relative or absolute positioned containers within content.
-    hasInnerContainers: true,
-  });
-
-	$openMenu.on("click", () => {
-		$header.addClass("mobile-menu-opened");
-		$menu.addClass("opened");
+	const closeSearch = () => {
+		$inputSearch?.blur();
+		$search?.classList.remove("opened");
 		toggleScrollVertical();
-	});
+	};
 
-	$closeMenu.on("click", () => {
-		$header.removeClass("mobile-menu-opened");
-		$menu.removeClass("opened");
-		toggleScrollVertical();
-	});
+	$openMenu.forEach(el =>
+		el.addEventListener("click", () => {
+			$header.classList.add("mobile-menu-opened");
+			$menu.forEach(menu => menu.classList.add("opened"));
+			toggleScrollVertical();
+		})
+	);
 
-	$toggleSubmenu.on("click", () => {
-		submenuIsOpen = !submenuIsOpen;
+	$closeMenu.forEach(el =>
+		el.addEventListener("click", () => {
+			$header.classList.remove("mobile-menu-opened");
+			$menu.forEach(menu => menu.classList.remove("opened"));
+			toggleScrollVertical();
+		})
+	);
 
-		if (submenuIsOpen) {
-			showSubmenu();
-			$header.removeClass("covered");
-		} else {
-			hideSubmenu();
-			changeHeaderBackground();
+	$toggleSubmenu.forEach(el =>
+		el.addEventListener("click", () => {
+			submenuIsOpen = !submenuIsOpen;
+
+			if (submenuIsOpen) {
+				showSubmenu();
+				$header.classList.remove("covered");
+			} else {
+				hideSubmenu();
+				changeHeaderBackground();
+			}
+		})
+	);
+
+	$openSearch.forEach(el =>
+		el.addEventListener("click", () => {
+			loadPostsOnce();
+			$search?.classList.add("opened");
+			setTimeout(() => {
+				$inputSearch?.focus();
+			}, 400);
+			toggleScrollVertical();
+		})
+	);
+
+	$closeSearch?.addEventListener("click", closeSearch);
+
+	const runSearch = () => {
+		if (!$inputSearch || !$searchResults) {
+			return;
 		}
-	});
 
-	$openSearch.on("click", () => {
-		$search.addClass("opened");
-		setTimeout(() => {
-			$inputSearch.trigger("focus");
-		}, 400);
-		toggleScrollVertical();
-	});
+		$searchResults.replaceChildren();
 
-	$closeSearch.on("click", () => {
-		$inputSearch.trigger("blur");
-		$search.removeClass("opened");
-		toggleScrollVertical();
-	});
-
-	$inputSearch.on("keyup", () => {
-		if ($inputSearch.val().length > 0 && fuse) {
-			const results = fuse.search($inputSearch.val());
+		if ($inputSearch.value.length > 0 && fuse) {
+			const results = fuse.search($inputSearch.value);
 			const bestResults = results.filter(result => {
 				if (result.score <= 0.5) {
 					return result;
 				}
 			});
 
-			let htmlString = "";
-
 			if (bestResults.length > 0) {
+				const fragment = document.createDocumentFragment();
+
 				for (let i = 0, len = bestResults.length; i < len; i++) {
-					htmlString += `
-          <article class="m-result">\
-            <a href="${bestResults[i].item.url}" class="m-result__link">\
-              <h3 class="m-result__title">${bestResults[i].item.title}</h3>\
-              <span class="m-result__date">${formatDate(bestResults[i].item.published_at)}</span>\
-            </a>\
-          </article>`;
+					fragment.appendChild(buildSearchResult(bestResults[i].item));
 				}
 
-				$searchNoResults.hide();
-				$searchResults.html(htmlString);
-				$searchResults.show();
+				showElement($searchNoResults, false);
+				$searchResults.appendChild(fragment);
+				showElement($searchResults, true);
 			} else {
-				$searchResults.html("");
-				$searchResults.hide();
-				$searchNoResults.show();
+				showElement($searchResults, false);
+				showElement($searchNoResults, true);
 			}
 		} else {
-			$searchResults.html("");
-			$searchResults.hide();
-			$searchNoResults.hide();
+			showElement($searchResults, false);
+			showElement($searchNoResults, false);
 		}
-	});
-
-	$themeSwitcher.on("click", () => {
-		if (localStorage.getItem("theme") === "light") {
-			$setAutoTheme();
-		} else if (localStorage.getItem("theme") === "dark") {
-			$setLightTheme();
-		} else {
-			$setDarkTheme();
-		}
-
-		if ($nativeComments) {
-			$nativeComments.contentDocument.location.reload(true);
-		}
-	});
-
-	const $resetThemeIcons = () => {
-		$(".light-theme-icon").css("display", "none");
-		$(".dark-theme-icon").css("display", "none");
-		$(".auto-theme-icon").css("display", "none");
 	};
 
-	const $setLightTheme = () => {
-		$resetThemeIcons();
-		$("html").attr("data-theme", "light");
-		localStorage.setItem("theme", "light");
-		$(".light-theme-icon").css("display", "block");
+	$inputSearch?.addEventListener("keyup", runSearch);
+
+	$themeSwitcher.forEach(el =>
+		el.addEventListener("click", () => {
+			if (localStorage.getItem("theme") === "light") {
+				$setAutoTheme();
+			} else if (localStorage.getItem("theme") === "dark") {
+				$setLightTheme();
+			} else {
+				$setDarkTheme();
+			}
+
+			const nativeComments = document.querySelector(".js-native-comments > div > iframe");
+
+			if (nativeComments && nativeComments.contentDocument) {
+				nativeComments.contentDocument.location.reload();
+			}
+		})
+	);
+
+	const $showThemeIcon = theme => {
+		["light", "dark", "auto"].forEach(name => {
+			document.querySelectorAll(`.${name}-theme-icon`).forEach(icon => {
+				icon.style.display = name === theme ? "block" : "none";
+			});
+		});
 	};
 
-	const $setDarkTheme = () => {
-		$resetThemeIcons();
-		$("html").attr("data-theme", "dark");
-		localStorage.setItem("theme", "dark");
-		$(".dark-theme-icon").css("display", "block");
+	const $setLightTheme = (persist = true) => {
+		document.documentElement.setAttribute("data-theme", "light");
+		if (persist) {
+			localStorage.setItem("theme", "light");
+		}
+		$showThemeIcon("light");
 	};
 
-	const $setAutoTheme = () => {
+	const $setDarkTheme = (persist = true) => {
+		document.documentElement.setAttribute("data-theme", "dark");
+		if (persist) {
+			localStorage.setItem("theme", "dark");
+		}
+		$showThemeIcon("dark");
+	};
+
+	const $setAutoTheme = (persist = true) => {
 		if (window.matchMedia && $darkColorsScheme.matches) {
-			$("html").attr("data-theme", "dark");
+			document.documentElement.setAttribute("data-theme", "dark");
 		} else {
-			$("html").attr("data-theme", "light");
+			document.documentElement.setAttribute("data-theme", "light");
 		}
-		$resetThemeIcons();
-		localStorage.setItem("theme", "auto");
-		$(".auto-theme-icon").css("display", "block");
+		if (persist) {
+			localStorage.setItem("theme", "auto");
+		}
+		$showThemeIcon("auto");
 	};
 
 	$darkColorsScheme.addEventListener("change", () => {
-		$setAutoTheme();
+		const storedTheme = localStorage.getItem("theme");
+
+		if (!storedTheme || storedTheme === "auto") {
+			$setAutoTheme(false);
+		}
 	});
 
-	$themeSwitcher.on("mouseenter", () => {
-		toggleDesktopTopbarOverflow(true);
+	$themeSwitcher.forEach(el => {
+		el.addEventListener("mouseenter", () => {
+			toggleDesktopTopbarOverflow(true);
+		});
+
+		el.addEventListener("mouseleave", () => {
+			toggleDesktopTopbarOverflow(false);
+		});
 	});
 
-	$themeSwitcher.on("mouseleave", () => {
-		toggleDesktopTopbarOverflow(false);
-	});
-
-	$(window).on("click", e => {
+	window.addEventListener("click", e => {
 		if (submenuIsOpen) {
 			if ($submenuOption && !$submenuOption.contains(e.target)) {
 				submenuIsOpen = false;
@@ -273,42 +323,52 @@ $(() => {
 		}
 	});
 
-	$(document).on("keyup", e => {
-		if (e.key === "Escape" && $search.hasClass("opened")) {
-			$closeSearch.trigger("click");
+	document.addEventListener("keyup", e => {
+		if (e.key === "Escape" && $search && $search.classList.contains("opened")) {
+			closeSearch();
 		}
 	});
 
-	if (localStorage.getItem("theme")) {
-		if (localStorage.getItem("theme") === "light") {
-			$setLightTheme();
-		} else if (localStorage.getItem("theme") === "dark") {
-			$setDarkTheme();
-		} else {
-			$setAutoTheme();
-		}
+	if (localStorage.getItem("theme") === "light") {
+		$setLightTheme(false);
+	} else if (localStorage.getItem("theme") === "dark") {
+		$setDarkTheme(false);
 	} else {
-		$setAutoTheme();
+		$setAutoTheme(false);
 	}
 
-	$(window).on("scroll", () => {
-		changeHeaderBackground();
-	});
+	const throttleToFrame = callback => {
+		let ticking = false;
+
+		return () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(() => {
+					ticking = false;
+					callback();
+				});
+			}
+		};
+	};
+
+	window.addEventListener("scroll", throttleToFrame(() => changeHeaderBackground()), { passive: true });
 
 	const changeHeaderBackground = () => {
-		if ($header.hasClass("with-picture")) {
-			if ($header.offset().top < $header.height()) {
-				$header.addClass("covered");
-			} else {
-				$header.removeClass("covered");
-			}
+		if (!$header) {
+			return;
+		}
+
+		if ($header.classList.contains("with-picture")) {
+			const headerTop = $header.getBoundingClientRect().top + window.scrollY;
+
+			$header.classList.toggle("covered", headerTop < contentHeight($header));
 		} else {
-			$header.removeClass("covered");
+			$header.classList.remove("covered");
 		}
 	};
 
-	if ($header.length > 0) {
-		const headroom = new Headroom($header[0], {
+	if ($header) {
+		const headroom = new Headroom($header, {
 			tolerance: {
 				down: 40,
 				up: 20,
@@ -327,7 +387,7 @@ $(() => {
 		headroom.init();
 	}
 
-	if ($recentSlider.length > 0) {
+	if ($recentSlider) {
 		const recentSwiper = new Swiper(".js-recent-slider", {
 			modules: [FreeMode, A11y],
 			freeMode: true,
@@ -341,7 +401,7 @@ $(() => {
 		});
 	}
 
-	if ($openSecondaryMenu.length > 0) {
+	if ($openSecondaryMenu) {
 		const template = document.getElementById("secondary-navigation-template");
 
 		secondaryMenuTippy = tippy(".js-open-secondary-menu", {
@@ -368,30 +428,23 @@ $(() => {
 	tryToRemoveNewsletter();
 	trySearchFeature();
 
-	var cover = $(".m-hero__picture");
+	var cover = document.querySelectorAll(".m-hero__picture");
 	var coverPosition = 0;
 
 	function prlx() {
-		if (cover.length >= 1) {
-			var windowPosition = $(window).scrollTop();
+		if (cover.length >= 1 && !$reducedMotion.matches) {
+			var windowPosition = window.scrollY;
 			windowPosition > 0 ? (coverPosition = Math.floor(windowPosition * 0.5)) : (coverPosition = 0);
-			cover.css({
-				"-webkit-transform": "translate3d(0, " + coverPosition + "px, 0)",
-				transform: "translate3d(0, " + coverPosition + "px, 0)",
+			cover.forEach(el => {
+				el.style.transform = "translate3d(0, " + coverPosition + "px, 0)";
 			});
 		}
 	}
 	prlx();
 
-	$(window).on({
-		scroll: function () {
-			prlx();
-		},
-		resize: function () {
-			prlx();
-		},
-		orientationchange: function () {
-			prlx();
-		},
-	});
+	const throttledPrlx = throttleToFrame(prlx);
+
+	window.addEventListener("scroll", throttledPrlx, { passive: true });
+	window.addEventListener("resize", throttledPrlx, { passive: true });
+	window.addEventListener("orientationchange", throttledPrlx, { passive: true });
 });

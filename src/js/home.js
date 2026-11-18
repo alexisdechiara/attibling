@@ -1,14 +1,14 @@
-import $ from "jquery";
 import shave from "shave";
-import Swiper from 'swiper';
-import { FreeMode, A11y } from "swiper/modules";
+import Swiper from "swiper";
+import { Navigation, A11y } from "swiper/modules";
 import "swiper/css";
+import { onReady } from "./helpers";
 
-$(() => {
-	const $featuredSlider = $(".js-featured-slider");
+onReady(() => {
+	const $featuredSlider = document.querySelector(".js-featured-slider");
 
-	if ($featuredSlider.length > 0) {
-		const numSlides = $featuredSlider.find(".swiper-slide").length;
+	if ($featuredSlider) {
+		const numSlides = $featuredSlider.querySelectorAll(".swiper-slide").length;
 		const featuredSwiper = new Swiper(".js-featured-slider", {
 			modules: [Navigation, A11y],
 			navigation: {
@@ -24,7 +24,7 @@ $(() => {
 		});
 
 		if (numSlides === 1) {
-			$featuredSlider.find(".js-featured-slider-button").remove();
+			$featuredSlider.querySelectorAll(".js-featured-slider-button").forEach(el => el.remove());
 		}
 	}
 
