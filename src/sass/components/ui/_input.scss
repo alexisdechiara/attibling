@@ -13,6 +13,7 @@
 
   &:focus {
     border-color: var(--primary-subtle-color);
+    box-shadow: 0 0 0 1px var(--primary-subtle-color);
   }
 
   &.in-search {

@@ -39,6 +39,12 @@ $break-largest: 90rem; // >= 1440px @ 16px
   -moz-opacity: $opacity;
 }
 
+// Keyboard focus ring (use inside a :focus-visible rule)
+@mixin focus-ring($offset: 2px) {
+  outline: 2px solid var(--primary-subtle-color);
+  outline-offset: $offset;
+}
+
 // Transitions
 @mixin transition($transition: all linear 0.2s) {
   -webkit-transition: $transition;

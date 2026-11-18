@@ -9,7 +9,7 @@
   background-color: transparent;
   @extend .content-centered;
   @extend .no-appearance;
-  // @extend .focusable;
+  @extend .focusable;
 
   &.outlined {
     border: 1px solid var(--primary-foreground-color);
