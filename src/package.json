@@ -1,6 +1,6 @@
 {
 	"name": "attibling",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Fusion between liebling and attila themes",
 	"main": "index.js",
 	"scripts": {
@@ -28,37 +28,37 @@
 	"license": "ISC",
 	"devDependencies": {
 		"7zip": "0.0.6",
-		"@babel/preset-react": "^7.14.5",
-		"@tryghost/admin-api": "^1.4.0",
-		"browser-sync": "^2.29.3",
+		"@babel/preset-react": "^7.24.7",
+		"@tryghost/admin-api": "^1.13.12",
+		"browser-sync": "^3.0.2",
 		"browser-sync-webpack-plugin": "^2.3.0",
-		"concurrently": "^6.0.0",
-		"dotenv": "^8.2.0",
+		"concurrently": "^8.2.2",
+		"dotenv": "^16.4.5",
 		"fs": "0.0.1-security",
-		"ghost-cli": "^1.17.3",
-		"husky": "^4.3.0",
+		"ghost-cli": "^1.26.1",
+		"husky": "^9.1.5",
 		"laravel-mix": "^6.0.49",
 		"path": "^0.12.7",
-		"postcss": "^8.3.1",
-		"resolve-url-loader": "3.1.2",
-		"run-script-os": "^1.1.5",
-		"sass": "^1.32.8",
-		"sass-loader": "^10.1.1",
-		"vue-template-compiler": "^2.6.10"
+		"postcss": "^8.4.41",
+		"resolve-url-loader": "5.0.0",
+		"run-script-os": "^1.1.6",
+		"sass": "^1.77.8",
+		"sass-loader": "^16.0.1",
+		"vue-template-compiler": "^2.7.16"
 	},
 	"dependencies": {
-		"@tryghost/content-api": "^1.11.1",
-		"fitvids": "^2.0.0",
-		"fuse.js": "^6.4.6",
+		"@tryghost/content-api": "^1.11.21",
+		"fitvids": "^2.1.1",
+		"fuse.js": "^7.0.0",
 		"headroom.js": "^0.12.0",
-		"jquery": "^3.6.0",
-		"medium-zoom": "^1.0.6",
-		"shave": "^2.5.10",
-		"swiper": "^8.0.3",
-		"tippy.js": "^6.2.4",
-		"tocbot": "^4.21.2"
+		"jquery": "^3.7.1",
+		"medium-zoom": "^1.1.0",
+		"shave": "^5.0.4",
+		"swiper": "^11.1.10",
+		"tippy.js": "^6.3.7",
+		"tocbot": "^4.29.0"
 	},
 	"optionalDependencies": {
-		"win-node-env": "^0.4.0"
+		"win-node-env": "^0.6.1"
 	}
 }

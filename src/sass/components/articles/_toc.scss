@@ -3,40 +3,44 @@
   position: absolute;
   right: -2em;
 
-  @include respond-to('large') { 
+  @include respond-to('large') {
     transform: translateX(66%);
   }
 
-  @include respond-to('largest') { 
+  @include respond-to('largest') {
     transform: translateX(100%);
   }
   top: 5vh;
   bottom: 50vh;
   height: auto;
-  background-color: transparent;
+
+  & ol {
+    padding-left: 1rem;
+  }
 }
 
 .toc-container {
-  padding-right: 1em;
-  padding-top: 3em;
+  right: 1em;
   height: 100%;
   position: sticky;
   display: none;
   overflow-x: hidden;
-  top: 10vh;
+  top: 15vh;
   height: auto;
+  padding: 1rem;
+  width: 100%;
 
-  @include respond-to('large') { 
+
+  @include respond-to('large') {
     display: block;
-    width: 25vw;
+    max-width: 20vw;
   }
 
-  @include respond-to('largest') { 
-    padding-left: 1em;
-    width: 17vw;
+  @include respond-to('largest') {
+    max-width: 15vw;
   }
 
-  background-color: white;
+  background-color: var(--background-color);
   border-radius: 16px;
 }
 
@@ -68,7 +72,7 @@
   }
 
   &-link::before {
-    background-color: #eee;
+    background-color: var(--secondary-subtle-color);
     box-sizing: content-box;
     content: " ";
     display: inline-block;
@@ -86,7 +90,7 @@
   }
 
   .is-collapsible {
-    max-height: 1000px;
+    max-height: 100%;
     overflow: hidden;
     transition: all 300ms ease-in-out;
 

@@ -1,14 +1,15 @@
 .l-grid {
-  padding-bottom: 20px;
+  display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-column-gap: 40px;
+    grid-row-gap: 40px;
 
   @include respond-to('medium') {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 -10px;
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  @include respond-to('extra-large') {
-    margin: 0 -20px;
+  @include respond-to('large') {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   &.centered {

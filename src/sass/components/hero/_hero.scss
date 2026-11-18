@@ -1,11 +1,13 @@
 .m-hero {
   position: relative;
-  flex-direction: column;
   min-height: 365px;
   overflow: hidden;
   padding: 100px 0 75px;
   background-color: var(--secondary-subtle-color);
-  @extend .content-centered;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 
   @include respond-to('medium') {
     min-height: 400px;
@@ -22,6 +24,10 @@
 
     &.in-homepage {
       min-height: 100vh;
+    }
+
+    &.in-post {
+      justify-content: flex-start;
     }
 
     .m-hero-title {
@@ -50,6 +56,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top;
   }
 }
 
@@ -57,16 +64,7 @@
 .m-hero__content {
   position: relative;
   text-align: center;
-  padding: 0 $mobile-space;
   z-index: 2;
-
-  @include respond-to('medium') {
-    max-width: 700px;
-  }
-
-  @include respond-to('extra-large') {
-    padding: 0;
-  }
 }
 
 .m-hero__meta {
