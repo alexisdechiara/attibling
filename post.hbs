@@ -22,7 +22,7 @@ into the {body} of the default.hbs template --}}
   {{> header background=feature_image}}
   {{/post}}
 
-  <main class="main-wrap">
+  <main id="main" class="main-wrap">
     {{#post}}
     {{!-- Inject styles of the hero image to make it responsive --}}
     {{> hero background=feature_image}}
@@ -49,17 +49,17 @@ into the {body} of the default.hbs template --}}
           <figure class="m-heading__meta__avatar">
             <a href="{{url}}" class="author-avatar">
               {{#if profile_image}}
-              <img class="author-profile-image" src="{{img_url profile_image size="xs" format="webp" }}" loading="lazy" alt="{{name}}" />
+              <img class="author-profile-image" src="{{img_url profile_image size="xs" format="webp" }}" loading="lazy" decoding="async" alt="{{name}}" />
               {{else}}
-              <img class="author-profile-image" src="{{asset "images/default-avatar-rectangle.jpg"}}" loading="lazy" alt="{{name}}" />
+              <img class="author-profile-image" src="{{asset "images/default-avatar-rectangle.jpg"}}" width="374" height="220" loading="lazy" decoding="async" alt="{{name}}" />
               {{/if}}
             </a>
           </figure>
           {{/foreach}}
         </div>
         <div>
-          <h4 class="m-heading__meta__author">{{authors separator=", "}}</h4>
-          <time id="lastmod" datetime="{{date format="YYYY-MM-DDTHH:mm:ssZ"}}">{{date format="lll"}}</time> &bull; {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}
+          <div class="m-heading__meta__author">{{authors separator=", "}}</div>
+          <time id="lastmod" datetime="{{date format="YYYY-MM-DDTHH:mm:ssZ"}}">{{date format="ll"}}</time> &bull; {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}
         </div>
       </div>
     </header>
@@ -77,7 +77,7 @@ into the {body} of the default.hbs template --}}
     <article>
       <div class="l-content in-post pos-relative">
         <div class="m-share js-sticky">
-          <aside class="m-share__content">
+          <aside class="m-share__content" aria-label="{{t "Reading progress"}}">
             <button class="m-icon-button filled in-share progress js-scrolltop" aria-label="{{t "Scroll to top"}}">
               <span class="icon-arrow-top" aria-hidden="true"></span>
               <svg aria-hidden="true">
@@ -90,7 +90,7 @@ into the {body} of the default.hbs template --}}
         {{#post}}
         <div class="l-wrapper in-post {{#unless feature_image}}no-image{{/unless}} js-animation-wrapper" data-animate="fade-up">
           <div class="m-toc">
-            <aside class="toc-container js-sticky">
+            <aside class="toc-container js-sticky" aria-label="{{t "Table of contents"}}">
               <span class="toc-title">{{t "Summary"}}</span>
               <div class="toc"></div>
             </aside>
@@ -116,7 +116,7 @@ into the {body} of the default.hbs template --}}
                   </a>
                 </div>
                 {{#if tags}}
-                <aside class="m-article-footer__tags">
+                <aside class="m-article-footer__tags" aria-label="{{t "Tags"}}">
                   <span class="m-article-footer__label">{{t "Tags"}}</span>
                   <div class="m-article-footer__tags__content">
                     {{tags separator=" "}}
@@ -157,9 +157,9 @@ into the {body} of the default.hbs template --}}
               </a>
             </div>
             <div class="m-author__info">
-              <h4 class="m-author__name">
+              <div class="m-author__name">
                 <a href="{{primary_author.url}}">{{primary_author.name}}</a>
-              </h4>
+              </div>
               {{#has author="count:>1"}}
               <p class="m-small-text in-author-along-with">
                 {{authors separator=", " prefix=(t "Among with no break line") from="2"}}
@@ -168,29 +168,13 @@ into the {body} of the default.hbs template --}}
               {{#if primary_author.bio}}
               <p class="m-author__bio">{{primary_author.bio}}</p>
               {{/if}}
-              <ul class="m-author-links">
-                {{#if primary_author.website}}
-                <li>
-                  <a href="{{primary_author.website}}" target="_blank" rel="noopener" aria-label="{{t "Website"}}">
-                    <span class="icon-globe" aria-hidden="true"></span>
-                  </a>
-                </li>
-                {{/if}}
-                {{#if primary_author.facebook}}
-                <li>
-                  <a href="https://facebook.com/{{primary_author.facebook}}" target="_blank" rel="noopener" aria-label="Facebook">
-                    <span class="icon-facebook" aria-hidden="true"></span>
-                  </a>
-                </li>
-                {{/if}}
-                {{#if primary_author.twitter}}
-                <li>
-                  <a href="https://twitter.com/{{primary_author.twitter}}" target="_blank" rel="noopener" aria-label="Twitter">
-                    <span class="icon-twitter" aria-hidden="true"></span>
-                  </a>
-                </li>
-                {{/if}}
-              </ul>
+              {{#primary_author}}
+                {{#has any="website, twitter, facebook, linkedin, bluesky, threads, mastodon, tiktok, youtube, instagram"}}
+                <ul class="m-author-links">
+                  {{> "social-links"}}
+                </ul>
+                {{/has}}
+              {{/primary_author}}
             </div>
           </div>
         </section>
@@ -213,7 +197,7 @@ into the {body} of the default.hbs template --}}
         {{/post}}
         {{!-- Related posts --}}
         {{#if post.tags.length}}
-        {{#get "posts" limit="5" filter="tags:[{{post.tags}}]+id:-{{post.id}}" include="tags,authors" as |related|}}
+        {{#get "posts" limit="5" filter="tags:[{{post.tags}}]+id:-{{post.id}}" include="tags,authors" order="published_at desc" as |related|}}
         {{#if related}}
         <section class="m-recommended">
           <div class="l-wrapper in-recommended">

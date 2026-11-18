@@ -146,6 +146,9 @@
     {{/if}}
   </head>
   <body class="{{body_class}}">
+    {{!-- Skip link: first focusable element; every template gives its <main> id="main" --}}
+    <a class="sr-only focusable skip-link" href="#main">{{t "Skip to content"}}</a>
+
     {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}
     {{{body}}}
 

@@ -1,6 +1,6 @@
 {
 	"name": "attibling",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"description": "Fusion between liebling and attila themes",
 	"author": {
 		"email": "pro@alexisdechiara.fr",
@@ -14,7 +14,7 @@
 		"ghost-theme"
 	],
 	"engines": {
-		"ghost": ">=5.0.0"
+		"ghost": ">=6.0.0"
 	},
 	"config": {
 		"posts_per_page": 10,

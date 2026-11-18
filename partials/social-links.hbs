@@ -1,0 +1,81 @@
+{{!--
+List items (<li>) linking to the social accounts of the author in the current context.
+Use it inside an author context (the author block of author.hbs, primary_author, foreach authors)
+and wrap it in a <ul> guarded by {{#has any="website, twitter, facebook, linkedin, bluesky, threads, mastodon, tiktok, youtube, instagram"}}.
+
+Each link is guarded by {{#if <platform>}} on purpose: {{social_url}} looks the platform up
+on the current author first and then falls back to the site's own account (@site), so an
+unguarded call would show the site's account on every author.
+The X account is still stored in the "twitter" field (social_url type="twitter" outputs an x.com URL).
+Platforms with a glyph in the icon font use it; the others use an inline SVG from partials/icons/.
+--}}
+{{#if website}}
+  <li>
+    <a href="{{website}}" target="_blank" rel="noopener" aria-label="{{t "Website"}}">
+      <span class="icon-globe" aria-hidden="true"></span>
+    </a>
+  </li>
+{{/if}}
+{{#if twitter}}
+  <li>
+    <a href="{{social_url type="twitter"}}" target="_blank" rel="noopener" aria-label="X">
+      {{> "icons/x"}}
+    </a>
+  </li>
+{{/if}}
+{{#if facebook}}
+  <li>
+    <a href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">
+      <span class="icon-facebook" aria-hidden="true"></span>
+    </a>
+  </li>
+{{/if}}
+{{#if linkedin}}
+  <li>
+    <a href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <span class="icon-linkedin" aria-hidden="true"></span>
+    </a>
+  </li>
+{{/if}}
+{{#if bluesky}}
+  <li>
+    <a href="{{social_url type="bluesky"}}" target="_blank" rel="noopener" aria-label="Bluesky">
+      {{> "icons/bluesky"}}
+    </a>
+  </li>
+{{/if}}
+{{#if threads}}
+  <li>
+    <a href="{{social_url type="threads"}}" target="_blank" rel="noopener" aria-label="Threads">
+      {{> "icons/threads"}}
+    </a>
+  </li>
+{{/if}}
+{{#if mastodon}}
+  <li>
+    <a href="{{social_url type="mastodon"}}" target="_blank" rel="noopener" aria-label="Mastodon">
+      {{> "icons/mastodon"}}
+    </a>
+  </li>
+{{/if}}
+{{#if tiktok}}
+  <li>
+    <a href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">
+      <span class="icon-tiktok" aria-hidden="true"></span>
+    </a>
+  </li>
+{{/if}}
+{{#if youtube}}
+  <li>
+    <a href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">
+      <span class="icon-youtube" aria-hidden="true"></span>
+    </a>
+  </li>
+{{/if}}
+{{#if instagram}}
+  <li>
+    <a href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">
+      <span class="icon-instagram" aria-hidden="true"></span>
+    </a>
+  </li>
+{{/if}}

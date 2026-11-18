@@ -9,15 +9,52 @@ This footer template is shared across all the pages.
         {{navigation type="secondary"}}
       </nav>
     {{/if}}
-    <nav class="m-footer-social">
+    <nav class="m-footer-social" aria-label="{{t "Social links"}}">
+      {{!-- Site-wide accounts from Settings > General > Social accounts.
+      The X account is stored in the "twitter" field; social_url outputs an x.com URL. --}}
+      {{#if @site.twitter}}
+        <a href="{{social_url type="twitter"}}" target="_blank" rel="noopener" aria-label="X">
+          {{> "icons/x"}}
+        </a>
+      {{/if}}
       {{#if @site.facebook}}
-        <a href="{{facebook_url @site.facebook}}" target="_blank" rel="noopener" aria-label="Facebook">
+        <a href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">
           <span class="icon-facebook" aria-hidden="true"></span>
         </a>
       {{/if}}
-      {{#if @site.twitter}}
-        <a href="{{twitter_url @site.twitter}}" target="_blank" rel="noopener" aria-label="Twitter">
-          <span class="icon-twitter" aria-hidden="true"></span>
+      {{#if @site.linkedin}}
+        <a href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <span class="icon-linkedin" aria-hidden="true"></span>
+        </a>
+      {{/if}}
+      {{#if @site.bluesky}}
+        <a href="{{social_url type="bluesky"}}" target="_blank" rel="noopener" aria-label="Bluesky">
+          {{> "icons/bluesky"}}
+        </a>
+      {{/if}}
+      {{#if @site.threads}}
+        <a href="{{social_url type="threads"}}" target="_blank" rel="noopener" aria-label="Threads">
+          {{> "icons/threads"}}
+        </a>
+      {{/if}}
+      {{#if @site.mastodon}}
+        <a href="{{social_url type="mastodon"}}" target="_blank" rel="noopener" aria-label="Mastodon">
+          {{> "icons/mastodon"}}
+        </a>
+      {{/if}}
+      {{#if @site.tiktok}}
+        <a href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">
+          <span class="icon-tiktok" aria-hidden="true"></span>
+        </a>
+      {{/if}}
+      {{#if @site.youtube}}
+        <a href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">
+          <span class="icon-youtube" aria-hidden="true"></span>
+        </a>
+      {{/if}}
+      {{#if @site.instagram}}
+        <a href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="icon-instagram" aria-hidden="true"></span>
         </a>
       {{/if}}
       <a href="{{@site.url}}/rss" aria-label="RSS">
