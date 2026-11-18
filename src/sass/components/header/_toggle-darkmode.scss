@@ -6,6 +6,16 @@
   overflow: hidden;
   z-index: 2;
 
+  // The input is transparent, so show its keyboard focus on the wrapper
+  // (separate rules so browsers without :has() still keep the first one)
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &:has(input:focus-visible) {
+    @include focus-ring;
+  }
+
   @include respond-to("medium") {
     position: relative;
     left: auto;
