@@ -12,6 +12,9 @@ body {
   font-display: swap;
   overflow-x: hidden;
   background-color: var(--background-color);
+  /* The fixed header holds Ghost's announcement bar: keep the page below it */
+  padding-top: var(--announcement-bar-height);
+  transition: padding-top linear 0.2s;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 

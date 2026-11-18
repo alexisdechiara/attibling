@@ -15,6 +15,7 @@
 @import "./components/ui/not-found.css";
 @import "./components/ui/tooltip.css";
 @import "./components/header/header.css";
+@import "./components/header/announcement-bar.css";
 @import "./components/header/mobile-topbar.css";
 @import "./components/header/logo.css";
 @import "./components/header/site-name.css";

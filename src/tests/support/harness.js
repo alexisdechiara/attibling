@@ -37,6 +37,7 @@ const close = async () => {
  *  - storage: object of localStorage entries set before any script runs
  *  - initScript: function run in the page before any of its scripts
  *  - lang: value of the lang attribute of <html> (default "en")
+ *  - bodyStart: HTML inserted at the start of <body>, where {{ghost_head}} scripts add theirs
  *  - colorScheme, reducedMotion, viewport: browser context options
  */
 const open = async (options = {}) => {
@@ -46,6 +47,7 @@ const open = async (options = {}) => {
 		storage = null,
 		initScript = null,
 		lang = "en",
+		bodyStart = "",
 		colorScheme = "light",
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
@@ -101,7 +103,8 @@ const open = async (options = {}) => {
 				body = body
 					.toString()
 					.replace("<!--COMMENTS-->", comments)
-					.replace('<html lang="en">', `<html lang="${lang}">`);
+					.replace('<html lang="en">', `<html lang="${lang}">`)
+					.replace(/<body[^>]*>/, tag => tag + bodyStart);
 			}
 			return route.fulfill({
 				status: 200,

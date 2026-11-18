@@ -17,7 +17,7 @@
   @media (width >= 48rem) {
     visibility: hidden;
     position: fixed;
-    /* 45px below the top of the menu bar, its containing block (.m-menu has a transform)... */
+    /* 45px below the top of the menu bar, its containing block (.m-menu__main has a transform)... */
     top: 45px;
     left: 0;
     width: 100%;

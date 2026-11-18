@@ -1,3 +1,5 @@
 :root {
   --show-fade-animation: 1;
+  /* Height of Ghost's announcement bar, set by app.js */
+  --announcement-bar-height: 0px;
 }

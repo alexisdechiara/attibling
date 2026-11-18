@@ -213,6 +213,18 @@ onReady(() => {
 		window.addEventListener("scroll", throttleToFrame(updateHeader), { passive: true });
 	}
 
+	// Ghost's announcement bar ({{ghost_head}} adds #announcement-bar-root and fills it later) goes at
+	// the top of the fixed header; --announcement-bar-height keeps the page and the submenu below it.
+	const $announcementBar = document.getElementById("announcement-bar-root");
+
+	if ($announcementBar && $header) {
+		$header.classList.add("with-announcement-bar");
+		$header.prepend($announcementBar);
+		new ResizeObserver(() => {
+			document.documentElement.style.setProperty("--announcement-bar-height", `${$announcementBar.offsetHeight}px`);
+		}).observe($announcementBar);
+	}
+
 	if ($toggleSubmenu[0] && $submenu[0]) {
 		submenu = setUpPopover($toggleSubmenu[0], $submenu[0], { onToggle: onSubmenuToggle, place: false });
 	}
