@@ -34,14 +34,30 @@
       // @license-end
     </script>
 
-    {{!-- Google fonts: Noto Sans (+ JP, KR, TC), Noto Serif, Manrope, Montserrat --}}
+    {{!-- Google fonts, only the styles and weights the CSS can select:
+    Noto Sans (body text: 400 to 700, and up to 900 for bold text inside semibold or bold elements, roman and italic),
+    Noto Serif (homepage description 400, quotes 400 italic and 700 italic for bold text),
+    Manrope (post headings 800, and 500 to 700 for the headings of Ghost's cards), Montserrat (page titles 700).
+    Noto Sans JP / KR / TC follow Noto Sans in the body font stack for Japanese, Korean and Chinese text:
+    they are only loaded for a site in one of those languages. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Montserrat:ital,wght@0,700;1,700&amp;family=Noto+Sans+JP:wght@100..900&amp;family=Noto+Sans+KR:wght@100..900&amp;family=Noto+Sans+TC:wght@100..900&amp;family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Serif:ital,wght@0,100..900;1,100..900&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500..800&amp;family=Montserrat:wght@700&amp;family=Noto+Sans:ital,wght@0,400..900;1,400..900&amp;family=Noto+Serif:ital,wght@0,400;1,400..700&amp;display=swap">
+    {{#match @site.locale "~^" "ja"}}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400..900&amp;display=swap">
+    {{/match}}
+    {{#match @site.locale "~^" "ko"}}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400..900&amp;display=swap">
+    {{/match}}
+    {{#match @site.locale "~^" "zh"}}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400..900&amp;display=swap">
+    {{/match}}
 
     {{!-- Styles & Scripts --}}
     <style>
-      /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory */
+      /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory.
+         They are only downloaded when the GEEKLY wordmark (use_geekly_logo) is shown, which only uses
+         Pacifico and Product Sans bold (its 600 and 700 weights both resolve to the bold face). */
 
       /* Pacifico */
       @font-face {
@@ -50,28 +66,7 @@
         font-weight: 400;
         font-display: swap;
         src: local('Pacifico-Regular'),
-            url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/pacifico/pacifico.woff'}}") format('woff');
-      }
-
-      /* Product Sans Regular */
-      @font-face {
-        font-family: 'Product Sans';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: local('ProductSans-Regular'),
-            url("{{asset 'fonts/product-sans/product-sans-regular.woff2'}}") format('woff2');
-      }
-
-      /* Product Sans Medium */
-      @font-face {
-        font-family: 'Product Sans';
-        font-style: normal;
-        font-weight: 500;
-        font-display: swap;
-        src: local('ProductSans-Medium'),
-            url("{{asset 'fonts/product-sans/product-sans-medium.woff2'}}") format('woff2');
+            url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2');
       }
 
       /* Product Sans Bold */
