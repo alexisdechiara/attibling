@@ -37,7 +37,8 @@ into the {body} of the default.hbs template --}}
   <div class="l-content">
     <div class="l-wrapper" data-animate="fade-up">
       <div class="l-tags-container">
-        {{#get 'tags' limit='all' include='count.posts'}}
+        {{!-- Ghost 6 caps {{#get}} at 100 results (limit="all" also returns at most 100) --}}
+        {{#get 'tags' limit='100' include='count.posts'}}
           {{#foreach tags}}
             <div class="m-tag-card">
               <a href="{{url}}" class="m-tag-card__link {{#unless feature_image}}no-picture{{/unless}}" aria-label="{{name}}">
