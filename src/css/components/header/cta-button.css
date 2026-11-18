@@ -1,0 +1,21 @@
+/* .login-button shares every .subsribe-button rule (was a Sass @extend). */
+.subsribe-button,
+.login-button {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  color: #fff;
+  border-radius: 64px;
+  background-color: var(--primary-subtle-color);
+  transition: all 0.5s ease;
+
+  @media (width >= 48rem) {
+    position: unset;
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

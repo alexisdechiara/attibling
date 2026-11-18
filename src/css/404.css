@@ -1,0 +1,5 @@
+@import "./common/variables.css";
+@import "./layouts/fullscreen.css";
+@import "./components/404/title.css";
+@import "./components/404/subtitle.css";
+@import "./components/404/text.css";

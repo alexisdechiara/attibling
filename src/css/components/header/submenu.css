@@ -1,0 +1,71 @@
+.m-submenu {
+  padding-top: 25px;
+  height: auto;
+
+  @media (width >= 48rem) {
+    visibility: hidden;
+    position: fixed;
+    top: 45px;
+    left: 0;
+    width: 100%;
+    padding: 30px 0 20px 0;
+    white-space: normal;
+    background-color: var(--background-color);
+    border-top: 1px solid var(--secondary-border-color);
+    z-index: 5;
+    box-shadow:
+      0 60px 60px rgba(0, 0, 0, var(--submenu-shadow-color-opacity)),
+      0 0 0 transparent;
+  }
+
+  @media (width >= 80rem) {
+    padding: 32px 0 23px 0;
+  }
+
+  &.opened {
+    @media (width >= 48rem) {
+      visibility: visible;
+      backface-visibility: visible !important;
+      animation: openSubmenuAnimation 0.3s both;
+    }
+  }
+}
+
+@media (width >= 48rem) {
+  @keyframes openSubmenuAnimation {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -5%, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}
+
+.m-submenu {
+  &.closed {
+    @media (width >= 48rem) {
+      backface-visibility: visible !important;
+      animation: closeSubmenuAnimation 0.3s both;
+    }
+  }
+}
+
+@media (width >= 48rem) {
+  @keyframes closeSubmenuAnimation {
+    from {
+      visibility: visible;
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    to {
+      visibility: hidden;
+      opacity: 0;
+      transform: translate3d(0, -2.5%, 0);
+    }
+  }
+}

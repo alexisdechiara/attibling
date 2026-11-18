@@ -1,0 +1,63 @@
+[data-animate^="fade"] {
+  opacity: calc((var(--show-fade-animation) + (-1)) * -1);
+  animation: fadeAnimation 500ms linear forwards;
+}
+
+@keyframes fadeAnimation {
+  0% {
+    opacity: calc((var(--show-fade-animation) + (-1)) * -1);
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+[data-animate="fade-up"] {
+  animation: fadeUpAnimation 500ms cubic-bezier(0.77, 0, 0.18, 1) 300ms forwards;
+}
+
+@keyframes fadeUpAnimation {
+  0% {
+    opacity: calc((var(--show-fade-animation) + (-1)) * -1);
+    transform: translateY(calc(100px * var(--show-fade-animation)));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-animate="fade-down"] {
+  animation: fadeDownAnimation 500ms cubic-bezier(0.77, 0, 0.18, 1) forwards;
+}
+
+@keyframes fadeDownAnimation {
+  0% {
+    opacity: calc((var(--show-fade-animation) + (-1)) * -1);
+    transform: translateY(calc((100px * -1) * var(--show-fade-animation)));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* html:root outranks the `:root` default that every page stylesheet re-emits */
+
+  html:root {
+    --show-fade-animation: 0;
+  }
+
+  .m-hero__picture {
+    transform: none !important;
+  }
+
+  .m-featured-slider.swiper {
+    transition: none !important;
+    transform: none !important;
+  }
+}

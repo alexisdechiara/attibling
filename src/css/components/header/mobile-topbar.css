@@ -1,0 +1,12 @@
+.m-mobile-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  position: relative;
+  z-index: 2;
+
+  @media (width >= 48rem) {
+    display: none !important;
+  }
+}

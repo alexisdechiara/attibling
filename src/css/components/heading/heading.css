@@ -1,0 +1,33 @@
+.m-heading {
+  text-align: center;
+  margin: 0 auto 40px;
+
+  @media (width >= 48rem) {
+    margin-bottom: 60px;
+  }
+
+  &.in-subscribe-page {
+    @media (width >= 48rem) {
+      margin-bottom: 50px;
+    }
+  }
+
+  &.no-margin {
+    margin-bottom: 0 !important;
+  }
+
+  &.in-post {
+    color: white;
+    text-align: left;
+    margin: 0;
+    padding: 0 20px;
+
+    @media (width >= 48rem) {
+      padding: 0 0 0 10vw;
+    }
+
+    @media (width >= 80rem) {
+      padding: 0 0 0 10vw;
+    }
+  }
+}

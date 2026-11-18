@@ -1,0 +1,16 @@
+.m-recent-articles {
+  margin: 0 -20px 40px;
+  overflow: hidden;
+
+  @media (width >= 48rem) {
+    margin: 0 0 40px;
+  }
+
+  ul {
+    cursor: grab;
+  }
+
+  .swiper-slide {
+    width: auto;
+  }
+}

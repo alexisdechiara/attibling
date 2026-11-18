@@ -1,0 +1,39 @@
+.m-featured-slider.swiper {
+  grid-column: span 1 / span 1;
+  height: 350px;
+  position: relative;
+  overflow: hidden !important;
+  transition: all 0.25s cubic-bezier(0.02, 0.01, 0.47, 1);
+
+  @media (width >= 48rem) {
+    grid-column: span 2 / span 2;
+    height: 420px;
+  }
+
+  &:hover {
+    @media (width >= 48rem) {
+      transform: translateY(-5px);
+      box-shadow:
+        var(--article-shadow-hover),
+        0 0 0 transparent;
+    }
+  }
+}
+
+.m-featured-slider:not(:root:root) {
+  overflow: hidden !important;
+}
+
+.m-featured-slider__list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.m-featured-slider__list__item {
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+}
