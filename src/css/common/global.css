@@ -8,7 +8,17 @@ body {
   min-height: 100vh;
   color: var(--primary-foreground-color);
   font-size: 1rem;
-  font-family: "Noto Sans", "Noto Sans JP", "Noto Sans KR", "Noto Sans TC", "Open Sans", Arial, sans-serif;
+  /* --gh-font-body / --gh-font-heading: the fonts picked in Ghost Admin > Design (set by {{ghost_head}}) */
+  font-family: var(
+    --gh-font-body,
+    "Noto Sans",
+    "Noto Sans JP",
+    "Noto Sans KR",
+    "Noto Sans TC",
+    "Open Sans",
+    Arial,
+    sans-serif
+  );
   font-display: swap;
   overflow-x: hidden;
   background-color: var(--background-color);
@@ -22,6 +32,17 @@ body {
       padding-bottom: 0;
     }
   }
+}
+
+/* Headings use the heading font picked in Ghost Admin. Without one, var() without a fallback makes the
+   declaration unset, so headings keep inheriting their font as before. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--gh-font-heading);
 }
 
 .main-wrap {
