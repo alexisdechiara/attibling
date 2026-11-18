@@ -36,47 +36,54 @@
       // @license-end
     </script>
 
-    {{!-- Google fonts (served by coollabs): Noto Sans & Serif, Montserrat, Poppins, Pacifico, Noto Color Emoji --}}
-    <link rel="preconnect" href="https://api.fonts.coollabs.io" crossorigin>
-    <link rel="stylesheet" href="https://api.fonts.coollabs.io/css2?family=Montserrat:ital,wght@0,700;1,700&amp;family=Noto+Color+Emoji&amp;family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Pacifico&amp;family=Poppins:wght@600;700&amp;display=swap">
+    {{!-- Google fonts: Noto Sans (+ JP, KR, TC), Noto Serif, Manrope, Montserrat --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Montserrat:ital,wght@0,700;1,700&amp;family=Noto+Sans+JP:wght@100..900&amp;family=Noto+Sans+KR:wght@100..900&amp;family=Noto+Sans+TC:wght@100..900&amp;family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Serif:ital,wght@0,100..900;1,100..900&amp;display=swap">
 
     {{!-- Styles & Scripts --}}
     <style>
       /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory */
 
-      /* source-sans-pro-regular */
+      /* Pacifico */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Pacifico';
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: local('SourceSansPro-Regular'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-regular.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-regular.woff'}}") format('woff');
+        src: local('Pacifico-Regular'),
+            url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2'),
+            url("{{asset 'fonts/pacifico/pacifico.woff'}}") format('woff');
       }
-      
 
-      /* source-sans-pro-600 */
+      /* Product Sans Regular */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Product Sans';
         font-style: normal;
-        font-weight: 600;
+        font-weight: 400;
         font-display: swap;
-        src: local('SourceSansPro-SemiBold'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-600.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-600.woff'}}") format('woff');
+        src: local('ProductSans-Regular'),
+            url("{{asset 'fonts/product-sans/product-sans-regular.woff2'}}") format('woff2');
       }
-      
 
-      /* source-sans-pro-700 */
+      /* Product Sans Medium */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Product Sans';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: local('ProductSans-Medium'),
+            url("{{asset 'fonts/product-sans/product-sans-medium.woff2'}}") format('woff2');
+      }
+
+      /* Product Sans Bold */
+      @font-face {
+        font-family: 'Product Sans';
         font-style: normal;
         font-weight: 700;
         font-display: swap;
-        src: local('SourceSansPro-Bold'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-700.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-700.woff'}}") format('woff');
+        src: local('ProductSans-Bold'),
+            url("{{asset 'fonts/product-sans/product-sans-bold.woff2'}}") format('woff2');
       }
 
       /* iconmoon */

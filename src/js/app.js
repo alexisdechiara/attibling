@@ -4,10 +4,12 @@ import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import shave from "shave";
 import GhostContentAPI from "@tryghost/content-api";
-import Fuse from "fuse.js/dist/fuse.basic.esm.min.js";
-import Swiper, { FreeMode, A11y } from "swiper";
+import Fuse from 'fuse.js'
+import Swiper from 'swiper';
+import { FreeMode, A11y } from "swiper/modules";
 import "swiper/css";
 import { isRTL, formatDate, isMobile } from "./helpers";
+import tocbot from 'tocbot'
 
 $(() => {
 	if (isRTL()) {
@@ -118,6 +120,17 @@ $(() => {
 			}
 		}
 	};
+
+  tocbot.init({
+    // Where to render the table of contents.
+    tocSelector: '.toc',
+    // Where to grab the headings to build the table of contents.
+    contentSelector: '.post-content',
+    headingSelector: 'h2, h3, h4',
+    // Which headings to grab inside of the contentSelector element.
+    // For headings inside relative or absolute positioned containers within content.
+    hasInnerContainers: true,
+  });
 
 	$openMenu.on("click", () => {
 		$header.addClass("mobile-menu-opened");
