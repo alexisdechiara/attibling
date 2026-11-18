@@ -1,12 +1,18 @@
-import $ from "jquery";
 import mediumZoom from "medium-zoom";
 import fitvids from "fitvids";
 import shave from "shave";
-import Swiper from 'swiper';
+import Swiper from "swiper";
 import { Navigation, A11y } from "swiper/modules";
 import tocbot from "tocbot";
 import "swiper/css";
-import { isMobile, adjustImageGallery, managePostImages, makeImagesZoomable } from "./helpers";
+import {
+	isMobile,
+	adjustImageGallery,
+	managePostImages,
+	makeImagesZoomable,
+	onReady,
+	contentHeight,
+} from "./helpers";
 
 let $animationWrapper = null;
 let $progressCircle = null;
@@ -21,11 +27,11 @@ const onScrolling = () => {
 
 const adjustShare = timeout => {
 	if (!isMobile("1023px")) {
-		$("body").removeClass("share-menu-displayed");
+		document.body.classList.remove("share-menu-displayed");
 	} else {
-		$("body").addClass("share-menu-displayed");
+		document.body.classList.add("share-menu-displayed");
 		setTimeout(() => {
-			$animationWrapper.removeAttr("data-animate");
+			$animationWrapper.forEach(el => el.removeAttribute("data-animate"));
 		}, timeout);
 	}
 };
@@ -48,7 +54,7 @@ const requestTicking = () => {
 };
 
 const updating = () => {
-	const progressMax = $(".js-post-content").height();
+	const progressMax = contentHeight(document.querySelector(".js-post-content"));
 	const percent = Math.ceil((lastScrollingY / progressMax) * 100);
 
 	if (percent <= 100) {
@@ -59,51 +65,52 @@ const updating = () => {
 };
 
 const setCircleStyles = () => {
-	const svgWidth = $progressCircle.parent().width();
+	const svg = $progressCircle.parentNode;
+	const svgWidth = parseFloat(getComputedStyle(svg).width);
 	const radiusCircle = svgWidth / 2;
 	const borderWidth = isMobile() ? 2 : 3;
 
-	$progressCircle.parent().attr("viewBox", `0 0 ${svgWidth} ${svgWidth}`);
-	$progressCircle.attr("stroke-width", borderWidth);
-	$progressCircle.attr("r", radiusCircle - (borderWidth - 1));
-	$progressCircle.attr("cx", radiusCircle);
-	$progressCircle.attr("cy", radiusCircle);
+	svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgWidth}`);
+	$progressCircle.setAttribute("stroke-width", borderWidth);
+	$progressCircle.setAttribute("r", radiusCircle - (borderWidth - 1));
+	$progressCircle.setAttribute("cx", radiusCircle);
+	$progressCircle.setAttribute("cy", radiusCircle);
 
 	circumference = radiusCircle * 2 * Math.PI;
 
-	$progressCircle[0].style.strokeDasharray = `${circumference} ${circumference}`;
-	$progressCircle[0].style.strokeDashoffset = circumference;
+	$progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+	$progressCircle.style.strokeDashoffset = circumference;
 };
 
 const setProgress = percent => {
 	if (percent <= 100) {
 		const offset = circumference - (percent / 100) * circumference;
-		$progressCircle[0].style.strokeDashoffset = offset;
+		$progressCircle.style.strokeDashoffset = offset;
 	}
 };
 
 const prepareProgressCircle = () => {
-	$progressCircle = $(".js-progress");
+	$progressCircle = document.querySelector(".js-progress");
 
 	setCircleStyles();
 	updating();
 
 	setTimeout(() => {
-		$progressCircle.parent().css("opacity", 1);
+		$progressCircle.parentNode.style.opacity = 1;
 	}, 300);
 };
 
-$(() => {
-	$animationWrapper = $(".js-animation-wrapper");
-	const $scrollButton = $(".js-scrolltop");
-	const $recommendedSlider = $(".js-recommended-slider");
+onReady(() => {
+	$animationWrapper = document.querySelectorAll(".js-animation-wrapper");
+	const $scrollButton = document.querySelectorAll(".js-scrolltop");
+	const $recommendedSlider = document.querySelector(".js-recommended-slider");
 
 	fitvids(".js-post-content");
 
 	adjustImageGallery();
 	adjustShare(1000);
 
-	if ($recommendedSlider.length > 0) {
+	if ($recommendedSlider) {
 		const recommendedSwiper = new Swiper(".js-recommended-slider", {
 			modules: [Navigation, A11y],
 			navigation: {
@@ -138,14 +145,16 @@ $(() => {
 	shave(".js-article-card-title", 100);
 	shave(".js-article-card-title-no-image", 250);
 
-	$scrollButton.on("click", () => {
-		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	$scrollButton.forEach(el =>
+		el.addEventListener("click", () => {
+			const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-		window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
-	});
+			window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
+		})
+	);
 
-	managePostImages($);
-	makeImagesZoomable($, mediumZoom);
+	managePostImages();
+	makeImagesZoomable(mediumZoom);
 
 	if (document.querySelector(".toc")) {
 		tocbot.init({
@@ -160,6 +169,6 @@ $(() => {
 	window.addEventListener("resize", onResizing, { passive: true });
 });
 
-$(window).on("load", () => {
+window.addEventListener("load", () => {
 	prepareProgressCircle();
 });

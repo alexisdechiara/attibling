@@ -46,30 +46,44 @@ export const adjustImageGallery = () => {
 	}
 };
 
-export const managePostImages = $ => {
-	$(".js-post-content")
-		.find("img")
-		.each(function () {
-			if (
-				!$(this).closest("figure").hasClass("kg-bookmark-card") &&
-				!$(this).closest("figure").hasClass("kg-nft-card") &&
-				!$(this).parent().is("a") &&
-				!$(this).hasClass("kg-product-card-image") &&
-				!$(this).hasClass("kg-audio-thumbnail")
-			) {
-				$(this).addClass("js-zoomable");
-			}
-		});
+export const onReady = callback => {
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", callback, { once: true });
+	} else {
+		callback();
+	}
 };
 
-export const makeImagesZoomable = ($, mediumZoom) => {
+// Content height of an element, excluding padding.
+export const contentHeight = el => {
+	const style = getComputedStyle(el);
+	return el.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+};
+
+export const managePostImages = () => {
+	document.querySelectorAll(".js-post-content img").forEach(img => {
+		const figure = img.closest("figure");
+
+		if (
+			!(figure && figure.classList.contains("kg-bookmark-card")) &&
+			!(figure && figure.classList.contains("kg-nft-card")) &&
+			!(img.parentElement && img.parentElement.tagName === "A") &&
+			!img.classList.contains("kg-product-card-image") &&
+			!img.classList.contains("kg-audio-thumbnail")
+		) {
+			img.classList.add("js-zoomable");
+		}
+	});
+};
+
+export const makeImagesZoomable = mediumZoom => {
 	const zoom = mediumZoom(".js-zoomable");
 
 	zoom.on("opened", () => {
 		setTimeout(() => {
-			const $mediumZoomImages = $(".medium-zoom-image--opened");
-			if ($mediumZoomImages.length > 1) {
-				$mediumZoomImages.last().hide();
+			const mediumZoomImages = document.querySelectorAll(".medium-zoom-image--opened");
+			if (mediumZoomImages.length > 1) {
+				mediumZoomImages[mediumZoomImages.length - 1].style.display = "none";
 			}
 		}, 10);
 	});

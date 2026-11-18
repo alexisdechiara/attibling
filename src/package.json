@@ -27,9 +27,9 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"7zip": "0.0.6",
 		"@babel/preset-react": "^7.24.7",
 		"@tryghost/admin-api": "^1.13.12",
+		"7zip": "0.0.6",
 		"browser-sync": "^3.0.2",
 		"browser-sync-webpack-plugin": "^2.3.0",
 		"concurrently": "^8.2.2",
@@ -52,7 +52,6 @@
 		"fitvids": "^2.1.1",
 		"fuse.js": "^7.0.0",
 		"headroom.js": "^0.12.0",
-		"jquery": "^3.7.1",
 		"medium-zoom": "^1.1.0",
 		"shave": "^5.0.4",
 		"swiper": "^11.1.10",
