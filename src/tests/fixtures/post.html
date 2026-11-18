@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Fixture post</title>
+	<link rel="stylesheet" type="text/css" href="/assets/css/app.css" />
+	<link rel="stylesheet" type="text/css" href="/assets/css/post.css" />
+	<!--GLOBALS-->
+</head>
+<body class="post-template">
+	<header class="m-header js-header">
+		<div class="m-menu js-menu">
+			<div class="m-nav__right">
+				<div class="m-switch-theme">
+					<input id="switch-theme" type="button" class="js-switch-theme">
+					<div>
+						<span class="icon-moon dark-theme-icon" aria-hidden="true"></span>
+						<span class="icon-sunny light-theme-icon" aria-hidden="true"></span>
+						<span class="icon-eclipse auto-theme-icon" aria-hidden="true"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<main class="main-wrap">
+		<article>
+			<div class="l-content in-post pos-relative">
+				<div class="m-share js-sticky">
+					<aside class="m-share__content">
+						<button class="m-icon-button filled in-share progress js-scrolltop" aria-label="Scroll to top">
+							<span class="icon-arrow-top" aria-hidden="true"></span>
+							<svg aria-hidden="true">
+								<circle class="progress-ring__circle js-progress" fill="transparent" r="0" />
+							</svg>
+						</button>
+					</aside>
+				</div>
+				<div class="l-wrapper in-post no-image js-animation-wrapper" data-animate="fade-up">
+					<div class="m-toc">
+						<aside class="toc-container js-sticky">
+							<span class="toc-title">Summary</span>
+							<div class="toc"></div>
+						</aside>
+					</div>
+					<div class="l-post-content js-progress-content">
+						<div class="pos-relative js-post-content post-content">
+							<h2 id="first-heading">First heading</h2>
+							<p>Intro paragraph.</p>
+							<figure class="kg-card kg-image-card">
+								<img class="plain-image" src="/src/tests/fixtures/pixel.svg" alt="plain" width="400" height="300" />
+							</figure>
+							<p><a href="/somewhere/"><img class="linked-image" src="/src/tests/fixtures/pixel.svg" alt="linked" /></a></p>
+							<figure class="kg-card kg-bookmark-card">
+								<img class="bookmark-image" src="/src/tests/fixtures/pixel.svg" alt="bookmark" />
+							</figure>
+							<h2 id="second-heading">Second heading</h2>
+							<div style="height: 4000px;">Long content.</div>
+							<h3 id="third-heading">Third heading</h3>
+						</div>
+					</div>
+				</div>
+				<!--COMMENTS-->
+			</div>
+		</article>
+	</main>
+
+	<script defer src="/assets/js/manifest.js"></script>
+	<script defer src="/assets/js/vendor.js"></script>
+	<script defer src="/assets/js/app.js"></script>
+	<script defer src="/assets/js/post.js"></script>
+</body>
+</html>
