@@ -67,7 +67,7 @@ This theme was modified for the blog [GEEKLY](https://geekly.blog/) by [Alexis D
 
 ## Preview
 
-![GEEKLY homepage](assets\geekly-homepage.webp)
+![GEEKLY homepage](assets/geekly-homepage.webp)
 
 ## Download
 

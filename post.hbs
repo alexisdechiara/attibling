@@ -37,9 +37,10 @@ into the {body} of the default.hbs template --}}
         {{/if}}
         {{#if tags}}
         <a href="{{primary_tag.url}}" class="m-heading__tag m-heading__tag--feature">{{primary_tag.name}}</a>
-        <div class="m-heading__tag" />{{tags from="2" to="2"}}
-      </div>
-      {{/if}}
+        {{#if tags.[1]}}
+        <div class="m-heading__tag">{{tags from="2" to="2"}}</div>
+        {{/if}}
+        {{/if}}
       </div>
       <h1 class="m-heading__title in-post">{{title}}</h1>
       <div class="m-heading__meta">
@@ -48,7 +49,7 @@ into the {body} of the default.hbs template --}}
           <figure class="m-heading__meta__avatar">
             <a href="{{url}}" class="author-avatar">
               {{#if profile_image}}
-              <img class="author-profile-image" src="{{img_url profile_image size="xs" format="webp" }}" alt="{{name}}" />
+              <img class="author-profile-image" src="{{img_url profile_image size="xs" format="webp" }}" loading="lazy" alt="{{name}}" />
               {{else}}
               <img class="author-profile-image" src="{{asset "images/default-avatar-rectangle.jpg"}}" loading="lazy" alt="{{name}}" />
               {{/if}}
@@ -58,7 +59,7 @@ into the {body} of the default.hbs template --}}
         </div>
         <div>
           <h4 class="m-heading__meta__author">{{authors separator=", "}}</h4>
-          <time id="lastmod" datetime="{{date format="lll"}}">{{date format="lll"}}</time> &bull; {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}
+          <time id="lastmod" datetime="{{date format="YYYY-MM-DDTHH:mm:ssZ"}}">{{date format="lll"}}</time> &bull; {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}
         </div>
       </div>
     </header>
@@ -101,17 +102,17 @@ into the {body} of the default.hbs template --}}
               <section class="m-article-footer">
                 <div class="m-article-footer__share">
                   <span class="m-article-footer__label">{{t "Share"}}</span>
-                  <a title="Twitter" aria-label="Twitter" class="m-article-footer__share__item twitter" href="https://twitter.com/share?text={{title}}&url={{url absolute="true"}}" target="_blank" rel="noopener" aria-label="Twitter">
-                    <span class="icon-twitter" aria-hidden="true"></i>
+                  <a title="X" aria-label="X" class="m-article-footer__share__item twitter" href="https://x.com/intent/tweet?text={{encode title}}&amp;url={{encode (url absolute="true")}}" target="_blank" rel="noopener">
+                    <span class="icon-twitter" aria-hidden="true"></span>
                   </a>
-                  <a title="Facebook" aria-label="Facebook" class="m-article-footer__share__item facebook" href="https://www.facebook.com/sharer/sharer.php?u={{url absolute="true"}}" target="_blank" rel="noopener" aria-label="Facebook">
-                    <span class="icon-facebook-f" aria-hidden="true"></i>
+                  <a title="Facebook" aria-label="Facebook" class="m-article-footer__share__item facebook" href="https://www.facebook.com/sharer/sharer.php?u={{encode (url absolute="true")}}" target="_blank" rel="noopener">
+                    <span class="icon-facebook-f" aria-hidden="true"></span>
                   </a>
-                  <a title="LinkedIn" aria-label="LinkedIn" class="m-article-footer__share__item linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url={{url absolute="true"}}/&amp;title={{title}}" target="_blank" rel="noopener" aria-label="Linkedin">
-                    <span class="icon-linkedin-in" aria-hidden="true"></i>
+                  <a title="LinkedIn" aria-label="LinkedIn" class="m-article-footer__share__item linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url={{encode (url absolute="true")}}" target="_blank" rel="noopener">
+                    <span class="icon-linkedin-in" aria-hidden="true"></span>
                   </a>
-                  <a title="Email" aria-label="Email" class="m-article-footer__share__item email" href="mailto:?subject={{title}}&amp;body={{url absolute="true"}}">
-                    <span class="icon-envelope" aria-hidden="true"></i>
+                  <a title="Email" aria-label="Email" class="m-article-footer__share__item email" href="mailto:?subject={{encode title}}&amp;body={{encode (url absolute="true")}}">
+                    <span class="icon-envelope" aria-hidden="true"></span>
                   </a>
                 </div>
                 {{#if tags}}
@@ -149,7 +150,7 @@ into the {body} of the default.hbs template --}}
             <div class="m-author__picture">
               <a href="{{primary_author.url}}" class="m-author-picture" aria-label="{{primary_author.name}}">
                 {{#if primary_author.profile_image}}
-                  <div style="background-image: url({{primary_author.profile_image}});"></div>
+                  <div style="background-image: url({{img_url primary_author.profile_image size="s"}});"></div>
                 {{else}}
                   <div style="background-image: url({{asset "images/default-avatar-square-small.jpg"}});"></div>
                 {{/if}}
@@ -243,15 +244,4 @@ into the {body} of the default.hbs template --}}
   {{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
   {{#contentFor "scripts"}}
   <script defer src="{{asset "js/post.js"}}"></script>
-  <script>
-    tocbot.init({
-      // Where to render the table of contents.
-      tocSelector: '.toc',
-      // Where to grab the headings to build the table of contents.
-      contentSelector: '.post-content',
-      // Which headings to grab inside of the contentSelector element.
-      // For headings inside relative or absolute positioned containers within content.
-      hasInnerContainers: true,
-    });
-  </script>
   {{/contentFor}}
