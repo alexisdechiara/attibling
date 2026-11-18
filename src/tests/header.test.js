@@ -73,4 +73,15 @@ describe("header", () => {
 
 		await dispose();
 	});
+
+	it("does not move the hero picture when reduced motion is preferred", async () => {
+		const { page, dispose } = await open({ reducedMotion: "reduce" });
+		await page.evaluate(() => window.scrollTo(0, 200));
+		await page.waitForTimeout(150);
+		const transform = await page.evaluate(
+			() => getComputedStyle(document.querySelector(".m-hero__picture")).transform
+		);
+		assert.equal(transform, "none");
+		await dispose();
+	});
 });

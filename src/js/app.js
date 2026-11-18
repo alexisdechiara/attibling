@@ -9,7 +9,6 @@ import Swiper from 'swiper';
 import { FreeMode, A11y } from "swiper/modules";
 import "swiper/css";
 import { isRTL, formatDate, isMobile } from "./helpers";
-import tocbot from 'tocbot'
 
 $(() => {
 	if (isRTL()) {
@@ -36,10 +35,11 @@ $(() => {
 	const $mainNav = $(".js-main-nav");
 	const $mainNavLeft = $(".js-main-nav-left");
 	const $newsletterElements = $(".js-newsletter");
-	const $nativeComments = $(".js-native-comments > div > iframe")[0];
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
+	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 	let fuse = null;
+	let postsRequested = false;
 	let submenuIsOpen = false;
 	let secondaryMenuTippy = null;
 
@@ -65,15 +65,23 @@ $(() => {
 		}
 	};
 
-  const trySearchFeature = () => {
-    if (typeof ghostSearchApiKey !== 'undefined' && typeof nativeSearchEnabled === 'undefined') {
-      getAllPosts(ghostHost, ghostSearchApiKey);
-    } else {
-      $openSearch.css('visibility', 'hidden');
-      $closeSearch.remove();
-      $search.remove();
-    }
-  };
+	const isSearchEnabled = () =>
+		typeof ghostSearchApiKey !== "undefined" && typeof nativeSearchEnabled === "undefined";
+
+	const trySearchFeature = () => {
+		if (!isSearchEnabled()) {
+			$openSearch.css("visibility", "hidden");
+			$closeSearch.remove();
+			$search.remove();
+		}
+	};
+
+	const loadPostsOnce = () => {
+		if (!postsRequested && isSearchEnabled()) {
+			postsRequested = true;
+			getAllPosts(ghostHost, ghostSearchApiKey);
+		}
+	};
 
 	const getAllPosts = (host, key) => {
 		const api = new GhostContentAPI({
@@ -103,10 +111,32 @@ $(() => {
 				}
 
 				fuse = new Fuse(allPosts, fuseOptions);
+				runSearch();
 			})
 			.catch(err => {
+				postsRequested = false;
 				console.log(err);
 			});
+	};
+
+	const buildSearchResult = item => {
+		const article = document.createElement("article");
+		const link = document.createElement("a");
+		const title = document.createElement("h3");
+		const date = document.createElement("span");
+
+		article.className = "m-result";
+		link.className = "m-result__link";
+		link.href = item.url;
+		title.className = "m-result__title";
+		title.textContent = item.title;
+		date.className = "m-result__date";
+		date.textContent = formatDate(item.published_at);
+
+		link.append(title, date);
+		article.appendChild(link);
+
+		return article;
 	};
 
 	const toggleDesktopTopbarOverflow = disableOverflow => {
@@ -120,17 +150,6 @@ $(() => {
 			}
 		}
 	};
-
-  tocbot.init({
-    // Where to render the table of contents.
-    tocSelector: '.toc',
-    // Where to grab the headings to build the table of contents.
-    contentSelector: '.post-content',
-    headingSelector: 'h2, h3, h4',
-    // Which headings to grab inside of the contentSelector element.
-    // For headings inside relative or absolute positioned containers within content.
-    hasInnerContainers: true,
-  });
 
 	$openMenu.on("click", () => {
 		$header.addClass("mobile-menu-opened");
@@ -157,6 +176,7 @@ $(() => {
 	});
 
 	$openSearch.on("click", () => {
+		loadPostsOnce();
 		$search.addClass("opened");
 		setTimeout(() => {
 			$inputSearch.trigger("focus");
@@ -170,7 +190,7 @@ $(() => {
 		toggleScrollVertical();
 	});
 
-	$inputSearch.on("keyup", () => {
+	const runSearch = () => {
 		if ($inputSearch.val().length > 0 && fuse) {
 			const results = fuse.search($inputSearch.val());
 			const bestResults = results.filter(result => {
@@ -179,21 +199,16 @@ $(() => {
 				}
 			});
 
-			let htmlString = "";
-
 			if (bestResults.length > 0) {
+				const fragment = document.createDocumentFragment();
+
 				for (let i = 0, len = bestResults.length; i < len; i++) {
-					htmlString += `
-          <article class="m-result">\
-            <a href="${bestResults[i].item.url}" class="m-result__link">\
-              <h3 class="m-result__title">${bestResults[i].item.title}</h3>\
-              <span class="m-result__date">${formatDate(bestResults[i].item.published_at)}</span>\
-            </a>\
-          </article>`;
+					fragment.appendChild(buildSearchResult(bestResults[i].item));
 				}
 
 				$searchNoResults.hide();
-				$searchResults.html(htmlString);
+				$searchResults.html("");
+				$searchResults[0].appendChild(fragment);
 				$searchResults.show();
 			} else {
 				$searchResults.html("");
@@ -205,7 +220,9 @@ $(() => {
 			$searchResults.hide();
 			$searchNoResults.hide();
 		}
-	});
+	};
+
+	$inputSearch.on("keyup", runSearch);
 
 	$themeSwitcher.on("click", () => {
 		if (localStorage.getItem("theme") === "light") {
@@ -216,8 +233,10 @@ $(() => {
 			$setDarkTheme();
 		}
 
-		if ($nativeComments) {
-			$nativeComments.contentDocument.location.reload(true);
+		const nativeComments = document.querySelector(".js-native-comments > div > iframe");
+
+		if (nativeComments && nativeComments.contentDocument) {
+			nativeComments.contentDocument.location.reload();
 		}
 	});
 
@@ -227,33 +246,43 @@ $(() => {
 		$(".auto-theme-icon").css("display", "none");
 	};
 
-	const $setLightTheme = () => {
+	const $setLightTheme = (persist = true) => {
 		$resetThemeIcons();
 		$("html").attr("data-theme", "light");
-		localStorage.setItem("theme", "light");
+		if (persist) {
+			localStorage.setItem("theme", "light");
+		}
 		$(".light-theme-icon").css("display", "block");
 	};
 
-	const $setDarkTheme = () => {
+	const $setDarkTheme = (persist = true) => {
 		$resetThemeIcons();
 		$("html").attr("data-theme", "dark");
-		localStorage.setItem("theme", "dark");
+		if (persist) {
+			localStorage.setItem("theme", "dark");
+		}
 		$(".dark-theme-icon").css("display", "block");
 	};
 
-	const $setAutoTheme = () => {
+	const $setAutoTheme = (persist = true) => {
 		if (window.matchMedia && $darkColorsScheme.matches) {
 			$("html").attr("data-theme", "dark");
 		} else {
 			$("html").attr("data-theme", "light");
 		}
 		$resetThemeIcons();
-		localStorage.setItem("theme", "auto");
+		if (persist) {
+			localStorage.setItem("theme", "auto");
+		}
 		$(".auto-theme-icon").css("display", "block");
 	};
 
 	$darkColorsScheme.addEventListener("change", () => {
-		$setAutoTheme();
+		const storedTheme = localStorage.getItem("theme");
+
+		if (!storedTheme || storedTheme === "auto") {
+			$setAutoTheme(false);
+		}
 	});
 
 	$themeSwitcher.on("mouseenter", () => {
@@ -279,21 +308,29 @@ $(() => {
 		}
 	});
 
-	if (localStorage.getItem("theme")) {
-		if (localStorage.getItem("theme") === "light") {
-			$setLightTheme();
-		} else if (localStorage.getItem("theme") === "dark") {
-			$setDarkTheme();
-		} else {
-			$setAutoTheme();
-		}
+	if (localStorage.getItem("theme") === "light") {
+		$setLightTheme(false);
+	} else if (localStorage.getItem("theme") === "dark") {
+		$setDarkTheme(false);
 	} else {
-		$setAutoTheme();
+		$setAutoTheme(false);
 	}
 
-	$(window).on("scroll", () => {
-		changeHeaderBackground();
-	});
+	const throttleToFrame = callback => {
+		let ticking = false;
+
+		return () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(() => {
+					ticking = false;
+					callback();
+				});
+			}
+		};
+	};
+
+	window.addEventListener("scroll", throttleToFrame(() => changeHeaderBackground()), { passive: true });
 
 	const changeHeaderBackground = () => {
 		if ($header.hasClass("with-picture")) {
@@ -372,7 +409,7 @@ $(() => {
 	var coverPosition = 0;
 
 	function prlx() {
-		if (cover.length >= 1) {
+		if (cover.length >= 1 && !$reducedMotion.matches) {
 			var windowPosition = $(window).scrollTop();
 			windowPosition > 0 ? (coverPosition = Math.floor(windowPosition * 0.5)) : (coverPosition = 0);
 			cover.css({
@@ -383,15 +420,9 @@ $(() => {
 	}
 	prlx();
 
-	$(window).on({
-		scroll: function () {
-			prlx();
-		},
-		resize: function () {
-			prlx();
-		},
-		orientationchange: function () {
-			prlx();
-		},
-	});
+	const throttledPrlx = throttleToFrame(prlx);
+
+	window.addEventListener("scroll", throttledPrlx, { passive: true });
+	window.addEventListener("resize", throttledPrlx, { passive: true });
+	window.addEventListener("orientationchange", throttledPrlx, { passive: true });
 });

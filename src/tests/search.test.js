@@ -87,6 +87,57 @@ describe("search", () => {
 		await dispose();
 	});
 
+	it("renders post titles and urls as text, never as markup", async () => {
+		const title = '<img src="x" class="injected" onerror="window.__injected = true">Markup post';
+		const url = `${GHOST_HOST}/markup/"><b class="injected">x</b>`;
+		const { page, dispose } = await open({
+			posts: [{ id: "9", title, url, published_at: "2023-03-01T10:00:00.000Z", custom_excerpt: "", tags: [] }],
+		});
+		await openSearch(page);
+		await page.locator(".js-input-search").pressSequentially("Markup post");
+
+		assert.equal(await waitFor(async () => (await results(page)).length === 1), true);
+		assert.deepEqual(await results(page), [{ href: url, title, date: "March 1, 2023" }]);
+		assert.equal(await page.locator(".js-search-results .injected").count(), 0);
+		assert.equal(await page.locator(".js-search-results img, .js-search-results b").count(), 0);
+		assert.equal(await page.evaluate(() => window.__injected), undefined);
+
+		await dispose();
+	});
+
+	it("fetches posts only once, the first time the search is opened", async () => {
+		const { page, apiRequests, dispose } = await open();
+		await page.waitForLoadState("networkidle");
+		await page.waitForTimeout(200);
+		assert.equal(apiRequests.length, 0, "no Content API request before the search is opened");
+
+		await openSearch(page);
+		assert.equal(await waitFor(() => apiRequests.length === 1), true);
+
+		await page.keyboard.press("Escape");
+		await openSearch(page);
+		await page.keyboard.press("Escape");
+		await openSearch(page);
+		await page.waitForLoadState("networkidle");
+		assert.equal(apiRequests.length, 1, "exactly one Content API request");
+
+		await dispose();
+	});
+
+	it("shows results for what was typed before the posts finished loading", async () => {
+		const { page, release, dispose } = await open({ holdPosts: true });
+		await openSearch(page);
+		await page.locator(".js-input-search").pressSequentially("Markdown");
+		await page.waitForTimeout(100);
+		assert.deepEqual(await results(page), []);
+
+		release();
+		assert.equal(await waitFor(async () => (await results(page)).length === 1), true);
+		assert.equal((await results(page))[0].title, "Writing in Markdown");
+
+		await dispose();
+	});
+
 	it("hides the search button when no search API key is defined", async () => {
 		const { page, dispose } = await open({ apiKey: null });
 		const visibility = await page.$$eval(".js-open-search", nodes => nodes.map(n => getComputedStyle(n).visibility));

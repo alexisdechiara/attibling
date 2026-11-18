@@ -58,4 +58,41 @@ describe("theme switcher", () => {
 		assert.deepEqual(await themeState(auto.page), { theme: "dark", stored: "auto", icons: ["auto"] });
 		await auto.dispose();
 	});
+
+	it("keeps an explicit choice when the system scheme changes", async () => {
+		const dark = await open({ colorScheme: "light", storage: { theme: "dark" } });
+		await dark.page.emulateMedia({ colorScheme: "dark" });
+		await dark.page.emulateMedia({ colorScheme: "light" });
+		await dark.page.waitForTimeout(50);
+		assert.deepEqual(await themeState(dark.page), { theme: "dark", stored: "dark", icons: ["dark"] });
+		await dark.dispose();
+
+		const light = await open({ colorScheme: "light", storage: { theme: "light" } });
+		await light.page.emulateMedia({ colorScheme: "dark" });
+		await light.page.waitForTimeout(50);
+		assert.deepEqual(await themeState(light.page), { theme: "light", stored: "light", icons: ["light"] });
+		await light.dispose();
+	});
+
+	it("follows system scheme changes when the choice is auto or absent", async () => {
+		const auto = await open({ colorScheme: "light", storage: { theme: "auto" } });
+		await auto.page.emulateMedia({ colorScheme: "dark" });
+		assert.equal(await waitFor(async () => (await themeState(auto.page)).theme === "dark"), true);
+		assert.equal((await themeState(auto.page)).stored, "auto");
+		await auto.dispose();
+
+		const absent = await open({ colorScheme: "dark" });
+		await absent.page.emulateMedia({ colorScheme: "light" });
+		assert.equal(await waitFor(async () => (await themeState(absent.page)).theme === "light"), true);
+		await absent.dispose();
+	});
+
+	it("does not rewrite localStorage when applying the stored theme on load", async () => {
+		for (const theme of ["light", "dark", "auto"]) {
+			const { storageWrites, dispose } = await open({ storage: { theme } });
+			const writes = (await storageWrites()).filter(([key]) => key === "theme");
+			assert.deepEqual(writes, [], `stored "${theme}" was rewritten`);
+			await dispose();
+		}
+	});
 });

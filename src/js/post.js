@@ -4,6 +4,7 @@ import fitvids from "fitvids";
 import shave from "shave";
 import Swiper from 'swiper';
 import { FreeMode, A11y } from "swiper/modules";
+import tocbot from "tocbot";
 import "swiper/css";
 import { isMobile, adjustImageGallery, managePostImages, makeImagesZoomable } from "./helpers";
 
@@ -138,16 +139,22 @@ $(() => {
 	shave(".js-article-card-title-no-image", 250);
 
 	$scrollButton.on("click", () => {
-		$("html, body").animate(
-			{
-				scrollTop: 0,
-			},
-			500
-		);
+		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+		window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
 	});
 
 	managePostImages($);
 	makeImagesZoomable($, mediumZoom);
+
+	if (document.querySelector(".toc")) {
+		tocbot.init({
+			tocSelector: ".toc",
+			contentSelector: ".post-content",
+			headingSelector: "h2, h3, h4",
+			hasInnerContainers: true,
+		});
+	}
 
 	window.addEventListener("scroll", onScrolling, { passive: true });
 	window.addEventListener("resize", onResizing, { passive: true });
