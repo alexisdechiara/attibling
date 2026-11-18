@@ -1,9 +1,8 @@
-import fitvids from "fitvids";
 import mediumZoom from "medium-zoom";
-import { adjustImageGallery, managePostImages, makeImagesZoomable, onReady } from "./helpers";
+import { setEmbedRatios, adjustImageGallery, managePostImages, makeImagesZoomable, onReady } from "./helpers";
 
 onReady(() => {
-	fitvids(".js-post-content");
+	setEmbedRatios();
 
 	adjustImageGallery();
 	managePostImages();

@@ -15,6 +15,33 @@ describe("post page", () => {
 		await dispose();
 	});
 
+	it("keeps each video embed's own ratio and fits it to the column", async () => {
+		for (const width of [390, 1440]) {
+			const { page, dispose } = await open({ fixture: "post.html", viewport: { width, height: 800 } });
+			const boxes = await page.$$eval(".js-post-content iframe", frames =>
+				Object.fromEntries(
+					frames.map(frame => {
+						const box = frame.getBoundingClientRect();
+						const parent = frame.parentElement.getBoundingClientRect();
+						return [
+							frame.className,
+							{ width: box.width, ratio: box.width / box.height, left: box.left - parent.left, parent: parent.width },
+						];
+					}),
+				),
+			);
+			const card = boxes["embed-4-3"];
+			assert.ok(Math.abs(card.ratio - 4 / 3) < 0.02, `embed card ratio is ${card.ratio} at ${width}px`);
+			assert.ok(Math.abs(card.width - card.parent * 0.66) < 2, `embed card is ${card.width}px wide at ${width}px`);
+			assert.ok(Math.abs(card.left - (card.parent - card.width) / 2) < 2, `embed card is not centred at ${width}px`);
+			const bare = boxes["bare-16-9"];
+			assert.ok(Math.abs(bare.ratio - 16 / 9) < 0.02, `bare embed ratio is ${bare.ratio} at ${width}px`);
+			assert.ok(Math.abs(bare.width - bare.parent) < 2, `bare embed is ${bare.width}px wide at ${width}px`);
+			assert.equal(await page.locator(".fluid-width-video-wrapper").count(), 0);
+			await dispose();
+		}
+	});
+
 	it("zooms a zoomable image on click", async () => {
 		const { page, dispose } = await open({ fixture: "post.html" });
 		await page.locator(".js-post-content img.plain-image").click();

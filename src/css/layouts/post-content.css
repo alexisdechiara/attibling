@@ -215,7 +215,17 @@
     max-width: 100%;
   }
 
-  .fluid-width-video-wrapper {
+  /* Video players fill the column at the ratio of their width and height attributes, which
+     post.js copies into --embed-ratio (16:9 when they have none) */
+  iframe:where(
+    [src*="youtube.com"],
+    [src*="youtube-nocookie.com"],
+    [src*="player.vimeo.com"],
+    [src*="kickstarter.com"][src*="video.html"]
+  ) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--embed-ratio, 16 / 9);
     margin: 0 auto 35px;
 
     @media (width >= 90rem) {
@@ -249,7 +259,7 @@
   margin: 0 auto;
   height: auto;
   width: 66%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--embed-ratio, 16 / 9);
 }
 
 .l-post-content figure.kg-width-full img,
@@ -309,17 +319,6 @@
     font-size: 0.875rem;
     padding: 15px 0 0 0;
   }
-}
-
-.l-post-content figure .fluid-width-video-container,
-.l-post-content.kg-image-card .fluid-width-video-container {
-  flex-grow: 1;
-  width: 100%;
-}
-
-.l-post-content figure .fluid-width-video-wrapper,
-.l-post-content.kg-image-card .fluid-width-video-wrapper {
-  margin: 0 auto !important;
 }
 
 .l-post-content figure .kg-gallery-container,

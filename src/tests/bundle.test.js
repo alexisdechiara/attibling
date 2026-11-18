@@ -22,6 +22,7 @@ const templates = dir =>
 // A string each library leaves in a minified bundle, and that the theme's own code does not use.
 const removedLibraries = {
 	shave: "js-shave",
+	fitvids: "fluid-width-video-wrapper",
 };
 
 describe("built bundles", () => {

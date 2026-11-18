@@ -1,10 +1,17 @@
 import mediumZoom from "medium-zoom";
-import fitvids from "fitvids";
 import Swiper from "swiper";
 import { Navigation, A11y } from "swiper/modules";
 import tocbot from "tocbot";
 import "swiper/css";
-import { isMobile, adjustImageGallery, managePostImages, makeImagesZoomable, onReady, contentHeight } from "./helpers";
+import {
+	isMobile,
+	setEmbedRatios,
+	adjustImageGallery,
+	managePostImages,
+	makeImagesZoomable,
+	onReady,
+	contentHeight,
+} from "./helpers";
 
 let $animationWrapper = null;
 let $progressCircle = null;
@@ -97,7 +104,7 @@ onReady(() => {
 	const $scrollButton = document.querySelectorAll(".js-scrolltop");
 	const $recommendedSlider = document.querySelector(".js-recommended-slider");
 
-	fitvids(".js-post-content");
+	setEmbedRatios();
 
 	adjustImageGallery();
 	adjustShare(1000);

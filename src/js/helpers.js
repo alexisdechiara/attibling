@@ -46,6 +46,19 @@ export const adjustImageGallery = () => {
 	}
 };
 
+// Video players in the post content keep their own ratio: the CSS sizes them with
+// aspect-ratio: var(--embed-ratio), taken here from their width and height attributes.
+export const setEmbedRatios = () => {
+	const size = /^\d+(\.\d+)?(px)?$/;
+	document.querySelectorAll(".js-post-content iframe").forEach(frame => {
+		const width = frame.getAttribute("width");
+		const height = frame.getAttribute("height");
+		if (size.test(width) && size.test(height) && parseFloat(height) > 0) {
+			frame.style.setProperty("--embed-ratio", `${parseFloat(width)} / ${parseFloat(height)}`);
+		}
+	});
+};
+
 export const onReady = callback => {
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", callback, { once: true });
