@@ -32,5 +32,6 @@ mix
       '../**/*.hbs'
     ]
   })
-  .copyDirectory('sass/fonts/source-sans-pro/', '../assets/fonts/source-sans-pro/')
+  .copy('sass/fonts/pacifico/*.*', '../assets/fonts/pacifico/')
+  .copy('sass/fonts/product-sans/*.*', '../assets/fonts/product-sans/')
   .copy('sass/fonts/icomoon/*.*', '../assets/fonts/icomoon/');

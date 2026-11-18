@@ -1,8 +1,52 @@
 .m-recommended-articles {
+  display: flex;
+  justify-content: flex-start;
+  overflow: auto;
   margin: 0 -20px;
+  padding: 40px 0 60px;
 
   @include respond-to('large') {
-    padding: 0 40px;
     margin: 0 -30px;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .m-article-card {
+    min-width: calc((100% / 1.125) - 20px);
+    height: 420px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 20px;
+
+    @include respond-to('medium') {
+      min-width: calc((100% / 2.5) - 20px);
+      height: 420px;
+      margin-left: 10px;
+      margin-right: 10px;
+      margin-bottom: 20px;
+    }
+
+    @include respond-to("large") {
+
+      &:nth-of-type(n + 4) {
+        display: none;
+      }
+
+      min-width: calc((100% / 3) - 40px);
+      width: calc((100% / 3) - 40px);
+      margin-left: 20px;
+      margin-right: 20px;
+      margin-bottom: 40px;
+
+      .m-article-card__picture {
+        height: 190px;
+      }
+    }
+
+    @include respond-to("extra-large") {
+      .m-article-card__picture {
+        height: 220px;
+      }
+    }
   }
 }
