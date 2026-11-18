@@ -243,15 +243,4 @@ into the {body} of the default.hbs template --}}
   {{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
   {{#contentFor "scripts"}}
   <script defer src="{{asset "js/post.js"}}"></script>
-  <script>
-    tocbot.init({
-      // Where to render the table of contents.
-      tocSelector: '.toc',
-      // Where to grab the headings to build the table of contents.
-      contentSelector: '.post-content',
-      // Which headings to grab inside of the contentSelector element.
-      // For headings inside relative or absolute positioned containers within content.
-      hasInnerContainers: true,
-    });
-  </script>
   {{/contentFor}}

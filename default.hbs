@@ -20,24 +20,30 @@
     {{!-- This #block helper will try to preload page-specific assets --}}
     {{{block "preload"}}}
 
+    {{!-- This script sets the theme mode (light or dark) before the first paint --}}
+    <script>
+      // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
+      (function () {
+        var theme = null
+        try {
+          theme = localStorage.getItem('theme')
+        } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        document.documentElement.setAttribute('data-theme', theme)
+      })()
+      // @license-end
+    </script>
+
+    {{!-- Google fonts (served by coollabs): Noto Sans & Serif, Montserrat, Poppins, Pacifico, Noto Color Emoji --}}
+    <link rel="preconnect" href="https://api.fonts.coollabs.io" crossorigin>
+    <link rel="stylesheet" href="https://api.fonts.coollabs.io/css2?family=Montserrat:ital,wght@0,700;1,700&amp;family=Noto+Color+Emoji&amp;family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Pacifico&amp;family=Poppins:wght@600;700&amp;display=swap">
+
     {{!-- Styles & Scripts --}}
     <style>
       /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory */
 
-      /* Google fonts */
-      // Noto Sans & Serif + Pacifico & Poppins
-      @import url('https://api.fonts.coollabs.io/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');      
-      // Pacifico
-      @import url('https://api.fonts.coollabs.io/css2?family=Pacifico&display=swap');
-      // Poppins
-      @import url('https://api.fonts.coollabs.io/css2?family=Poppins:wght@600;700&display=swap');      
-      // Montserrat
-      @import url('https://api.fonts.coollabs.io/css2?family=Montserrat:ital,wght@0,700;1,700&display=swap');
-
-      // Noto Color Emoji
-      @import url('https://api.fonts.coollabs.io/css2?family=Noto+Color+Emoji&display=swap');
-
-      
       /* source-sans-pro-regular */
       @font-face {
         font-family: 'Source Sans Pro';
@@ -87,9 +93,6 @@
       }
     </style>
 
-    {{!-- tocbot script --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="{{asset "css/app.css"}}" media="screen" />
 
     {{!-- This #block helper will inject a stylesheet for a specific page --}}
@@ -136,33 +139,6 @@
         }
       </style>
     {{/if}}
-
-    {{!-- This script sets the correct theme mode (light or dark) --}}
-    {{!-- <script>
-      if (typeof Storage !== 'undefined') {
-        if (localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark') {
-          document.documentElement.setAttribute('data-theme', 'dark')
-        } else if () {
-          document.documentElement.setAttribute('data-theme', 'light')
-        }
-        if (localStorage.getItem("theme")) {
-          if (localStorage.getItem("theme") === "light") {
-            document.documentElement.setAttribute('data-theme', 'light')
-          } else if (localStorage.getItem("theme") === "dark") {
-            document.documentElement.setAttribute('data-theme', 'dark')
-          } else {
-            $setAutoTheme();
-            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)")) {
-              document.documentElement.setAttribute('data-theme', 'dark')
-            } else {
-              document.documentElement.setAttribute('data-theme', 'light')
-            }
-          }
-        } else {
-          $setAutoTheme();
-        }
-      }
-    </script> --}}
   </head>
   <body class="{{body_class}}">
     {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}
