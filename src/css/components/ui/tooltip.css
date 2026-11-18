@@ -34,6 +34,26 @@
     visibility 0.25s;
 }
 
+/* The arrow, pointing at the element */
+[data-tooltip]::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  z-index: 9999;
+  border: 8px solid transparent;
+  border-bottom-width: 0;
+  border-top-color: #333;
+  pointer-events: none;
+  translate: -50% 0;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.25s,
+    visibility 0.25s;
+}
+
+[data-tooltip]:is(:hover, :focus-visible, :focus-within)::before,
 [data-tooltip]:is(:hover, :focus-visible, :focus-within)::after {
   visibility: visible;
   opacity: 1;
@@ -45,6 +65,13 @@
   bottom: auto;
 }
 
+[data-tooltip-position="bottom"]::before {
+  top: calc(100% + 2px);
+  bottom: auto;
+  border-width: 0 8px 8px;
+  border-color: transparent transparent #333;
+}
+
 [data-tooltip-position="left"]::after {
   top: 50%;
   right: calc(100% + 10px);
@@ -53,12 +80,30 @@
   translate: 0 -50%;
 }
 
+[data-tooltip-position="left"]::before {
+  top: 50%;
+  right: calc(100% + 2px);
+  bottom: auto;
+  left: auto;
+  border-width: 8px 0 8px 8px;
+  border-color: transparent transparent transparent #333;
+  translate: 0 -50%;
+}
+
 .rtl [data-tooltip-position="left"]::after {
   right: auto;
   left: calc(100% + 10px);
 }
 
+.rtl [data-tooltip-position="left"]::before {
+  right: auto;
+  left: calc(100% + 2px);
+  border-width: 8px 8px 8px 0;
+  border-color: transparent #333 transparent transparent;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-tooltip]::before,
   [data-tooltip]::after {
     transition: none;
   }

@@ -32,6 +32,15 @@
     }
   }
 
+  &[data-tooltip]::before {
+    @media (width < 48rem) {
+      top: auto;
+      bottom: calc(100% + 2px);
+      border-width: 8px 8px 0;
+      border-color: #333 transparent transparent;
+    }
+  }
+
   input {
     position: absolute;
     top: 0;
