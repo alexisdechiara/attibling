@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "src/tests/fixtures/post.html"
+        ],
+        "createdAt": "2026-11-18T10:28:29.466Z",
+        "reason": "agent triage: unstyled static test fixture for Playwright behaviour tests, not a shipped page"
+      }
+    ]
+  }
+}
