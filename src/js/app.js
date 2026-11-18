@@ -1,4 +1,3 @@
-import Headroom from "headroom.js";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import GhostContentAPI from "@tryghost/content-api";
@@ -369,24 +368,51 @@ onReady(() => {
 		}
 	};
 
-	if ($header) {
-		const headroom = new Headroom($header, {
-			tolerance: {
-				down: 40,
-				up: 20,
-			},
-			offset: 15,
-			onUnpin: () => {
-				if (!isMobile() && secondaryMenuTippy) {
-					const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
+	// Hide the header while scrolling down and bring it back on the way up, with the classes and
+	// thresholds headroom.js used: a scroll of more than 40px down (20px up) between two frames,
+	// and always shown within 15px of the top.
+	const onHeaderUnpin = () => {
+		if (!isMobile() && secondaryMenuTippy) {
+			const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
 
-					if (desktopSecondaryMenuTippy && desktopSecondaryMenuTippy.state.isVisible) {
-						desktopSecondaryMenuTippy.hide();
+			if (desktopSecondaryMenuTippy && desktopSecondaryMenuTippy.state.isVisible) {
+				desktopSecondaryMenuTippy.hide();
+			}
+		}
+	};
+
+	if ($header) {
+		let lastScrollY = Math.round(window.scrollY);
+
+		const updateHeader = () => {
+			const scrollY = Math.round(window.scrollY);
+			const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+			const down = scrollY > lastScrollY;
+			const top = scrollY <= 15;
+			const toleranceExceeded = Math.abs(scrollY - lastScrollY) > (down ? 40 : 20);
+
+			// Ignore the rubber-band overscroll of touch devices
+			if (scrollY >= 0 && scrollY <= maxScrollY) {
+				$header.classList.toggle("headroom--top", top);
+				$header.classList.toggle("headroom--not-top", !top);
+
+				if (down && !top && toleranceExceeded) {
+					if (!$header.classList.contains("headroom--unpinned")) {
+						$header.classList.remove("headroom--pinned");
+						$header.classList.add("headroom--unpinned");
+						onHeaderUnpin();
 					}
+				} else if ((!down && toleranceExceeded) || top) {
+					$header.classList.replace("headroom--unpinned", "headroom--pinned");
 				}
-			},
-		});
-		headroom.init();
+			}
+
+			lastScrollY = scrollY;
+		};
+
+		$header.classList.add("headroom");
+		updateHeader();
+		window.addEventListener("scroll", throttleToFrame(updateHeader), { passive: true });
 	}
 
 	if ($recentSlider) {

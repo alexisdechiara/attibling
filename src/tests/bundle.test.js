@@ -23,6 +23,7 @@ const templates = dir =>
 const removedLibraries = {
 	shave: "js-shave",
 	fitvids: "fluid-width-video-wrapper",
+	"headroom.js": "cutsTheMustard",
 };
 
 describe("built bundles", () => {

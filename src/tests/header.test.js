@@ -63,6 +63,39 @@ describe("header", () => {
 		await dispose();
 	});
 
+	it("hides the header when scrolling down and shows it again when scrolling up", async () => {
+		const { page, dispose } = await open({ fixture: "post.html" });
+		const scrollTo = y =>
+			page.evaluate(
+				y =>
+					new Promise(resolve => {
+						window.scrollTo(0, y);
+						requestAnimationFrame(() => requestAnimationFrame(resolve));
+					}),
+				y,
+			);
+		const shown = async () => {
+			await page.waitForTimeout(450);
+			return page.evaluate(() => document.querySelector(".js-header").getBoundingClientRect().bottom > 0);
+		};
+
+		assert.equal(await shown(), true, "shown at the top");
+		await scrollTo(600);
+		assert.equal(await shown(), false, "hidden after scrolling down");
+		await scrollTo(590);
+		assert.equal(await shown(), false, "still hidden after a small scroll up");
+		await scrollTo(500);
+		assert.equal(await shown(), true, "shown after scrolling up");
+		await scrollTo(530);
+		assert.equal(await shown(), true, "still shown after a small scroll down");
+		await scrollTo(1000);
+		assert.equal(await shown(), false, "hidden again");
+		await scrollTo(10);
+		assert.equal(await shown(), true, "shown near the top");
+
+		await dispose();
+	});
+
 	it("moves the hero picture on scroll (parallax)", async () => {
 		const { page, dispose } = await open();
 		const transform = () => page.evaluate(() => getComputedStyle(document.querySelector(".m-hero__picture")).transform);
