@@ -5,14 +5,7 @@ import Swiper from "swiper";
 import { Navigation, A11y } from "swiper/modules";
 import tocbot from "tocbot";
 import "swiper/css";
-import {
-	isMobile,
-	adjustImageGallery,
-	managePostImages,
-	makeImagesZoomable,
-	onReady,
-	contentHeight,
-} from "./helpers";
+import { isMobile, adjustImageGallery, managePostImages, makeImagesZoomable, onReady, contentHeight } from "./helpers";
 
 let $animationWrapper = null;
 let $progressCircle = null;
@@ -150,7 +143,7 @@ onReady(() => {
 			const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 			window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
-		})
+		}),
 	);
 
 	managePostImages();

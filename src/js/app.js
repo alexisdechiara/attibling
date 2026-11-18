@@ -76,8 +76,7 @@ onReady(() => {
 		}
 	};
 
-	const isSearchEnabled = () =>
-		typeof ghostSearchApiKey !== "undefined" && typeof nativeSearchEnabled === "undefined";
+	const isSearchEnabled = () => typeof ghostSearchApiKey !== "undefined" && typeof nativeSearchEnabled === "undefined";
 
 	const trySearchFeature = () => {
 		if (!isSearchEnabled()) {
@@ -167,7 +166,7 @@ onReady(() => {
 			$header.classList.add("mobile-menu-opened");
 			$menu.forEach(menu => menu.classList.add("opened"));
 			toggleScrollVertical();
-		})
+		}),
 	);
 
 	$closeMenu.forEach(el =>
@@ -175,7 +174,7 @@ onReady(() => {
 			$header.classList.remove("mobile-menu-opened");
 			$menu.forEach(menu => menu.classList.remove("opened"));
 			toggleScrollVertical();
-		})
+		}),
 	);
 
 	$toggleSubmenu.forEach(el =>
@@ -189,7 +188,7 @@ onReady(() => {
 				hideSubmenu();
 				changeHeaderBackground();
 			}
-		})
+		}),
 	);
 
 	$openSearch.forEach(el =>
@@ -200,7 +199,7 @@ onReady(() => {
 				$inputSearch?.focus();
 			}, 400);
 			toggleScrollVertical();
-		})
+		}),
 	);
 
 	$closeSearch?.addEventListener("click", closeSearch);
@@ -257,7 +256,7 @@ onReady(() => {
 			if (nativeComments && nativeComments.contentDocument) {
 				nativeComments.contentDocument.location.reload();
 			}
-		})
+		}),
 	);
 
 	const $showThemeIcon = theme => {
@@ -351,7 +350,11 @@ onReady(() => {
 		};
 	};
 
-	window.addEventListener("scroll", throttleToFrame(() => changeHeaderBackground()), { passive: true });
+	window.addEventListener(
+		"scroll",
+		throttleToFrame(() => changeHeaderBackground()),
+		{ passive: true },
+	);
 
 	const changeHeaderBackground = () => {
 		if (!$header) {
