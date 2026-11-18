@@ -13,9 +13,7 @@
 
     {{!-- Preload assets --}}
     <link rel="preload" href="{{asset "css/app.css"}}" as="style" />
-    <link rel="preload" href="{{asset "js/manifest.js"}}" as="script" />
-    <link rel="preload" href="{{asset "js/vendor.js"}}" as="script" />
-    <link rel="preload" href="{{asset "js/app.js"}}" as="script" />
+    <link rel="modulepreload" href="{{asset "js/app.js"}}" />
 
     {{!-- This #block helper will try to preload page-specific assets --}}
     {{{block "preload"}}}
@@ -160,9 +158,7 @@
     {{> footer}}
 
     {{!-- Common scripts shared between pages --}}
-    <script defer src="{{asset "js/manifest.js"}}"></script>
-    <script defer src="{{asset "js/vendor.js"}}"></script>
-    <script defer src="{{asset "js/app.js"}}"></script>
+    <script type="module" src="{{asset "js/app.js"}}"></script>
 
     {{!-- The #block helper will pull in data from the #contentFor other template files --}}
     {{{block "scripts"}}}
