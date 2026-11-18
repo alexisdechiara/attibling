@@ -72,6 +72,58 @@ describe("post page", () => {
 		await dispose();
 	});
 
+	// The share of the ring that is drawn, 0 to 1, once the page has had time to update it.
+	const ringAt = async (page, y) => {
+		await page.evaluate(y => window.scrollTo(0, y), y);
+		await page.waitForTimeout(350);
+		return page.evaluate(() => {
+			const circle = document.querySelector(".js-progress");
+			const shown = getComputedStyle(circle.ownerSVGElement).opacity === "1";
+			const offset = parseFloat(getComputedStyle(circle).strokeDashoffset);
+			return shown ? Math.round((1 - offset / 100) * 100) / 100 : null;
+		});
+	};
+	const readingProgress = async page => {
+		await page.waitForTimeout(400);
+		const end = await page.evaluate(() => {
+			const box = document.querySelector(".js-post-content").getBoundingClientRect();
+			return box.bottom + window.scrollY - window.innerHeight;
+		});
+		return [await ringAt(page, 0), await ringAt(page, end / 2), await ringAt(page, end), await ringAt(page, 0)];
+	};
+
+	it("fills the reading progress ring as the post is read", async () => {
+		const { page, dispose } = await open({ fixture: "post.html" });
+		const [top, middle, end, back] = await readingProgress(page);
+		assert.ok(top < 0.2, `ring at ${top} at the top`);
+		assert.ok(middle > 0.4 && middle < 0.6, `ring at ${middle} half way`);
+		assert.equal(end, 1, "full at the end of the post");
+		assert.equal(back, top, "empties again when scrolling back up");
+		await dispose();
+	});
+
+	it("fills the reading progress ring by script where scroll-driven animations are missing", async () => {
+		const { page, dispose } = await open({
+			fixture: "post.html",
+			initScript: () => {
+				const supports = CSS.supports.bind(CSS);
+				CSS.supports = (...args) => !/timeline/.test(args.join(":")) && supports(...args);
+				// What such a browser does with the theme's scroll-driven rules
+				document.addEventListener("DOMContentLoaded", () => {
+					const style = document.createElement("style");
+					style.textContent = "* { animation-timeline: auto !important; animation: none !important; }";
+					document.head.append(style);
+				});
+			},
+		});
+		const [top, middle, end, back] = await readingProgress(page);
+		assert.ok(top < 0.2, `ring at ${top} at the top`);
+		assert.ok(middle > 0.4 && middle < 0.6, `ring at ${middle} half way`);
+		assert.equal(end, 1, "full at the end of the post");
+		assert.equal(back, top, "empties again when scrolling back up");
+		await dispose();
+	});
+
 	it("builds the table of contents from the post headings", async () => {
 		const { page, dispose } = await open({ fixture: "post.html" });
 		const links = await page.$$eval(".toc a", nodes => nodes.map(a => [a.getAttribute("href"), a.textContent]));

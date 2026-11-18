@@ -7,19 +7,10 @@ import {
 	managePostImages,
 	makeImagesZoomable,
 	onReady,
-	contentHeight,
+	throttleToFrame,
 } from "./helpers";
 
 let $animationWrapper = null;
-let $progressCircle = null;
-let lastScrollingY = window.scrollY;
-let circumference = 0;
-let isTicking = false;
-
-const onScrolling = () => {
-	lastScrollingY = window.scrollY;
-	requestTicking();
-};
 
 const adjustShare = timeout => {
 	if (!isMobile("1023px")) {
@@ -32,68 +23,30 @@ const adjustShare = timeout => {
 	}
 };
 
-const onResizing = () => {
-	adjustShare(100);
+// The reading progress ring is a CSS scroll-driven animation (see icon-button.css). Where that is
+// missing, draw it here over the same range: from the top of the post content coming in at the
+// bottom of the viewport to its end doing so.
+const followReadingProgress = () => {
+	const circle = document.querySelector(".js-progress");
+	const content = document.querySelector(".js-post-content");
 
-	setTimeout(() => {
-		setCircleStyles();
-		requestTicking();
-	}, 200);
-};
-
-const requestTicking = () => {
-	if (!isTicking) {
-		requestAnimationFrame(updating);
+	if (!circle || !content || (CSS.supports("animation-timeline: view()") && CSS.supports("timeline-scope: --a"))) {
+		return;
 	}
 
-	isTicking = true;
-};
+	const update = () => {
+		const box = content.getBoundingClientRect();
+		const progress = Math.min(Math.max((window.innerHeight - box.top) / box.height, 0), 1);
+		circle.style.strokeDashoffset = 100 - progress * 100;
+	};
 
-const updating = () => {
-	const progressMax = contentHeight(document.querySelector(".js-post-content"));
-	const percent = Math.ceil((lastScrollingY / progressMax) * 100);
-
-	if (percent <= 100) {
-		setProgress(percent);
-	}
-
-	isTicking = false;
-};
-
-const setCircleStyles = () => {
-	const svg = $progressCircle.parentNode;
-	const svgWidth = parseFloat(getComputedStyle(svg).width);
-	const radiusCircle = svgWidth / 2;
-	const borderWidth = isMobile() ? 2 : 3;
-
-	svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgWidth}`);
-	$progressCircle.setAttribute("stroke-width", borderWidth);
-	$progressCircle.setAttribute("r", radiusCircle - (borderWidth - 1));
-	$progressCircle.setAttribute("cx", radiusCircle);
-	$progressCircle.setAttribute("cy", radiusCircle);
-
-	circumference = radiusCircle * 2 * Math.PI;
-
-	$progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
-	$progressCircle.style.strokeDashoffset = circumference;
-};
-
-const setProgress = percent => {
-	if (percent <= 100) {
-		const offset = circumference - (percent / 100) * circumference;
-		$progressCircle.style.strokeDashoffset = offset;
-	}
-};
-
-const prepareProgressCircle = () => {
-	$progressCircle = document.querySelector(".js-progress");
-
-	setCircleStyles();
-	updating();
-
-	setTimeout(() => {
-		$progressCircle.parentNode.style.opacity = 1;
-	}, 300);
+	update();
+	window.addEventListener("scroll", throttleToFrame(update), { passive: true });
+	window.addEventListener("resize", throttleToFrame(update), { passive: true });
+	window.addEventListener("load", () => {
+		update();
+		setTimeout(() => (circle.ownerSVGElement.style.opacity = 1), 300);
+	});
 };
 
 onReady(() => {
@@ -125,10 +78,6 @@ onReady(() => {
 		});
 	}
 
-	window.addEventListener("scroll", onScrolling, { passive: true });
-	window.addEventListener("resize", onResizing, { passive: true });
-});
-
-window.addEventListener("load", () => {
-	prepareProgressCircle();
+	followReadingProgress();
+	window.addEventListener("resize", () => adjustShare(100), { passive: true });
 });

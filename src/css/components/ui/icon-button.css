@@ -165,13 +165,60 @@
       height: 100%;
       opacity: 0;
 
+      /* The circle has pathLength="100": its dash offset runs from 100 (empty) to 0 (full) */
       circle {
         stroke: var(--primary-subtle-color);
+        stroke-width: 2px;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        vector-effect: non-scaling-stroke;
+        r: 47.9px;
         transform-origin: 50% 50%;
         transform: rotate(-90deg);
         transition: stroke-dashoffset 0.2s;
+
+        @media (width > 48rem) {
+          stroke-width: 3px;
+          r: 45.8px;
+        }
+
+        @media (width >= 90rem) {
+          r: 46.9px;
+        }
       }
     }
+  }
+}
+
+/* The reading progress ring follows the post content through the viewport: empty as its top comes
+   in at the bottom, full as its end does (the "entry-crossing" range). Where scroll-driven
+   animations or timeline-scope are missing, post.js sets the dash offset instead. */
+@supports (animation-timeline: view()) and (timeline-scope: --a) {
+  .l-content.in-post {
+    timeline-scope: --post-progress;
+  }
+
+  .l-content.in-post .post-content {
+    view-timeline: --post-progress block;
+  }
+
+  .m-icon-button.progress {
+    svg {
+      opacity: 1;
+    }
+
+    circle {
+      transition: none;
+      animation: reading-progress linear both;
+      animation-timeline: --post-progress;
+      animation-range: entry-crossing 0% entry-crossing 100%;
+    }
+  }
+}
+
+@keyframes reading-progress {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 

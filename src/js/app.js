@@ -17,7 +17,6 @@ onReady(() => {
 	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
 	const $newsletterElements = document.querySelectorAll(".js-newsletter");
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
-	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 	let secondaryMenu = null;
 	let submenu = null;
@@ -223,24 +222,4 @@ onReady(() => {
 	}
 
 	tryToRemoveNewsletter();
-
-	var cover = document.querySelectorAll(".m-hero__picture");
-	var coverPosition = 0;
-
-	function prlx() {
-		if (cover.length >= 1 && !$reducedMotion.matches) {
-			var windowPosition = window.scrollY;
-			windowPosition > 0 ? (coverPosition = Math.floor(windowPosition * 0.5)) : (coverPosition = 0);
-			cover.forEach(el => {
-				el.style.transform = "translate3d(0, " + coverPosition + "px, 0)";
-			});
-		}
-	}
-	prlx();
-
-	const throttledPrlx = throttleToFrame(prlx);
-
-	window.addEventListener("scroll", throttledPrlx, { passive: true });
-	window.addEventListener("resize", throttledPrlx, { passive: true });
-	window.addEventListener("orientationchange", throttledPrlx, { passive: true });
 });
