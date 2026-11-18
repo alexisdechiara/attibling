@@ -9,7 +9,7 @@
 .l-post-content .kg-button-card a.kg-btn:focus-visible,
 .l-post-content .kg-header-card .kg-header-card-button:focus-visible,
 .l-post-content .kg-product-card .kg-product-card-button:focus-visible {
-  outline: 2px solid var(--primary-subtle-color);
+  outline: 2px solid var(--focus-ring-color);
   outline-offset: 2px;
 }
 
