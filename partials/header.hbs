@@ -29,7 +29,7 @@ This header template is shared across all the pages.
         {{/if}}
       </a>
     {{/if}}
-    <button class="m-icon-button in-mobile-topbar {{^if @custom.enable_native_search}}js-open-search{{/if}}" {{#if @custom.enable_native_search}}data-ghost-search{{/if}} aria-label="{{t "Open search"}}">
+    <button class="m-icon-button in-mobile-topbar" data-ghost-search aria-label="{{t "Open search"}}">
       <span class="icon-search" aria-hidden="true"></span>
     </button>
   </div>
@@ -138,7 +138,7 @@ This header template is shared across all the pages.
             </ul>
           </nav>
           <div class="m-nav__right">
-            <button class="m-icon-button in-menu-main {{^if @custom.enable_native_search}}js-open-search{{/if}}" {{#if @custom.enable_native_search}}data-ghost-search{{/if}} aria-label="{{t "Open search"}}">
+            <button class="m-icon-button in-menu-main" data-ghost-search aria-label="{{t "Open search"}}">
               <span class="icon-search" aria-hidden="true"></span>
             </button>
             <div class="m-switch-theme js-tooltip" data-tippy-content="{{t "Switch theme"}}">

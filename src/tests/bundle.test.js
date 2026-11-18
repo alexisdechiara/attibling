@@ -24,6 +24,8 @@ const removedLibraries = {
 	shave: "js-shave",
 	fitvids: "fluid-width-video-wrapper",
 	"headroom.js": "cutsTheMustard",
+	"fuse.js": "Pattern length exceeds",
+	"@tryghost/content-api": "Accept-Version",
 };
 
 describe("built bundles", () => {

@@ -1143,22 +1143,6 @@
   box-shadow: 0 0 0 1px var(--primary-subtle-color);
 }
 
-.l-post-content input.in-search:not(.kg-video-card input):not(.kg-audio-card input),
-.l-post-content textarea.in-search,
-.l-post-content select.in-search {
-  font-weight: 600;
-  padding-left: 40px;
-}
-
-@media (width >= 48rem) {
-  .l-post-content input.in-search:not(.kg-video-card input):not(.kg-audio-card input),
-  .l-post-content textarea.in-search,
-  .l-post-content select.in-search {
-    font-size: 1.25rem;
-    padding: 15px 30px 15px 60px;
-  }
-}
-
 .l-post-content input.in-subscribe-section:not(.kg-video-card input):not(.kg-audio-card input),
 .l-post-content textarea.in-subscribe-section,
 .l-post-content select.in-subscribe-section {

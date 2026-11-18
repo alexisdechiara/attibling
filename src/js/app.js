@@ -1,11 +1,9 @@
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import GhostContentAPI from "@tryghost/content-api";
-import Fuse from "fuse.js";
 import Swiper from "swiper";
 import { FreeMode, A11y } from "swiper/modules";
 import "swiper/css";
-import { isRTL, formatDate, isMobile, onReady, contentHeight } from "./helpers";
+import { isRTL, isMobile, onReady, contentHeight } from "./helpers";
 
 onReady(() => {
 	if (isRTL()) {
@@ -23,20 +21,12 @@ onReady(() => {
 	const $submenu = document.querySelectorAll(".js-submenu");
 	const $recentSlider = document.querySelector(".js-recent-slider");
 	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
-	const $openSearch = document.querySelectorAll(".js-open-search");
-	const $closeSearch = document.querySelector(".js-close-search");
-	const $search = document.querySelector(".js-search");
-	const $inputSearch = document.querySelector(".js-input-search");
-	const $searchResults = document.querySelector(".js-search-results");
-	const $searchNoResults = document.querySelector(".js-no-results");
 	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
 	const $mainNav = document.querySelectorAll(".js-main-nav, .js-main-nav-left");
 	const $newsletterElements = document.querySelectorAll(".js-newsletter");
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
 	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-	let fuse = null;
-	let postsRequested = false;
 	let submenuIsOpen = false;
 	let secondaryMenuTippy = null;
 
@@ -62,101 +52,16 @@ onReady(() => {
 		$body.classList.toggle("no-scroll-y");
 	};
 
-	const showElement = (el, visible) => {
-		if (el) {
-			el.style.display = visible ? "block" : "none";
-		}
-	};
-
 	const tryToRemoveNewsletter = () => {
 		if (typeof disableNewsletter !== "undefined" && disableNewsletter) {
 			$newsletterElements.forEach(el => el.remove());
 		}
 	};
 
-	const isSearchEnabled = () => typeof ghostSearchApiKey !== "undefined" && typeof nativeSearchEnabled === "undefined";
-
-	const trySearchFeature = () => {
-		if (!isSearchEnabled()) {
-			$openSearch.forEach(el => (el.style.visibility = "hidden"));
-			$closeSearch?.remove();
-			$search?.remove();
-		}
-	};
-
-	const loadPostsOnce = () => {
-		if (!postsRequested && isSearchEnabled()) {
-			postsRequested = true;
-			getAllPosts(ghostHost, ghostSearchApiKey);
-		}
-	};
-
-	const getAllPosts = (host, key) => {
-		const api = new GhostContentAPI({
-			url: host,
-			key,
-			version: "v5.0",
-		});
-		const allPosts = [];
-		const fuseOptions = {
-			shouldSort: true,
-			ignoreLocation: true,
-			findAllMatches: true,
-			includeScore: true,
-			minMatchCharLength: 2,
-			keys: ["title", "custom_excerpt", "tags.name"],
-		};
-
-		api.posts
-			.browse({
-				limit: "all",
-				include: "tags",
-				fields: "id, title, url, published_at, custom_excerpt",
-			})
-			.then(posts => {
-				for (let i = 0, len = posts.length; i < len; i++) {
-					allPosts.push(posts[i]);
-				}
-
-				fuse = new Fuse(allPosts, fuseOptions);
-				runSearch();
-			})
-			.catch(err => {
-				postsRequested = false;
-				console.log(err);
-			});
-	};
-
-	const buildSearchResult = item => {
-		const article = document.createElement("article");
-		const link = document.createElement("a");
-		const title = document.createElement("h3");
-		const date = document.createElement("span");
-
-		article.className = "m-result";
-		link.className = "m-result__link";
-		link.href = item.url;
-		title.className = "m-result__title";
-		title.textContent = item.title;
-		date.className = "m-result__date";
-		date.textContent = formatDate(item.published_at);
-
-		link.append(title, date);
-		article.appendChild(link);
-
-		return article;
-	};
-
 	const toggleDesktopTopbarOverflow = disableOverflow => {
 		if (!isMobile()) {
 			$mainNav.forEach(el => el.classList.toggle("toggle-overflow", disableOverflow));
 		}
-	};
-
-	const closeSearch = () => {
-		$inputSearch?.blur();
-		$search?.classList.remove("opened");
-		toggleScrollVertical();
 	};
 
 	$openMenu.forEach(el =>
@@ -188,56 +93,6 @@ onReady(() => {
 			}
 		}),
 	);
-
-	$openSearch.forEach(el =>
-		el.addEventListener("click", () => {
-			loadPostsOnce();
-			$search?.classList.add("opened");
-			setTimeout(() => {
-				$inputSearch?.focus();
-			}, 400);
-			toggleScrollVertical();
-		}),
-	);
-
-	$closeSearch?.addEventListener("click", closeSearch);
-
-	const runSearch = () => {
-		if (!$inputSearch || !$searchResults) {
-			return;
-		}
-
-		$searchResults.replaceChildren();
-
-		if ($inputSearch.value.length > 0 && fuse) {
-			const results = fuse.search($inputSearch.value);
-			const bestResults = results.filter(result => {
-				if (result.score <= 0.5) {
-					return result;
-				}
-			});
-
-			if (bestResults.length > 0) {
-				const fragment = document.createDocumentFragment();
-
-				for (let i = 0, len = bestResults.length; i < len; i++) {
-					fragment.appendChild(buildSearchResult(bestResults[i].item));
-				}
-
-				showElement($searchNoResults, false);
-				$searchResults.appendChild(fragment);
-				showElement($searchResults, true);
-			} else {
-				showElement($searchResults, false);
-				showElement($searchNoResults, true);
-			}
-		} else {
-			showElement($searchResults, false);
-			showElement($searchNoResults, false);
-		}
-	};
-
-	$inputSearch?.addEventListener("keyup", runSearch);
 
 	$themeSwitcher.forEach(el =>
 		el.addEventListener("click", () => {
@@ -317,12 +172,6 @@ onReady(() => {
 				submenuIsOpen = false;
 				hideSubmenu();
 			}
-		}
-	});
-
-	document.addEventListener("keyup", e => {
-		if (e.key === "Escape" && $search && $search.classList.contains("opened")) {
-			closeSearch();
 		}
 	});
 
@@ -446,7 +295,6 @@ onReady(() => {
 	tippy(".js-tooltip");
 
 	tryToRemoveNewsletter();
-	trySearchFeature();
 
 	var cover = document.querySelectorAll(".m-hero__picture");
 	var coverPosition = 0;

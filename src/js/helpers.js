@@ -7,18 +7,6 @@ export const isMobile = (width = "768px") => {
 	return window.matchMedia(`(max-width: ${width})`).matches;
 };
 
-export const formatDate = date => {
-	if (date) {
-		return new Date(date).toLocaleDateString(document.documentElement.lang, {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	}
-
-	return "";
-};
-
 export const getParameterByName = (name, url) => {
 	if (!url) url = window.location.href;
 

@@ -39,7 +39,4 @@
 @import "./components/heading/tag.css";
 @import "./components/heading/meta.css";
 @import "./components/articles/article-card.css";
-@import "./components/search/search.css";
-@import "./components/search/icon.css";
-@import "./components/search/result.css";
 @import "./components/footer.css";

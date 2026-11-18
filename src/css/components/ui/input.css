@@ -15,16 +15,6 @@
     box-shadow: 0 0 0 1px var(--primary-subtle-color);
   }
 
-  &.in-search {
-    font-weight: 600;
-    padding-left: 40px;
-
-    @media (width >= 48rem) {
-      font-size: 1.25rem;
-      padding: 15px 30px 15px 60px;
-    }
-  }
-
   &.in-subscribe-section {
     margin-bottom: 15px;
   }

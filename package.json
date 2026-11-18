@@ -48,13 +48,6 @@
 			"dark_mode_logo": {
 				"type": "image"
 			},
-			"enable_native_search": {
-				"type": "boolean",
-				"default": true
-			},
-			"search_api_key": {
-				"type": "text"
-			},
 			"disable_fade_animation": {
 				"type": "boolean",
 				"default": false
@@ -92,8 +85,6 @@
 		"get-database": "curl https://raw.githubusercontent.com/eddiesigner/ghost-db/ghost5.9.4/ghost.db -o src/ghost.db"
 	},
 	"dependencies": {
-		"@tryghost/content-api": "^1.11.21",
-		"fuse.js": "^7.0.0",
 		"medium-zoom": "^1.1.0",
 		"swiper": "^11.1.10",
 		"tippy.js": "^6.3.7",
