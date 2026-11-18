@@ -1,4 +1,6 @@
-[data-theme="light"] {
+/** Theme palettes, kept in mixins so they can be reused without duplication */
+
+@mixin light-theme {
   --background-color: #fff;
   --primary-foreground-color: #4a4a4a;
   --secondary-foreground-color: #000;
@@ -26,7 +28,7 @@
   --kg-card-img-invert-color: 0;
 }
 
-[data-theme="dark"] {
+@mixin dark-theme {
   --background-color: #111;
   --primary-foreground-color: #ccc;
   --secondary-foreground-color: #fff;
@@ -54,5 +56,23 @@
   --kg-card-img-invert-color: 1;
   & img {
     filter: brightness(.8) contrast(1.2);
+  }
+}
+
+[data-theme="light"] {
+  @include light-theme;
+}
+
+[data-theme="dark"] {
+  @include dark-theme;
+}
+
+// Fallback when no data-theme attribute is set (e.g. JS blocked or failed):
+// light by default, dark when the system prefers it.
+:root:not([data-theme]) {
+  @include light-theme;
+
+  @media (prefers-color-scheme: dark) {
+    @include dark-theme;
   }
 }
