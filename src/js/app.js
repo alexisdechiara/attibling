@@ -1,13 +1,4 @@
-import Headroom from "headroom.js";
-import tippy from "tippy.js";
-import "tippy.js/dist/tippy.css";
-import shave from "shave";
-import GhostContentAPI from "@tryghost/content-api";
-import Fuse from "fuse.js";
-import Swiper from "swiper";
-import { FreeMode, A11y } from "swiper/modules";
-import "swiper/css";
-import { isRTL, formatDate, isMobile, onReady, contentHeight } from "./helpers";
+import { isRTL, isMobile, onReady, contentHeight, setUpPopover, throttleToFrame } from "./helpers";
 
 onReady(() => {
 	if (isRTL()) {
@@ -21,53 +12,33 @@ onReady(() => {
 	const $closeMenu = document.querySelectorAll(".js-close-menu");
 	const $menu = document.querySelectorAll(".js-menu");
 	const $toggleSubmenu = document.querySelectorAll(".js-toggle-submenu");
-	const $submenuOption = document.querySelector(".js-submenu-option");
 	const $submenu = document.querySelectorAll(".js-submenu");
-	const $recentSlider = document.querySelector(".js-recent-slider");
 	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
-	const $openSearch = document.querySelectorAll(".js-open-search");
-	const $closeSearch = document.querySelector(".js-close-search");
-	const $search = document.querySelector(".js-search");
-	const $inputSearch = document.querySelector(".js-input-search");
-	const $searchResults = document.querySelector(".js-search-results");
-	const $searchNoResults = document.querySelector(".js-no-results");
 	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
-	const $mainNav = document.querySelectorAll(".js-main-nav, .js-main-nav-left");
 	const $newsletterElements = document.querySelectorAll(".js-newsletter");
 	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
-	const $reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-	let fuse = null;
-	let postsRequested = false;
-	let submenuIsOpen = false;
-	let secondaryMenuTippy = null;
+	let secondaryMenu = null;
+	let submenu = null;
 
-	const showSubmenu = () => {
-		$header.classList.add("submenu-is-active");
-		$toggleSubmenu.forEach(el => el.classList.add("active"));
+	// The submenu is a popover (see setUpPopover); these classes drive its look and animation
+	const onSubmenuToggle = open => {
+		$header.classList.toggle("submenu-is-active", open);
+		$toggleSubmenu.forEach(el => el.classList.toggle("active", open));
 		$submenu.forEach(el => {
-			el.classList.remove("closed");
-			el.classList.add("opened");
+			el.classList.toggle("opened", open);
+			el.classList.toggle("closed", !open);
 		});
-	};
 
-	const hideSubmenu = () => {
-		$header.classList.remove("submenu-is-active");
-		$toggleSubmenu.forEach(el => el.classList.remove("active"));
-		$submenu.forEach(el => {
-			el.classList.remove("opened");
-			el.classList.add("closed");
-		});
+		if (open) {
+			$header.classList.remove("covered");
+		} else {
+			changeHeaderBackground();
+		}
 	};
 
 	const toggleScrollVertical = () => {
 		$body.classList.toggle("no-scroll-y");
-	};
-
-	const showElement = (el, visible) => {
-		if (el) {
-			el.style.display = visible ? "block" : "none";
-		}
 	};
 
 	const tryToRemoveNewsletter = () => {
@@ -76,89 +47,18 @@ onReady(() => {
 		}
 	};
 
-	const isSearchEnabled = () => typeof ghostSearchApiKey !== "undefined" && typeof nativeSearchEnabled === "undefined";
+	// The mobile menu covers the page: focus moves into it, Escape closes it and focus goes back
+	// to the button that opened it.
+	let menuOpener = null;
 
-	const trySearchFeature = () => {
-		if (!isSearchEnabled()) {
-			$openSearch.forEach(el => (el.style.visibility = "hidden"));
-			$closeSearch?.remove();
-			$search?.remove();
-		}
-	};
+	const isMenuOpen = () => $header.classList.contains("mobile-menu-opened");
 
-	const loadPostsOnce = () => {
-		if (!postsRequested && isSearchEnabled()) {
-			postsRequested = true;
-			getAllPosts(ghostHost, ghostSearchApiKey);
-		}
-	};
-
-	const getAllPosts = (host, key) => {
-		const api = new GhostContentAPI({
-			url: host,
-			key,
-			version: "v5.0",
-		});
-		const allPosts = [];
-		const fuseOptions = {
-			shouldSort: true,
-			ignoreLocation: true,
-			findAllMatches: true,
-			includeScore: true,
-			minMatchCharLength: 2,
-			keys: ["title", "custom_excerpt", "tags.name"],
-		};
-
-		api.posts
-			.browse({
-				limit: "all",
-				include: "tags",
-				fields: "id, title, url, published_at, custom_excerpt",
-			})
-			.then(posts => {
-				for (let i = 0, len = posts.length; i < len; i++) {
-					allPosts.push(posts[i]);
-				}
-
-				fuse = new Fuse(allPosts, fuseOptions);
-				runSearch();
-			})
-			.catch(err => {
-				postsRequested = false;
-				console.log(err);
-			});
-	};
-
-	const buildSearchResult = item => {
-		const article = document.createElement("article");
-		const link = document.createElement("a");
-		const title = document.createElement("h3");
-		const date = document.createElement("span");
-
-		article.className = "m-result";
-		link.className = "m-result__link";
-		link.href = item.url;
-		title.className = "m-result__title";
-		title.textContent = item.title;
-		date.className = "m-result__date";
-		date.textContent = formatDate(item.published_at);
-
-		link.append(title, date);
-		article.appendChild(link);
-
-		return article;
-	};
-
-	const toggleDesktopTopbarOverflow = disableOverflow => {
-		if (!isMobile()) {
-			$mainNav.forEach(el => el.classList.toggle("toggle-overflow", disableOverflow));
-		}
-	};
-
-	const closeSearch = () => {
-		$inputSearch?.blur();
-		$search?.classList.remove("opened");
+	const closeMenu = () => {
+		$header.classList.remove("mobile-menu-opened");
+		$menu.forEach(menu => menu.classList.remove("opened"));
 		toggleScrollVertical();
+		menuOpener?.focus();
+		menuOpener = null;
 	};
 
 	$openMenu.forEach(el =>
@@ -166,80 +66,18 @@ onReady(() => {
 			$header.classList.add("mobile-menu-opened");
 			$menu.forEach(menu => menu.classList.add("opened"));
 			toggleScrollVertical();
+			menuOpener = el;
+			$closeMenu[0]?.focus();
 		}),
 	);
 
-	$closeMenu.forEach(el =>
-		el.addEventListener("click", () => {
-			$header.classList.remove("mobile-menu-opened");
-			$menu.forEach(menu => menu.classList.remove("opened"));
-			toggleScrollVertical();
-		}),
-	);
+	$closeMenu.forEach(el => el.addEventListener("click", closeMenu));
 
-	$toggleSubmenu.forEach(el =>
-		el.addEventListener("click", () => {
-			submenuIsOpen = !submenuIsOpen;
-
-			if (submenuIsOpen) {
-				showSubmenu();
-				$header.classList.remove("covered");
-			} else {
-				hideSubmenu();
-				changeHeaderBackground();
-			}
-		}),
-	);
-
-	$openSearch.forEach(el =>
-		el.addEventListener("click", () => {
-			loadPostsOnce();
-			$search?.classList.add("opened");
-			setTimeout(() => {
-				$inputSearch?.focus();
-			}, 400);
-			toggleScrollVertical();
-		}),
-	);
-
-	$closeSearch?.addEventListener("click", closeSearch);
-
-	const runSearch = () => {
-		if (!$inputSearch || !$searchResults) {
-			return;
+	document.addEventListener("keydown", e => {
+		if (e.key === "Escape" && isMenuOpen()) {
+			closeMenu();
 		}
-
-		$searchResults.replaceChildren();
-
-		if ($inputSearch.value.length > 0 && fuse) {
-			const results = fuse.search($inputSearch.value);
-			const bestResults = results.filter(result => {
-				if (result.score <= 0.5) {
-					return result;
-				}
-			});
-
-			if (bestResults.length > 0) {
-				const fragment = document.createDocumentFragment();
-
-				for (let i = 0, len = bestResults.length; i < len; i++) {
-					fragment.appendChild(buildSearchResult(bestResults[i].item));
-				}
-
-				showElement($searchNoResults, false);
-				$searchResults.appendChild(fragment);
-				showElement($searchResults, true);
-			} else {
-				showElement($searchResults, false);
-				showElement($searchNoResults, true);
-			}
-		} else {
-			showElement($searchResults, false);
-			showElement($searchNoResults, false);
-		}
-	};
-
-	$inputSearch?.addEventListener("keyup", runSearch);
+	});
 
 	$themeSwitcher.forEach(el =>
 		el.addEventListener("click", () => {
@@ -303,31 +141,6 @@ onReady(() => {
 		}
 	});
 
-	$themeSwitcher.forEach(el => {
-		el.addEventListener("mouseenter", () => {
-			toggleDesktopTopbarOverflow(true);
-		});
-
-		el.addEventListener("mouseleave", () => {
-			toggleDesktopTopbarOverflow(false);
-		});
-	});
-
-	window.addEventListener("click", e => {
-		if (submenuIsOpen) {
-			if ($submenuOption && !$submenuOption.contains(e.target)) {
-				submenuIsOpen = false;
-				hideSubmenu();
-			}
-		}
-	});
-
-	document.addEventListener("keyup", e => {
-		if (e.key === "Escape" && $search && $search.classList.contains("opened")) {
-			closeSearch();
-		}
-	});
-
 	if (localStorage.getItem("theme") === "light") {
 		$setLightTheme(false);
 	} else if (localStorage.getItem("theme") === "dark") {
@@ -335,20 +148,6 @@ onReady(() => {
 	} else {
 		$setAutoTheme(false);
 	}
-
-	const throttleToFrame = callback => {
-		let ticking = false;
-
-		return () => {
-			if (!ticking) {
-				ticking = true;
-				requestAnimationFrame(() => {
-					ticking = false;
-					callback();
-				});
-			}
-		};
-	};
 
 	window.addEventListener(
 		"scroll",
@@ -370,84 +169,69 @@ onReady(() => {
 		}
 	};
 
-	if ($header) {
-		const headroom = new Headroom($header, {
-			tolerance: {
-				down: 40,
-				up: 20,
-			},
-			offset: 15,
-			onUnpin: () => {
-				if (!isMobile() && secondaryMenuTippy) {
-					const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
+	// Hide the header while scrolling down and bring it back on the way up, with the classes and
+	// thresholds headroom.js used: a scroll of more than 40px down (20px up) between two frames,
+	// and always shown within 15px of the top.
+	const onHeaderUnpin = () => {
+		if (!isMobile()) {
+			secondaryMenu?.close();
+			submenu?.close();
+		}
+	};
 
-					if (desktopSecondaryMenuTippy && desktopSecondaryMenuTippy.state.isVisible) {
-						desktopSecondaryMenuTippy.hide();
+	if ($header) {
+		let lastScrollY = Math.round(window.scrollY);
+
+		const updateHeader = () => {
+			const scrollY = Math.round(window.scrollY);
+			const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+			const down = scrollY > lastScrollY;
+			const top = scrollY <= 15;
+			const toleranceExceeded = Math.abs(scrollY - lastScrollY) > (down ? 40 : 20);
+
+			// Ignore the rubber-band overscroll of touch devices
+			if (scrollY >= 0 && scrollY <= maxScrollY) {
+				$header.classList.toggle("headroom--top", top);
+				$header.classList.toggle("headroom--not-top", !top);
+
+				if (down && !top && toleranceExceeded) {
+					if (!$header.classList.contains("headroom--unpinned")) {
+						$header.classList.remove("headroom--pinned");
+						$header.classList.add("headroom--unpinned");
+						onHeaderUnpin();
 					}
+				} else if ((!down && toleranceExceeded) || top) {
+					$header.classList.replace("headroom--unpinned", "headroom--pinned");
 				}
-			},
-		});
-		headroom.init();
+			}
+
+			lastScrollY = scrollY;
+		};
+
+		$header.classList.add("headroom");
+		updateHeader();
+		window.addEventListener("scroll", throttleToFrame(updateHeader), { passive: true });
 	}
 
-	if ($recentSlider) {
-		const recentSwiper = new Swiper(".js-recent-slider", {
-			modules: [FreeMode, A11y],
-			freeMode: true,
-			slidesPerView: "auto",
-			a11y: true,
-			on: {
-				init: function () {
-					shave(".js-recent-article-title", 50);
-				},
-			},
-		});
+	// Ghost's announcement bar ({{ghost_head}} adds #announcement-bar-root and fills it later) goes at
+	// the top of the fixed header; --announcement-bar-height keeps the page and the submenu below it.
+	const $announcementBar = document.getElementById("announcement-bar-root");
+
+	if ($announcementBar && $header) {
+		$header.classList.add("with-announcement-bar");
+		$header.prepend($announcementBar);
+		new ResizeObserver(() => {
+			document.documentElement.style.setProperty("--announcement-bar-height", `${$announcementBar.offsetHeight}px`);
+		}).observe($announcementBar);
+	}
+
+	if ($toggleSubmenu[0] && $submenu[0]) {
+		submenu = setUpPopover($toggleSubmenu[0], $submenu[0], { onToggle: onSubmenuToggle, place: false });
 	}
 
 	if ($openSecondaryMenu) {
-		const template = document.getElementById("secondary-navigation-template");
-
-		secondaryMenuTippy = tippy(".js-open-secondary-menu", {
-			appendTo: document.body,
-			content: template.innerHTML,
-			allowHTML: true,
-			arrow: true,
-			trigger: "click",
-			interactive: true,
-			onShow() {
-				toggleDesktopTopbarOverflow(true);
-			},
-			onHidden() {
-				toggleDesktopTopbarOverflow(false);
-			},
-		});
+		secondaryMenu = setUpPopover($openSecondaryMenu, document.querySelector(".js-secondary-menu"));
 	}
-
-	tippy(".js-tooltip");
-
-	shave(".js-article-card-title", 100);
-	shave(".js-article-card-title-no-image", 250);
 
 	tryToRemoveNewsletter();
-	trySearchFeature();
-
-	var cover = document.querySelectorAll(".m-hero__picture");
-	var coverPosition = 0;
-
-	function prlx() {
-		if (cover.length >= 1 && !$reducedMotion.matches) {
-			var windowPosition = window.scrollY;
-			windowPosition > 0 ? (coverPosition = Math.floor(windowPosition * 0.5)) : (coverPosition = 0);
-			cover.forEach(el => {
-				el.style.transform = "translate3d(0, " + coverPosition + "px, 0)";
-			});
-		}
-	}
-	prlx();
-
-	const throttledPrlx = throttleToFrame(prlx);
-
-	window.addEventListener("scroll", throttledPrlx, { passive: true });
-	window.addEventListener("resize", throttledPrlx, { passive: true });
-	window.addEventListener("orientationchange", throttledPrlx, { passive: true });
 });

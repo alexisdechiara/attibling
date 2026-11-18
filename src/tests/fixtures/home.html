@@ -6,7 +6,7 @@
 	<title>Fixture home</title>
 	<link rel="stylesheet" type="text/css" href="/assets/css/app.css" />
 	<link rel="stylesheet" type="text/css" href="/assets/css/home.css" />
-	<!--GLOBALS-->
+	<link rel="stylesheet" type="text/css" href="/assets/css/listing.css" />
 </head>
 <body class="home-template">
 	<header class="m-header with-picture covered in-homepage js-header">
@@ -15,8 +15,8 @@
 				<svg class="m-icon-svg" viewBox="0 0 233 1024" width="0.2275390625em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M216 909Q216 929 209 946Q202 963 187 978Q172 993 154.5 1000Q137 1007 117 1007Q98 1007 80.5 1000Q63 993 48 978Q33 963 26 946Q19 929 19 909Q19 889 26 871.5Q33 854 48 839Q63 825 80.5 817.5Q98 810 117 810Q137 810 154.5 817.5Q172 825 187 839Q202 854 209 871.5Q216 889 216 909ZM216 518Q216 538 209 555Q202 572 187 587Q172 602 154.5 609Q137 616 117 616Q98 616 80.5 609Q63 602 48 587Q33 572 26 555Q19 538 19 518Q19 498 26 480.5Q33 463 48 448Q63 434 80.5 426.5Q98 419 117 419Q137 419 154.5 426.5Q172 434 187 448Q202 463 209 480.5Q216 498 216 518ZM216 127Q216 146 209 163.5Q202 181 187 196Q172 211 154.5 218Q137 225 117 225Q98 225 80.5 218Q63 211 48 196Q33 181 26 163.5Q19 146 19 127Q19 107 26 89.5Q33 72 48 57Q63 42 80.5 35Q98 28 117 28Q137 28 154.5 35Q172 42 187 57Q202 72 209 89.5Q216 107 216 127Z"/></svg>
 			</button>
 			<a href="/" class="m-site-name in-mobile-topbar">Fixture blog</a>
-			<button class="m-icon-button in-mobile-topbar js-open-search" aria-label="Open search">
-				<svg class="m-icon-svg" viewBox="0 0 970 1024" width="0.947265625em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M369 626Q402 626 432.5 618Q463 610 491 593Q518 577 540 554.5Q562 532 578 504Q595 477 603 446.5Q611 416 611 383Q611 350 603 319.5Q595 289 578 261Q562 233 540 211Q518 189 491 173Q463 157 432.5 149Q402 141 369 141Q336 141 305.5 149Q275 157 247 173Q220 189 197.5 211Q175 233 159 261Q142 289 134 319.5Q126 350 126 383Q126 416 134 446.5Q142 477 159 504Q175 532 197.5 554.5Q220 577 247 593Q275 610 305.5 618Q336 626 369 626ZM692 626 960 894 879 975 611 706V664L595 649Q573 669 547 684.5Q521 700 491 711Q462 721 431.5 726.5Q401 732 369 732Q321 732 277 720.5Q233 709 192 686Q152 662 120 631Q88 600 65 560Q41 519 29 475Q17 431 17 383Q17 335 29 291Q41 247 64 206Q88 166 120 134Q152 102 192 79Q233 56 277 44Q321 32 369 32Q417 32 461 44Q505 56 546 80Q586 103 617 135Q648 167 671 207Q694 247 705.5 291Q717 335 717 383Q717 415 711.5 446Q706 477 696 506Q685 536 669.5 562Q654 588 634 611L648 626H692Z"/></svg>
+			<button class="m-icon-button in-mobile-topbar" data-ghost-search aria-label="Open search">
+				<svg class="m-icon-svg" viewBox="0 0 970 1024" width="0.947265625em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M369 626q33 0 63.5-8t58.5-25q27-16 49-38.5t38-50.5q17-27 25-57.5t8-63.5-8-63.5-25-58.5q-16-28-38-50t-49-38q-28-16-58.5-24t-63.5-8-63.5 8-58.5 24q-27 16-49.5 38T159 261q-17 28-25 58.5t-8 63.5 8 63.5 25 57.5q16 28 38.5 50.5T247 593q28 17 58.5 25t63.5 8m323 0 268 268-81 81-268-269v-42l-16-15q-22 20-48 35.5T491 711q-29 10-59.5 15.5T369 732q-48 0-92-11.5T192 686q-40-24-72-55t-55-71q-24-41-36-85t-12-92 12-92 35-85q24-40 56-72t72-55q41-23 85-35t92-12 92 12 85 36q40 23 71 55t54 72 34.5 84 11.5 92q0 32-5.5 63T696 506q-11 30-26.5 56T634 611l14 15z"/></svg>
 			</button>
 		</div>
 
@@ -33,15 +33,60 @@
 									<a href="/" class="m-site-name in-desktop-menu">Fixture blog</a>
 								</li>
 								<li class="nav-home"><a href="/">Home</a></li>
+								<li class="more">
+									<span>
+										<button type="button" class="js-open-secondary-menu" popovertarget="secondary-navigation">
+											More
+											<svg class="m-icon-svg" viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M226 396q12-12 30-12t30 12l226 226 226-226q12-12 30-12t30 12q13 13 13 30.5T798 457L542 713q-12 12-30 12t-30-12L226 457q-13-13-13-30.5t13-30.5"/></svg>
+										</button>
+									</span>
+								</li>
 								<li class="submenu-option js-submenu-option">
-									<button class="m-icon-button in-menu-main more js-toggle-submenu" aria-label="Open submenu">
-										<svg class="m-icon-svg" viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M256 512Q256 565 218.5 602.5Q181 640 128 640Q75 640 37.5 602.5Q0 565 0 512Q0 459 37.5 421.5Q75 384 128 384Q181 384 218.5 421.5Q256 459 256 512ZM640 512Q640 565 602.5 602.5Q565 640 512 640Q459 640 421.5 602.5Q384 565 384 512Q384 459 421.5 421.5Q459 384 512 384Q565 384 602.5 421.5Q640 459 640 512ZM1024 512Q1024 565 986.5 602.5Q949 640 896 640Q843 640 805.5 602.5Q768 565 768 512Q768 459 805.5 421.5Q843 384 896 384Q949 384 986.5 421.5Q1024 459 1024 512Z"/></svg>
+									<button type="button" class="m-icon-button in-menu-main more js-toggle-submenu" popovertarget="submenu" aria-label="Open submenu">
+										<svg class="m-icon-svg" viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M256 512q0 53-37.5 90.5T128 640t-90.5-37.5T0 512t37.5-90.5T128 384t90.5 37.5T256 512m384 0q0 53-37.5 90.5T512 640t-90.5-37.5T384 512t37.5-90.5T512 384t90.5 37.5T640 512m384 0q0 53-37.5 90.5T896 640t-90.5-37.5T768 512t37.5-90.5T896 384t90.5 37.5T1024 512"/></svg>
 									</button>
-									<div class="m-submenu js-submenu">
+									<div class="m-submenu js-submenu" id="submenu" popover>
 										<div class="l-wrapper in-submenu">
 											<section class="m-recent-articles">
 												<h3 class="m-submenu-title in-recent-articles">Recent articles</h3>
-												<div class="m-not-found in-recent-articles">No recent articles</div>
+												<div class="m-recent-articles__list">
+													<div class="m-recent-articles__item">
+														<a href="/recent-1/" class="m-recent-article">
+															<div class="m-recent-article__picture">
+																<img src="/src/tests/fixtures/pixel.svg" alt="">
+															</div>
+															<h3 class="m-recent-article__title" title="Recent post 1">Recent post 1 has a title long enough to need more than two lines</h3>
+															<span class="m-recent-article__date">2 days ago</span>
+														</a>
+													</div>
+													<div class="m-recent-articles__item">
+														<a href="/recent-2/" class="m-recent-article">
+															<div class="m-recent-article__picture">
+																<img src="/src/tests/fixtures/pixel.svg" alt="">
+															</div>
+															<h3 class="m-recent-article__title" title="Recent post 2">Recent post 2 has a title long enough to need more than two lines</h3>
+															<span class="m-recent-article__date">2 days ago</span>
+														</a>
+													</div>
+													<div class="m-recent-articles__item">
+														<a href="/recent-3/" class="m-recent-article">
+															<div class="m-recent-article__picture">
+																<img src="/src/tests/fixtures/pixel.svg" alt="">
+															</div>
+															<h3 class="m-recent-article__title" title="Recent post 3">Recent post 3 has a title long enough to need more than two lines</h3>
+															<span class="m-recent-article__date">2 days ago</span>
+														</a>
+													</div>
+													<div class="m-recent-articles__item">
+														<a href="/recent-4/" class="m-recent-article">
+															<div class="m-recent-article__picture">
+																<img src="/src/tests/fixtures/pixel.svg" alt="">
+															</div>
+															<h3 class="m-recent-article__title" title="Recent post 4">Recent post 4 has a title long enough to need more than two lines</h3>
+															<span class="m-recent-article__date">2 days ago</span>
+														</a>
+													</div>
+												</div>
 											</section>
 											<section class="m-tags">
 												<h3 class="m-submenu-title">Tags</h3>
@@ -55,10 +100,10 @@
 							</ul>
 						</nav>
 						<div class="m-nav__right">
-							<button class="m-icon-button in-menu-main js-open-search" aria-label="Open search">
-								<svg class="m-icon-svg" viewBox="0 0 970 1024" width="0.947265625em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M369 626Q402 626 432.5 618Q463 610 491 593Q518 577 540 554.5Q562 532 578 504Q595 477 603 446.5Q611 416 611 383Q611 350 603 319.5Q595 289 578 261Q562 233 540 211Q518 189 491 173Q463 157 432.5 149Q402 141 369 141Q336 141 305.5 149Q275 157 247 173Q220 189 197.5 211Q175 233 159 261Q142 289 134 319.5Q126 350 126 383Q126 416 134 446.5Q142 477 159 504Q175 532 197.5 554.5Q220 577 247 593Q275 610 305.5 618Q336 626 369 626ZM692 626 960 894 879 975 611 706V664L595 649Q573 669 547 684.5Q521 700 491 711Q462 721 431.5 726.5Q401 732 369 732Q321 732 277 720.5Q233 709 192 686Q152 662 120 631Q88 600 65 560Q41 519 29 475Q17 431 17 383Q17 335 29 291Q41 247 64 206Q88 166 120 134Q152 102 192 79Q233 56 277 44Q321 32 369 32Q417 32 461 44Q505 56 546 80Q586 103 617 135Q648 167 671 207Q694 247 705.5 291Q717 335 717 383Q717 415 711.5 446Q706 477 696 506Q685 536 669.5 562Q654 588 634 611L648 626H692Z"/></svg>
+							<button class="m-icon-button in-menu-main" data-ghost-search aria-label="Open search">
+								<svg class="m-icon-svg" viewBox="0 0 970 1024" width="0.947265625em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M369 626q33 0 63.5-8t58.5-25q27-16 49-38.5t38-50.5q17-27 25-57.5t8-63.5-8-63.5-25-58.5q-16-28-38-50t-49-38q-28-16-58.5-24t-63.5-8-63.5 8-58.5 24q-27 16-49.5 38T159 261q-17 28-25 58.5t-8 63.5 8 63.5 25 57.5q16 28 38.5 50.5T247 593q28 17 58.5 25t63.5 8m323 0 268 268-81 81-268-269v-42l-16-15q-22 20-48 35.5T491 711q-29 10-59.5 15.5T369 732q-48 0-92-11.5T192 686q-40-24-72-55t-55-71q-24-41-36-85t-12-92 12-92 35-85q24-40 56-72t72-55q41-23 85-35t92-12 92 12 85 36q40 23 71 55t54 72 34.5 84 11.5 92q0 32-5.5 63T696 506q-11 30-26.5 56T634 611l14 15z"/></svg>
 							</button>
-							<div class="m-switch-theme js-tooltip" data-tippy-content="Switch theme" tabindex="0">
+							<div class="m-switch-theme" data-tooltip="Switch theme" data-tooltip-position="bottom">
 								<label for="switch-theme" class="sr-only">Switch theme</label>
 								<input id="switch-theme" type="button" class="js-switch-theme">
 								<div>
@@ -72,6 +117,13 @@
 				</div>
 			</div>
 		</div>
+
+		<div id="secondary-navigation" class="m-dropdown js-secondary-menu" popover>
+			<ul class="m-secondary-menu">
+				<li class="nav-about"><a href="/about/">About</a></li>
+				<li class="nav-contact"><a href="/contact/">Contact</a></li>
+			</ul>
+		</div>
 	</header>
 
 	<main class="main-wrap">
@@ -83,9 +135,9 @@
 		<div class="l-content" style="height: 4000px;">
 			<div class="l-wrapper" data-animate="fade-up">
 				<div class="l-grid">
-					<div class="m-featured-slider swiper js-featured-slider">
-						<div class="m-featured-slider__list swiper-wrapper">
-								<div class="m-featured-slider__list__item swiper-slide">
+					<div class="m-featured-slider js-featured-slider">
+						<div class="m-featured-slider__list js-slider-track" id="featured-slider">
+								<div class="m-featured-slider__list__item">
 									<article class="m-featured-article no-picture">
 										<div class="m-featured-article__picture"></div>
 										<div class="m-featured-article__meta">
@@ -96,7 +148,7 @@
 											<span>Featured</span>
 										</div>
 										<a href="/featured-1/" class="m-featured-article__content">
-											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 1">Featured post 1 with a rather long title that wraps over lines</h2>
+											<h2 class="m-featured-article__title" title="Featured post 1">Featured post 1 has a very long title that keeps going and going and going, well past the four or five lines of text that a featured slide has room for, and then some more words</h2>
 											<div class="m-featured-article__timestamp">
 												<span>2 days ago</span>
 												<span>&bull;</span>
@@ -105,7 +157,7 @@
 										</a>
 									</article>
 								</div>
-								<div class="m-featured-slider__list__item swiper-slide">
+								<div class="m-featured-slider__list__item">
 									<article class="m-featured-article no-picture">
 										<div class="m-featured-article__picture"></div>
 										<div class="m-featured-article__meta">
@@ -116,7 +168,7 @@
 											<span>Featured</span>
 										</div>
 										<a href="/featured-2/" class="m-featured-article__content">
-											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 2">Featured post 2 with a rather long title that wraps over lines</h2>
+											<h2 class="m-featured-article__title" title="Featured post 2">Featured post 2 with a rather long title that wraps over lines</h2>
 											<div class="m-featured-article__timestamp">
 												<span>2 days ago</span>
 												<span>&bull;</span>
@@ -125,7 +177,7 @@
 										</a>
 									</article>
 								</div>
-								<div class="m-featured-slider__list__item swiper-slide">
+								<div class="m-featured-slider__list__item">
 									<article class="m-featured-article no-picture">
 										<div class="m-featured-article__picture"></div>
 										<div class="m-featured-article__meta">
@@ -136,7 +188,7 @@
 											<span>Featured</span>
 										</div>
 										<a href="/featured-3/" class="m-featured-article__content">
-											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 3">Featured post 3 with a rather long title that wraps over lines</h2>
+											<h2 class="m-featured-article__title" title="Featured post 3">Featured post 3 with a rather long title that wraps over lines</h2>
 											<div class="m-featured-article__timestamp">
 												<span>2 days ago</span>
 												<span>&bull;</span>
@@ -146,37 +198,58 @@
 									</article>
 								</div>
 						</div>
-						<button class="m-icon-button in-featured-articles swiper-button-prev js-featured-slider-button" aria-label="Previous">
-							<svg class="m-icon-svg" viewBox="0 0 896 1024" width="0.875em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M19 467Q0 486 0 512.5Q0 539 19 557L339 877Q358 896 384.5 896Q411 896 429 877Q448 859 448 832.5Q448 806 429 787L218 576H832Q859 576 877.5 557.5Q896 539 896 512Q896 485 877.5 466.5Q859 448 832 448H219L429 237Q448 218 448 191.5Q448 165 429 147Q410 128 383.5 128Q357 128 339 147L19 467Z"/></svg>
+						<button type="button" class="m-icon-button in-featured-articles as-prev js-slider-prev" aria-label="Previous" aria-controls="featured-slider">
+							<svg class="m-icon-svg" viewBox="0 0 896 1024" width="0.875em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M19 467Q0 486 0 512.5T19 557l320 320q19 19 45.5 19t44.5-19q19-18 19-44.5T429 787L218 576h614q27 0 45.5-18.5T896 512t-18.5-45.5T832 448H219l210-211q19-19 19-45.5T429 147q-19-19-45.5-19T339 147z"/></svg>
 						</button>
-						<button class="m-icon-button in-featured-articles swiper-button-next js-featured-slider-button" aria-label="Next">
-							<svg class="m-icon-svg" viewBox="0 0 896 1024" width="0.875em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M877 557Q896 538 896 511.5Q896 485 877 467L557 147Q538 128 511.5 128Q485 128 467 147Q448 165 448 191.5Q448 218 467 237L678 448H64Q37 448 18.5 466.5Q0 485 0 512Q0 539 18.5 557.5Q37 576 64 576H677L467 787Q448 806 448 832.5Q448 859 467 877Q486 896 512.5 896Q539 896 557 877L877 557Z"/></svg>
+						<button type="button" class="m-icon-button in-featured-articles as-next js-slider-next" aria-label="Next" aria-controls="featured-slider">
+							<svg class="m-icon-svg" viewBox="0 0 896 1024" width="0.875em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M877 557q19-19 19-45.5T877 467L557 147q-19-19-45.5-19T467 147q-19 18-19 44.5t19 45.5l211 211H64q-27 0-45.5 18.5T0 512t18.5 45.5T64 576h613L467 787q-19 19-19 45.5t19 44.5q19 19 45.5 19t44.5-19z"/></svg>
 						</button>
 					</div>
+					<article class="m-article-card post">
+						<div class="m-article-card__picture">
+							<a href="/card-1/" class="m-article-card__picture-link" aria-hidden="true" tabindex="-1"></a>
+							<img class="m-article-card__picture-background" src="/src/tests/fixtures/pixel.svg" alt="">
+							<a href="/card-1/" class="m-article-card__featured" data-tooltip="Featured" data-tooltip-position="left" aria-label="Featured">
+								<svg class="m-icon-svg" viewBox="0 0 896 1024" width="0.875em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M319 11q11-11 27-11t28 11q41 39 80 81t75 87q17-22 35.5-44.5T603 93q12-11 28.5-11T659 93q52 50 95 112t74 124 49.5 121T896 553q0 96-35 181-35 86-96 150.5T623 986q-82 38-175 38-94 0-176-38-82-37-142.5-101.5T35 734Q0 649 0 553q0-58 24.5-126T91 290q21-36 46-72 25-35 53.5-70.5T252 78q32-35 67-67m132 821q38 0 72-10.5t66-31.5q63-44 78.5-121.5T645 521q-4-8-8.5-16.5T626 488L524 605l-25-32-57.5-73Q410 460 382 424l-32-40q-63 78-94.5 128.5T224 614t18 92q18 40 48.5 68t72.5 43q41 15 88 15"/></svg>
+							</a>
+						</div>
+						<div class="m-article-card__info">
+							<a href="/tag/one/" class="m-article-card__tag">One</a>
+							<a href="/card-1/" class="m-article-card__info-link" aria-label="Card 1">
+								<div>
+									<h2 class="m-article-card__title" title="Card 1">Card 1 has a very long title that keeps going and going and going, well past the three lines of text that a card with a picture can show</h2>
+								</div>
+								<div class="m-article-card__timestamp">
+									<span>2 days ago</span>
+									<span>&bull;</span>
+									<span>1 min read</span>
+								</div>
+							</a>
+						</div>
+					</article>
+					<article class="m-article-card no-picture post">
+						<div class="m-article-card__picture">
+							<a href="/card-2/" class="m-article-card__picture-link" aria-hidden="true" tabindex="-1"></a>
+						</div>
+						<div class="m-article-card__info">
+							<a href="/tag/one/" class="m-article-card__tag">One</a>
+							<a href="/card-2/" class="m-article-card__info-link" aria-label="Card 2">
+								<div>
+									<h2 class="m-article-card__title" title="Card 2">Card 2 has no picture and an even longer title that keeps going and going and going, well past the six lines that a card without a picture has room for, so that it has to be cut somewhere near the end of the sixth line of text</h2>
+								</div>
+								<div class="m-article-card__timestamp">
+									<span>2 days ago</span>
+									<span>&bull;</span>
+									<span>1 min read</span>
+								</div>
+							</a>
+						</div>
+					</article>
 				</div>
 			</div>
 			<p class="js-outside">Some content outside the submenu.</p>
 		</div>
 	</main>
-
-	<div class="m-search js-search" role="dialog" aria-modal="true" aria-label="Search">
-		<button class="m-icon-button outlined as-close-search js-close-search" aria-label="Close search">
-			<span class="icon-close" aria-hidden="true"></span>
-		</button>
-		<div class="m-search__content">
-			<form class="m-search__form">
-				<div class="pos-relative">
-					<span class="icon-search m-search-icon" aria-hidden="true"></span>
-					<label for="search-input" class="sr-only">Type to search</label>
-					<input id="search-input" type="text" class="m-input in-search js-input-search" placeholder="Type to search">
-				</div>
-			</form>
-			<div class="js-search-results hide"></div>
-			<p class="m-not-found align-center hide js-no-results">
-				No results for your search, try something different.
-			</p>
-		</div>
-	</div>
 
 	<!--COMMENTS-->
 

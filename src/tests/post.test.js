@@ -15,6 +15,33 @@ describe("post page", () => {
 		await dispose();
 	});
 
+	it("keeps each video embed's own ratio and fits it to the column", async () => {
+		for (const width of [390, 1440]) {
+			const { page, dispose } = await open({ fixture: "post.html", viewport: { width, height: 800 } });
+			const boxes = await page.$$eval(".js-post-content iframe", frames =>
+				Object.fromEntries(
+					frames.map(frame => {
+						const box = frame.getBoundingClientRect();
+						const parent = frame.parentElement.getBoundingClientRect();
+						return [
+							frame.className,
+							{ width: box.width, ratio: box.width / box.height, left: box.left - parent.left, parent: parent.width },
+						];
+					}),
+				),
+			);
+			const card = boxes["embed-4-3"];
+			assert.ok(Math.abs(card.ratio - 4 / 3) < 0.02, `embed card ratio is ${card.ratio} at ${width}px`);
+			assert.ok(Math.abs(card.width - card.parent * 0.66) < 2, `embed card is ${card.width}px wide at ${width}px`);
+			assert.ok(Math.abs(card.left - (card.parent - card.width) / 2) < 2, `embed card is not centred at ${width}px`);
+			const bare = boxes["bare-16-9"];
+			assert.ok(Math.abs(bare.ratio - 16 / 9) < 0.02, `bare embed ratio is ${bare.ratio} at ${width}px`);
+			assert.ok(Math.abs(bare.width - bare.parent) < 2, `bare embed is ${bare.width}px wide at ${width}px`);
+			assert.equal(await page.locator(".fluid-width-video-wrapper").count(), 0);
+			await dispose();
+		}
+	});
+
 	it("zooms a zoomable image on click", async () => {
 		const { page, dispose } = await open({ fixture: "post.html" });
 		await page.locator(".js-post-content img.plain-image").click();
@@ -42,6 +69,58 @@ describe("post page", () => {
 		await page.waitForTimeout(50);
 		assert.equal(await page.evaluate(() => window.scrollY), 0);
 
+		await dispose();
+	});
+
+	// The share of the ring that is drawn, 0 to 1, once the page has had time to update it.
+	const ringAt = async (page, y) => {
+		await page.evaluate(y => window.scrollTo(0, y), y);
+		await page.waitForTimeout(350);
+		return page.evaluate(() => {
+			const circle = document.querySelector(".js-progress");
+			const shown = getComputedStyle(circle.ownerSVGElement).opacity === "1";
+			const offset = parseFloat(getComputedStyle(circle).strokeDashoffset);
+			return shown ? Math.round((1 - offset / 100) * 100) / 100 : null;
+		});
+	};
+	const readingProgress = async page => {
+		await page.waitForTimeout(400);
+		const end = await page.evaluate(() => {
+			const box = document.querySelector(".js-post-content").getBoundingClientRect();
+			return box.bottom + window.scrollY - window.innerHeight;
+		});
+		return [await ringAt(page, 0), await ringAt(page, end / 2), await ringAt(page, end), await ringAt(page, 0)];
+	};
+
+	it("fills the reading progress ring as the post is read", async () => {
+		const { page, dispose } = await open({ fixture: "post.html" });
+		const [top, middle, end, back] = await readingProgress(page);
+		assert.ok(top < 0.2, `ring at ${top} at the top`);
+		assert.ok(middle > 0.4 && middle < 0.6, `ring at ${middle} half way`);
+		assert.equal(end, 1, "full at the end of the post");
+		assert.equal(back, top, "empties again when scrolling back up");
+		await dispose();
+	});
+
+	it("fills the reading progress ring by script where scroll-driven animations are missing", async () => {
+		const { page, dispose } = await open({
+			fixture: "post.html",
+			initScript: () => {
+				const supports = CSS.supports.bind(CSS);
+				CSS.supports = (...args) => !/timeline/.test(args.join(":")) && supports(...args);
+				// What such a browser does with the theme's scroll-driven rules
+				document.addEventListener("DOMContentLoaded", () => {
+					const style = document.createElement("style");
+					style.textContent = "* { animation-timeline: auto !important; animation: none !important; }";
+					document.head.append(style);
+				});
+			},
+		});
+		const [top, middle, end, back] = await readingProgress(page);
+		assert.ok(top < 0.2, `ring at ${top} at the top`);
+		assert.ok(middle > 0.4 && middle < 0.6, `ring at ${middle} half way`);
+		assert.equal(end, 1, "full at the end of the post");
+		assert.equal(back, top, "empties again when scrolling back up");
 		await dispose();
 	});
 

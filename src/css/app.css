@@ -13,7 +13,9 @@
 @import "./components/ui/section-title.css";
 @import "./components/ui/small-text.css";
 @import "./components/ui/not-found.css";
+@import "./components/ui/tooltip.css";
 @import "./components/header/header.css";
+@import "./components/header/announcement-bar.css";
 @import "./components/header/mobile-topbar.css";
 @import "./components/header/logo.css";
 @import "./components/header/site-name.css";
@@ -39,7 +41,4 @@
 @import "./components/heading/tag.css";
 @import "./components/heading/meta.css";
 @import "./components/articles/article-card.css";
-@import "./components/search/search.css";
-@import "./components/search/icon.css";
-@import "./components/search/result.css";
 @import "./components/footer.css";

@@ -50,31 +50,6 @@
     }
   }
 
-  &.as-close-search {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 32px;
-    height: 32px;
-    font-size: 0.625rem;
-    z-index: 2;
-
-    @media (width >= 48rem) {
-      top: 30px;
-      right: 30px;
-      width: 42px;
-      height: 42px;
-      font-size: 0.875rem;
-    }
-
-    @media (width >= 80rem) {
-      top: 40px;
-      right: 40px;
-      width: 50px;
-      height: 50px;
-    }
-  }
-
   &.in-menu-main {
     display: none;
 
@@ -129,7 +104,7 @@
       bottom: 26px;
     }
 
-    &.swiper-button-prev {
+    &.as-prev {
       right: 56px;
 
       @media (width >= 48rem) {
@@ -137,34 +112,12 @@
       }
     }
 
-    &.swiper-button-next {
+    &.as-next {
       right: 16px;
 
       @media (width >= 48rem) {
         right: 36px;
       }
-    }
-  }
-
-  &.in-recommended-articles {
-    position: absolute;
-    font-size: 0.625rem;
-    width: 40px;
-    height: 40px;
-    top: 240px;
-    z-index: 2;
-    transform: translateY(-50%);
-
-    @media (width >= 64rem) {
-      display: none;
-    }
-
-    &.swiper-button-prev {
-      left: 2px;
-    }
-
-    &.swiper-button-next {
-      right: 2px;
     }
   }
 
@@ -212,20 +165,67 @@
       height: 100%;
       opacity: 0;
 
+      /* The circle has pathLength="100": its dash offset runs from 100 (empty) to 0 (full) */
       circle {
         stroke: var(--primary-subtle-color);
+        stroke-width: 2px;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        vector-effect: non-scaling-stroke;
+        r: 47.9px;
         transform-origin: 50% 50%;
         transform: rotate(-90deg);
         transition: stroke-dashoffset 0.2s;
+
+        @media (width > 48rem) {
+          stroke-width: 3px;
+          r: 45.8px;
+        }
+
+        @media (width >= 90rem) {
+          r: 46.9px;
+        }
       }
     }
+  }
+}
+
+/* The reading progress ring follows the post content through the viewport: empty as its top comes
+   in at the bottom, full as its end does (the "entry-crossing" range). Where scroll-driven
+   animations or timeline-scope are missing, post.js sets the dash offset instead. */
+@supports (animation-timeline: view()) and (timeline-scope: --a) {
+  .l-content.in-post {
+    timeline-scope: --post-progress;
+  }
+
+  .l-content.in-post .post-content {
+    view-timeline: --post-progress block;
+  }
+
+  .m-icon-button.progress {
+    svg:not(.m-icon-svg) {
+      opacity: 1;
+    }
+
+    circle {
+      transition: none;
+      animation: reading-progress linear both;
+      animation-timeline: --post-progress;
+      animation-range: entry-crossing 0% entry-crossing 100%;
+    }
+  }
+}
+
+@keyframes reading-progress {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
 .rtl {
   .m-icon-button {
     &.in-featured-articles {
-      &.swiper-button-prev {
+      &.as-prev {
         right: auto;
         left: 16px;
 
@@ -235,7 +235,7 @@
         }
       }
 
-      &.swiper-button-next {
+      &.as-next {
         right: auto;
         left: 52px;
 
@@ -243,20 +243,6 @@
           right: auto;
           left: 72px;
         }
-      }
-    }
-
-    &.in-recommended-articles {
-      &.swiper-button-prev {
-        left: auto;
-        right: 2px;
-        transform: rotate(180deg);
-      }
-
-      &.swiper-button-next {
-        right: auto;
-        left: 2px;
-        transform: rotate(180deg);
       }
     }
   }

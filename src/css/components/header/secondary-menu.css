@@ -1,3 +1,73 @@
+/* The More menu is a popover: in the top layer, below its button. CSS anchor positioning places
+   it where supported; elsewhere app.js sets --dropdown-top/left (and marks it data-placed), and
+   toggles .is-open where the Popover API itself is missing. */
+.m-dropdown {
+  display: none;
+  position: fixed;
+  inset: auto;
+  top: var(--dropdown-top, 0);
+  left: var(--dropdown-left, 0);
+  z-index: 9999;
+  max-width: 350px;
+  margin: 0;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 4px;
+  overflow: visible;
+  color: #fff;
+  background-color: #333;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  translate: -50% 0;
+  opacity: 0;
+  transition:
+    opacity 0.25s,
+    display 0.25s allow-discrete,
+    overlay 0.25s allow-discrete;
+
+  &:is(:popover-open, .is-open) {
+    display: block;
+    opacity: 1;
+    transition-duration: 0.3s;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  /* The arrow, pointing at the button */
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    border: 8px solid transparent;
+    border-top-width: 0;
+    border-bottom-color: #333;
+    translate: -50% 0;
+  }
+}
+
+@supports (position-area: bottom) {
+  .m-nav__left .more button {
+    anchor-name: --secondary-menu-button;
+  }
+
+  .m-dropdown:not([data-placed]) {
+    position-anchor: --secondary-menu-button;
+    position-area: bottom;
+    top: auto;
+    left: auto;
+    margin-top: 10px;
+    translate: none;
+  }
+}
+
 .m-secondary-menu {
   padding: 0;
   margin: 0;

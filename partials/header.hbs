@@ -29,7 +29,7 @@ This header template is shared across all the pages.
         {{/if}}
       </a>
     {{/if}}
-    <button class="m-icon-button in-mobile-topbar {{^if @custom.enable_native_search}}js-open-search{{/if}}" {{#if @custom.enable_native_search}}data-ghost-search{{/if}} aria-label="{{t "Open search"}}">
+    <button class="m-icon-button in-mobile-topbar" data-ghost-search aria-label="{{t "Open search"}}">
       {{> "icons/search"}}
     </button>
   </div>
@@ -75,27 +75,26 @@ This header template is shared across all the pages.
               {{#if @site.secondary_navigation}}
                 <li class="more">
                   <span>
-                    <a href="javascript:void(0);" class="js-open-secondary-menu">
+                    <button type="button" class="js-open-secondary-menu" popovertarget="secondary-navigation">
                       {{t "More"}}
                       {{> "icons/chevron-down"}}
-                    </a>
+                    </button>
                   </span>
                 </li>
               {{/if}}
               <li class="submenu-option js-submenu-option">
-                <button class="m-icon-button in-menu-main more js-toggle-submenu" aria-label="{{t "Open submenu"}}">
+                <button type="button" class="m-icon-button in-menu-main more js-toggle-submenu" popovertarget="submenu" aria-label="{{t "Open submenu"}}">
                   {{> "icons/more"}}
                 </button>
-                <div class="m-submenu js-submenu">
+                <div class="m-submenu js-submenu" id="submenu" popover>
                   <div class="l-wrapper in-submenu">
                     <section class="m-recent-articles">
                       <h3 class="m-submenu-title in-recent-articles">{{t "Recent articles"}}</h3>
                       {{#get "posts" limit="4" order="published_at desc" as |recent|}}
                         {{#if recent}}
-                          <div class="swiper js-recent-slider">
-                            <div class="swiper-wrapper">
-                              {{#foreach recent}}
-                                <div class="swiper-slide">
+                          <div class="m-recent-articles__list">
+                            {{#foreach recent}}
+                                <div class="m-recent-articles__item">
                                   <a href="{{url}}" class="m-recent-article">
                                     <div class="m-recent-article__picture {{#unless feature_image}}no-picture{{/unless}}">
                                       {{#if feature_image}}
@@ -104,14 +103,13 @@ This header template is shared across all the pages.
                                         <img src="{{asset "images/no-image.png"}}" width="256" height="256" loading="lazy" decoding="async" alt="">
                                       {{/if}}
                                     </div>
-                                    <h3 class="m-recent-article__title js-recent-article-title" title="{{title}}">
+                                    <h3 class="m-recent-article__title" title="{{title}}">
                                       {{title}}
                                     </h3>
                                     <span class="m-recent-article__date">{{date published_at timeago="true" locale=@site.locale timezone=@site.timezone}}</span>
                                   </a>
                                 </div>
-                              {{/foreach}}
-                            </div>
+                            {{/foreach}}
                           </div>
                         {{else}}
                           <div class="m-not-found in-recent-articles">{{t "No recent articles found :("}}</div>
@@ -138,10 +136,10 @@ This header template is shared across all the pages.
             </ul>
           </nav>
           <div class="m-nav__right">
-            <button class="m-icon-button in-menu-main {{^if @custom.enable_native_search}}js-open-search{{/if}}" {{#if @custom.enable_native_search}}data-ghost-search{{/if}} aria-label="{{t "Open search"}}">
+            <button class="m-icon-button in-menu-main" data-ghost-search aria-label="{{t "Open search"}}">
               {{> "icons/search"}}
             </button>
-            <div class="m-switch-theme js-tooltip" data-tippy-content="{{t "Switch theme"}}">
+            <div class="m-switch-theme" data-tooltip="{{t "Switch theme"}}" data-tooltip-position="bottom">
               <label for="switch-theme" class="sr-only">
                 {{t "Switch theme"}}
               </label>
@@ -170,7 +168,7 @@ This header template is shared across all the pages.
   </div>
 
   {{#if @site.secondary_navigation}}
-    <div id="secondary-navigation-template" style="display: none;">
+    <div id="secondary-navigation" class="m-dropdown js-secondary-menu" popover>
       {{navigation type="secondary"}}
     </div>
   {{/if}}

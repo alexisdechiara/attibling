@@ -215,7 +215,17 @@
     max-width: 100%;
   }
 
-  .fluid-width-video-wrapper {
+  /* Video players fill the column at the ratio of their width and height attributes, which
+     post.js copies into --embed-ratio (16:9 when they have none) */
+  iframe:where(
+    [src*="youtube.com"],
+    [src*="youtube-nocookie.com"],
+    [src*="player.vimeo.com"],
+    [src*="kickstarter.com"][src*="video.html"]
+  ) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--embed-ratio, 16 / 9);
     margin: 0 auto 35px;
 
     @media (width >= 90rem) {
@@ -249,7 +259,7 @@
   margin: 0 auto;
   height: auto;
   width: 66%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--embed-ratio, 16 / 9);
 }
 
 .l-post-content figure.kg-width-full img,
@@ -309,17 +319,6 @@
     font-size: 0.875rem;
     padding: 15px 0 0 0;
   }
-}
-
-.l-post-content figure .fluid-width-video-container,
-.l-post-content.kg-image-card .fluid-width-video-container {
-  flex-grow: 1;
-  width: 100%;
-}
-
-.l-post-content figure .fluid-width-video-wrapper,
-.l-post-content.kg-image-card .fluid-width-video-wrapper {
-  margin: 0 auto !important;
 }
 
 .l-post-content figure .kg-gallery-container,
@@ -1142,22 +1141,6 @@
 .l-post-content select:focus {
   border-color: var(--primary-subtle-color);
   box-shadow: 0 0 0 1px var(--primary-subtle-color);
-}
-
-.l-post-content input.in-search:not(.kg-video-card input):not(.kg-audio-card input),
-.l-post-content textarea.in-search,
-.l-post-content select.in-search {
-  font-weight: 600;
-  padding-left: 40px;
-}
-
-@media (width >= 48rem) {
-  .l-post-content input.in-search:not(.kg-video-card input):not(.kg-audio-card input),
-  .l-post-content textarea.in-search,
-  .l-post-content select.in-search {
-    font-size: 1.25rem;
-    padding: 15px 30px 15px 60px;
-  }
 }
 
 .l-post-content input.in-subscribe-section:not(.kg-video-card input):not(.kg-audio-card input),

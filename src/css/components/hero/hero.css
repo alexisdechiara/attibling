@@ -60,6 +60,28 @@
   }
 }
 
+/* Parallax: the cover moves down at half the scroll speed. Decoration only: browsers without
+   scroll-driven animations, and readers who prefer reduced motion, get a still cover. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .m-hero__picture {
+      animation: hero-parallax linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 200vh;
+    }
+  }
+}
+
+@keyframes hero-parallax {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 100vh, 0);
+  }
+}
+
 .m-hero__content {
   position: relative;
   text-align: center;
