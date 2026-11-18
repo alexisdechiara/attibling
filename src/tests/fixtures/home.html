@@ -96,7 +96,7 @@
 											<span>Featured</span>
 										</div>
 										<a href="/featured-1/" class="m-featured-article__content">
-											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 1">Featured post 1 with a rather long title that wraps over lines</h2>
+											<h2 class="m-featured-article__title" title="Featured post 1">Featured post 1 with a rather long title that wraps over lines</h2>
 											<div class="m-featured-article__timestamp">
 												<span>2 days ago</span>
 												<span>&bull;</span>
@@ -116,7 +116,7 @@
 											<span>Featured</span>
 										</div>
 										<a href="/featured-2/" class="m-featured-article__content">
-											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 2">Featured post 2 with a rather long title that wraps over lines</h2>
+											<h2 class="m-featured-article__title" title="Featured post 2">Featured post 2 with a rather long title that wraps over lines</h2>
 											<div class="m-featured-article__timestamp">
 												<span>2 days ago</span>
 												<span>&bull;</span>
@@ -136,7 +136,7 @@
 											<span>Featured</span>
 										</div>
 										<a href="/featured-3/" class="m-featured-article__content">
-											<h2 class="m-featured-article__title js-featured-article-title" title="Featured post 3">Featured post 3 with a rather long title that wraps over lines</h2>
+											<h2 class="m-featured-article__title" title="Featured post 3">Featured post 3 with a rather long title that wraps over lines</h2>
 											<div class="m-featured-article__timestamp">
 												<span>2 days ago</span>
 												<span>&bull;</span>
@@ -153,6 +153,45 @@
 							<span class="icon-arrow-right" aria-hidden="true"></span>
 						</button>
 					</div>
+				</div>
+				<div class="l-grid" style="max-width: 360px;">
+					<article class="m-article-card post">
+						<div class="m-article-card__picture">
+							<a href="/card-1/" class="m-article-card__picture-link" aria-hidden="true" tabindex="-1"></a>
+							<img class="m-article-card__picture-background" src="/src/tests/fixtures/pixel.svg" alt="">
+						</div>
+						<div class="m-article-card__info">
+							<a href="/tag/one/" class="m-article-card__tag">One</a>
+							<a href="/card-1/" class="m-article-card__info-link" aria-label="Card 1">
+								<div>
+									<h2 class="m-article-card__title" title="Card 1">Card 1 has a very long title that keeps going and going and going, well past the three lines of text that a card with a picture can show</h2>
+								</div>
+								<div class="m-article-card__timestamp">
+									<span>2 days ago</span>
+									<span>&bull;</span>
+									<span>1 min read</span>
+								</div>
+							</a>
+						</div>
+					</article>
+					<article class="m-article-card no-picture post">
+						<div class="m-article-card__picture">
+							<a href="/card-2/" class="m-article-card__picture-link" aria-hidden="true" tabindex="-1"></a>
+						</div>
+						<div class="m-article-card__info">
+							<a href="/tag/one/" class="m-article-card__tag">One</a>
+							<a href="/card-2/" class="m-article-card__info-link" aria-label="Card 2">
+								<div>
+									<h2 class="m-article-card__title" title="Card 2">Card 2 has no picture and an even longer title that keeps going and going and going, well past the six lines that a card without a picture has room for, so that it has to be cut somewhere near the end of the sixth line of text</h2>
+								</div>
+								<div class="m-article-card__timestamp">
+									<span>2 days ago</span>
+									<span>&bull;</span>
+									<span>1 min read</span>
+								</div>
+							</a>
+						</div>
+					</article>
 				</div>
 			</div>
 			<p class="js-outside">Some content outside the submenu.</p>

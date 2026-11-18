@@ -1,6 +1,5 @@
 import mediumZoom from "medium-zoom";
 import fitvids from "fitvids";
-import shave from "shave";
 import Swiper from "swiper";
 import { Navigation, A11y } from "swiper/modules";
 import tocbot from "tocbot";
@@ -126,17 +125,8 @@ onReady(() => {
 					loop: false,
 				},
 			},
-			on: {
-				init: function () {
-					shave(".js-article-card-title", 100);
-					shave(".js-article-card-title-no-image", 250);
-				},
-			},
 		});
 	}
-
-	shave(".js-article-card-title", 100);
-	shave(".js-article-card-title-no-image", 250);
 
 	$scrollButton.forEach(el =>
 		el.addEventListener("click", () => {

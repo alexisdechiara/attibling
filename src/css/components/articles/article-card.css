@@ -42,6 +42,8 @@
     .m-article-card__title {
       line-height: 1.4;
       font-size: 1.625rem;
+      -webkit-line-clamp: 6;
+      line-clamp: 6;
     }
   }
 
@@ -206,6 +208,12 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
+  /* Long titles stop after three lines (six without a picture) with an ellipsis */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
 }
 
 .m-article-card__excerpt {
@@ -217,6 +225,10 @@
   letter-spacing: 0.3px;
   line-height: 1.5;
   font-size: 1rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .m-article-card__timestamp,

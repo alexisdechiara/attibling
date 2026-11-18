@@ -176,11 +176,18 @@
   font-size: 1.625rem;
   font-weight: 600;
   margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
 
   @media (width >= 48rem) {
     letter-spacing: 0.5px;
     font-size: 2.25em;
     max-width: 80%;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
 }
 

@@ -19,6 +19,11 @@ const templates = dir =>
 		return entry.name.endsWith(".hbs") ? [file] : [];
 	});
 
+// A string each library leaves in a minified bundle, and that the theme's own code does not use.
+const removedLibraries = {
+	shave: "js-shave",
+};
+
 describe("built bundles", () => {
 	it("do not ship jQuery", () => {
 		const scripts = builtScripts(JS_DIR);
@@ -28,6 +33,15 @@ describe("built bundles", () => {
 			assert.equal(source.includes("jQuery"), false, `${path.relative(REPO_ROOT, file)} contains jQuery`);
 		}
 	});
+
+	for (const [library, signature] of Object.entries(removedLibraries)) {
+		it(`do not include ${library}`, () => {
+			for (const file of builtScripts(JS_DIR)) {
+				const source = fs.readFileSync(file, "utf8");
+				assert.equal(source.includes(signature), false, `${path.relative(REPO_ROOT, file)} contains ${library}`);
+			}
+		});
+	}
 
 	it("no longer include the webpack runtime and vendor files", () => {
 		for (const file of ["vendor.js", "manifest.js"]) {

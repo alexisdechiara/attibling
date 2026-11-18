@@ -1,7 +1,6 @@
 import Headroom from "headroom.js";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import shave from "shave";
 import GhostContentAPI from "@tryghost/content-api";
 import Fuse from "fuse.js";
 import Swiper from "swiper";
@@ -396,11 +395,6 @@ onReady(() => {
 			freeMode: true,
 			slidesPerView: "auto",
 			a11y: true,
-			on: {
-				init: function () {
-					shave(".js-recent-article-title", 50);
-				},
-			},
 		});
 	}
 
@@ -424,9 +418,6 @@ onReady(() => {
 	}
 
 	tippy(".js-tooltip");
-
-	shave(".js-article-card-title", 100);
-	shave(".js-article-card-title-no-image", 250);
 
 	tryToRemoveNewsletter();
 	trySearchFeature();

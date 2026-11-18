@@ -31,6 +31,43 @@ describe("home page", () => {
 		await dispose();
 	});
 
+	it("clamps long titles to a few lines without altering their text", async () => {
+		for (const viewport of [
+			{ width: 390, height: 800 },
+			{ width: 1280, height: 800 },
+		]) {
+			const { page, dispose } = await open({ viewport });
+			await page.waitForTimeout(100);
+			const titles = await page.$$eval(
+				".m-article-card__title, .m-featured-article__title",
+				(nodes, width) =>
+					nodes.map(node => ({
+						title: node.getAttribute("title"),
+						text: node.innerText.trim(),
+						full: node.textContent.trim(),
+						height: node.getBoundingClientRect().height,
+						clipped: node.scrollHeight > node.clientHeight + 1,
+						lines: Math.round(node.getBoundingClientRect().height / parseFloat(getComputedStyle(node).lineHeight)),
+						width,
+					})),
+				viewport.width,
+			);
+			const byTitle = Object.fromEntries(titles.map(t => [t.title, t]));
+			for (const t of titles) assert.equal(t.text, t.full, `${t.title} text was altered at ${t.width}px`);
+			const expected = {
+				"Card 1": [3, 100],
+				"Card 2": [6, 250],
+			};
+			for (const [title, [lines, maxHeight]] of Object.entries(expected)) {
+				const t = byTitle[title];
+				assert.ok(t.clipped, `${title} is not clipped at ${t.width}px`);
+				assert.equal(t.lines, lines, `${title} shows ${t.lines} lines at ${t.width}px`);
+				assert.ok(t.height <= maxHeight, `${title} is ${t.height}px tall at ${t.width}px`);
+			}
+			await dispose();
+		}
+	});
+
 	it("does not overflow horizontally on a phone", async () => {
 		const { page, dispose } = await open({ viewport: { width: 390, height: 800 } });
 		await page.waitForTimeout(100);

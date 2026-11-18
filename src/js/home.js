@@ -1,4 +1,3 @@
-import shave from "shave";
 import Swiper from "swiper";
 import { Navigation, A11y } from "swiper/modules";
 import "swiper/css";
@@ -16,17 +15,10 @@ onReady(() => {
 				prevEl: ".swiper-button-prev",
 			},
 			a11y: true,
-			on: {
-				init: function () {
-					shave(".js-featured-article-title", 200);
-				},
-			},
 		});
 
 		if (numSlides === 1) {
 			$featuredSlider.querySelectorAll(".js-featured-slider-button").forEach(el => el.remove());
 		}
 	}
-
-	shave(".js-featured-article-title", 200);
 });
