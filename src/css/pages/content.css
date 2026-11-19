@@ -39,10 +39,16 @@
     grid-column: full;
   }
 
+  p {
+    text-wrap: pretty;
+  }
+
   h2,
   h3,
   h4 {
     margin-block-start: 2em;
+    /* An anchor (table of contents, copied link) lands below the sticky header */
+    scroll-margin-top: calc(var(--header-height) + var(--space-6));
     color: var(--color-text);
     font-family: var(--font-heading);
     font-weight: var(--weight-bold);
@@ -66,23 +72,23 @@
     margin-block-start: 0.75em;
   }
 
-  a:not([class]) {
-    color: var(--color-accent);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-
-    &:hover {
-      text-decoration-thickness: 2px;
-    }
-  }
+  /* Links: article/links.css (as in posts, with the « Style des liens » display setting) */
 
   ul:not([class]),
   ol:not([class]) {
     padding-inline-start: 1.4em;
 
     li + li {
-      margin-block-start: 0.4em;
+      margin-block-start: 0.5em;
+    }
+
+    li::marker {
+      color: var(--color-text-muted);
+    }
+
+    /* Nested lists and paragraphs inside an item keep the rhythm of the text */
+    li > :is(ul, ol, p) {
+      margin-block-start: 0.5em;
     }
   }
 
@@ -140,12 +146,158 @@
     border-collapse: collapse;
     font-family: var(--font-ui);
     font-size: var(--text-nav);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
 
     th,
     td {
-      padding: var(--space-2) var(--space-3);
+      padding: var(--space-3);
       border-block-end: 1px solid var(--color-border);
       text-align: start;
+      vertical-align: top;
+    }
+
+    th {
+      border-block-end-color: var(--color-border-strong);
+      color: var(--color-text);
+      font-weight: var(--weight-semibold);
+    }
+
+    td {
+      color: var(--color-text-secondary);
+    }
+
+    /* A key or a file name in a cell may break rather than widen the page (without JavaScript) */
+    code {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  /* Without JavaScript (no scrolling box): the table keeps to the column, its cells wrap */
+  > table {
+    table-layout: fixed;
+    overflow-wrap: anywhere;
+  }
+
+  /* A table wider than the column scrolls in its own box (page.js wraps the tables) */
+  .table-scroll {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    /* A shade on the side that has more to scroll to (the covers move with the content) */
+    background:
+      linear-gradient(to right, var(--color-bg) 40%, transparent) left / 2rem 100% no-repeat local,
+      linear-gradient(to left, var(--color-bg) 40%, transparent) right / 2rem 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, var(--color-border-strong), transparent) left / 0.75rem 100% no-repeat
+        scroll,
+      radial-gradient(farthest-side at 100% 50%, var(--color-border-strong), transparent) right / 0.75rem 100% no-repeat
+        scroll;
+
+    table {
+      min-width: 32rem;
+    }
+
+    /* In its scrolling box, a key or a file name in a cell stays on one line */
+    code {
+      overflow-wrap: normal;
+      white-space: nowrap;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--color-focus);
+      outline-offset: var(--focus-ring-offset);
+    }
+  }
+
+  /* Phones: a table with a header row reads as stacked rows, each value under its column's name
+     (page.js adds data-label and the table roles); the first cell heads its row */
+  @media (width < 40rem) {
+    .table-scroll--stack {
+      overflow: visible;
+      background: none;
+
+      table {
+        min-width: 0;
+      }
+
+      :is(table, tbody, tr, td) {
+        display: block;
+      }
+
+      thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      tr {
+        padding-block: var(--space-3);
+        border-block-end: 1px solid var(--color-border);
+      }
+
+      td {
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        gap: var(--space-3);
+        padding: var(--space-1) 0;
+        border: 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        color: var(--color-text-muted);
+        font-size: var(--text-s);
+        font-weight: var(--weight-semibold);
+        line-height: 1.7;
+      }
+
+      td:first-child {
+        display: block;
+        padding-block-end: var(--space-2);
+        color: var(--color-text);
+        font-weight: var(--weight-semibold);
+
+        &::before {
+          content: none;
+        }
+      }
+    }
+  }
+
+  /* Definitions (who / where / how to reach): a term and its value side by side, stacked on phones */
+  dl:not([class]) {
+    display: grid;
+    gap: var(--space-1) var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--text-base);
+    line-height: 1.5;
+
+    @media (width >= 40rem) {
+      grid-template-columns: 11rem minmax(0, 1fr);
+      row-gap: var(--space-3);
+    }
+
+    dt {
+      color: var(--color-text-secondary);
+      font-size: var(--text-m);
+      font-weight: var(--weight-semibold);
+
+      @media (width >= 40rem) {
+        padding-block-start: 0.1em;
+      }
+    }
+
+    dd {
+      margin: 0;
+      color: var(--color-text);
+
+      @media (width < 40rem) {
+        & + dt {
+          margin-block-start: var(--space-3);
+        }
+      }
     }
   }
 

@@ -11,7 +11,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
-5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, 404
+5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, 404
 6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
@@ -41,7 +41,7 @@ Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section q
    | Homepage | Home row 3 | `actualites` |
    | Homepage | Home row 4 | `ia` |
    | Homepage | Home row 5 | `dossiers` |
-   | Site wide | Subscribe url | `/newsletter/` |
+   | Site wide | Subscribe url | vide (la page `newsletter` est trouvée seule) ou `/newsletter/` |
    | Site wide | Page transitions | activé (défaut) |
    | Site wide | About tags | `actualites,jeux-video,anime,dossiers,ia,test` (facultatif) |
    | Post | Article style | `Card` (défaut) |
@@ -120,7 +120,8 @@ Settings → **Navigation** :
 - **Primary navigation** : les liens de l'en-tête (pastilles). Le lien de la page en cours est mis en avant.
   Les intitulés sont les vôtres (« Dossier », « News »… rien n'est écrit en dur dans le thème).
 - **Secondary navigation** : les liens du menu **« Plus »** de l'en-tête et du pied de page (Tags,
-  Rédacteur, À propos, Mentions légales…).
+  À propos, Mentions légales…). Site à un seul auteur : retirez le lien « Rédacteur » (voir
+  [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; le thème n'en ajoute aucun de lui-même.
 
 Si les liens principaux ne tiennent pas dans la barre (écran étroit, intitulés longs), ceux de la fin
 passent automatiquement dans le menu « Plus », et reviennent quand il y a de la place. Sans navigation
@@ -130,17 +131,35 @@ Sur téléphone : la navigation principale devient une rangée de pastilles qui 
 bouton menu (trois traits) ouvre un panneau avec toute la navigation, le changement de thème et
 « S'abonner » / « Compte ».
 
-### Bouton « S'abonner »
+### Bouton « S'abonner » et « Se connecter »
 
-Les boutons « S'abonner » (en-tête, bandeau d'accueil, encart d'abonnement) mènent à :
+Tous les boutons « S'abonner » / « S'abonner gratuitement » (en-tête, menu du téléphone, bandeau d'accueil,
+encart d'abonnement, encart « Résumé réservé aux abonnés » des articles, page « Mes favoris », page « À
+propos ») et tous les liens « Se connecter » mènent à **la page d'abonnement du thème**, jamais à la fenêtre
+de Ghost (Portal), dès que cette page existe. Le thème la trouve dans cet ordre :
 
-- l'adresse du réglage **Subscribe url** (onglet *Site wide*), par exemple `/newsletter/` pour une page
-  d'abonnement (une page Ghost dont le slug est `newsletter` utilise le modèle `page-newsletter.hbs`) ;
-- si ce réglage est vide, la fenêtre d'inscription de Ghost (Portal).
+1. le réglage **Subscribe url** (onglet *Site wide*), s'il est rempli (par exemple `/newsletter/`, ou
+   l'adresse d'une page qui a le modèle **Subscribe**) : il a toujours le dernier mot ;
+2. sinon, une page **publiée** dont le slug est `newsletter`, `abonnement` ou `subscribe` (le thème habille
+   ces trois slugs en page d'abonnement sans rien choisir) : **aucun réglage n'est nécessaire** ;
+3. sinon seulement (le site n'a pas de page d'abonnement), la fenêtre de Ghost (Portal), pour que le bouton
+   marche toujours sur une installation neuve.
 
-Ils n'apparaissent que si les abonnements sont activés et ouverts à tous (Settings → Membership →
-*Subscription access* : « Anyone can sign up »). Un abonné connecté voit à la place l'icône **Compte**, qui
-ouvre son compte dans Portal.
+« S'abonner » ouvre la page sur son formulaire d'inscription (`…/newsletter/#inscription`), « Se connecter »
+sur son formulaire de connexion (`…/newsletter/#connexion`), avec le curseur déjà dans le premier champ. Si
+vous avez plusieurs de ces pages, ou une page d'abonnement avec un autre slug, remplissez **Subscribe url**
+(sans `#` à la fin).
+
+Un lien vers Portal tapé dans un article (`#/portal/signup`, `#/portal/signin`) mène lui aussi à la page.
+
+Les boutons « S'abonner » n'apparaissent que si les abonnements sont activés et ouverts à tous (Settings →
+Membership → *Subscription access* : « Anyone can sign up »). Un abonné connecté voit à la place l'icône
+**Compte**, qui ouvre son compte dans Portal (voir [Ce qui passe encore par Portal](#ce-qui-passe-encore-par-portal)).
+
+> Pourquoi les boutons ouvraient la fenêtre de Ghost (version 2.0.0) : leur destination dépendait du seul
+> réglage **Subscribe url**, vide par défaut — et Ghost garde les réglages du thème **par nom de thème** :
+> envoyer le thème sous un autre nom les remet à vide. Le bouton recevait alors `data-portal="signup"`, que
+> Portal intercepte. Depuis, la page est trouvée par son slug, sans réglage.
 
 ### Thème clair, sombre, automatique
 
@@ -196,7 +215,8 @@ Les pages de tag et d'auteur affichent aussi 7 articles par page.
 
 Sous « Derniers articles », un **visiteur** voit l'encart « S'abonner à *titre du site* » : la phrase
 « C'est gratuit… », le bouton « S'abonner gratuitement » (même destination que les autres boutons
-« S'abonner », voir plus haut), « Déjà abonné ? Se connecter » et la liste des avantages (nouveaux articles
+« S'abonner », voir plus haut), « Déjà abonné ? Se connecter » (le formulaire de connexion de la page
+d'abonnement) et la liste des avantages (nouveaux articles
 par e-mail, « En bref », « À lire plus tard », reprendre la lecture, réglages de lecture et, si les
 commentaires sont ouverts à tous les abonnés — Settings → Membership → *Commenting* : « All members » —,
 commenter les articles).
@@ -314,9 +334,10 @@ souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix 
 | Archives | `archives` | Archives | rien (le contenu, s'il y en a, s'affiche en introduction) |
 | Mes favoris | `favoris` | Saved Posts | rien (seul le titre sert) |
 | À propos | `a-propos` | About | titre, extrait, texte (voir plus bas) |
-| Abonnement | `newsletter` | Subscribe | extrait (accroche) et une ligne légale (voir plus bas) |
+| Abonnement | `newsletter` (ou `abonnement`, `subscribe`) | Subscribe | extrait (accroche) et une ligne légale (voir plus bas) |
 | Tous les tags | `tags` | Tags | titre, contenu ou extrait facultatif (introduction) |
 | Tous les auteurs | `authors` | Authors | titre, extrait facultatif |
+| Mentions légales (ou toute page de référence) | `mentions-legales` | Document | titre, extrait facultatif, texte avec intertitres (voir plus bas) |
 
 Pas à pas :
 
@@ -360,13 +381,51 @@ l'en-tête), **Bio** (250 caractères au plus, limite de Ghost), **Location**, *
 sociaux (X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram). Chaque élément vide
 disparaît.
 
+### Un seul auteur : pas de page d’auteur
+
+Sur un blog écrit par une seule personne, la page d'auteur répète l'accueil. La règle du thème, automatique :
+**quand un seul auteur a des articles publiés**, le thème ne fait jamais de lien vers une page d'auteur ni vers
+la page « Auteurs » :
+
+- en-tête d'article : le nom et la photo de l'auteur sont du texte, pas des liens ;
+- boîte auteur en fin d'article : nom et photo sans lien, et **pas** de bouton « Tous ses articles » (il
+  reste « À propos ») ;
+- page « À propos » : le nom de l'auteur n'est pas un lien ;
+- tuiles, 404, pied de page : le thème n'y met aucun lien d'auteur (il n'y en a pas sur les tuiles).
+
+Le thème compte les auteurs qui ont **au moins un article (ou une page) publié** — un membre de l'équipe qui
+n'a rien publié ne compte pas. Dès qu'un deuxième auteur publie, les liens reviennent partout, sans rien
+régler. Le calcul est une requête Ghost d'une ligne (`{{#get "authors" limit="1"}}` et son total) faite
+dans `post.hbs` pour l'en-tête et pour la boîte auteur, et une fois sur « À propos » ; jamais dans une boucle.
+
+Ghost garde l'adresse `/author/<slug>/` (un thème ne peut pas supprimer une route). Sur un site à un seul
+auteur, elle affiche toujours la liste de ses articles, mais demande aux moteurs de recherche de ne pas
+l'indexer (`<meta name="robots" content="noindex, follow">`). Deux choses à faire de votre côté :
+
+1. **Retirez « Rédacteur » de la navigation** : Ghost Admin → **Settings** → **Navigation** → la ligne
+   « Rédacteur » (`/author/alexis/`) dans **Secondary navigation** → la corbeille → **Save**. Ce lien vous
+   appartient, le thème ne le cache pas.
+2. **(Facultatif) Redirigez la page d'auteur**, par exemple vers « À propos » : créez un fichier
+   `redirects.yaml` (remplacez `alexis` par votre slug, visible dans Settings → Staff → votre profil) :
+
+   ```yaml
+   301:
+     ^\/author\/alexis\/(page\/\d+\/)?$: /a-propos/
+   ```
+
+   puis Ghost Admin → **Settings** → **Labs** → **Redirects** → **Upload redirects file**. La page d'auteur
+   et ses pages 2, 3… mènent alors à « À propos » (testé sur Ghost 6) ; le flux `/author/alexis/rss/` reste
+   en place. Ghost liste encore l'adresse dans `sitemap-authors.xml` : sans gravité, la redirection suffit.
+
 ### Pages « Tags » et « Auteurs »
 
 Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques qui ont des articles, en
 mosaïque, détaillée juste en dessous ([Page « Tags » : la mosaïque](#page--tags---la-mosaïque)).
 
 Créez une page `authors` (ou le modèle **Authors**) : une carte par auteur (photo, nom, nombre d'articles,
-bio, liens), du plus prolifique au moins prolifique.
+bio, liens), du plus prolifique au moins prolifique. Elle sert aux sites à plusieurs auteurs ; sur un site à un
+seul auteur elle fonctionne encore (une seule carte) mais le thème n'y fait aucun lien, et vous n'avez pas
+besoin de la créer.
 
 ### Page « Tags » : la mosaïque
 
@@ -449,17 +508,34 @@ titre. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent.
 ### À propos
 
 Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personnel. Créez une page `a-propos`
-(ou le modèle **About**). Voici où va chaque texte, avec les brouillons de la maquette à coller :
+(ou le modèle **About**). La page tient en peu de titres : le titre, l'accroche, puis **un seul bloc en
+mosaïque** (« bento ») qui porte tout le reste, dans cet ordre de lecture (le même sur téléphone, où les
+cases s'empilent en une colonne ; 2 colonnes sur tablette, 4 sur ordinateur) :
+
+1. les **rubriques**, une case chacune ;
+2. **votre texte** (l'éditeur de la page) ;
+3. **l'auteur** ;
+4. **un chiffre** : le nombre d'articles publiés et l'année du premier ;
+5. **« Suivre le blog »**.
+
+Voici où va chaque texte et chaque image, avec les brouillons de la maquette à coller :
 
 1. **Titre** de la page : `À propos`.
-2. **Excerpt** (réglages de la page) = l'accroche, en grand sous le titre :
+2. **Excerpt** (réglages de la page : la roue crantée en haut à droite de l'éditeur → **Excerpt**) =
+   l'accroche, en grand sous le titre. Une seule phrase, qui dit aussi que vous écrivez hors des rubriques :
    > Mon blog personnel : j'y publie ce qui me fait envie, autour de l'informatique, de la culture pop, des
-   > jeux vidéo et des animés.
-3. **« Ce que vous trouverez ici »** = vos rubriques, tirées des **tags** :
-   - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, par exemple
-     `actualites,jeux-video,anime,dossiers,ia,test` (affichés du plus fourni au moins fourni). Vide : les
-     6 tags publics les plus utilisés ;
-   - la phrase de chaque rubrique = la **Description** du tag (Ghost Admin → Tags → le tag). Les textes de la
+   > jeux vidéo et des animés, et parfois sur tout autre chose, simplement parce que j'ai envie d'en parler.
+
+   Ne répétez pas cette idée dans le texte de la page (point 4).
+3. **Les rubriques** = vos **tags**. Chaque case mène à la page du tag et montre son nom, sa description,
+   son nombre d'articles, et son image :
+   - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, jusqu'à 12,
+     par exemple `actualites,jeux-video,anime,dossiers,ia,test`. Vide : les 6 tags publics les plus utilisés ;
+   - **ordre et tailles** : du tag le plus fourni au moins fourni (l'ordre de la liste du réglage ne compte
+     pas). La première case est la plus grande (2 × 2 sur ordinateur, toute la largeur sur tablette, plus
+     haute sur téléphone), la deuxième est large, les suivantes vont par quatre ; une dernière rangée
+     incomplète élargit ses cases pour ne laisser aucun trou. Cela marche de 1 à 12 rubriques ;
+   - la **phrase** de chaque case = la **Description** du tag (Ghost Admin → Tags → le tag). Les textes de la
      maquette :
 
      | Tag | Description à coller |
@@ -471,27 +547,39 @@ Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personn
      | IA | Les outils et les débats autour de l'intelligence artificielle. |
      | Test | Logiciels, services et jeux essayés pour de bon. |
 
-     (Ces descriptions s'affichent aussi en tête des pages de rubrique.) Sans description, la pastille reste
-     seule ;
-   - l'**icône** de chaque pastille vient de mots du **slug** du tag : `actu`, `news` → journal ; `jeu`,
+     (Ces descriptions s'affichent aussi en tête des pages de rubrique.) Sans description, la case garde le
+     nom et le nombre d'articles ;
+   - l'**image** de la case = l'image du tag (Ghost Admin → Tags → le tag → **Tag image**), assombrie sous le
+     texte pour qu'il reste lisible quelle que soit la photo. Sans image : une surface teintée (quatre teintes
+     qui alternent) ;
+   - l'**icône** de chaque case vient de mots du **slug** du tag : `actu`, `news` → journal ; `jeu`,
      `game`, `esport` → manette ; `anime`, `manga`, `serie`, `film`, `cinema`, `video`, `tv` → écran ;
      `dossier`, `guide`, `long` → dossier ; `ia` (seul, ou `ia-…`/`…-ia`), `ai`, `intelligence` → étincelle ;
      `test`, `review`, `avis` → coche ; `informatique`, `tech`, `code`, `dev`, `program`, `web` → chevrons ;
      tout autre slug → `#`. La liste est dans `partials/about/tag-icon.hbs` (une ligne à ajouter pour un
      nouveau mot).
-4. **Le texte de la page** (l'éditeur) s'affiche **après les rubriques** :
-   > Et comme c'est mon blog, j'y fais ce que je veux : vous tomberez parfois sur un article qui sort de ces
-   > rubriques, simplement parce que j'avais envie d'en parler.
-5. **« Qui écrit »** = les auteurs du site qui ont publié : photo, nom, **Bio** et liens de leur fiche
-   (Settings → Staff), puis « Tous ses articles ». Ghost limite la bio à **250 caractères** : le texte de la
-   maquette (environ 600) est trop long ; une version courte possible :
-   > Développeur front-end et designer UX/UI en freelance (Nuxt, Tailwind, Figma). GEEKLY, c'est mon terrain
-   > de jeu : j'y écris seul, à mon rythme, sur ce qui m'occupe en dehors du travail.
+4. **Le texte de la page** (l'éditeur) est **facultatif**. S'il y en a, il s'affiche juste après les
+   rubriques, en grand, dans la police de lecture, sans cadre (plusieurs paragraphes, une image y tiennent).
+   Sans texte — ou avec seulement la carte `about-links` du point 7, ce que fait GEEKLY — ce bloc
+   disparaît et les cases de l'auteur, du chiffre et de « Suivre » suivent directement les rubriques.
+5. **L'auteur** = les auteurs du site qui ont publié : photo, nom, **Bio**, **Location** et **Website** de
+   leur fiche (Settings → Staff ; chaque élément vide disparaît). Un seul auteur : une grande case, le nom
+   n'est pas un lien (voir [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)). Plusieurs : une case
+   sur toute la largeur, les auteurs côte à côte, chaque nom menant à sa page (12 au plus). Ghost limite la
+   bio à **250 caractères** : le texte de la maquette (environ 600) est trop long ; une version courte :
+   > Développeur front-end et designer UX/UI en freelance. GEEKLY, c'est mon terrain de jeu : j'y écris seul,
+   > à mon rythme, sur ce qui m'occupe en dehors du travail.
 
    Pour garder le texte complet, mettez-le dans le texte de la page (point 4).
-6. **« Suivre le blog »** = les comptes sociaux du **site** (Settings → General → **Social accounts** :
-   X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram), le flux RSS, et
-   « S'abonner » pour les visiteurs. Pour des liens que Ghost ne connaît pas (portfolio, GitHub…), ajoutez
+6. **Le chiffre** : « 102 articles publiés depuis 2023 », calculé par Ghost (tous les articles publiés,
+   réservés aux abonnés compris, et l'année du plus ancien). Rien à régler ; sans article publié, la case
+   disparaît.
+7. **« Suivre le blog »** = les comptes sociaux du **site**, le flux RSS, et « S'abonner » pour les
+   visiteurs. Les comptes se saisissent dans Ghost Admin → **Settings** → **General** → **Social
+   accounts** : X, Facebook, LinkedIn, **Bluesky** (votre identifiant, par exemple `monblog.bsky.social`),
+   Threads, Mastodon, TikTok, YouTube, Instagram. Chaque compte rempli devient une icône (avec son nom
+   pour les lecteurs d'écran) ici **et** dans le pied de page de tout le site ; un compte vide n'apparaît
+   nulle part. Pour des liens que Ghost ne connaît pas (portfolio, GitHub…), ajoutez
    dans le texte de la page une carte **HTML** (bouton `+` → HTML) :
 
    ```html
@@ -501,19 +589,23 @@ Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personn
    </ul>
    ```
 
-   Le thème déplace ces liens en tête de « Suivre le blog », en pastilles. Sans JavaScript ils restent où vous
-   les avez mis, avec le même style.
+   Le thème déplace ces liens dans « Suivre le blog », en pastilles, sous les icônes. Sans JavaScript ils
+   restent où vous les avez mis, avec le même style.
 
 ### Page d'abonnement
 
-La page vers laquelle mènent tous les boutons « S'abonner » : une grande bande sombre d'au moins la hauteur
-de l'écran (titre « S'abonner à GEEKLY », accroche, formulaire, avantages), puis les questions fréquentes
-repliables et un rappel « Prêt à vous abonner ? » qui ramène au formulaire.
+La page vers laquelle mènent tous les boutons « S'abonner » et « Se connecter ». Elle suit le mode clair ou
+sombre du site comme toutes les pages (fond de la page, pas de bande sombre, pas de carte) : une section
+d'au moins la hauteur de l'écran, son contenu centré, avec à gauche le formulaire et à droite ce que
+l'abonnement apporte ; puis les questions fréquentes repliables. Pas de rappel en bas de page (elle est
+courte).
 
-1. **Créer la page** : slug `newsletter` (ou le modèle **Subscribe**). Son titre ne s'affiche pas (le grand
+1. **Créer la page** : slug `newsletter` (ou `abonnement`, ou `subscribe` ; pour un autre slug, choisissez le
+   modèle **Subscribe** et remplissez le réglage **Subscribe url**). Son titre ne s'affiche pas (le grand
    titre est « S'abonner à » + le nom du site).
-2. **Relier les boutons** : réglage du thème **Subscribe url** (Site wide) = `/newsletter/`. Vide, les
-   boutons ouvrent la fenêtre d'abonnement de Ghost (Portal).
+2. **Relier les boutons** : rien à faire pour ces trois slugs (voir
+   [Bouton « S'abonner »](#bouton-sabonner-et-se-connecter)). Le réglage **Subscribe url** reste possible
+   pour forcer une autre adresse.
 3. **Accroche** = l'**Excerpt** de la page. Vide : la phrase du thème (« C'est gratuit : recevez les derniers
    articles directement dans votre boîte mail et profitez des outils de lecture réservés aux abonnés. »).
 4. **Ligne légale** = le **texte de la page** (l'éditeur), affiché en petit sous le formulaire. À coller :
@@ -523,28 +615,148 @@ repliables et un rappel « Prêt à vous abonner ? » qui ramène au formulaire.
    Gardez-le court (une ou deux phrases) : c'est l'endroit pour tout ce qui est propre à votre site
    (consentement, usage de l'adresse).
 5. **Dans Ghost** : Settings → **Membership** → inscription ouverte à tous (**Anyone can sign up**) et au
-   moins une newsletter active (Settings → **Newsletters**). Si l'inscription est fermée ou sur invitation, le
-   formulaire et le rappel final ne s'affichent pas.
+   moins une newsletter active (Settings → **Newsletters**). Inscription sur invitation : la page ne montre
+   que le formulaire de connexion. Abonnements désactivés : ni l'un ni l'autre.
+
+**Deux états, une seule page** :
+
+- **S'abonner** (par défaut, `#inscription`) : « Votre nom (facultatif) » puis « Votre adresse email »,
+  bouton « S'abonner ». Le nom est enregistré dans la fiche de l'abonné (Members). Une adresse vide ou mal
+  écrite est signalée poliment sous le champ (« Veuillez saisir votre adresse email », « Veuillez entrer une
+  adresse email valide ») sans rien envoyer. Pendant l'envoi le bouton montre une roue, puis « Super ! Vous
+  vous êtes inscrit avec succès. Regardez votre boîte mail… » : l'abonné confirme en cliquant le lien reçu.
+  En cas d'erreur (envoi d'e-mail impossible…), le message de Ghost s'affiche sous le champ.
+- **Se connecter** (`#connexion`, ou « Déjà abonné ? Se connecter ») : l'adresse e-mail, bouton « Recevoir un
+  lien de connexion ». Ghost envoie un lien de connexion par e-mail (pas de mot de passe). Le message de
+  réussite dit « Si cette adresse est abonnée, un lien de connexion arrive » : Ghost répond de la même façon
+  pour une adresse inconnue (il ne dit pas qui est abonné) mais n'envoie alors rien. « Pas encore abonné ?
+  S'abonner » revient au premier état.
 
 Ce que le thème écrit lui-même (identique pour tout site utilisant le thème, donc vrai partout) : la liste
-des avantages (la newsletter, puis les outils de lecture du thème réservés aux abonnés : « En bref »,
-« À lire plus tard », « Reprendre la lecture », « Réglages de lecture » ; « Commenter les articles » seulement
-si les commentaires sont ouverts à tous les abonnés, Settings → Membership → Commenting), « Aucun paiement ·
-désinscription en un clic depuis chaque e-mail », et les trois questions (gratuit ? mot de passe ?
-désinscription ?), qui décrivent le fonctionnement de Ghost (inscription gratuite, connexion par lien envoyé
-par e-mail, lien de désinscription dans chaque e-mail).
+des avantages — chacun un titre sur une ligne et une explication de deux lignes au plus (la newsletter, puis
+les outils de lecture du thème réservés aux abonnés : « En bref », « À lire plus tard », « Reprendre la
+lecture », « Réglages de lecture » ; « Commenter les articles » seulement si les commentaires sont ouverts à
+tous les abonnés, Settings → Membership → Commenting) —, « Aucun paiement · désinscription en un clic depuis
+chaque e-mail », et les trois questions (gratuit ? mot de passe ? désinscription ?).
 
-Le formulaire est celui de Ghost (`data-members-form`) : pendant l'envoi le bouton montre une roue, puis
-« Super ! Vous vous êtes inscrit avec succès. Regardez votre boîte mail… » ; en cas d'erreur, le message de
-Ghost s'affiche sous le champ. **Abonné connecté** : à la même adresse, « Vous êtes abonné à GEEKLY », son
-adresse e-mail, les boutons **Compte** (Portal : e-mails et profil), **Retour à l'accueil**, **Se
-déconnecter**, et ses outils (avec « Voir ma liste » → `/favoris/`).
+**Abonné connecté** : à la même adresse, « Vous êtes abonné à GEEKLY », son adresse e-mail, **Gérer mon
+compte** (Portal : e-mails, newsletters, profil), **Retour à l'accueil**, **Se déconnecter**, et ses outils
+(avec « Voir ma liste » → `/favoris/`).
 
-### Pages ordinaires (mentions légales…)
+### Ce qui passe encore par Portal
 
-Toute autre page utilise une colonne de lecture calme (police de lecture, cartes Ghost à leur largeur :
-large, pleine largeur). Le titre, l'extrait et l'image s'affichent, sauf si vous décochez **Show title and
-feature image** dans les réglages de la page (le titre reste lisible par les lecteurs d'écran).
+Portal est la fenêtre de Ghost pour les comptes abonnés. Le thème l'a remplacée pour **s'abonner** et **se
+connecter** (sa page d'abonnement, avec les formulaires natifs de Ghost). Restent dans Portal :
+
+- **Compte** (icône de l'en-tête pour un abonné connecté, « Gérer mon compte » sur la page d'abonnement) :
+  préférences d'e-mail, choix des newsletters, nom, désinscription. Ghost n'offre aucun équivalent qu'un
+  thème puisse construire : ces écrans n'existent que dans Portal ;
+- la page d'abonnement elle-même tant qu'elle n'existe pas (dernier recours des boutons) ;
+- les abonnements **payants** (Stripe) s'il y en a : le choix d'une offre et le paiement passent par Portal.
+
+**Ce qu'on peut changer dans Portal** — dans Ghost Admin, pas dans le thème : Portal s'affiche dans une
+fenêtre (iframe) que les styles du thème n'atteignent pas.
+
+- Settings → **Design & branding** → **Accent color** : la couleur des boutons et liens de Portal (mettez
+  celle du thème, `#4285F4` pour GEEKLY) ; le logo / l'icône du site apparaissent aussi en haut de Portal.
+- Settings → **Membership** → **Portal settings** (*Customize*) : *Signup options* (afficher le champ nom,
+  les offres, un texte de conditions, la case à cocher obligatoire), *Look & feel* (le bouton flottant
+  « Subscribe » en bas à droite : **désactivez « Show Portal button »**, le thème a les siens ; son style,
+  son icône, son texte), *Account page* (adresse de contact affichée).
+- Les textes de Portal suivent la langue du site (Settings → General → *Publication language*).
+
+Rien d'autre (police, coins, mise en page) n'est réglable : c'est la limite de Ghost, pas du thème.
+
+### Pages ordinaires
+
+Toute autre page utilise une colonne de lecture calme (police de lecture, 66 à 72 caractères par ligne
+environ, cartes Ghost à leur largeur : large, pleine largeur). Le titre, l'extrait et l'image s'affichent,
+sauf si vous décochez **Show title and feature image** dans les réglages de la page (le titre reste lisible
+par les lecteurs d'écran). Ce que le thème soigne pour toutes les pages :
+
+- **Listes** et **listes de définitions** (`<dl>` : un terme et sa valeur côte à côte, l'un sous l'autre sur
+  téléphone) ;
+- **Tableaux** : ligne d'en-tête marquée, cellules alignées en haut ; un tableau trop large pour un téléphone
+  défile dans son propre cadre (une ombre indique qu'il reste à voir), jamais la page entière ;
+- **Impression** : seuls le titre, l'extrait et le texte sont imprimés, en noir sur blanc, l'adresse de
+  chaque lien externe entre parenthèses ; ni en-tête, ni pied de page, ni boutons.
+
+### Mentions légales et pages de référence
+
+Pour une page longue que l'on consulte pour y trouver une réponse (mentions légales, politique de
+confidentialité, conditions d'utilisation), le thème a un modèle **Document** :
+
+- le titre, l'extrait, puis **« Dernière mise à jour le … »** et un bouton **Imprimer** (caché sur téléphone,
+  où le menu du navigateur suffit) ;
+- un **sommaire** construit tout seul à partir des intertitres : sur grand écran (à partir de 1152 px) il
+  reste visible à droite du texte et suit la lecture (les sous-titres de la section en cours s'ouvrent) ;
+  sur tablette et téléphone c'est un bouton « Sommaire » qui se déplie au-dessus du texte ;
+- un bouton « copier le lien » sur chaque intertitre, comme dans les articles ;
+- un trait fin entre les grandes sections, et les **listes de définitions** (`<dl>` : éditeur, hébergeur,
+  contact…) présentées comme un bloc d'identité encadré.
+
+**Comment l'appliquer.** Par le slug : une page dont l'adresse est `mentions-legales` prend ce modèle toute
+seule (fichier `page-mentions-legales.hbs`). Pour toute autre adresse (`confidentialite`, `legal`…) :
+réglages de la page → **Template** → **Document**.
+
+**Écrire le texte.** Le sommaire ne connaît que les intertitres : utilisez **Heading 2** (`##`) pour les
+grandes sections et **Heading 3** (`###`) pour leurs sous-parties ; il apparaît dès qu'il y a deux
+intertitres. Le plus simple pour un texte préparé à l'avance :
+
+1. Ouvrez la page dans Ghost, effacez l'ancien contenu (ancienne carte HTML comprise).
+2. Tapez `/markdown` puis Entrée : une carte Markdown s'ouvre.
+3. Collez le texte (pour GEEKLY : tout ce qui se trouve entre les deux commentaires « Texte à coller » et
+   « Fin du texte à coller » de `docs/mentions-legales-proposition.md`, après avoir rempli les crochets).
+4. Réglages de la page : **Excerpt** = la phrase d'accroche (facultatif) ; vérifiez **Page URL** =
+   `mentions-legales` ou **Template** = Document.
+5. **Update**. La date « Dernière mise à jour » se met à jour toute seule.
+
+Un bloc d'identité s'écrit en HTML dans la carte Markdown (Ghost l'accepte tel quel) :
+
+```html
+<dl>
+<dt>Éditeur et directeur de la publication</dt>
+<dd>Prénom Nom</dd>
+<dt>Contact</dt>
+<dd><a href="mailto:contact@exemple.fr">contact@exemple.fr</a></dd>
+</dl>
+```
+
+Les tableaux s'écrivent en Markdown (`| Nom | Durée |` puis `|---|---|`).
+
+**La date.** C'est la date du dernier enregistrement de la page dans Ghost (`updated_at`) : corriger une
+faute la change aussi. Pour une page de mentions légales, c'est ce qu'on attend (la page a été revue ce
+jour-là).
+
+**Sans JavaScript** : pas de sommaire ni de bouton Imprimer (le texte, les intertitres et leurs ancres
+restent). Un abonné qui a choisi un autre thème de lecture garde le mode clair / sombre du site sur cette
+page (les thèmes de lecture ne s'appliquent qu'aux articles).
+
+### Ce que le thème garde dans le navigateur
+
+Pour vos mentions légales (rubrique cookies), voici **tout** ce que le thème enregistre dans le navigateur du
+lecteur. Rien de cela n'est envoyé au site : ce sont des préférences de fonctionnement, effacées avec les
+données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
+
+| Nom | Stockage | Déposé par | Pour qui | À quoi il sert | Durée |
+|---|---|---|---|---|---|
+| `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement |
+| `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement |
+| `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session |
+| `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement |
+| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement |
+| `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture) | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement |
+| `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune |
+| `ghost-history` | sessionStorage | Ghost | tous | Pages vues pendant la visite, pour savoir d'où vient un nouvel abonné (réglage Ghost « Member sources ») | Fin de la session |
+
+Et du côté de Ghost : les cookies `ghost-members-ssr` et `ghost-members-ssr.sig` (connexion d'un abonné,
+environ 6 mois). Services externes que le thème appelle : Google Fonts (`fonts.googleapis.com`,
+`fonts.gstatic.com`, polices Onest et Literata), `fonts.bunny.net` (seulement la police choisie par un abonné
+dans ses réglages d'affichage) ; Ghost ajoute `cdn.jsdelivr.net` (Portal, recherche, commentaires).
+Les intégrations que vous mettez dans vos articles (YouTube, X…) chargent leurs propres services.
+
+> Ce tableau suit le code : le test `src/tests/document.test.js` échoue si le thème se met à utiliser une clé
+> qui n'y figure pas (ou cesse d'en utiliser une), et si `docs/mentions-legales-proposition.md` ne la cite pas.
 
 ### Page 404
 
@@ -724,7 +936,9 @@ Remplie depuis la fiche de l'auteur principal : Ghost Admin → Settings → **S
 **Bio**. Elle affiche « Écrit par », le nom, la bio, puis deux boutons :
 - **À propos** : la page dont le slug est le réglage **About page** (onglet **Post**) ; s'il est vide, la
   page `a-propos` ou, à défaut, `about`. Pas de page trouvée : pas de bouton.
-- **Tous ses articles** : la page de l'auteur.
+- **Tous ses articles** : la page de l'auteur — seulement si plusieurs auteurs ont publié (sur un site à un
+  seul auteur, ni ce bouton ni le nom ne mènent à la page d'auteur : voir
+  [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)).
 Sans photo : une icône ; sans bio : la ligne disparaît.
 
 ### Réglages d'affichage (abonnés)
@@ -742,7 +956,7 @@ qui monte du bas sur téléphone) :
 | Taille du texte | M (19 px), S (17 px), L (21 px) |
 | Interligne | Normal, Serré, Aéré |
 | Alignement | Justifié (aligné à gauche sur téléphone), À gauche, Centré, À droite — paragraphes seulement |
-| Style des liens | Soulignés, Couleur (souligné au survol) |
+| Style des liens | Couleur (liens en couleur, soulignés seulement au survol et au clavier), Soulignés (couleur du texte, soulignés) |
 | Image de couverture | Afficher, Masquer |
 | Style de l'article | Carte / Immersif (le défaut est celui de l'article) |
 | Résumé « En bref » | Afficher, Masquer |
@@ -753,6 +967,19 @@ de l'article, en-tête et pied de page compris. Les polices autres que celles pa
 que si l'abonné les choisit, depuis fonts.bunny.net (le même service que les polices personnalisées de
 Ghost). Pour retirer la roue : réglage **Reading settings** (onglet **Post**). Les visiteurs ne la voient
 jamais.
+
+**Style des liens.** Par défaut, pour tout le monde (visiteurs compris), les liens du texte des articles et
+des pages (« À propos », mentions légales…) sont **en couleur, sans soulignement** ; le soulignement apparaît
+au survol et quand on y arrive au clavier. L'autre choix, « Soulignés » (comme Wikiwand), met les liens dans
+la couleur du texte avec un trait dessous, plus épais au survol. Le choix d'un abonné vaut aussi pour les
+pages. Rien à régler pour le site : la couleur est le défaut.
+
+*Accessibilité, honnêtement* : un lien seulement coloré se distingue du texte par sa couleur, et l'écart de
+luminosité entre la couleur des liens et celle du texte est sous le 3:1 que demandent certaines règles
+(WCAG, technique G183) : GEEKLY 2,6:1 en clair et 1,3:1 en sombre, Désert 1,8 / 1,5, Encre 2,0 / 2,2, Forêt
+2,3 / 1,3 (la couleur des liens reste lisible sur le fond : 4,5:1 au moins partout). C'est un choix de
+présentation ; un lecteur qui distingue mal les couleurs choisit « Soulignés ». Les petits liens des zones
+grises (pied de page, mentions sous un formulaire) sont eux aussi en couleur, jamais ni colorés ni soulignés.
 
 Si vous avez choisi des polices personnalisées dans Ghost (Brand → Typography), elles remplacent Onest et
 Literata par défaut ; la liste garde les noms « Onest » et « Literata » pour l'option par défaut.
@@ -825,7 +1052,7 @@ Ghost Admin → Settings → Design & branding → **Customize** (15 réglages ;
 |---|---|---|---|---|
 | Dark mode logo | Site wide | vide | Logo clair pour le mode sombre et le bandeau d'accueil (avec un logo image) | [2](#2-identité-et-en-tête) |
 | Page transitions | Site wide | oui | Transitions animées entre les pages (navigateurs compatibles) | [7](#transitions-entre-les-pages) |
-| Subscribe url | Site wide | vide (Portal) | Destination des boutons « S'abonner », par exemple `/newsletter/` | [2](#bouton-sabonner) |
+| Subscribe url | Site wide | vide (la page `newsletter`, `abonnement` ou `subscribe`, sinon Portal) | Destination forcée des boutons « S'abonner » / « Se connecter », par exemple `/newsletter/` | [2](#bouton-sabonner-et-se-connecter) |
 | About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
 | Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |
@@ -866,9 +1093,10 @@ d'articles de « Derniers articles ».
 | Liens « Suivre le blog » | `<ul class="about-links"><li><a href="…">…</a></li></ul>` dans la page À propos | [5](#à-propos) |
 | Lien jamais préchargé | `<a href="…" data-no-prefetch>` | [7](#préchargement-au-survol) |
 
-**Pages** (slug par défaut → modèle automatique, ou menu *Template*) : `newsletter` (Subscribe), `archives`
+**Pages** (slug par défaut → modèle automatique, ou menu *Template*) : `newsletter`, `abonnement` ou `subscribe` (Subscribe), `archives`
 (Archives ; `/archives/?tag=<slug>` filtre sur un tag, internes compris), `favoris` (Saved Posts), `a-propos`
-(About), `tags` (Tags), `authors` (Authors). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
+(About), `tags` (Tags), `authors` (Authors), `mentions-legales` (Document : sommaire, date de mise à jour,
+impression). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
 
 **Ghost** : *Feature this post* (bandeau de l'accueil, article en tête d'une rubrique), *Excerpt* (extraits,
 accroches des pages), *Tag image* et *Description* (rubriques, À propos, bannière de l'accueil), *Site
@@ -887,7 +1115,8 @@ navigateur du lecteur.
 |---|---|
 | La page « Archives » (ou « Mes favoris », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
 | « Voir toute la série », « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `archives` ou `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
-| Les boutons « S'abonner » ouvrent une fenêtre au lieu de la page | Réglage **Subscribe url** vide : mettez `/newsletter/`. |
+| Les boutons « S'abonner » ou « Se connecter » ouvrent une fenêtre au lieu de la page | Le site n'a pas de page **publiée** de slug `newsletter`, `abonnement` ou `subscribe`, et le réglage **Subscribe url** est vide : créez la page ou remplissez le réglage. |
+| La fenêtre « Compte » de Ghost a d'autres couleurs que le site | Portal ne prend que la couleur d'accent : Settings → Design & branding → Accent color (voir [Ce qui passe encore par Portal](#ce-qui-passe-encore-par-portal)). |
 | Pas de formulaire sur la page d'abonnement | Inscription fermée ou sur invitation (Settings → Membership), ou vous êtes connecté (vue abonné). |
 | Le formulaire affiche une erreur à chaque essai | Ghost n'arrive pas à envoyer l'e-mail : vérifiez la configuration e-mail du serveur (Mailgun / SMTP). |
 | Une rubrique n'a pas de phrase sur « À propos » ou en tête de sa page | Le tag n'a pas de **Description**. |
@@ -903,9 +1132,14 @@ navigateur du lecteur.
 | La fiche de test n'a pas de style | Vérifiez la classe `fiche-test` et que c'est une carte HTML. |
 | « Mis à jour le » n'apparaît pas | Il manque le tag interne `#mis-a-jour`. |
 | Pas de bouton « À propos » dans la boîte auteur | Aucune page `a-propos` / `about`, ou le réglage About page ne correspond à aucune page publiée. |
+| Pas de « Tous ses articles », le nom de l'auteur n'est pas un lien | Normal sur un site où un seul auteur a publié ([Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; les liens reviennent dès qu'un deuxième auteur publie. |
+| « Rédacteur » reste dans le menu | C'est un lien de votre navigation : Settings → Navigation, supprimez-le. |
+| Pas d'icône Bluesky (ou Threads, Mastodon…) dans le pied de page et « Suivre le blog » | Le compte n'est pas rempli : Settings → General → **Social accounts**, puis **Save**. |
 | Pas de roue crantée | Réservée aux abonnés connectés, sur les articles, réglage Reading settings activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte). |
 | Le style Immersif ne s'applique pas | Un abonné qui a choisi « Carte » dans ses réglages garde son choix sur tous les articles. |
 | L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une fois par session de navigation (fermez l'onglet ou ouvrez une fenêtre privée pour la revoir), seulement sur la page 1 de l'accueil, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
 | Au lieu des lettres dessinées, le logo apparaît en fondu | Le réglage **Use geekly logo** est désactivé : avec un logo image ou le titre du site, l'animation est un simple fondu. |
 | Pas de transition entre les pages | Navigateur sans « View Transitions » entre pages (aujourd'hui Chrome, Edge et Safari récents ; pas Firefox), « réduire les animations » activé, ou réglage **Page transitions** désactivé. La navigation reste normale. |
+| Les mentions légales n'ont pas de sommaire | Il faut au moins deux intertitres **Heading 2 / Heading 3** (pas du texte en gras), et le modèle Document (slug `mentions-legales` ou Template → Document). Les intertitres placés dans une carte HTML comptent aussi ; pas ceux des cartes Ghost (toggle, header…). |
+| « Dernière mise à jour » change après une simple correction | C'est la date du dernier enregistrement de la page dans Ghost : voulu pour une page de référence. |
 | Le préchargement ne se voit pas | C'est normal : il n'y a rien à voir, la page suivante s'ouvre juste plus vite. Il est coupé en mode « économie de données » et sur connexion 2G. |

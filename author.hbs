@@ -3,6 +3,10 @@ Author page: a dressed header (cover image when the author has one, avatar, name
 links, number of posts), then the grid of their posts and the pagination.
 Every part is optional: no cover → plain dark card; no avatar → initial on a tinted disc; no bio,
 location or links → nothing.
+Single-author site (only one author has published posts): the theme links to this page nowhere and the
+page asks search engines not to index it (it repeats the home's list; the <meta> is in default.hbs,
+as {{contentFor}} cannot be used inside {{#get}}); it still works when reached directly.
+docs/guide-auteur.md explains how to redirect it with redirects.yaml.
 --}}
 
 {{#contentFor "preload"}}

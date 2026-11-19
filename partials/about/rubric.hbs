@@ -1,8 +1,18 @@
 {{!--
-One section of the « À propos » page: a pill (icon in a badge + the tag's name, linking to the tag page)
-and the tag's description when it has one. Inside a tag context, in a <ul>.
+One cell of the « À propos » bento: a rubric (tag), inside a tag context fetched with include="count.posts",
+in the <ul class="about-rubrics">. The tag's name is the link to the tag page; the whole cell is clickable
+(the link's ::after covers it). With a feature image: the image behind a scrim, text in light ink; without:
+a tinted surface (cycled by position) with the rubric's icon. The description and the count are optional
+lines. The cell's size comes from its position in the list (src/css/about.css).
 --}}
-<li class="about-rubric">
-  <a class="about-rubric__pill" href="{{url}}"><span class="about-rubric__icon" aria-hidden="true">{{> "about/tag-icon"}}</span><span class="about-rubric__name">{{name}}</span></a>
-  {{#if description}}<p class="about-rubric__text">{{description}}</p>{{/if}}
+<li class="about-rubric{{#if feature_image}} about-rubric--image{{/if}}">
+  {{#if feature_image}}
+    <img class="about-rubric__image" src="{{img_url feature_image size="m"}}" srcset="{{img_url feature_image size="s"}} 300w, {{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w" sizes="(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 40vw" alt="" loading="lazy" decoding="async">
+  {{/if}}
+  <span class="about-rubric__icon" aria-hidden="true">{{> "about/tag-icon"}}</span>
+  <div class="about-rubric__body">
+    <h3 class="about-rubric__name"><a class="about-rubric__link" href="{{url}}">{{name}}</a></h3>
+    {{#if description}}<p class="about-rubric__text">{{description}}</p>{{/if}}
+    <p class="about-rubric__count">{{plural count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</p>
+  </div>
 </li>

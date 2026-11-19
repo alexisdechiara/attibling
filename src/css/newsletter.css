@@ -1,23 +1,24 @@
-/* Subscription page (partials/pages/subscribe.hbs), on top of app.css */
+/* Subscription page (partials/pages/subscribe.hbs), on top of app.css. It follows the site's light or
+   dark mode like every page: the page surface (--color-bg), the text and accent tokens. */
 
 .subscribe {
-  /* Form states; light-dark() follows the scheme of the part they are in (the opening band is dark) */
-  --color-success: light-dark(#0b7a3e, #7fd6a4);
+  /* Form states, AA on the page surface in both modes */
+  --color-success: light-dark(#0b6b37, #7fd6a4);
   --color-danger: light-dark(#b3261e, #ffb4a8);
   padding-block-end: 0;
 }
 
-/* 1. Opening section: a dark band straight in the page, at least the first screen tall (the screen minus
+/* 1. Opening section: straight in the page (no card), at least the first screen tall (the screen minus
    the header bar: 60px on phones, --header-height from 48rem), its content centred vertically */
 .subscribe-hero {
+  position: relative;
   display: flex;
   align-items: center;
   min-height: calc(100vh - 60px);
   min-height: calc(100svh - 60px);
   padding-block: var(--space-8);
-  background: var(--color-media);
-  color: var(--color-on-media);
-  color-scheme: dark;
+  border-block-end: 1px solid var(--color-border);
+  color: var(--color-text);
 
   @media (width >= 48rem) {
     min-height: calc(100vh - var(--header-height));
@@ -26,22 +27,56 @@
   }
 }
 
+/* #inscription / #connexion: at the top of the section, under the sticky header */
+.subscribe-hero__anchor {
+  position: absolute;
+  inset-block-start: 0;
+  scroll-margin-block-start: 100vh;
+}
+
 .subscribe-hero__inner {
   display: grid;
   gap: var(--space-9);
+  width: 100%;
 
   @media (width >= 64rem) {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     align-items: center;
     gap: 0;
   }
 }
 
 .subscribe-hero__main {
-  max-width: 46rem;
+  max-width: 40rem;
 
   @media (width >= 64rem) {
-    padding-inline-end: var(--space-9);
+    padding-inline-end: var(--space-10);
+  }
+}
+
+/* Two states: sign-up (default) and sign-in (#connexion, or data-state="signin" written by
+   newsletter.js); a site where only invited members join shows the sign-in only */
+.subscribe-panel--signin {
+  display: none;
+}
+
+.subscribe-hero:is([data-state="signin"], :has(#connexion:target), .subscribe-hero--signin-only) {
+  .subscribe-panel--signup {
+    display: none;
+  }
+
+  .subscribe-panel--signin {
+    display: block;
+  }
+}
+
+.subscribe-hero[data-state="signup"] {
+  .subscribe-panel--signup {
+    display: block;
+  }
+
+  .subscribe-panel--signin {
+    display: none;
   }
 }
 
@@ -50,64 +85,81 @@
   font-weight: var(--weight-black);
   letter-spacing: -0.035em;
   line-height: 1.04;
+  text-wrap: balance;
 }
 
 .subscribe-hero__lead {
   margin-block-start: var(--space-5);
-  color: var(--color-on-media-muted);
+  color: var(--color-text-secondary);
   font-size: var(--text-l);
   line-height: 1.55;
 
   @media (width >= 48rem) {
-    font-size: 1.375rem;
+    font-size: 1.25rem;
   }
 }
 
-/* Ghost's members form: Ghost adds .loading, .success, .error on the <form> */
+/* Ghost's members forms: Ghost adds .loading, .success, .error on the <form> */
 .subscribe-form {
-  margin-block-start: var(--space-8);
+  margin-block-start: var(--space-7);
 }
 
-.subscribe-form__label {
-  display: block;
-  margin-block-end: var(--space-3);
+.subscribe-form__fields {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.subscribe-field {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.subscribe-field__label {
   font-size: var(--text-nav);
   font-weight: var(--weight-semibold);
 }
 
-.subscribe-form__fields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-
-  @media (width >= 40rem) {
-    flex-direction: row;
-  }
+.subscribe-field__optional {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-regular);
 }
 
-.subscribe-form__input {
-  flex: 1;
+.subscribe-field__input {
+  width: 100%;
   min-width: 0;
   min-height: 52px;
   padding-inline: var(--space-5);
-  border: 2px solid transparent;
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-pill);
-  background: var(--color-on-media);
-  color: var(--color-media-ink);
+  background: var(--color-surface);
+  color: var(--color-text);
   font: inherit;
   font-size: var(--text-l);
-  --color-focus: var(--color-focus-on-media);
+
+  &:hover {
+    border-color: var(--color-text-secondary);
+  }
 
   &:focus-visible {
     border-color: var(--color-accent);
     outline-offset: 2px;
   }
+
+  &[aria-invalid="true"] {
+    border: 2px solid var(--color-danger);
+  }
 }
 
 .subscribe-form__button {
+  justify-self: start;
   min-height: 52px;
   font-size: var(--text-l);
   font-weight: var(--weight-bold);
+
+  @media (width < 40rem) {
+    justify-self: stretch;
+  }
 }
 
 .subscribe-form__spinner {
@@ -146,12 +198,12 @@
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-5);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-m);
-  background: var(--color-on-media-glass);
-  color: var(--color-on-media);
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: var(--text-base);
   line-height: 1.55;
-  --color-focus: var(--color-focus-on-media);
 
   .icon {
     flex: none;
@@ -162,7 +214,6 @@
 }
 
 .subscribe-form.success {
-  .subscribe-form__label,
   .subscribe-form__fields,
   .subscribe-form__hint {
     display: none;
@@ -181,14 +232,15 @@
   font-weight: var(--weight-semibold);
 }
 
-/* Ghost writes its own message in [data-members-error]; the theme's sentence shows when it stays empty */
+/* Ghost (or newsletter.js, for an empty or malformed address) writes the message in
+   [data-members-error]; the theme's sentence shows when it stays empty */
 .subscribe-form.error {
   .subscribe-form__error {
     display: block;
   }
 
-  .subscribe-form__input {
-    border-color: var(--color-danger);
+  [data-members-email] {
+    border: 2px solid var(--color-danger);
   }
 
   [data-members-error]:not(:empty) + .subscribe-form__error-default {
@@ -198,14 +250,14 @@
 
 .subscribe-form__hint {
   margin-block-start: var(--space-4);
-  color: var(--color-on-media-subtle);
+  color: var(--color-text-muted);
   font-size: var(--text-m);
 }
 
 /* The page's own text under the form (consent, legal notice) */
 .subscribe-hero__notes {
-  margin-block-start: var(--space-2);
-  color: var(--color-on-media-subtle);
+  margin-block-start: var(--space-3);
+  color: var(--color-text-muted);
   font-size: var(--text-s);
   line-height: 1.55;
 
@@ -215,32 +267,59 @@
 
   a {
     color: var(--color-accent);
-    text-decoration: underline;
     text-underline-offset: 2px;
-  }
-}
 
-.subscribe-hero__signin {
-  margin-block-start: var(--space-6);
-  font-size: var(--text-base);
-
-  a {
-    color: var(--color-accent);
-    font-weight: var(--weight-bold);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-
-    &:hover {
-      text-decoration-thickness: 2px;
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
     }
   }
 }
 
-/* What a subscription brings */
+/* « Déjà abonné ? Se connecter » / « Pas encore abonné ? S'abonner » */
+.subscribe-hero__switch {
+  margin-block-start: var(--space-6);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    color: var(--color-accent);
+    font-weight: var(--weight-bold);
+    text-underline-offset: 3px;
+
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* What a subscription brings: each feature a title on one line and at most two lines of text (the
+   copy fits; the clamp is a guard for longer translations) */
 .subscribe-hero__benefits {
+  min-width: 0;
+
   @media (width >= 64rem) {
     padding-inline-start: var(--space-10);
-    border-inline-start: 1px solid var(--color-on-media-glass);
+    border-inline-start: 1px solid var(--color-border);
+  }
+}
+
+.subscribe-benefits {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  /* Tablets: two columns, each wide enough for two lines of text (the newsletter keeps the row) */
+  @media (width >= 40rem) and (width < 64rem) {
+    gap: var(--space-5) var(--space-6);
+
+    &:not(.subscribe-benefits--main) {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 }
 
@@ -248,87 +327,80 @@
   display: flex;
   gap: var(--space-4);
   align-items: flex-start;
+  min-width: 0;
 }
 
 .subscribe-benefit__icon {
   display: inline-grid;
   place-items: center;
   flex: none;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-pill);
-  background: var(--color-on-media-glass);
+  background: var(--color-accent-soft);
   color: var(--color-accent);
-  font-size: 1.375rem;
+  font-size: 1.125rem;
+}
+
+.subscribe-benefit__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .subscribe-benefit__title {
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-heavy);
-  letter-spacing: -0.01em;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--text-l);
+  font-weight: var(--weight-bold);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .subscribe-benefit__text {
-  margin-block-start: var(--space-1);
-  color: var(--color-on-media-subtle);
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-secondary);
   font-size: var(--text-nav);
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.subscribe-benefit--main {
+  .subscribe-benefit__icon {
+    @media (width >= 48rem) {
+      width: 52px;
+      height: 52px;
+      font-size: 1.375rem;
+    }
+  }
+
+  .subscribe-benefit__title {
+    font-size: var(--text-l);
+    font-weight: var(--weight-heavy);
+    letter-spacing: -0.01em;
+
+    @media (width >= 48rem) {
+      font-size: var(--text-xl);
+    }
+
+    @media (width >= 80rem) {
+      font-size: var(--text-2xl);
+    }
+  }
 }
 
 .subscribe-hero__tools-title {
-  margin-block: var(--space-7) var(--space-3);
+  margin-block: var(--space-8) var(--space-4);
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
   font-size: var(--text-m);
   font-weight: var(--weight-bold);
-}
-
-.subscribe-hero__tools {
-  display: grid;
-  gap: var(--space-3) var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  @media (width >= 40rem) {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  li {
-    display: flex;
-    gap: var(--space-3);
-    color: var(--color-on-media-subtle);
-    font-size: var(--text-nav);
-    line-height: 1.45;
-  }
-
-  .icon {
-    flex: none;
-    margin-block-start: 2px;
-    color: var(--color-accent);
-    font-size: 1.125rem;
-  }
-}
-
-.subscribe-hero__tools b,
-.subscribe-hero__comments b {
-  display: block;
-  color: var(--color-on-media);
-  font-weight: var(--weight-semibold);
-}
-
-.subscribe-hero__comments {
-  display: flex;
-  gap: var(--space-3);
-  margin-block-start: var(--space-5);
-  padding-block-start: var(--space-5);
-  border-block-start: 1px solid var(--color-on-media-glass);
-  color: var(--color-on-media-muted);
-  font-size: var(--text-nav);
-
-  .icon {
-    flex: none;
-    margin-block-start: 2px;
-    color: var(--color-accent);
-    font-size: 1.125rem;
-  }
 }
 
 /* 2. Questions */
@@ -398,47 +470,13 @@
   }
 }
 
-/* 3. Closing call to action */
-.subscribe-cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  padding-block: var(--space-8) var(--space-11);
-  text-align: center;
-
-  .button {
-    margin-block-start: var(--space-3);
-
-    @media (width < 40rem) {
-      width: 100%;
-    }
-  }
-}
-
-.subscribe-cta__title {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-heavy);
-  letter-spacing: -0.02em;
-
-  @media (width >= 48rem) {
-    font-size: var(--text-4xl);
-  }
-}
-
-.subscribe-cta__text {
-  color: var(--color-text-secondary);
-  font-size: var(--text-l);
-}
-
 /* Members */
+.subscribe-hero--member {
+  border-block-end: 0;
+}
+
 .subscribe-member {
   max-width: calc(48rem + 2 * var(--gutter));
-  padding-block: var(--space-8) var(--space-11);
-
-  @media (width >= 48rem) {
-    padding-block-start: var(--space-11);
-  }
 }
 
 .subscribe-member__status {
@@ -487,13 +525,12 @@
   align-items: center;
   min-height: var(--target);
   padding-inline: var(--space-3);
-  color: var(--color-text-secondary);
+  color: var(--color-accent);
   font-weight: var(--weight-semibold);
-  text-decoration: underline;
   text-underline-offset: 3px;
 
-  &:hover {
-    color: var(--color-text);
+  &:is(:hover, :focus-visible) {
+    text-decoration: underline;
   }
 }
 

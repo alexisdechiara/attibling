@@ -1,0 +1,60 @@
+{{!--
+Body of a reference document (« Mentions légales », confidentialité, conditions…): page-mentions-legales.hbs
+for the slug "mentions-legales", custom-document.hbs (menu « Template » > Document) for any other page.
+Inside the page's template context. See docs/guide-auteur.md (« Mentions légales et pages de référence »).
+  - Title and excerpt (« Excerpt »): the page's, unless « Show title and feature image » is off (the title
+    then stays for screen readers). No feature image: a document opens on its text.
+  - « Dernière mise à jour »: Ghost's updated_at, the date of the page's last save.
+  - « Imprimer »: shown by page.js (it calls the browser's print); css/print.css lays the page out on paper.
+  - « Sommaire »: built by page.js (src/js/document.js) from the h2 and h3 of the content when there are
+    at least two; a disclosure above the text, sticky beside it on wide screens. Without JavaScript there
+    is no table of contents (the headings keep their anchors).
+  - The content: the generic page's reading column (pages/content.css); a <dl> sets out who / where / how
+    to reach (publisher, host) as a compact identity block; headings get the copy-link button of articles.
+data-copy-link / data-link-copied: the strings of the copy-link buttons (src/js/article/strings.js).
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/page.css"}}" as="style" />
+  <link rel="modulepreload" href="{{asset "js/page.js"}}" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/page.css"}}" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{asset "css/print.css"}}" media="print" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" src="{{asset "js/page.js"}}"></script>
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main page-main">
+  {{#post}}
+    <article class="document" data-document data-copy-link="{{t "Copy the link to the section"}}" data-link-copied="{{t "Link copied"}}">
+      <header class="document__header">
+        {{#match @page.show_title_and_feature_image}}
+          <h1 class="document__title">{{title}}</h1>
+          {{#if custom_excerpt}}<p class="document__lead">{{custom_excerpt}}</p>{{/if}}
+        {{else}}
+          <h1 class="sr-only">{{title}}</h1>
+        {{/match}}
+        <div class="document__meta">
+          <p class="document__updated">{{t "Last updated on"}} <time datetime="{{date updated_at format="YYYY-MM-DD"}}">{{date updated_at format="LL"}}</time></p>
+          <button type="button" class="document__print" data-document-print hidden>{{> "icons/printer"}}<span>{{t "Print"}}</span></button>
+        </div>
+      </header>
+
+      <details class="document-toc" data-document-toc hidden>
+        <summary class="document-toc__toggle">{{> "icons/summary"}}<span>{{t "Summary"}}</span>{{> "icons/chevron-down" class="document-toc__chevron"}}</summary>
+        <nav class="document-toc__nav" aria-label="{{t "Table of contents"}}">
+          <p class="document-toc__title" aria-hidden="true">{{t "Summary"}}</p>
+          <div class="toc" data-toc-list></div>
+        </nav>
+      </details>
+
+      <div class="page-content gh-content document__content js-post-content" data-document-content>
+        {{content}}
+      </div>
+      <p class="sr-only" aria-live="polite" data-article-live></p>
+    </article>
+  {{/post}}
+</main>
