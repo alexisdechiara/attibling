@@ -2,7 +2,7 @@
 // archives, « Mes favoris », « À propos », subscription page.
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
-import { launch, close, open, waitFor } from "./support/harness.js";
+import { launch, close, open } from "./support/harness.js";
 import { template } from "./support/pages.js";
 
 const PHONE = { width: 390, height: 844 };
@@ -407,45 +407,15 @@ describe("subscription page", () => {
 				},
 			}),
 		});
-		assert.equal(await page.locator(".subscribe-hero__lead").textContent(), "Une phrase du site.");
+		assert.equal(
+			await page.locator(".subscribe-panel--signup .subscribe-hero__lead").textContent(),
+			"Une phrase du site.",
+		);
 		assert.equal(await page.locator('.subscribe-hero__notes a[href="/mentions-legales/"]').count(), 1);
 		await dispose();
 	});
 
-	it("shows Ghost's form states: loading, success (focused), error", async () => {
-		const { page, dispose } = await open({ render: template("page-newsletter") });
-		const state = cls =>
-			page.evaluate(c => {
-				const form = document.querySelector("[data-subscribe-form]");
-				form.className = `subscribe-form ${c}`;
-				const visible = sel => {
-					const el = form.querySelector(sel);
-					return Boolean(el && el.offsetParent);
-				};
-				return {
-					spinner: visible(".subscribe-form__spinner"),
-					fields: visible(".subscribe-form__fields"),
-					success: visible(".subscribe-form__success"),
-					error: visible(".subscribe-form__error"),
-				};
-			}, cls);
-		assert.deepEqual(await state(""), { spinner: false, fields: true, success: false, error: false });
-		assert.deepEqual(await state("loading"), { spinner: true, fields: true, success: false, error: false });
-		assert.deepEqual(await state("success"), { spinner: false, fields: false, success: true, error: false });
-		assert.ok(
-			await waitFor(() => page.evaluate(() => document.activeElement?.hasAttribute("data-subscribe-success"))),
-			"the success message gets the focus",
-		);
-		assert.deepEqual(await state("error"), { spinner: false, fields: true, success: false, error: true });
-		await dispose();
-	});
-
-	it("the closing button brings the keyboard back to the form", async () => {
-		const { page, dispose } = await open({ render: template("page-newsletter") });
-		await page.locator("[data-subscribe-jump]").click();
-		assert.equal(await page.evaluate(() => document.activeElement.id), "subscribe-email");
-		await dispose();
-	});
+	// Form states, sign-in, validation, surface, member view: subscribe.test.js
 
 	it("members see their account instead of the form", async () => {
 		const { page, dispose } = await open({ render: template("page-newsletter", { member: true }) });
