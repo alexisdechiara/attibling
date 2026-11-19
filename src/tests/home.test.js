@@ -142,8 +142,18 @@ describe("subscription block", () => {
 	it("shows to visitors only", async () => {
 		const visitor = await open();
 		assert.equal(await promoShown(visitor.page), true);
-		assert.equal(await visitor.page.locator("[data-promo] a[data-portal=signin]").count(), 1);
+		assert.equal(await visitor.page.locator("[data-promo] .promo__signin a").count(), 1);
 		await visitor.dispose();
+
+		// « Se connecter » leads to the theme's sign-in on the subscription page, underlined on hover only
+		const page = await open({ render: home({ custom: { use_geekly_logo: true, subscribe_url: "/newsletter/" } }) });
+		const link = page.page.locator("[data-promo] .promo__signin a");
+		assert.equal(await link.getAttribute("href"), "/newsletter/#connexion");
+		const underline = () => link.evaluate(a => getComputedStyle(a).textDecorationLine);
+		assert.equal(await underline(), "none");
+		await link.hover();
+		assert.equal(await underline(), "underline");
+		await page.dispose();
 
 		const member = await open({ render: home({ member: true }) });
 		assert.equal(await member.page.locator("[data-promo]").count(), 0);

@@ -730,6 +730,7 @@ données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
 | `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement |
 | `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement |
 | `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session |
+| `attibling-hero-cue` | sessionStorage | thème | tous | Petite ondulation des points du bandeau d'accueil déjà jouée dans cette session | Fin de la session |
 | `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement |
 | `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement |
 | `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture) | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement |

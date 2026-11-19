@@ -5,6 +5,7 @@ import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/
 import assert from "node:assert/strict";
 import { launch, close, open, waitFor, sleep } from "./support/harness.js";
 import { home, template } from "./support/pages.js";
+import { article } from "./support/article.js";
 
 const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
@@ -116,91 +117,132 @@ describe("wordmark docking is binary", () => {
 			);
 		});
 	// The flight over, and the short fades of the swap (150 ms) with it
-	const settled = async page => {
-		await waitFor(async () => !(await state(page)).flight);
-		await sleep(250);
-		return state(page);
+	// At rest in the given state ("docked" | "undocked"): no flight, the fades of the swap over
+	const settled = (page, dock) =>
+		waitFor(
+			async () => {
+				const s = await state(page);
+				if (dock && s.dock !== dock) return false;
+				const rest = s.dock === "docked" ? s.logo === "visible" && s.hero === 0 : s.logo === "hidden" && s.hero === 1;
+				return !s.flight && s.scale === 1 && rest && s;
+			},
+			{ timeout: 5000 },
+		).then(s => s || state(page));
+
+	// Records, from the first frame of every page load, each frame's flight state and logo scale
+	// (window.__dock), so the tests read what happened instead of guessing timings
+	const SAMPLER = () => {
+		window.__dock = [];
+		const sample = () => {
+			const header = document.getElementById("site-header");
+			const logo = header?.querySelector("[data-header-logo] [data-wordmark]");
+			if (logo)
+				window.__dock.push({
+					flight: header.hasAttribute("data-dock-flight"),
+					dock: header.dataset.dock,
+					scale: new DOMMatrix(getComputedStyle(logo).transform).a,
+				});
+			requestAnimationFrame(sample);
+		};
+		requestAnimationFrame(sample);
 	};
+	const samples = page => page.evaluate(() => window.__dock.splice(0));
+	// Loaded, and past the first moments when the docking is instant (scroll restoration)
+	const ready = page =>
+		waitFor(() => page.evaluate(() => document.readyState === "complete" && window.__dock.length > 20));
 
 	it("flies the whole way into the header once the threshold is crossed, and back", async () => {
-		const { page, dispose } = await open({ viewport: DESKTOP });
-		await sleep(200);
+		const { page, dispose } = await open({ viewport: DESKTOP, initScript: SAMPLER });
+		await ready(page);
 		assert.deepEqual(await state(page), { dock: "undocked", flight: false, scale: 1, logo: "hidden", hero: 1 });
 		const at = await threshold(page);
+		await samples(page);
 
 		// Just past the threshold, then the scroll stops: the logo still ends in the header
 		await page.evaluate(y => scrollTo(0, y), at - 8);
-		await sleep(50);
-		let s = await state(page);
-		assert.equal(s.dock, "docked");
-		assert.equal(s.flight, true, "it flies");
-		assert.ok(s.scale > 2, `from the hero's size (${s.scale})`);
-		s = await settled(page);
+		let s = await settled(page, "docked");
 		assert.deepEqual(s, { dock: "docked", flight: false, scale: 1, logo: "visible", hero: 0 }, "never stuck between");
+		let frames = (await samples(page)).filter(f => f.flight);
+		assert.ok(frames.length > 0, "it flew");
+		assert.ok(frames[0].scale > 2, `from the hero's size (${frames[0].scale})`);
+		assert.ok(
+			frames.every((f, i) => i === 0 || f.scale <= frames[i - 1].scale + 0.001),
+			"shrinking all the way, without going back",
+		);
 
-		// Hysteresis: back a little, still docked
+		// Hysteresis: back a little, still docked (no flight starts)
 		await page.evaluate(y => scrollTo(0, y), at - 30);
-		await sleep(300);
+		await waitFor(() => page.evaluate(() => window.__dock.length > 10));
 		assert.equal((await state(page)).dock, "docked", "no flicker near the threshold");
+		assert.equal(
+			(await samples(page)).some(f => f.flight),
+			false,
+		);
 
 		// Back above: the reverse flight, to the hero
 		await page.evaluate(() => scrollTo(0, 0));
-		await sleep(50);
-		assert.equal((await state(page)).flight, true);
-		s = await settled(page);
+		s = await settled(page, "undocked");
 		assert.deepEqual(s, { dock: "undocked", flight: false, scale: 1, logo: "hidden", hero: 1 });
+		frames = (await samples(page)).filter(f => f.flight);
+		assert.ok(frames.length > 0 && frames.at(-1).scale > 2, "it flew back to the hero's size");
 		await dispose();
 	});
 
 	it("reverses mid-flight from where the logo is", async () => {
-		const { page, dispose } = await open({ viewport: DESKTOP });
-		await sleep(200);
+		const { page, dispose } = await open({ viewport: DESKTOP, initScript: SAMPLER });
+		await ready(page);
 		const at = await threshold(page);
 		await page.evaluate(y => scrollTo(0, y), at + 20);
-		await sleep(180);
-		const before = (await state(page)).scale;
+		// Halfway (by size), whatever the machine's speed
+		const start = await waitFor(() => page.evaluate(() => window.__dock.find(f => f.flight)?.scale));
+		await waitFor(() =>
+			page.evaluate(start => {
+				const last = window.__dock.at(-1);
+				return last.flight && last.scale < 1 + (start - 1) * 0.6;
+			}, start),
+		);
+		await samples(page);
 		await page.evaluate(() => scrollTo(0, 0));
-		await sleep(20);
-		const after = await state(page);
-		assert.equal(after.dock, "undocked");
-		assert.ok(after.scale > 1 && Math.abs(after.scale - before) < 1.2, `continuous: ${before} → ${after.scale}`);
+		await settled(page, "undocked");
+		const frames = await samples(page);
+		const reversal = frames.findIndex(f => f.dock === "undocked");
+		const before = frames[reversal - 1] || frames[0];
+		const after = frames[reversal];
+		assert.ok(after.flight && after.scale > 1 && after.scale < start, `mid-flight: ${after.scale}`);
+		assert.ok(Math.abs(after.scale - before.scale) < 0.5 * start, `continuous: ${before.scale} → ${after.scale}`);
+		assert.ok(frames.filter(f => f.flight).at(-1).scale > 2, "then back to the hero's size");
 		await dispose();
 	});
 
 	it("is docked at once, without a flight, when the page loads scrolled", async () => {
-		const { page, dispose } = await open({ viewport: DESKTOP });
+		const { page, dispose } = await open({ viewport: DESKTOP, initScript: SAMPLER });
+		await ready(page);
 		await page.evaluate(() => scrollTo(0, 900));
-		await settled(page);
-		await page.evaluate(() => {
-			const header = document.getElementById("site-header");
-			window.__flew = false;
-			new MutationObserver(() => header.hasAttribute("data-dock-flight") && (window.__flew = true)).observe(header, {
-				attributes: true,
-			});
-		});
+		await settled(page, "docked");
+		// The browser restores the scroll position on reload
 		await page.reload({ waitUntil: "load" });
-		await page.evaluate(() => scrollTo(0, 900));
-		await sleep(300);
+		await ready(page);
+		await waitFor(() => page.evaluate(() => window.scrollY > 800 && window.__dock.length > 10));
 		const s = await state(page);
 		assert.equal(s.dock, "docked");
-		assert.equal(s.flight, false);
+		assert.equal(
+			(await samples(page)).some(f => f.flight),
+			false,
+			"no flight",
+		);
 		await dispose();
 	});
 
 	it("swaps without a flight under reduced motion", async () => {
-		const { page, dispose } = await open({ viewport: DESKTOP, reducedMotion: "reduce" });
-		await sleep(200);
-		await page.evaluate(() => {
-			window.__flew = false;
-			const header = document.getElementById("site-header");
-			new MutationObserver(() => header.hasAttribute("data-dock-flight") && (window.__flew = true)).observe(header, {
-				attributes: true,
-			});
-		});
+		const { page, dispose } = await open({ viewport: DESKTOP, reducedMotion: "reduce", initScript: SAMPLER });
+		await ready(page);
 		await page.evaluate(() => scrollTo(0, 600));
-		await sleep(400);
-		assert.equal((await state(page)).dock, "docked");
-		assert.equal(await page.evaluate(() => window.__flew), false);
+		await waitFor(async () => (await state(page)).dock === "docked");
+		await waitFor(() => page.evaluate(() => window.__dock.length > 10));
+		assert.equal(
+			(await samples(page)).some(f => f.flight),
+			false,
+		);
 		await dispose();
 	});
 
@@ -214,12 +256,12 @@ describe("wordmark docking is binary", () => {
 			);
 			assert.deepEqual(rgb(hero), [255, 255, 255], "white on the hero");
 			await page.evaluate(() => scrollTo(0, 700));
-			await settled(page);
+			await settled(page, "docked");
 			const expected = colorScheme === "light" ? [18, 20, 24] : [255, 255, 255];
 			assert.deepEqual(rgb(await ly()), expected, `${colorScheme}: docked`);
 			await page.reload({ waitUntil: "load" });
 			await page.evaluate(() => scrollTo(0, 700));
-			await settled(page);
+			await settled(page, "docked");
 			assert.deepEqual(rgb(await ly()), expected, `${colorScheme}: after a reload while scrolled`);
 			await dispose();
 
@@ -635,6 +677,52 @@ describe("header hides on a fast scroll down", () => {
 		await sleep(600);
 		assert.equal(await hidden(page), false);
 		assert.equal(await page.evaluate(() => document.getElementById("site-header").dataset.dock), "docked");
+		await dispose();
+	});
+});
+
+describe("article table of contents", () => {
+	before(launch);
+	after(close);
+
+	// A long article: many sections of text
+	const LONG = Array.from(
+		{ length: 14 },
+		(_, i) =>
+			`<h2 id="s${i}">Section ${i + 1}</h2>` +
+			`<p>${"Lorem ipsum dolor sit amet, consectetur adipiscing elit. ".repeat(40)}</p>`.repeat(3),
+	).join("");
+
+	it("stays in view deep into a long article at 1440px, and follows the header when it hides", async () => {
+		const { page, dispose } = await open({ render: article({ html: LONG }), viewport: DESKTOP });
+		await waitFor(() => page.evaluate(() => document.querySelectorAll("[data-toc-list] a").length > 10));
+		const box = () =>
+			page.evaluate(() => {
+				const nav = document.querySelector("[data-toc] .article-toc__nav").getBoundingClientRect();
+				return { top: nav.top, bottom: nav.bottom, height: document.documentElement.scrollHeight };
+			});
+		const { height } = await box();
+		assert.ok(height > 6000, `a long page (${height}px)`);
+		// Deep, slowly (the header stays): under the header
+		await page.evaluate(async () => {
+			for (let y = 0; y <= 3000; y += 30) {
+				scrollTo(0, y);
+				await new Promise(r => requestAnimationFrame(r));
+			}
+		});
+		const shown = await waitFor(async () => {
+			const b = await box();
+			return b.top >= 72 && b.bottom <= 900 && b;
+		});
+		assert.ok(shown, `in view under the header: ${JSON.stringify(await box())}`);
+		// A fast scroll down hides the header: the list moves up, still in view
+		await page.evaluate(() => scrollBy(0, 400));
+		await page.evaluate(() => scrollBy(0, 400));
+		const higher = await waitFor(async () => {
+			const b = await box();
+			return b.top < shown.top - 30 && b.top >= 0 && b.bottom <= 900 && b;
+		});
+		assert.ok(higher, `higher once the header hides: ${JSON.stringify(await box())}`);
 		await dispose();
 	});
 });
