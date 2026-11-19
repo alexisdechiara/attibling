@@ -1,12 +1,9 @@
-/* Post and page templates (not redesigned yet) */
-@import "./legacy/index.css";
-@import "./legacy/layouts/post-content.css";
-@import "./components/articles/share.css";
-@import "./components/subscribe/subscribe-section.css";
-@import "./components/author/author.css";
-@import "./components/author/picture.css";
-@import "./components/author/links.css";
-@import "./components/comments/comments.css";
-@import "./components/articles/recommended.css";
-@import "./components/articles/footer.css";
-@import "./components/articles/toc.css";
+/* Article page (post.hbs), on top of app.css. The post content and Ghost's cards (article/content.css,
+   scoped to .gh-content) can be reused by other templates showing post content. */
+@import "./article/layout.css";
+@import "./article/content.css";
+@import "./article/features.css";
+@import "./article/toc.css";
+@import "./article/progress.css";
+@import "./article/immersive.css";
+@import "./article/reading.css";

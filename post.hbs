@@ -1,220 +1,91 @@
 {{!--
-This template is used for the post page.
+Article page. Style « Carte » (rounded header card, reading column, table of contents in the margin) or
+« Immersif » (full-bleed header, text across the page): the style comes from the theme setting
+article_style, the internal tags #immersif / #carte of the post, and the member's own choice in the
+display settings (data-reading-style on <html>, applied before the first paint by default.hbs).
+
+Order of the article: header card, series box and « En bref » (the author's numbered points, an HTML
+card <ol class="en-bref">, moved here by post.js; visitors see a teaser), the content, then the
+« Publié le · Mis à jour le » line (#mis-a-jour), the series « Précédent / Suivant » line (always the last
+element of the content), tags and share, the author box, the comments, « Recommandé pour vous ».
+See docs/guide-auteur.md (« Articles ») for every convention.
+
+data-* of [data-article] describe the post for the reading progress kept by members (src/js/store.js)
+and carry the strings the scripts need (copy buttons, series).
 --}}
 
-{{!-- This block preloads specific assets for the post page --}}
 {{#contentFor "preload"}}
   <link rel="preload" href="{{asset "css/post.css"}}" as="style" />
   <link rel="modulepreload" href="{{asset "js/post.js"}}" />
 {{/contentFor}}
 
-{{!-- This block loads specific styles for the post page --}}
 {{#contentFor "styles"}}
   <link rel="stylesheet" type="text/css" href="{{asset "css/post.css"}}" media="screen" />
 {{/contentFor}}
 
-{{!-- The tag below means: insert everything in this file
-into the {body} of the default.hbs template --}}
 {{!< default}}
 
-{{!-- Special header.hbs partial to generate the <header> tag --}}
-  {{#post}}
+{{#post}}
   {{> header}}
-  {{/post}}
 
-  <main id="main" class="main-wrap">
-    {{#post}}
-    {{!-- Inject styles of the hero image to make it responsive --}}
-    {{> legacy-hero background=feature_image}}
-    {{#if feature_image}}
-    <header class="m-hero__content m-heading in-post l-wrapper" data-animate="fade-down">
-      <div class="m-heading__tags">
-        {{#if featured}}
-        <div class="m-heading__tag m-heading__tag--feature">
-          {{> "icons/fire"}}
-          <span>{{t "Featured"}}</span>
-        </div>
-        {{/if}}
-        {{#if tags}}
-        <a href="{{primary_tag.url}}" class="m-heading__tag m-heading__tag--feature">{{primary_tag.name}}</a>
-        {{#if tags.[1]}}
-        <div class="m-heading__tag">{{tags from="2" to="2"}}</div>
-        {{/if}}
-        {{/if}}
-      </div>
-      <h1 class="m-heading__title in-post">{{title}}</h1>
-      <div class="m-heading__meta">
-        <div class="m-heading__meta__avatars">
-          {{#foreach authors}}
-          <figure class="m-heading__meta__avatar">
-            <a href="{{url}}" class="author-avatar">
-              {{#if profile_image}}
-              <img class="author-profile-image" src="{{img_url profile_image size="xs" format="webp" }}" loading="lazy" decoding="async" alt="{{name}}" />
-              {{else}}
-              <img class="author-profile-image" src="{{asset "images/default-avatar-rectangle.jpg"}}" width="374" height="220" loading="lazy" decoding="async" alt="{{name}}" />
-              {{/if}}
-            </a>
-          </figure>
-          {{/foreach}}
-        </div>
-        <div>
-          <div class="m-heading__meta__author">{{authors separator=", "}}</div>
-          <time id="lastmod" datetime="{{date format="YYYY-MM-DDTHH:mm:ssZ"}}">{{date format="ll"}}</time> &bull; {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}
-        </div>
-      </div>
-    </header>
-    {{/if}}
-    </section>
-    {{#if feature_image_caption}}
-    <div class="l-wrapper in-caption">
-      <p class="m-small-text align-center">
-        {{feature_image_caption}}
-      </p>
-    </div>
-    {{/if}}
-    {{/post}}
+  <main id="main" class="site-main article-page">
+    <article class="article{{#if feature_image}} article--has-image{{/if}}" data-article
+      data-style="{{#has tag="#immersif"}}immersive{{else}}{{#has tag="#carte"}}card{{else}}{{#match @custom.article_style "Immersive"}}immersive{{else}}card{{/match}}{{/has}}{{/has}}"
+      {{#unless @custom.summary_for_visitors}}data-summary-members{{/unless}}
+      data-url="{{url}}" data-title="{{title}}" data-image="{{#if feature_image}}{{img_url feature_image size="m"}}{{/if}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
+      data-author="{{primary_author.name}}" data-published="{{date format="YYYY-MM-DD"}}"
+      data-copy-link="{{t "Copy the link to the section"}}" data-link-copied="{{t "Link copied"}}"
+      data-copy="{{t "Copy"}}" data-copied="{{t "Copied"}}" data-copy-code="{{t "Copy the code"}}" data-code-copied="{{t "Code copied"}}"
+      style="--label-summary: &quot;{{t "In short"}}&quot;; --label-summary-author: &quot;{{t "Author's summary"}}&quot;; --label-summary-ai: &quot;{{t "AI-generated summary"}}&quot;">
 
-    <article>
-      <div class="l-content in-post pos-relative">
-        <div class="m-share js-sticky">
-          <aside class="m-share__content" aria-label="{{t "Reading progress"}}">
-            <button class="m-icon-button filled in-share progress js-scrolltop" aria-label="{{t "Scroll to top"}}">
-              {{> "icons/arrow-top"}}
-              <svg aria-hidden="true" viewBox="0 0 100 100">
-                <circle class="progress-ring__circle js-progress" fill="transparent" cx="50" cy="50" r="47" pathLength="100" />
-              </svg>
-            </button>
-          </aside>
+      {{> article/header}}
+
+      <div class="article-body">
+        {{> article/toc}}
+
+        <div class="article-intro" data-article-intro>
+          {{> article/series}}
+          {{> article/summary-teaser}}
         </div>
-        {{!-- Everything inside the #post tags pulls data from the post --}}
-        {{#post}}
-        <div class="l-wrapper in-post {{#unless feature_image}}no-image{{/unless}} js-animation-wrapper" data-animate="fade-up">
-          <div class="m-toc">
-            <aside class="toc-container js-sticky" aria-label="{{t "Table of contents"}}">
-              <span class="toc-title">{{t "Summary"}}</span>
-              <div class="toc"></div>
-            </aside>
-            </div>
-          <div class="l-post-content js-progress-content">
-            <div class="pos-relative js-post-content post-content">
-              {{content}}
-              {{!-- List of tags  --}}
-              <section class="m-article-footer">
-                <div class="m-article-footer__share">
-                  <span class="m-article-footer__label">{{t "Share"}}</span>
-                  <a title="X" aria-label="X" class="m-article-footer__share__item twitter" href="https://x.com/intent/tweet?text={{encode title}}&amp;url={{encode (url absolute="true")}}" target="_blank" rel="noopener">
-                    {{> "icons/twitter"}}
-                  </a>
-                  <a title="Facebook" aria-label="Facebook" class="m-article-footer__share__item facebook" href="https://www.facebook.com/sharer/sharer.php?u={{encode (url absolute="true")}}" target="_blank" rel="noopener">
-                    {{> "icons/facebook-f"}}
-                  </a>
-                  <a title="LinkedIn" aria-label="LinkedIn" class="m-article-footer__share__item linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url={{encode (url absolute="true")}}" target="_blank" rel="noopener">
-                    {{> "icons/linkedin-in"}}
-                  </a>
-                  <a title="Email" aria-label="Email" class="m-article-footer__share__item email" href="mailto:?subject={{encode title}}&amp;body={{encode (url absolute="true")}}">
-                    {{> "icons/envelope"}}
-                  </a>
-                </div>
-                {{#if tags}}
-                <aside class="m-article-footer__tags" aria-label="{{t "Tags"}}">
-                  <span class="m-article-footer__label">{{t "Tags"}}</span>
-                  <div class="m-article-footer__tags__content">
-                    {{tags separator=" "}}
-                  </div>
-                </aside>
-                {{/if}}
-              </section>
-            </div>
-          </div>
+
+        <div class="gh-content article-content js-post-content" data-article-content>
+          {{content}}
         </div>
-        {{!-- Email subscribe form at the bottom of the page --}}
-        {{!-- {{#if @site.members_enabled}}
-        <section class="m-subscribe-section js-newsletter">
-          <div class="l-wrapper in-post">
-            <div class="m-subscribe-section__content">
-              <div class="m-subscribe-section__text">
-                <h4 class="m-subscribe-section__title">{{t "Subscribe to our newsletter"}}</h4>
-                <p class="m-subscribe-section__description">
-                  {{t "Get the latest posts delivered right to your inbox."}}
-                </p>
-              </div>
-              <div class="m-subscribe-section__form">
-                {{> "newsletter-form"}}
-              </div>
-            </div>
-          </div>
-        </section>
-        {{/if}} --}}
-        <section class="m-author">
-          <div class="m-author__content">
-            <div class="m-author__picture">
-              <a href="{{primary_author.url}}" class="m-author-picture" aria-label="{{primary_author.name}}">
-                {{#if primary_author.profile_image}}
-                  <div style="background-image: url({{img_url primary_author.profile_image size="s"}});"></div>
-                {{else}}
-                  <div style="background-image: url({{asset "images/default-avatar-square-small.jpg"}});"></div>
-                {{/if}}
-              </a>
-            </div>
-            <div class="m-author__info">
-              <div class="m-author__name">
-                <a href="{{primary_author.url}}">{{primary_author.name}}</a>
-              </div>
-              {{#has author="count:>1"}}
-              <p class="m-small-text in-author-along-with">
-                {{authors separator=", " prefix=(t "Among with no break line") from="2"}}
-              </p>
-              {{/has}}
-              {{#if primary_author.bio}}
-              <p class="m-author__bio">{{primary_author.bio}}</p>
-              {{/if}}
-              {{#primary_author}}
-                {{#has any="website, twitter, facebook, linkedin, bluesky, threads, mastodon, tiktok, youtube, instagram"}}
-                <ul class="m-author-links">
-                  {{> "social-links"}}
-                </ul>
-                {{/has}}
-              {{/primary_author}}
-            </div>
-          </div>
-        </section>
-        {{!-- Native comments --}}
-        {{#if comments}}
-        <div class="m-comments">
-          <div class="l-wrapper in-comments js-native-comments">
-            {{comments}}
-          </div>
-        </div>
-        {{/if}}
-        {{!-- Third-party comments --}}
-        {{!--
-        <section class="m-comments">
-          <div class="l-wrapper in-comments js-third-party-comments">
-            <!-- Paste here the provided code snippet -->
-          </div>
-        </section>
-        --}}
-        {{/post}}
-        {{!-- Related posts --}}
-        {{#if post.tags.length}}
-        {{#get "posts" limit="5" filter="tags:[{{post.tags}}]+id:-{{post.id}}" include="tags,authors" order="published_at desc" as |related|}}
-        {{#if related}}
-        <section class="m-recommended">
-          <div class="l-wrapper in-recommended">
-            <h3 class="m-section-title in-recommended">{{t "Recommended for you"}}</h3>
-            <ul class="post-grid" role="list">
-              {{#foreach related limit="3"}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
-            </ul>
-          </div>
-        </section>
-        {{/if}}
-        {{/get}}
-        {{/if}}
+
+        <footer class="article-end">
+          {{> article/dates}}
+          {{> article/series-nav}}
+          {{> article/share}}
+        </footer>
       </div>
+
+      {{> article/author}}
+
+      {{#if comments}}
+        <section class="article-comments container" aria-label="{{t "Member discussion"}}">
+          <div class="article-comments__inner js-native-comments">
+            {{comments title=(t "Member discussion") count=true}}
+          </div>
+        </section>
+      {{/if}}
     </article>
-  </main>
 
-  {{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
-  {{#contentFor "scripts"}}
+    {{> article/related}}
+
+    {{!-- Reading progress ring and back to the top (CSS scroll-driven animation, post.js otherwise) --}}
+    <button type="button" class="progress-button js-scrolltop" aria-label="{{t "Scroll to top"}}" data-progress-button>
+      {{> "icons/arrow-up"}}
+      <svg class="progress-button__ring" aria-hidden="true" viewBox="0 0 100 100">
+        <circle class="progress-button__track" cx="50" cy="50" r="47" pathLength="100" />
+        <circle class="progress-button__circle js-progress" cx="50" cy="50" r="47" pathLength="100" />
+      </svg>
+    </button>
+
+    {{#if @member}}{{#if @custom.reading_settings}}{{> article/reading-settings}}{{/if}}{{/if}}
+    <p class="sr-only" aria-live="polite" data-article-live></p>
+  </main>
+{{/post}}
+
+{{#contentFor "scripts"}}
   <script type="module" src="{{asset "js/post.js"}}"></script>
-  {{/contentFor}}
+{{/contentFor}}

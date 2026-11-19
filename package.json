@@ -91,6 +91,34 @@
 				"default": "",
 				"group": "homepage",
 				"description": "Tag slug for row 5 (one large post and four). Empty: 5th most used tag. none: hide the row."
+			},
+			"article_style": {
+				"type": "select",
+				"options": [
+					"Card",
+					"Immersive"
+				],
+				"default": "Card",
+				"group": "post",
+				"description": "Default look of posts. A post can force it with the internal tag #immersif or #carte."
+			},
+			"reading_settings": {
+				"type": "boolean",
+				"default": true,
+				"group": "post",
+				"description": "Members get the display settings (theme, fonts, width, size…) on posts."
+			},
+			"summary_for_visitors": {
+				"type": "boolean",
+				"default": false,
+				"group": "post",
+				"description": "Show the « En bref » summary to visitors too (members only when off)."
+			},
+			"about_page": {
+				"type": "text",
+				"default": "",
+				"group": "post",
+				"description": "Slug of the page linked as « About » in the author box. Empty: a-propos or about."
 			}
 		}
 	},

@@ -1,0 +1,83 @@
+/** Reading progress ring around the « back to the top » button (post.hbs), bottom inline-end corner.
+   The ring follows the post content through the viewport: empty as its top comes in at the bottom,
+   full as its end does (the "entry-crossing" range of a view timeline). Where scroll-driven animations
+   or timeline-scope are missing, post.js sets the dash offset instead. */
+
+.progress-button {
+  position: fixed;
+  inset-block-end: max(var(--space-5), env(safe-area-inset-bottom));
+  inset-inline-end: var(--space-5);
+  z-index: 40;
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.25rem;
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+
+  @media (width >= 48rem) {
+    inset-block-end: var(--space-7);
+    inset-inline-end: var(--space-7);
+  }
+}
+
+.progress-button__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: rotate(-90deg);
+  transition: opacity var(--duration-m) ease;
+
+  circle {
+    fill: none;
+    stroke-width: 4;
+  }
+}
+
+.progress-button__track {
+  stroke: var(--color-border);
+}
+
+/* pathLength="100": the dash offset runs from 100 (empty) to 0 (full) */
+.progress-button__circle {
+  stroke: var(--color-accent);
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s linear;
+}
+
+@supports (animation-timeline: view()) and (timeline-scope: --a) {
+  .article-page {
+    timeline-scope: --post-progress;
+  }
+
+  .article-content {
+    view-timeline: --post-progress block;
+  }
+
+  .progress-button__ring {
+    opacity: 1;
+  }
+
+  .progress-button__circle {
+    transition: none;
+    animation: reading-progress linear both;
+    animation-timeline: --post-progress;
+    animation-range: entry-crossing 0% entry-crossing 100%;
+  }
+}
+
+@keyframes reading-progress {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
