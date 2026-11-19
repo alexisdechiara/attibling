@@ -171,6 +171,7 @@ Le site enregistre aussi quelques préférences dans le stockage de votre naviga
 | `attibling-reading` | abonnés | Vos réglages d'affichage des articles (thème, polices, taille, largeur…) | Jusqu'à « Réinitialiser » ou l'effacement des données du site |
 | `attibling-saved` | abonnés | Votre liste « À lire plus tard » (adresse, titre, image, rubrique et durée de lecture des articles ; 100 au plus) | Jusqu'à ce que vous retiriez les articles ou effaciez les données du site |
 | `attibling-progress` | abonnés | « Reprendre la lecture » : où vous en êtes dans les 6 derniers articles commencés | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement des données du site |
+| `attibling-embeds` | tous | Les services dont vous avez choisi « Toujours afficher les contenus » (par exemple YouTube) : seulement leur nom | Jusqu'à « Ne plus afficher automatiquement » (sous chaque contenu affiché ainsi) ou l'effacement des données du site |
 
 ## Services externes
 

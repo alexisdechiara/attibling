@@ -1,0 +1,33 @@
+{{!--
+Third-party embeds on click (theme setting embed_consent, on by default; posts and pages only).
+default.hbs puts a Content-Security-Policy in the <head> that forbids frames and scripts from other sites
+(YouTube, X, Vimeo…) in the page: the browser never contacts them, whatever the post HTML holds and
+even without JavaScript. src/js/embeds.js replaces each blocked embed with this facade; the reader's
+click loads it inside assets/html/embed.html, a page of the site that has no such policy (YouTube in
+privacy-enhanced mode, youtube-nocookie.com). « Always show » is kept per provider in localStorage
+("attibling-embeds"). {provider} is filled in by the script; the button's label depends on the kind of
+embed (video, post, other). See docs/guide-auteur.md, « Vidéos et contenus intégrés ».
+--}}
+<template id="embed-facade" data-embed-frame="{{asset "html/embed.html"}}"
+  data-label-video="{{t "Show the {provider} video" provider="{provider}"}}"
+  data-label-post="{{t "Show the {provider} post" provider="{provider}"}}"
+  data-label-content="{{t "Show the content from {provider}" provider="{provider}"}}"
+  data-frame-title="{{t "Content from {provider}" provider="{provider}"}}"
+  data-stop="{{t "Stop showing content from {provider} automatically" provider="{provider}"}}"
+  data-stopped="{{t "Content from {provider} will no longer be shown automatically." provider="{provider}"}}">
+  <div class="embed-facade" data-embed-facade>
+    <div class="embed-facade__poster" data-embed-poster>
+      <p class="embed-facade__provider pill" data-embed-provider></p>
+      <p class="embed-facade__title" data-embed-title></p>
+      <button type="button" class="embed-facade__load button button--l" data-embed-load>{{> icons/play}}<span data-embed-label></span></button>
+    </div>
+    <div class="embed-facade__consent">
+      <p class="embed-facade__note" data-embed-note>{{t "Showing it connects to {provider}, which may set cookies." provider="{provider}"}}</p>
+      <div class="embed-facade__actions">
+        <label class="embed-facade__always"><input type="checkbox" data-embed-always> <span>{{t "Always show content from {provider}" provider="{provider}"}}</span></label>
+        <a class="embed-facade__open" data-embed-open href="#" target="_blank" rel="noopener noreferrer">{{t "View on {provider}" provider="{provider}"}}{{> icons/external}}<span class="sr-only"> {{t "(opens in a new tab)"}}</span></a>
+      </div>
+    </div>
+  </div>
+</template>
+<p class="sr-only" aria-live="polite" data-embed-live></p>

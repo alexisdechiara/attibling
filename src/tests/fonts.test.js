@@ -43,8 +43,13 @@ describe("fonts", () => {
 		const fontRequests = requests.filter(url => /\.woff2|fonts\./.test(url)).map(url => new URL(url).pathname);
 		assert.ok(!requests.some(url => /fonts\.(googleapis|gstatic)\.com|fonts\.bunny\.net/.test(url)), "no font service");
 		assert.ok(fontRequests.includes("/assets/fonts/onest/onest-latin.woff2"), fontRequests.join());
-		assert.ok(!fontRequests.some(p => /literata|cyrillic|vietnamese/.test(p)), `only what the page uses: ${fontRequests}`);
-		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els => els.map(el => [new URL(el.href).pathname, el.crossOrigin]));
+		assert.ok(
+			!fontRequests.some(p => /literata|cyrillic|vietnamese/.test(p)),
+			`only what the page uses: ${fontRequests}`,
+		);
+		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
+			els.map(el => [new URL(el.href).pathname, el.crossOrigin]),
+		);
 		assert.deepEqual(preloads, [["/assets/fonts/onest/onest-latin.woff2", "anonymous"]]);
 		const faces = await page.evaluate(() =>
 			[...document.styleSheets]
@@ -73,8 +78,13 @@ describe("fonts", () => {
 	it("load Literata from the theme on posts, roman preloaded, italic only when the text has some", async () => {
 		const { page, requests, dispose } = await open({ render: article() });
 		await page.evaluate(() => document.fonts.ready);
-		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els => els.map(el => new URL(el.href).pathname));
-		assert.deepEqual(preloads, ["/assets/fonts/onest/onest-latin.woff2", "/assets/fonts/literata/literata-latin.woff2"]);
+		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
+			els.map(el => new URL(el.href).pathname),
+		);
+		assert.deepEqual(preloads, [
+			"/assets/fonts/onest/onest-latin.woff2",
+			"/assets/fonts/literata/literata-latin.woff2",
+		]);
 		const fonts = requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname);
 		assert.ok(fonts.includes("/assets/fonts/literata/literata-latin.woff2"), fonts.join());
 		assert.ok(!fonts.some(p => p.includes("italic")), "no italic in this text");

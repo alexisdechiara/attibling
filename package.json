@@ -121,6 +121,12 @@
 				"group": "post",
 				"description": "Show the « En bref » summary to visitors too (members only when off)."
 			},
+			"embed_consent": {
+				"type": "boolean",
+				"default": true,
+				"group": "post",
+				"description": "YouTube, X and other embeds load only when the reader clicks. Off: they load with the page."
+			},
 			"about_page": {
 				"type": "text",
 				"default": "",

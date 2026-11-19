@@ -1,0 +1,23 @@
+<!doctype html>
+<!--
+  Frame for a third-party embed the reader chose to show (theme setting "Embed consent",
+  src/js/embeds.js). The article page forbids frames and scripts from other sites (a
+  Content-Security-Policy); this page of the site has no such policy, so the article's script
+  writes the embed in here once the reader has asked for it. It has no script of its own and
+  shows nothing when opened directly.
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Embed</title>
+    <base target="_blank">
+    <style>
+      html, body { margin: 0; padding: 0; background: transparent; }
+      body { display: flex; flex-direction: column; align-items: center; }
+      body > iframe { display: block; width: 100%; height: 100vh; border: 0; }
+    </style>
+  </head>
+  <body></body>
+</html>

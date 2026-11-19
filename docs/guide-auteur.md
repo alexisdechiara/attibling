@@ -778,6 +778,7 @@ données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
 | `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement |
 | `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture) | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement |
 | `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune |
+| `attibling-embeds` | localStorage | thème | tous | Services dont le lecteur a choisi « Toujours afficher les contenus » (vidéos YouTube, publications X…) : seulement leur nom (`youtube`, `x`…) | Jusqu'à « Ne plus afficher automatiquement » ou l'effacement |
 | `ghost-history` | sessionStorage | Ghost | tous | Pages vues pendant la visite, pour savoir d'où vient un nouvel abonné (réglage Ghost « Member sources ») | Fin de la session |
 
 Et du côté de Ghost : les cookies `ghost-members-ssr` et `ghost-members-ssr.sig` (connexion d'un abonné,

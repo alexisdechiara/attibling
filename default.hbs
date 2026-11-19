@@ -123,6 +123,27 @@
     {{!-- This tag outputs SEO meta+structured data and other important settings --}}
     {{ghost_head}}
 
+    {{!-- "Embed consent" setting (on by default), posts and pages: third-party embeds (YouTube, X,
+    Vimeo… in the post HTML) load only when the reader asks. This policy, placed after {{ghost_head}}
+    (Ghost's own scripts and the site's header code injection are already requested), forbids frames
+    and scripts from other sites in the rest of the page, so the browser never contacts them, even
+    without JavaScript; it keeps what Ghost needs (cdn.jsdelivr.net for Portal, search and comments;
+    Stripe, hCaptcha and Turnstile, which Portal may load). The reader's choice loads the embed in the
+    site's own page assets/html/embed.html, which has no such policy (src/js/embeds.js,
+    partials/embed-consent.hbs). Until the script replaces them, the blocked frames are hidden; without
+    JavaScript a sentence takes their place. --}}
+    {{#is "post, page"}}{{#if @custom.embed_consent}}
+      <meta http-equiv="Content-Security-Policy" content="frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://*.hcaptcha.com https://challenges.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://js.stripe.com https://*.hcaptcha.com https://challenges.cloudflare.com">
+      <style>main iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"], [data-embed-frame]) { visibility: hidden; }</style>
+      <noscript><style>
+        main iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"]) { display: none !important; }
+        main figure.kg-embed-card:has(> iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"]))::before {
+          content: "{{{t "This external content only loads when you ask for it: turn on JavaScript to show it."}}}";
+          display: block; padding: 24px; border: 1px dashed; border-radius: 12px; font-family: system-ui, sans-serif; font-size: 15px; text-align: center; opacity: 0.8;
+        }
+      </style></noscript>
+    {{/if}}{{/is}}
+
     {{!-- "Page transitions" setting: the browser animates from one page to the next (cross-document
     View Transitions, where supported, never with reduced motion); the named pairs and the timing
     are in src/css/components/transitions.css, the clicked tile is named by src/js/transitions.js. --}}
@@ -139,6 +160,9 @@
 
     {{!-- The footer --}}
     {{> footer}}
+
+    {{!-- Third-party embeds on click: the facade and its strings (setting embed_consent) --}}
+    {{#is "post, page"}}{{#if @custom.embed_consent}}{{> embed-consent}}{{/if}}{{/is}}
 
     {{!-- Common scripts shared between pages --}}
     <script type="module" src="{{asset "js/app.js"}}"></script>

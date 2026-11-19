@@ -133,6 +133,23 @@ const placeAnnouncementBar = header => {
 	if (bar && header) header.before(bar);
 };
 
+// Third-party embeds on click (setting embed_consent: default.hbs renders the policy and the facade's
+// template on posts and pages). The module (embeds.js) is downloaded only when the page has such an
+// embed: a frame or an embed card's script from another site.
+const setUpEmbedFacades = () => {
+	const main = document.querySelector("main");
+	if (!main || !document.getElementById("embed-facade")) return;
+	const external = [...main.querySelectorAll("iframe[src], figure.kg-embed-card script[src]")].some(el => {
+		try {
+			const url = new URL(el.getAttribute("src"), location.href);
+			return /^https?:$/.test(url.protocol) && url.origin !== location.origin;
+		} catch {
+			return false;
+		}
+	});
+	if (external) import("./embeds").then(({ setUpEmbeds }) => setUpEmbeds(main));
+};
+
 onReady(() => {
 	if (isRTL()) {
 		document.documentElement.setAttribute("dir", "rtl");
@@ -140,6 +157,7 @@ onReady(() => {
 	}
 
 	const header = document.getElementById("site-header");
+	setUpEmbedFacades();
 	setUpThemeSwitch();
 	setUpBookmarks();
 	setUpTransitions();
