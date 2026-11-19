@@ -86,8 +86,13 @@
     min-height: var(--target);
     color: var(--color-accent);
     font-weight: var(--weight-semibold);
-    text-decoration: underline;
+    text-decoration: none;
     text-underline-offset: 3px;
+
+    /* Blue is enough at rest; underlined on hover and keyboard focus */
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
+    }
   }
 
   @media (width < 64rem) {

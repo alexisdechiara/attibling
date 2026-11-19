@@ -66,17 +66,25 @@
     contain: size;
     margin: 0;
     padding-inline-start: var(--space-9);
+    /* The disclosure itself sticks: its content box is only as tall as the list, so a sticky list inside
+       it would scroll away. contain: size gives it no height of its own (it never stretches the rows; the
+       list shows past it), and the offset follows the header when it hides (--header-offset, app.js) */
+    position: sticky;
+    inset-block-start: calc(var(--header-offset, var(--header-height)) + var(--space-6));
+    align-self: start;
+    transition: inset-block-start var(--duration-m) var(--ease-out);
 
     .article-toc__toggle {
       display: none;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
     .article-toc__nav {
-      position: sticky;
-      inset-block-start: calc(var(--header-offset, var(--header-height)) + var(--space-6));
       width: min(100%, 224px);
-      transition: inset-block-start var(--duration-m) var(--ease-out);
-      max-height: calc(100vh - var(--header-height) - var(--space-9));
+      max-height: calc(100vh - var(--header-offset, var(--header-height)) - var(--space-9));
       margin: 0;
       padding: 0;
       overflow-y: auto;
@@ -92,5 +100,15 @@
       font-size: var(--text-2xl);
       font-weight: var(--weight-medium);
     }
+  }
+}
+
+/* A wide text (L, src/css/article/reading.css) below 90rem puts the table of contents back above the
+   text as a « Sommaire » button: it does not stick there */
+@media (75rem <= width < 90rem) {
+  :root[data-reading-width="l"]
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"])
+    .article-toc {
+    position: static;
   }
 }

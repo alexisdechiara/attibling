@@ -13,7 +13,7 @@
 
   /* Out of the way on a fast scroll down (app.js), back on the way up or when focus enters it */
   &[data-hidden] {
-    transform: translateY(calc(-100% - 8px));
+    transform: translateY(calc(-100% - 40px)); /* its shadow too */
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -1,8 +1,8 @@
 {{!--
 Subscription block (« encart »), visitors only, between « Derniers articles » and the next section
 (members see their lists in the same place). Shown when members are enabled and sign-up is open.
-« S'abonner gratuitement » goes to the subscription page (subscribe-link.hbs), « Se connecter » opens
-Portal. The close button (shown by home.js) hides the block for good on this browser: localStorage
+« S'abonner gratuitement » goes to the subscription page (subscribe-link.hbs), « Se connecter » goes to the
+theme's sign-in (signin-link.hbs: the subscription page's form, Portal only without such a page). The close button (shown by home.js) hides the block for good on this browser: localStorage
 "attibling-promo-closed", read before the first paint by default.hbs (data-promo-closed on <html>),
 so a closed block never flashes.
 The comments benefit only shows when comments are open to all members (Settings > Membership;
@@ -18,7 +18,7 @@ Ghost gives themes @site.comments_access = "all" | "paid" and a boolean @site.co
             <h2 class="promo__title" id="promo-title">{{t "Subscribe to {blogtitle}" blogtitle=@site.title}}</h2>
             <p class="promo__text">{{t "It's free: all you need is an email address. You get the new posts and unlock the site's reading tools."}}</p>
             {{> subscribe-link class="button button--primary button--l promo__subscribe" label=(t "Subscribe for free")}}
-            <p class="promo__signin">{{t "Already a member?"}} <a href="#/portal/signin" data-portal="signin">{{t "Login"}}</a></p>
+            <p class="promo__signin">{{t "Already a member?"}} {{> signin-link}}</p>
           </div>
           <ul class="promo__benefits" role="list" aria-label="{{t "What a subscription brings"}}">
             <li><span class="promo__icon" aria-hidden="true">{{> "icons/mail"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "New posts by email"}}</b><span class="promo__benefit-text">{{t "The newsletter: every new post lands in your inbox."}}</span></span></li>
