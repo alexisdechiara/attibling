@@ -174,10 +174,17 @@ describe("display settings: every control", () => {
 			"titles keep theirs",
 		);
 
-		await choose(page, "links", "color");
-		assert.equal(
-			await read(page, () => getComputedStyle(document.querySelector("[data-article-content] p a")).textDecorationLine),
-			"none",
+		await choose(page, "links", "underline");
+		assert.deepEqual(
+			await read(page, () => {
+				const a = getComputedStyle(document.querySelector("[data-article-content] p a"));
+				return {
+					line: a.textDecorationLine,
+					sameColour:
+						a.color === getComputedStyle(document.querySelector("[data-article-content] p a").parentElement).color,
+				};
+			}),
+			{ line: "underline", sameColour: true },
 		);
 
 		await choose(page, "cover", "hide");
@@ -200,7 +207,7 @@ describe("display settings: every control", () => {
 			size: "l",
 			leading: "airy",
 			align: "center",
-			links: "color",
+			links: "underline",
 			cover: "hide",
 			summary: "hide",
 			style: "immersive",

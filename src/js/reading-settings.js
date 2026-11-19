@@ -37,7 +37,7 @@ export const defaults = article => {
 		size: "m",
 		leading: "normal",
 		align: window.matchMedia("(width >= 48rem)").matches ? "justify" : "start",
-		links: "underline",
+		links: "color",
 		cover: "show",
 		style,
 		summary: "show",

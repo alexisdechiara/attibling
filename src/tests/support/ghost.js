@@ -203,8 +203,9 @@ export const renderTemplate = (name, options = {}) => {
 			return safe(this.html || "<p>Body</p>");
 		},
 		comments: () => "",
-		authors() {
-			return safe((this.authors || []).map(a => `<a href="${a.url}">${a.name}</a>`).join(", "));
+		authors(opts) {
+			const plain = opts?.hash?.autolink === "false" || opts?.hash?.autolink === false;
+			return safe((this.authors || []).map(a => (plain ? a.name : `<a href="${a.url}">${a.name}</a>`)).join(", "));
 		},
 		tags(opts) {
 			const from = (opts.hash.from || 1) - 1;
@@ -219,7 +220,11 @@ export const renderTemplate = (name, options = {}) => {
 		social_url(opts) {
 			const type = opts.hash.type;
 			const handle = this[type] || settings[type];
-			const prefixes = { twitter: "https://x.com/", facebook: "https://www.facebook.com/" };
+			const prefixes = {
+				twitter: "https://x.com/",
+				facebook: "https://www.facebook.com/",
+				bluesky: "https://bsky.app/profile/",
+			};
 			return handle ? (prefixes[type] || `https://${type}.example/`) + String(handle).replace(/^@/, "") : "";
 		},
 		navigation(opts) {

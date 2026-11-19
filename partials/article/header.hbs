@@ -5,6 +5,8 @@ the author, the date and reading time, « Mis à jour le » when the post carrie
 #mis-a-jour, and the members' « À lire plus tard » button. Without a feature image, or when a member
 hides the cover image (display settings), the title sits on the plain page surface.
 
+soloAuthor=true (post.hbs, single-author site): the author's name and photo are not links.
+
 Stable hooks (page transitions): [data-article-image] (the picture), [data-article-title] (the h1).
 --}}
 <header class="article-header{{#unless feature_image}} article-header--no-image{{/unless}}">
@@ -29,15 +31,15 @@ Stable hooks (page transitions): [data-article-image] (the picture), [data-artic
       <h1 class="article-header__title" data-article-title>{{title}}</h1>
 
       <div class="article-header__meta">
-        <a class="article-header__avatar" href="{{primary_author.url}}" tabindex="-1" aria-hidden="true">
+        {{#if soloAuthor}}<span class="article-header__avatar" aria-hidden="true">{{else}}<a class="article-header__avatar" href="{{primary_author.url}}" tabindex="-1" aria-hidden="true">{{/if}}
           {{#if primary_author.profile_image}}
             <img src="{{img_url primary_author.profile_image size="xs"}}" alt="" width="40" height="40" loading="lazy" decoding="async">
           {{else}}
             <span>{{> "icons/user"}}</span>
           {{/if}}
-        </a>
+        {{#if soloAuthor}}</span>{{else}}</a>{{/if}}
         <div class="article-header__byline">
-          <span class="article-header__authors">{{authors separator=", "}}</span>
+          <span class="article-header__authors">{{#if soloAuthor}}{{authors separator=", " autolink="false"}}{{else}}{{authors separator=", "}}{{/if}}</span>
           <span><time datetime="{{date format="YYYY-MM-DD"}}">{{date format="LL"}}</time> • {{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
           {{#has tag="#mis-a-jour"}}
             <span class="article-header__updated">{{t "Updated on"}} <time datetime="{{date updated_at format="YYYY-MM-DD"}}">{{date updated_at format="LL"}}</time></span>

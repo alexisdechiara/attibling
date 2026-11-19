@@ -12,6 +12,7 @@
 //  - image         feature image URL or null
 //  - pages         pages of the site (default: an « À propos » page, slug a-propos)
 //  - tags          public tag slugs of the post (default actualites, jeux-video)
+//  - authors       number of authors with published posts (default 1: single-author site)
 import { createSite } from "./site.js";
 import { DEFAULT_CUSTOM } from "./pages.js";
 
@@ -103,8 +104,9 @@ export const article = (options = {}) => {
 		image = "/src/tests/fixtures/photo.svg?header",
 		pages = [{ id: "page-1", title: "À propos", slug: "a-propos", url: "/a-propos/" }],
 		tags = ["actualites", "jeux-video"],
+		authors = 1,
 	} = options;
-	const site = createSite();
+	const site = createSite({ authors });
 	const base = site.posts[1];
 	const publicTags = tags.map(slug => site.tags.find(t => t.slug === slug)).filter(Boolean);
 	const post = {

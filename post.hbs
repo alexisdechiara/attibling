@@ -38,7 +38,13 @@ and carry the strings the scripts need (copy buttons, series).
       data-copy="{{t "Copy"}}" data-copied="{{t "Copied"}}" data-copy-code="{{t "Copy the code"}}" data-code-copied="{{t "Code copied"}}"
       style="--label-summary: &quot;{{t "In short"}}&quot;; --label-summary-author: &quot;{{t "Author's summary"}}&quot;; --label-summary-ai: &quot;{{t "AI-generated summary"}}&quot;">
 
-      {{> article/header}}
+      {{!-- Single-author rule (docs/guide-auteur.md): no link to the author page when only one author has
+      published posts. One query of one row; the partial gets the post back as its context. --}}
+      {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}
+        {{#match authorPages.total 1}}{{> article/header @root.post soloAuthor=true}}{{else}}{{> article/header @root.post}}{{/match}}
+      {{else}}
+        {{> article/header}}
+      {{/get}}
 
       <div class="article-body">
         {{> article/toc}}
@@ -59,7 +65,11 @@ and carry the strings the scripts need (copy buttons, series).
         </footer>
       </div>
 
-      {{> article/author}}
+      {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}
+        {{#match authorPages.total 1}}{{> article/author @root.post soloAuthor=true}}{{else}}{{> article/author @root.post}}{{/match}}
+      {{else}}
+        {{> article/author}}
+      {{/get}}
 
       {{#if comments}}
         <section class="article-comments container" aria-label="{{t "Member discussion"}}">

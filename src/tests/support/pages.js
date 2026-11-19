@@ -10,8 +10,10 @@ const MEMBER = { uuid: "member-1", email: "reader@example.com", name: "Reader", 
 
 export const DEFAULT_CUSTOM = { use_geekly_logo: true };
 
-export const home = ({ member = false, site = {}, custom = DEFAULT_CUSTOM, ...rest } = {}) => {
+// pages: the site's pages for {{#get "pages"}} (default none), e.g. [{ slug: "newsletter", url: "/newsletter/" }]
+export const home = ({ member = false, site = {}, custom = DEFAULT_CUSTOM, pages = [], ...rest } = {}) => {
 	const data = createSite(site);
+	data.pages = pages;
 	return {
 		template: "index",
 		site: data,
@@ -41,9 +43,19 @@ const PAGE = { title: "Page", html: "<p>Body</p>", custom_excerpt: null };
 
 export const template = (
 	name,
-	{ member = false, site = {}, custom = DEFAULT_CUSTOM, page = {}, post = {}, paged = false } = {},
+	{
+		member = false,
+		site = {},
+		custom = DEFAULT_CUSTOM,
+		page = {},
+		post = {},
+		paged = false,
+		pages = [],
+		locale = "en",
+	} = {},
 ) => {
 	const data = createSite(site);
+	data.pages = pages;
 	const pageContext = title => ({ post: { ...PAGE, title, ...post } });
 	const contexts = {
 		post: { post: { ...data.posts[1], html: "<p>Body</p>" } },
@@ -53,9 +65,12 @@ export const template = (
 		"page-tags": pageContext("Tags"),
 		"page-authors": pageContext("Authors"),
 		"page-newsletter": pageContext("Newsletter"),
+		"page-abonnement": pageContext("Abonnement"),
+		"page-subscribe": pageContext("Subscribe"),
 		"page-archives": pageContext("Archives"),
 		"page-favoris": pageContext("Saved posts"),
 		"page-a-propos": pageContext("About"),
+		"page-mentions-legales": { post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z" } },
 		"error-404": {},
 	};
 	for (const [custom_, page_] of [
@@ -65,6 +80,7 @@ export const template = (
 		["custom-archives", "page-archives"],
 		["custom-saved-posts", "page-favoris"],
 		["custom-about", "page-a-propos"],
+		["custom-document", "page-mentions-legales"],
 	]) {
 		contexts[custom_] = contexts[page_];
 	}
@@ -81,5 +97,6 @@ export const template = (
 		member: member ? MEMBER : null,
 		custom,
 		page: { show_title_and_feature_image: true, ...page },
+		locale,
 	};
 };

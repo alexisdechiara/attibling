@@ -56,37 +56,6 @@
   display: none;
 }
 
-/* tocbot's lists */
-.toc {
-  .toc-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .toc-list .toc-list {
-    padding-inline-start: var(--space-4);
-  }
-
-  .toc-link {
-    display: block;
-    padding: 6px 0 6px var(--space-4);
-    border-inline-start: 2px solid var(--color-border);
-    color: var(--color-text-secondary);
-    line-height: 1.45;
-
-    &:hover {
-      color: var(--color-text);
-    }
-  }
-
-  .is-active-link {
-    border-inline-start-color: var(--color-accent);
-    color: var(--color-text);
-    font-weight: var(--weight-bold);
-  }
-}
-
 /* Wide screens, style « Carte »: in the margin, sticky */
 @media (width >= 75rem) {
   .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
