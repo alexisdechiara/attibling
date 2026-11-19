@@ -76,6 +76,13 @@ To get the latest version please head over the [releases page](https://github.co
 
 ## Documentation
 
+### Author guide (French)
+
+[`docs/guide-auteur.md`](docs/guide-auteur.md) explains, feature by feature, what to do in Ghost Admin to make
+each part of the theme appear: the theme settings (coloured wordmark, subscribe page, the tags of the home
+rows), the internal tags (`#top`, `#top-1`…`#top-10` for « Les plus lus »), featured posts and the home hero,
+the subscription block, the members-only features (bookmarks, « Reprendre la lecture ») and the navigation.
+
 To know how to enable the search, comments, newsletter and more, please head to the [Liebling Wiki](https://github.com/eddiesigner/liebling/wiki).
 
 ## Localization
