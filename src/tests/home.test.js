@@ -40,7 +40,10 @@ describe("home hero", () => {
 		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
 		const first = page.locator("[data-hero-dot]").first();
 		assert.equal(
-			await first.textContent().then(t => t.trim()),
+			await first
+				.locator(".sr-only")
+				.textContent()
+				.then(t => t.trim()),
 			"1 of 6: Test de Dokploy : une alternative sérieuse à Coolify",
 		);
 		await first.focus();
