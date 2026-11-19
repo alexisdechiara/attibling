@@ -164,6 +164,8 @@
 		"tocbot": "^4.29.0"
 	},
 	"devDependencies": {
+		"@fontsource-variable/literata": "^5.3.0",
+		"@fontsource-variable/onest": "^5.3.1",
 		"@tryghost/admin-api": "^1.13.12",
 		"dotenv": "^16.4.5",
 		"handlebars": "^4.7.8",

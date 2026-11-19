@@ -117,13 +117,14 @@
 
   /* Fonts. Ghost's custom fonts (Admin > Design) set --gh-font-heading and --gh-font-body:
      the heading font replaces Onest in titles, the body font replaces Onest in the interface
-     and Literata in the article text. */
+     and Literata in the article text. Onest and Literata are served by the theme (partials/fonts.hbs);
+     the "… Fallback" faces are local Arial / Times New Roman resized to their metrics, shown until
+     the font arrives. Japanese, Korean and Chinese text falls back to the system fonts. */
   --font-onest:
-    Onest, "Noto Sans JP", "Noto Sans KR", "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Arial, sans-serif;
+    Onest, "Onest Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-ui: var(--gh-font-body, var(--font-onest));
   --font-heading: var(--gh-font-heading, var(--font-onest));
-  --font-reading: var(--gh-font-body, Literata, Georgia, "Times New Roman", serif);
+  --font-reading: var(--gh-font-body, Literata, "Literata Fallback", Georgia, "Times New Roman", serif);
   --font-script: Pacifico, "Brush Script MT", cursive;
   --font-mono: ui-monospace, Menlo, Consolas, "Roboto Mono", "Liberation Mono", monospace;
 

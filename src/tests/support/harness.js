@@ -15,6 +15,7 @@ const MIME = {
 	".css": "text/css",
 	".svg": "image/svg+xml",
 	".json": "application/json",
+	".woff2": "font/woff2",
 };
 
 let browser = null;

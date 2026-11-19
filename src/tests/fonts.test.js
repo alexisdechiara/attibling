@@ -1,6 +1,7 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
+import { article } from "./support/article.js";
 
 // Computed font-family of each element, before and after setting Ghost's custom font variables on :root
 const families = (page, selectors) =>
@@ -36,10 +37,49 @@ describe("fonts", () => {
 		await dispose();
 	});
 
-	it("only request the weights the styles use, with display=swap", async () => {
-		const { page, dispose } = await open();
-		const links = await page.$$eval('link[href*="fonts.googleapis.com/css2"]', els => els.map(el => el.href));
-		assert.deepEqual(links, ["https://fonts.googleapis.com/css2?family=Onest:wght@400..800&display=swap"]);
+	it("are served by the theme: no font service, Onest latin preloaded and used, display swap", async () => {
+		const { page, requests, dispose } = await open();
+		await page.evaluate(() => document.fonts.ready);
+		const fontRequests = requests.filter(url => /\.woff2|fonts\./.test(url)).map(url => new URL(url).pathname);
+		assert.ok(!requests.some(url => /fonts\.(googleapis|gstatic)\.com|fonts\.bunny\.net/.test(url)), "no font service");
+		assert.ok(fontRequests.includes("/assets/fonts/onest/onest-latin.woff2"), fontRequests.join());
+		assert.ok(!fontRequests.some(p => /literata|cyrillic|vietnamese/.test(p)), `only what the page uses: ${fontRequests}`);
+		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els => els.map(el => [new URL(el.href).pathname, el.crossOrigin]));
+		assert.deepEqual(preloads, [["/assets/fonts/onest/onest-latin.woff2", "anonymous"]]);
+		const faces = await page.evaluate(() =>
+			[...document.styleSheets]
+				.flatMap(sheet => [...sheet.cssRules])
+				.filter(rule => rule instanceof CSSFontFaceRule)
+				.map(rule => ({
+					family: rule.style.getPropertyValue("font-family").replaceAll('"', ""),
+					display: rule.style.getPropertyValue("font-display"),
+					src: rule.style.getPropertyValue("src"),
+					range: rule.style.getPropertyValue("unicode-range"),
+				})),
+		);
+		const onest = faces.filter(f => f.family === "Onest");
+		assert.equal(onest.length, 5, "latin, latin-ext, cyrillic, cyrillic-ext, vietnamese");
+		for (const face of onest) {
+			assert.equal(face.display, "swap");
+			assert.match(face.src, /\/assets\/fonts\/onest\/onest-[a-z-]+\.woff2/);
+			assert.ok(face.range, "each subset has its unicode-range");
+		}
+		assert.ok(faces.some(f => f.family === "Onest Fallback" && /local\("Arial"\)/.test(f.src)));
+		assert.ok(!faces.some(f => f.family === "Literata"), "Literata only on posts and pages");
+		assert.equal(await page.evaluate(() => document.fonts.check('16px "Onest"')), true);
+		await dispose();
+	});
+
+	it("load Literata from the theme on posts, roman preloaded, italic only when the text has some", async () => {
+		const { page, requests, dispose } = await open({ render: article() });
+		await page.evaluate(() => document.fonts.ready);
+		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els => els.map(el => new URL(el.href).pathname));
+		assert.deepEqual(preloads, ["/assets/fonts/onest/onest-latin.woff2", "/assets/fonts/literata/literata-latin.woff2"]);
+		const fonts = requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname);
+		assert.ok(fonts.includes("/assets/fonts/literata/literata-latin.woff2"), fonts.join());
+		assert.ok(!fonts.some(p => p.includes("italic")), "no italic in this text");
+		assert.equal(new Set(fonts).size, fonts.length, `each file once (the preload is reused): ${fonts}`);
+		assert.ok(!requests.some(url => /fonts\.(googleapis|gstatic)\.com/.test(url)));
 		await dispose();
 	});
 });
