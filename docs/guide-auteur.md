@@ -6,53 +6,64 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 
 ## Sommaire
 
-1. [Notions de base](#1-notions-de-base)
-   - [Où sont les réglages du thème](#où-sont-les-réglages-du-thème)
-   - [Les tags internes](#les-tags-internes)
-   - [Visiteurs et abonnés (« membres »)](#visiteurs-et-abonnés-membres)
-2. [Identité et en-tête](#2-identité-et-en-tête)
-   - [Logo GEEKLY coloré, logo image ou titre](#logo-geekly-coloré-logo-image-ou-titre)
-   - [Navigation et menu « Plus »](#navigation-et-menu-plus)
-   - [Bouton « S'abonner »](#bouton-sabonner)
-   - [Thème clair, sombre, automatique](#thème-clair-sombre-automatique)
-   - [Polices personnalisées](#polices-personnalisées)
-3. [Page d'accueil](#3-page-daccueil)
-   - [Le grand bandeau (hero) et les articles « à la une »](#le-grand-bandeau-hero-et-les-articles-à-la-une)
-   - [« Derniers articles » et la pagination](#derniers-articles-et-la-pagination)
-   - [L'encart d'abonnement (visiteurs)](#lencart-dabonnement-visiteurs)
-   - [« Reprendre la lecture » et « À lire plus tard » (abonnés)](#reprendre-la-lecture-et-à-lire-plus-tard-abonnés)
-   - [« Les plus lus » : le tag #top](#les-plus-lus--le-tag-top)
-   - [Les rangées par rubrique](#les-rangées-par-rubrique)
+0. [Mise en route en 10 minutes](#0-mise-en-route-en-10-minutes)
+1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés
+2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, « S'abonner », clair / sombre, polices
+3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
-5. [Récapitulatif des réglages du thème](#5-récapitulatif-des-réglages-du-thème)
-- [Pages du site](#pages-du-site)
-   - [Créer une page et lui donner son modèle](#créer-une-page-et-lui-donner-son-modèle)
-   - [Rubriques (pages de tag)](#rubriques-pages-de-tag)
-   - [Pages d'auteur](#pages-dauteur)
-   - [Pages « Tags » et « Auteurs »](#pages-tags-et-auteurs)
-   - [Archives](#archives)
-   - [Mes favoris](#mes-favoris)
-   - [À propos](#à-propos)
-   - [Page d'abonnement](#page-dabonnement)
-   - [Pages ordinaires (mentions légales…)](#pages-ordinaires-mentions-légales)
-   - [Page 404](#page-404)
-   - [Fichier routes.yaml](#fichier-routesyaml)
-   - [Dépannage](#dépannage)
-- [Articles](#articles)
-   - [Les deux styles : « Carte » et « Immersif »](#les-deux-styles--carte-et-immersif)
-   - [En-tête, sommaire, partage](#en-tête-sommaire-partage)
-   - [Séries : le tag #serie-…](#séries--le-tag-serie-)
-   - [« En bref » : le résumé en points numérotés](#en-bref--le-résumé-en-points-numérotés)
-   - [Résumé par IA (facultatif)](#résumé-par-ia-facultatif)
-   - [Fiche de test](#fiche-de-test)
-   - [« Mis à jour le » : le tag #mis-a-jour](#mis-à-jour-le--le-tag-mis-a-jour)
-   - [Boîte auteur](#boîte-auteur)
-   - [Réglages d'affichage (abonnés)](#réglages-daffichage-abonnés)
-   - [Copier un lien, copier du code](#copier-un-lien-copier-du-code)
-   - [Dépannage des articles](#dépannage-des-articles)
+5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, 404
+6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage
+7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
+8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
+9. [Référence : les conventions](#9-référence--les-conventions)
+10. [Dépannage](#10-dépannage)
 
-Les articles (séries, « En bref », fiche de test, réglages d'affichage…) sont décrits dans la section
-[Articles](#articles).
+Vocabulaire : **visiteur** = lecteur non connecté ; **abonné** = membre Ghost connecté (gratuit ou payant) ;
+**réglage du thème** = Design & branding → Customize ; **slug** = l'identifiant d'une page ou d'un tag dans son
+adresse (`jeux-video`).
+
+---
+
+## 0. Mise en route en 10 minutes
+
+Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section qui la détaille.
+
+1. **Activer le thème** : Ghost Admin → Settings → **Design & branding** → **Change theme** → *Upload theme*
+   → `attibling.zip` → **Activate**.
+2. **Réglages du thème** (Design & branding → **Customize**, voir [section 8](#8-référence--les-réglages-du-thème)) :
+
+   | Onglet | Réglage | Valeur pour GEEKLY |
+   |---|---|---|
+   | Homepage | Use geekly logo | activé |
+   | Homepage | Arrival animation | activé (défaut) |
+   | Homepage | Home row 1 | `jeux-video` |
+   | Homepage | Home row 2 | `anime` |
+   | Homepage | Home row 3 | `actualites` |
+   | Homepage | Home row 4 | `ia` |
+   | Homepage | Home row 5 | `dossiers` |
+   | Site wide | Subscribe url | `/newsletter/` |
+   | Site wide | Page transitions | activé (défaut) |
+   | Site wide | About tags | `actualites,jeux-video,anime,dossiers,ia,test` (facultatif) |
+   | Post | Article style | `Card` (défaut) |
+
+   Le reste garde sa valeur par défaut. Cliquez sur **Save**.
+3. **Site** : Settings → General → *Site description* = `L'actu geek, tech et pop` (la phrase sous le logo du
+   bandeau) ; Settings → Membership → *Anyone can sign up* ; au moins une newsletter active.
+4. **Pages à créer** (Pages → New page, réglage *Page URL*, voir [section 5](#5-pages-du-site)) : `newsletter`
+   (abonnement), `archives`, `favoris` (titre « Mes favoris »), `a-propos`, `tags`, `authors`. Ajoutez-les à la
+   navigation secondaire (Settings → Navigation) : Tags `/tags/`, Archives `/archives/`, À propos `/a-propos/`.
+5. **Tags** : une *Tag image* et une *Description* pour les rubriques (Actualité, Jeux vidéo, Anime, Dossier,
+   IA, Test) ; les tags internes au fil des articles : `#top` + `#top-1`…`#top-10` (« Les plus lus »),
+   `#serie-…` (séries, `total: 24` dans la description du tag), `#mis-a-jour`, `#immersif` / `#carte`.
+6. **Articles à mettre en avant** : *Feature this post* sur les articles du bandeau (jusqu'à 6), avec une image
+   à la une large.
+7. **Cartes HTML** dans les articles, si voulu : « En bref » (`<ol class="en-bref">`), fiche de test
+   (`<aside class="fiche-test">`) — modèles en [section 6](#6-articles), récapitulatif en
+   [section 9](#9-référence--les-conventions).
+8. **Vérifier** : ouvrez l'accueil dans une fenêtre privée (visiteur) puis connecté (abonné) ; en cas de
+   surprise, voir le [dépannage](#10-dépannage).
+
+Aucun fichier `routes.yaml` n'est nécessaire.
 
 ---
 
@@ -62,8 +73,9 @@ Les articles (séries, « En bref », fiche de test, réglages d'affichage…) s
 
 Ghost Admin → **Settings** (roue dentée en bas à gauche) → **Design & branding** → bouton **Customize**.
 À droite, quatre onglets : **Brand** (couleur, logo, couverture, polices), **Site wide** (réglages communs du
-thème), **Homepage** (réglages de la page d'accueil) et **Post** (réglages des articles). Les réglages propres au thème Attibling sont dans
-**Site wide** et **Homepage**. Cliquez sur **Save** en haut à droite.
+thème), **Homepage** (réglages de la page d'accueil) et **Post** (réglages des articles). Les réglages propres
+au thème Attibling sont dans **Site wide**, **Homepage** et **Post** (liste complète : [section 8](#8-référence--les-réglages-du-thème)).
+Cliquez sur **Save** en haut à droite.
 
 ### Les tags internes
 
@@ -97,7 +109,9 @@ Le logo (en-tête, page d'accueil, menu mobile, pied de page) suit cet ordre :
 3. Sinon, le **titre du site** en texte.
 
 Sur la page d'accueil, l'en-tête n'a pas de logo tant que le grand logo du bandeau est visible : il
-« s'amarre » dans l'en-tête dès que vous faites défiler la page. Les autres pages montrent toujours le logo.
+« s'amarre » dans l'en-tête dès que vous faites défiler la page (il part du grand logo et rapetisse jusqu'à sa
+place ; un simple fondu dans les navigateurs qui ne savent pas animer au défilement et avec « réduire les
+animations »). Les autres pages montrent toujours le logo.
 
 ### Navigation et menu « Plus »
 
@@ -165,6 +179,9 @@ bas sur téléphone ; flèches du clavier). Pas de défilement automatique.
 Sans aucun article mis en avant : le bandeau garde le logo et la description sur l'image de couverture du
 site (Settings → Design & branding → Brand → *Publication cover*), ou sur un fond sombre uni.
 
+À la première visite de l'accueil, le logo se dessine sur un écran sombre puis rejoint le bandeau : voir
+[l'animation d'arrivée](#lanimation-darrivée-de-laccueil).
+
 ### « Derniers articles » et la pagination
 
 Le dernier article publié s'affiche en grand (pastille « Nouveau », rubrique, titre, extrait, date et temps
@@ -199,13 +216,13 @@ navigateur :
 - **Reprendre la lecture** : les articles commencés et pas finis, avec une barre de progression et « 40 % lu
   • reste environ 7 min » (6 au plus ; un article lu à plus de 90 % sort de la liste). La liste est remplie
   par les pages d'article.
-- **À lire plus tard** : les articles gardés avec le signet (voir section 4).
+- **À lire plus tard** : les articles gardés avec le signet (voir [section 4](#4-signets-à-lire-plus-tard-sur-les-tuiles)).
 
 Le titre de la section est un bouton : cliquez-le pour passer d'une liste à l'autre. La section s'ouvre sur
 « Reprendre la lecture » s'il y a une lecture en cours, sinon sur « À lire plus tard ». Chaque carte est un
 lien vers l'article et a un bouton « Retirer » ; « Tout effacer » vide la liste de lecture ; « Tout voir »
 (liste « À lire plus tard ») mène à la page **Mes favoris** — créez une page Ghost dont le slug est
-`favoris` (voir la section des autres pages). Quand les deux listes sont vides, la section n'existe pas.
+`favoris` (voir [Pages du site](#5-pages-du-site)). Quand les deux listes sont vides, la section n'existe pas.
 Rien à régler dans Ghost.
 
 ### « Les plus lus » : le tag #top
@@ -276,27 +293,7 @@ sont pas affichés plutôt que de faire semblant. Rien à régler dans Ghost.
 
 ---
 
-## 5. Récapitulatif des réglages du thème
-
-| Réglage (Ghost Admin) | Onglet | Par défaut | Effet |
-|---|---|---|---|
-| Dark mode logo | Site wide | vide | Logo clair pour le mode sombre et le bandeau d'accueil |
-| Disable fade animation | Site wide | non | Coupe les animations d'apparition |
-| Subscribe url | Site wide | vide (Portal) | Destination des boutons « S'abonner » |
-| Use geekly logo | Homepage | non | Logo GEEKLY coloré |
-| Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque |
-| About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques listées sur la page « À propos » : slugs séparés par des virgules |
-| Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») |
-| Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles |
-| Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs |
-| About page | Post | vide (`a-propos` ou `about`) | Page liée par « À propos » dans la boîte auteur |
-
-Les tags internes utilisés par le thème : `#top`, `#top-1` … `#top-10` (accueil), `#serie-…`,
-`#mis-a-jour`, `#immersif`, `#carte` (articles, voir [Articles](#articles)).
-
----
-
-## Pages du site
+## 5. Pages du site
 
 Les pages autres que l'accueil et les articles : rubriques (pages de tag), auteurs, « Tags », « Auteurs »,
 « Archives », « Mes favoris », « À propos », la page d'abonnement, les pages ordinaires et la page 404.
@@ -517,25 +514,9 @@ navigation principale, puis les 4 derniers articles.
 Aucun n'est nécessaire : toutes ces pages sont des pages Ghost avec un modèle. Laissez le `routes.yaml` par
 défaut (Settings → Labs → Routes).
 
-### Dépannage
-
-| Symptôme | Cause et solution |
-|---|---|
-| La page « Archives » (ou « Mes favoris », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
-| « Voir toute la série », « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `archives` ou `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
-| Les boutons « S'abonner » ouvrent une fenêtre au lieu de la page | Réglage **Subscribe url** vide : mettez `/newsletter/`. |
-| Pas de formulaire sur la page d'abonnement | Inscription fermée ou sur invitation (Settings → Membership), ou vous êtes connecté (vue abonné). |
-| Le formulaire affiche une erreur à chaque essai | Ghost n'arrive pas à envoyer l'e-mail : vérifiez la configuration e-mail du serveur (Mailgun / SMTP). |
-| Une rubrique n'a pas de phrase sur « À propos » ou en tête de sa page | Le tag n'a pas de **Description**. |
-| Une rubrique manque sur « À propos » | Slug mal tapé dans **About tags** (vérifiez dans Tags), ou tag sans article. |
-| Une icône de rubrique est un `#` | Aucun mot connu dans le slug : voir la liste plus haut. |
-| La bio ne s'enregistre pas | Ghost limite la bio à 250 caractères. |
-| « Mes favoris » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
-| L'article « À la une » d'une rubrique n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
-
 ---
 
-## Articles
+## 6. Articles
 
 Tout ce qui suit concerne la page d'un article (modèle `post.hbs`). Rien n'est obligatoire : un article sans
 tag interne ni carte particulière s'affiche en style « Carte », avec son sommaire, son partage, la boîte
@@ -740,21 +721,148 @@ section (« Lien copié ») ; sur téléphone il est après le titre. Chaque blo
 (« Copié » pendant 2 s) et affiche sa langue si elle est choisie dans la carte Code de Ghost (`bash`,
 `javascript`…).
 
-### Dépannage des articles
+---
 
-- **L'encadré de série n'apparaît pas** : le tag doit être interne (nom commençant par `#`) et commencer par
-  `#serie-` ; il faut au moins deux parties **publiées** portant exactement le même tag.
-- **« Partie 3 sur 3 » alors que la série en compte plus** : ajoutez `total: N` dans la description du tag.
-- **« Voir toute la série » mène à une page 404** : créez la page Archives (slug `archives`, voir
-  [Archives](#archives)).
-- **« En bref » ne s'affiche pas** : la carte doit être une carte **HTML** (pas un paragraphe) et la liste doit
-  avoir la classe `en-bref` ; un visiteur voit l'encart à la place ; l'abonné l'a peut-être masqué dans ses
-  réglages (« Réinitialiser »).
-- **La fiche de test n'a pas de style** : vérifiez la classe `fiche-test` et que c'est une carte HTML.
-- **« Mis à jour le » n'apparaît pas** : il manque le tag interne `#mis-a-jour`.
-- **Pas de bouton « À propos » dans la boîte auteur** : aucune page `a-propos` / `about`, ou le réglage
-  About page ne correspond à aucune page publiée.
-- **Pas de roue crantée** : réservée aux abonnés connectés, sur les articles, réglage Reading settings
-  activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte).
-- **Le style Immersif ne s'applique pas** : un abonné qui a choisi « Carte » dans ses réglages garde son
-  choix sur tous les articles.
+## 7. Animations, transitions et préchargement
+
+Trois effets de confort, tous facultatifs : ils ne retardent ni le contenu ni la navigation, se coupent quand
+l'appareil demande de **réduire les animations** (réglage d'accessibilité du système), et disparaissent sans
+rien casser dans un navigateur qui ne les connaît pas.
+
+### L'animation d'arrivée de l'accueil
+
+À la première visite de l'accueil, sur un écran sombre, les lettres **G E E K** se peignent l'une après
+l'autre d'un coup de pinceau, « ly » s'écrit comme au stylo, puis le logo glisse et rapetisse jusqu'à sa place
+dans le bandeau pendant que la page apparaît (moins de 2 secondes en tout).
+
+- **Réglage** : **Arrival animation** (onglet *Homepage*), activé par défaut. Désactivé : jamais d'animation.
+- **Avec le logo GEEKLY coloré** (réglage *Use geekly logo*) : l'animation complète. **Avec un logo image ou le
+  titre du site** : un simple fondu (le logo du bandeau apparaît en grandissant légèrement), sans écran sombre.
+- **Quand** : une fois par session de navigation (l'onglet ou la fenêtre ; elle revient à la visite suivante),
+  sur la page 1 de l'accueil seulement — jamais sur un article, une rubrique, la page 2…
+- **Passer** : un clic, une touche, la molette, un toucher ou le défilement l'arrêtent aussitôt.
+- **Jamais** avec « réduire les animations ». Les moteurs de recherche et les lecteurs d'écran ne la voient pas :
+  la page est complète dessous pendant toute l'animation (l'écran sombre est décoratif) et le logo du bandeau
+  reste le titre de la page. Si quelque chose échoue, la page s'affiche normalement.
+
+### Transitions entre les pages
+
+Dans les navigateurs qui savent animer le passage d'une page à l'autre (Chrome et Edge récents, Safari 18.2 et
+plus ; pas Firefox pour l'instant) :
+
+- l'image de la tuile sur laquelle on clique glisse et s'agrandit jusqu'à l'image d'en-tête de l'article ;
+- une tuile de rubrique devient l'en-tête de la page du tag ;
+- le grand logo de l'accueil (ou le logo de l'en-tête) rejoint le logo de l'en-tête de la page suivante ;
+- l'en-tête reste en place ; tout le reste passe en fondu court.
+
+**Réglage** : **Page transitions** (onglet *Site wide*), activé par défaut. Rien d'autre à faire. Sans image à
+la une, l'article apparaît en fondu. Ailleurs (navigateur non compatible, « réduire les animations ») : la
+navigation est normale.
+
+### Préchargement au survol
+
+Quand le pointeur s'attarde sur un lien du site, qu'un doigt le touche ou que le clavier le sélectionne, le
+navigateur télécharge déjà la page : le clic l'affiche presque sans attente. Rien à voir, rien à régler.
+
+- Seulement les liens du site vers des pages ordinaires. Jamais : Ghost Admin (`/ghost/`), les liens des
+  abonnés (`/members/`, connexion, déconnexion, désinscription), les fenêtres de Ghost (`#/portal/…`), les
+  liens avec `?` ou `#`, les fichiers et images (`/content/…`), les flux RSS, les liens qui s'ouvrent ailleurs
+  (`target`) ou `rel="nofollow"`.
+- Coupé en mode **économie de données** (Save-Data) et sur connexion lente (2G).
+- Pour exclure un lien précis dans un article, ajoutez-lui l'attribut `data-no-prefetch` dans une carte HTML :
+  `<a href="/une-page/" data-no-prefetch>…</a>` (fonctionne aussi sur un bloc qui contient des liens).
+
+---
+
+## 8. Référence : les réglages du thème
+
+Ghost Admin → Settings → Design & branding → **Customize** (15 réglages ; le nom affiché par Ghost vient de la clé).
+
+| Réglage (Ghost Admin) | Onglet | Par défaut | Effet | Section |
+|---|---|---|---|---|
+| Dark mode logo | Site wide | vide | Logo clair pour le mode sombre et le bandeau d'accueil (avec un logo image) | [2](#2-identité-et-en-tête) |
+| Page transitions | Site wide | oui | Transitions animées entre les pages (navigateurs compatibles) | [7](#transitions-entre-les-pages) |
+| Subscribe url | Site wide | vide (Portal) | Destination des boutons « S'abonner », par exemple `/newsletter/` | [2](#bouton-sabonner) |
+| About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
+| Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
+| Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |
+| Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque | [3](#les-rangées-par-rubrique) |
+| Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») | [6](#les-deux-styles--carte-et-immersif) |
+| Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles | [6](#réglages-daffichage-abonnés) |
+| Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs | [6](#en-bref--le-résumé-en-points-numérotés) |
+| About page | Post | vide (`a-propos` ou `about`) | Page liée par « À propos » dans la boîte auteur | [6](#boîte-auteur) |
+
+Réglage du fichier `package.json` (pas dans Ghost Admin) : 7 articles par page (`posts_per_page`), le nombre
+d'articles de « Derniers articles ».
+
+> Mise à jour depuis la version 1.x : l'ancien réglage *Disable fade animation* n'existe plus (les anciennes
+> animations d'apparition ont disparu avec l'ancien design) ; il est remplacé par **Arrival animation** et
+> **Page transitions**.
+
+---
+
+## 9. Référence : les conventions
+
+**Tags internes** (nom commençant par `#`, invisibles sur le site ; [comment en ajouter](#les-tags-internes)) :
+
+| Tag | Où | Effet |
+|---|---|---|
+| `#top` | article | Entre dans « Les plus lus » (accueil) |
+| `#top-1` … `#top-10` | article (avec `#top`) | Rang dans « Les plus lus » (`#top-1` = premier) |
+| `#serie-<nom>` | toutes les parties | Forme une série (encadré, Précédent / Suivant) ; `total: N` dans la description du tag |
+| `#mis-a-jour` | article | Affiche « Mis à jour le … » |
+| `#immersif` / `#carte` | article | Force le style Immersif / Carte |
+
+**Cartes HTML** (éditeur : `/html`) :
+
+| Carte | Modèle | Section |
+|---|---|---|
+| « En bref » (auteur) | `<ol class="en-bref"><li>…</li></ol>` en tête d'article | [6](#en-bref--le-résumé-en-points-numérotés) |
+| « En bref » (IA, facultatif) | `<ol class="en-bref" data-source="ia">…</ol>` | [6](#résumé-par-ia-facultatif) |
+| Fiche de test | `<aside class="fiche-test">…</aside>` (classes `fiche-test__type`, `__titre`, `__note`, `__infos`, `__plus`, `__moins`, `__verdict` ; `data-type="VideoGame"` facultatif) | [6](#fiche-de-test) |
+| Liens « Suivre le blog » | `<ul class="about-links"><li><a href="…">…</a></li></ul>` dans la page À propos | [5](#à-propos) |
+| Lien jamais préchargé | `<a href="…" data-no-prefetch>` | [7](#préchargement-au-survol) |
+
+**Pages** (slug par défaut → modèle automatique, ou menu *Template*) : `newsletter` (Subscribe), `archives`
+(Archives ; `/archives/?tag=<slug>` filtre sur un tag, internes compris), `favoris` (Saved Posts), `a-propos`
+(About), `tags` (Tags), `authors` (Authors). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
+
+**Ghost** : *Feature this post* (bandeau de l'accueil, article en tête d'une rubrique), *Excerpt* (extraits,
+accroches des pages), *Tag image* et *Description* (rubriques, À propos, bannière de l'accueil), *Site
+description* (phrase du bandeau), Settings → Staff (boîte auteur, pages d'auteur), Settings → Navigation
+(en-tête, menu « Plus », pied de page).
+
+**Réservé aux abonnés connectés** : signets « À lire plus tard », « Reprendre la lecture », « Mes favoris »,
+réglages d'affichage, « En bref » (sauf réglage *Summary for visitors*). Leurs données restent dans le
+navigateur du lecteur.
+
+---
+
+## 10. Dépannage
+
+| Symptôme | Cause et solution |
+|---|---|
+| La page « Archives » (ou « Mes favoris », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
+| « Voir toute la série », « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `archives` ou `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
+| Les boutons « S'abonner » ouvrent une fenêtre au lieu de la page | Réglage **Subscribe url** vide : mettez `/newsletter/`. |
+| Pas de formulaire sur la page d'abonnement | Inscription fermée ou sur invitation (Settings → Membership), ou vous êtes connecté (vue abonné). |
+| Le formulaire affiche une erreur à chaque essai | Ghost n'arrive pas à envoyer l'e-mail : vérifiez la configuration e-mail du serveur (Mailgun / SMTP). |
+| Une rubrique n'a pas de phrase sur « À propos » ou en tête de sa page | Le tag n'a pas de **Description**. |
+| Une rubrique manque sur « À propos » | Slug mal tapé dans **About tags** (vérifiez dans Tags), ou tag sans article. |
+| Une icône de rubrique est un `#` | Aucun mot connu dans le slug : voir la liste plus haut. |
+| La bio ne s'enregistre pas | Ghost limite la bio à 250 caractères. |
+| « Mes favoris » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
+| L'article « À la une » d'une rubrique n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
+| L'encadré de série n'apparaît pas | Le tag doit être interne (nom commençant par `#`) et commencer par `#serie-` ; il faut au moins deux parties **publiées** portant exactement le même tag. |
+| « Partie 3 sur 3 » alors que la série en compte plus | Ajoutez `total: N` dans la description du tag. |
+| « Voir toute la série » mène à une page 404 | Créez la page Archives (slug `archives`, voir [Archives](#archives)). |
+| « En bref » ne s'affiche pas | La carte doit être une carte **HTML** (pas un paragraphe) et la liste doit avoir la classe `en-bref` ; un visiteur voit l'encart à la place ; l'abonné l'a peut-être masqué dans ses réglages (« Réinitialiser »). |
+| La fiche de test n'a pas de style | Vérifiez la classe `fiche-test` et que c'est une carte HTML. |
+| « Mis à jour le » n'apparaît pas | Il manque le tag interne `#mis-a-jour`. |
+| Pas de bouton « À propos » dans la boîte auteur | Aucune page `a-propos` / `about`, ou le réglage About page ne correspond à aucune page publiée. |
+| Pas de roue crantée | Réservée aux abonnés connectés, sur les articles, réglage Reading settings activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte). |
+| Le style Immersif ne s'applique pas | Un abonné qui a choisi « Carte » dans ses réglages garde son choix sur tous les articles. |
+| L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une fois par session de navigation (fermez l'onglet ou ouvrez une fenêtre privée pour la revoir), seulement sur la page 1 de l'accueil, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
+| Au lieu des lettres dessinées, le logo apparaît en fondu | Le réglage **Use geekly logo** est désactivé : avec un logo image ou le titre du site, l'animation est un simple fondu. |
+| Pas de transition entre les pages | Navigateur sans « View Transitions » entre pages (aujourd'hui Chrome, Edge et Safari récents ; pas Firefox), « réduire les animations » activé, ou réglage **Page transitions** désactivé. La navigation reste normale. |
+| Le préchargement ne se voit pas | C'est normal : il n'y a rien à voir, la page suivante s'ouvre juste plus vite. Il est coupé en mode « économie de données » et sur connexion 2G. |
