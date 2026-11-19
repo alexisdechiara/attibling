@@ -8,7 +8,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 
 0. [Mise en route en 10 minutes](#0-mise-en-route-en-10-minutes)
 1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés
-2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, « S'abonner », clair / sombre, polices
+2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
 5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
@@ -111,6 +111,18 @@ Le logo (en-tête, page d'accueil, menu mobile, pied de page) suit cet ordre :
    l'image du bandeau d'accueil. Conseil : un logo PNG/SVG à fond transparent.
 3. Sinon, le **titre du site** en texte.
 
+**Attention, « Use geekly logo » est désactivé par défaut, et Ghost garde les réglages du thème par nom de
+thème** : un thème téléversé sous un nouveau nom (ou réinstallé après suppression) repart avec ce réglage
+désactivé, et c'est alors le **logo image** qui s'affiche. Le fichier `geekly-logo.webp` de GEEKLY a son
+« ly » dessiné **en blanc** (il était fait pour l'en-tête sombre de l'ancien thème) : sur l'en-tête clair,
+ce « ly » disparaissait. Le thème le corrige de lui-même : quand un logo image a une bonne part de traits
+blancs posés sur la transparence (et non à l'intérieur d'une forme colorée, comme les lettres blanches d'un
+badge), ces traits blancs prennent la couleur du texte sur les fonds clairs (en-tête, pied de page, menu du
+téléphone) ; les couleurs du logo ne changent pas, et en mode sombre et sur l'image du bandeau le logo
+s'affiche tel quel. Pour GEEKLY, le plus simple reste d'**activer « Use geekly logo »** (lettres dessinées
+par le thème, nettes à toutes les tailles) ; avec un logo image, l'idéal est un logo à traits sombres en
+*Publication logo* et sa version claire en *Dark mode logo*.
+
 Sur la page d'accueil, le logo est **soit dans le bandeau, soit dans l'en-tête**, jamais entre les deux : tant
 que le grand logo du bandeau est visible, l'en-tête n'a pas de logo ; dès que le grand logo va passer sous la
 barre, il **s'envole d'un seul coup** jusqu'à sa place dans l'en-tête (environ 0,4 s, en rapetissant), même si
@@ -143,14 +155,33 @@ Si les liens principaux ne tiennent pas dans la barre (écran étroit, intitulé
 passent automatiquement dans le menu « Plus », et reviennent quand il y a de la place. Sans navigation
 secondaire ni lien en trop, le bouton « Plus » n'apparaît pas.
 
-À côté de « Plus », le bouton **« ••• »** (celui de l'ancien thème) ouvre un panneau sous la barre : les
-**4 derniers articles** (vignette, titre, rubrique et date) et les **tags** les plus utilisés en pastilles, avec
-« Tous les tags » (page `/tags/`). Il se remplit tout seul : rien à régler. Échap ou un clic à côté le ferme.
-Sur téléphone, le même contenu est en bas du menu (bouton trois traits).
+À côté de « Plus », le bouton **« ••• »** (celui de l'ancien thème) ouvre un panneau sous la barre, rangé
+comme le sous-menu de l'ancien thème : en haut, les **6 derniers articles** en petites cartes (vignette, titre,
+rubrique et date ; une rangée de six sur grand écran, trois par rangée sur un écran plus étroit), puis,
+**en dessous**, le titre « Mots clés » avec « Tous les tags » (page `/tags/`) et les **12 tags** les plus
+utilisés en **simples liens en gras** à la suite, sans pastilles. Il se remplit tout seul : rien à régler.
+Échap ou un clic à côté le ferme. Sur téléphone, le même contenu est en bas du menu (bouton trois traits) :
+les 4 derniers articles en liste, puis les tags.
 
 Sur téléphone : la navigation principale devient une rangée de pastilles qui défile sous la barre, et le
 bouton menu (trois traits) ouvre un panneau avec toute la navigation, le changement de thème et
 « S'abonner » / « Compte ».
+
+### Pied de page
+
+Le pied de page de tout le site se remplit avec les données de Ghost, en deux parties :
+
+- **en haut** : à gauche le logo et, dessous, la **description du site** (Settings → General → *Site
+  description*) ; à droite les liens de la **navigation secondaire** (Settings → Navigation → *Secondary
+  navigation*), les icônes des **comptes sociaux** remplis dans Settings → General → *Social accounts* (X,
+  Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram : seules celles qui sont remplies
+  apparaissent) et le lien **RSS** ;
+- **en bas**, sur une barre discrète séparée par un filet : à gauche « GEEKLY © 2026 » (titre du site et année
+  en cours), à droite « Publié avec Ghost » et « Informations sur la licence JavaScript » (la page des
+  licences des scripts du thème, demandée par l'extension LibreJS : gardez ce lien).
+
+Sur téléphone, tout s'empile dans cet ordre. Rien à régler dans le thème ; le thème n'y met aucun lien
+d'auteur (site à un seul auteur).
 
 ### Bouton « S'abonner » et « Se connecter »
 
@@ -190,7 +221,7 @@ l'affichage (pas de flash). Rien à régler dans Ghost.
 
 ### Polices du thème et polices personnalisées
 
-Par défaut : **Onest** pour l'interface et les titres, **Literata** pour le texte des articles et des pages,
+Par défaut : **Onest** pour l'interface et les titres, **Literata** pour le texte des articles uniquement (les pages — page ordinaire, document, « À propos », abonnement — sont en Onest comme le reste du site),
 **Pacifico** pour le « ly » du logo. **Les trois sont servies par le site lui-même** (dossier
 `assets/fonts/` du thème) : le thème ne contacte aucun service de polices (ni Google Fonts, ni un autre), il
 n'y a rien à régler. Ce que le lecteur télécharge :
@@ -198,7 +229,7 @@ n'y a rien à régler. Ce que le lecteur télécharge :
 - Onest et Literata sont des polices « variables » (un seul fichier pour toutes les graisses), découpées par
   alphabet : latin, latin étendu (polonais, tchèque, turc…), cyrillique, cyrillique étendu, vietnamien. Le
   navigateur ne télécharge que les morceaux dont la page a besoin : pour un site en français, Onest latin
-  (25 Ko) partout et Literata latin (79 Ko) sur les articles et les pages ; l'italique de Literata (48 Ko)
+  (25 Ko) partout et Literata latin (79 Ko) sur les articles ; l'italique de Literata (48 Ko)
   seulement si le texte en contient. Pacifico ne contient que les lettres « l » et « y » du logo (3 Ko) et
   n'est téléchargée que si le logo GEEKLY coloré est affiché.
 - Ces deux fichiers sont annoncés au navigateur dès le début de la page (`preload`) : le texte s'affiche tout
@@ -251,8 +282,9 @@ lecture / À lire plus tard » (abonnés) → « Les plus lus » → rangées pa
 
 Le bandeau montre, sur l'image de l'article, le logo, la description du site (Settings → General → *Site
 description*, par exemple « L'actu geek, tech et pop ») et, pour un visiteur, le bouton « S'abonner ». Avec le
-logo GEEKLY coloré, la description se glisse **sous « GEEK », à gauche de la boucle du « y »** : gardez-la
-courte (une ligne ; plus longue, elle passe sur trois lignes au plus dans la largeur de « GEEK »). À droite : la
+logo GEEKLY coloré (grand : 220 px sur un écran large, il occupe la moitié gauche du bandeau), la description
+se glisse **juste sous « GEEK », collée aux lettres, à gauche de la boucle du « y »** : gardez-la courte (une
+ligne ; plus longue, elle passe sur deux lignes au plus dans la largeur de « GEEK »). À droite : la
 pastille « À la une », le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article
 est rempli), sa rubrique et son temps de lecture. **Seul ce groupe à droite est un lien** vers l'article (il
 s'éclaire au survol) : le logo, la description et le fond de l'image ne mènent nulle part.
@@ -747,8 +779,8 @@ Rien d'autre (police, coins, mise en page) n'est réglable : c'est la limite de 
 
 ### Pages ordinaires
 
-Toute autre page utilise une colonne de lecture calme (police de lecture, 66 à 72 caractères par ligne
-environ, cartes Ghost à leur largeur : large, pleine largeur). Le titre, l'extrait et l'image s'affichent,
+Toute autre page utilise une colonne de lecture calme (police du site, Onest, en 17 px avec un interligne
+généreux, 65 à 69 caractères par ligne environ, cartes Ghost à leur largeur : large, pleine largeur). Le titre, l'extrait et l'image s'affichent,
 sauf si vous décochez **Show title and feature image** dans les réglages de la page (le titre reste lisible
 par les lecteurs d'écran). Ce que le thème soigne pour toutes les pages :
 
@@ -1302,6 +1334,7 @@ navigateur du lecteur.
 | Pas de bouton « À propos » dans la boîte auteur | Aucune page `a-propos` / `about`, ou le réglage About page ne correspond à aucune page publiée. |
 | Pas de « Tous ses articles », le nom de l'auteur n'est pas un lien | Normal sur un site où un seul auteur a publié ([Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; les liens reviennent dès qu'un deuxième auteur publie. |
 | « Rédacteur » reste dans le menu | C'est un lien de votre navigation : Settings → Navigation, supprimez-le. |
+| Le logo montre « Geek » en couleurs et un « ly » blanc, ou le logo GEEKLY dessiné a disparu après avoir téléversé le thème | Le réglage **Use geekly logo** est revenu à « désactivé » (Ghost garde les réglages par nom de thème) et c'est le logo image qui s'affiche ; le thème fonce de lui-même les traits blancs d'un tel logo sur fond clair. Réactivez **Use geekly logo** (Customize → *Homepage*). Voir [Logo](#logo-geekly-coloré-logo-image-ou-titre). |
 | Pas d'icône Bluesky (ou Threads, Mastodon…) dans le pied de page et « Suivre le blog » | Le compte n'est pas rempli : Settings → General → **Social accounts**, puis **Save**. |
 | Pas de roue crantée | Réservée aux abonnés connectés, sur les articles, réglage Reading settings activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte). |
 | Le style Immersif ne s'applique pas | Un abonné qui a choisi « Carte » dans ses réglages garde son choix sur tous les articles. |

@@ -126,14 +126,14 @@ def main():
             "Typography) still win through --gh-font-heading / --gh-font-body (src/css/base/tokens.css). --}}\n"
         )
         f.write('<link rel="preload" href="{{asset "fonts/onest/onest-latin.woff2"}}" as="font" type="font/woff2" crossorigin>\n')
-        f.write('{{#is "post, page"}}\n')
+        f.write('{{#is "post"}}\n')
         f.write('  <link rel="preload" href="{{asset "fonts/literata/literata-latin.woff2"}}" as="font" type="font/woff2" crossorigin>\n')
         f.write("{{/is}}\n")
         f.write("<style>\n")
         for rule in rules["Onest"]:
             f.write(rule + "\n")
         f.write(onest_fallback + "\n")
-        f.write('{{#is "post, page"}}\n')
+        f.write('{{#is "post"}}\n')
         for rule in rules["Literata"]:
             f.write(rule + "\n")
         f.write(literata_fallback + "\n")

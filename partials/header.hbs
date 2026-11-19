@@ -64,10 +64,10 @@ target of the hero wordmark for docking and page transitions), [data-ghost-searc
     {{/if}}
   </div>
 
-  {{!-- « ••• »: recent posts and tags, a panel under the bar (desktop) --}}
+  {{!-- « ••• »: six recent posts, then the tags, a panel under the bar (desktop) --}}
   <div class="discover" id="site-discover" popover data-discover-menu>
     <div class="discover__inner">
-      {{> header-discover prefix="discover"}}
+      {{> header-discover prefix="discover" count="6"}}
     </div>
   </div>
 </header>
@@ -96,7 +96,7 @@ target of the hero wordmark for docking and page transitions), [data-ghost-searc
     {{/if}}
   </nav>
   <div class="mobile-menu__discover">
-    {{> header-discover prefix="menu-discover"}}
+    {{> header-discover prefix="menu-discover" count="4"}}
   </div>
   <div class="mobile-menu__footer">
     {{> theme-switch class="mobile-menu__theme"}}

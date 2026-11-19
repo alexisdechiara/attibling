@@ -115,9 +115,11 @@
   --header-height: 72px;
   --target: 44px; /* minimum touch target */
 
-  /* Fonts. Ghost's custom fonts (Admin > Design) set --gh-font-heading and --gh-font-body:
-     the heading font replaces Onest in titles, the body font replaces Onest in the interface
-     and Literata in the article text. Onest and Literata are served by the theme (partials/fonts.hbs);
+  /* Fonts. Onest everywhere (interface, headings, and the text of every page: generic page,
+     document, « À propos », subscription...); Literata only for the text of articles (posts).
+     Ghost's custom fonts (Admin > Design) set --gh-font-heading and --gh-font-body: the heading font
+     replaces Onest in titles, the body font replaces Onest in the interface and the pages' text, and
+     Literata in the article text. Onest and Literata are served by the theme (partials/fonts.hbs);
      the "… Fallback" faces are local Arial / Times New Roman resized to their metrics, shown until
      the font arrives. Japanese, Korean and Chinese text falls back to the system fonts. */
   --font-onest: Onest, "Onest Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;

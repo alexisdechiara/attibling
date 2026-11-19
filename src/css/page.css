@@ -7,10 +7,10 @@
 @import "./components/heading-link.css";
 @import "./pages/document.css";
 
-/* Measure of the text: 34 ems of the reading size (18px), about 68 to 72 characters per line in
-   Literata; the header follows the same column */
+/* Measure of the text: 31 ems of the text size (17px), about 65 to 69 characters per line in Onest
+   (0.45 em per character on average); the header follows the same column */
 .page-main {
-  --page-measure: calc(34 * 1.125rem);
+  --page-measure: calc(31 * 1.0625rem);
 
   .page-content {
     --column: var(--page-measure);
@@ -40,9 +40,9 @@
 .page-article__excerpt {
   margin-block-start: var(--space-4);
   color: var(--color-text-secondary);
-  font-family: var(--font-reading);
+  font-family: var(--font-ui);
   font-size: var(--text-xl);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 .page-article__figure {

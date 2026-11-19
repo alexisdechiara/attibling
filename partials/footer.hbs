@@ -1,14 +1,21 @@
 {{!--
-Site footer, shared by every template: wordmark, secondary navigation (Settings > Navigation),
-the site's social accounts (Settings > General > Social accounts) and RSS, then the copyright line
-with the site description and the JavaScript licence link (LibreJS).
+Site footer, shared by every template, in two parts:
+- the top row: the wordmark with the site description under it (Settings > General), and the
+  secondary navigation (Settings > Navigation), the site's social accounts (Settings > General >
+  Social accounts) and RSS;
+- a quiet bar across the width: the copyright on the inline start, « Publié avec Ghost » and the
+  JavaScript licence link (the LibreJS table, html/javascript.html) on the inline end.
+Phones: everything stacks in that order.
 --}}
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <div class="site-footer__top">
-      <a class="site-footer__logo" href="{{@site.url}}">
-        {{> wordmark size="footer"}}
-      </a>
+      <div class="site-footer__brand">
+        <a class="site-footer__logo" href="{{@site.url}}">
+          {{> wordmark size="footer"}}
+        </a>
+        {{#if @site.description}}<p class="site-footer__tagline">{{@site.description}}</p>{{/if}}
+      </div>
       <nav class="site-footer__nav" aria-label="{{t "Secondary menu in footer"}}">
         {{#if @site.secondary_navigation}}
           {{navigation type="secondary"}}
@@ -28,11 +35,12 @@ with the site description and the JavaScript licence link (LibreJS).
         </ul>
       </nav>
     </div>
-    <p class="site-footer__legal">
-      <span>{{@site.title}} &copy; {{date format="YYYY"}}</span>
-      {{#if @site.description}}<span aria-hidden="true"> · </span><span>{{@site.description}}</span>{{/if}}
-      <span aria-hidden="true"> · </span><span>{{t "Published with"}} <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a></span>
-      <span aria-hidden="true"> · </span><a href="{{asset "html/javascript.html"}}" rel="jslicense">{{t "JavaScript license information"}}</a>
-    </p>
+    <div class="site-footer__bottom">
+      <p class="site-footer__copyright">{{@site.title}} &copy; {{date format="YYYY"}}</p>
+      <ul class="site-footer__legal" role="list">
+        <li>{{t "Published with"}}&nbsp;<a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a></li>
+        <li><a href="{{asset "html/javascript.html"}}" rel="jslicense">{{t "JavaScript license information"}}</a></li>
+      </ul>
+    </div>
   </div>
 </footer>
