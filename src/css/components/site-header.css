@@ -504,13 +504,22 @@
   }
 }
 
+/* Stacked: the recent posts, then the tags under them (as the earlier theme's submenu) */
 .discover__inner {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
+}
 
-  @media (width >= 64rem) {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    gap: var(--space-7);
+.discover__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 var(--space-4);
+  margin-block-end: var(--space-1);
+
+  .discover__title {
+    margin: 0;
   }
 }
 
@@ -526,8 +535,7 @@
 
 .discover__posts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
   margin: 0;
   padding: 0;
 
@@ -536,19 +544,47 @@
     padding-block: var(--space-2);
   }
 
-  .row-item__media {
-    width: 112px;
-  }
-
   .row-item__title {
     font-size: var(--text-nav);
   }
 }
 
+/* The desktop panel: the posts as small cards (thumbnail above the title), six in one row on wide
+   screens, three per row below */
+.discover .discover__posts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+
+  @media (width >= 72rem) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .row-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding-block: 0;
+  }
+
+  .row-item__media {
+    width: 100%;
+  }
+
+  .row-item__title {
+    font-size: var(--text-m);
+    line-height: 1.35;
+  }
+
+  .row-item .tile__meta {
+    font-size: var(--text-xs);
+  }
+}
+
+/* Tags: a row of plain bold links that wraps (no pills) */
 .discover__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 0 var(--space-6);
   margin: 0;
   padding: 0;
 }
@@ -556,20 +592,21 @@
 .discover__tag {
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
-  padding-inline: 14px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-muted);
+  min-height: var(--target);
+  border-radius: 4px;
   color: var(--color-text);
-  font-size: var(--text-m);
-  font-weight: var(--weight-semibold);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-bold);
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
   transition:
-    background-color var(--duration-s) ease,
-    color var(--duration-s) ease;
+    color var(--duration-s) ease,
+    text-decoration-color var(--duration-s) ease;
 
   &:hover {
-    background: var(--color-inverse);
-    color: var(--color-on-inverse);
+    color: var(--color-accent);
+    text-decoration-line: underline;
+    text-decoration-color: currentcolor;
   }
 }
 
@@ -578,7 +615,6 @@
   align-items: center;
   gap: 6px;
   min-height: var(--target);
-  margin-block-start: var(--space-3);
   color: var(--color-accent);
   font-size: var(--text-m);
   font-weight: var(--weight-semibold);
@@ -595,15 +631,11 @@
   padding-block-start: var(--space-4);
   border-block-start: 1px solid var(--color-border);
 
-  .discover__posts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .row-item__media {
     width: 96px;
   }
 
-  .discover__tag {
-    min-height: var(--target);
+  .discover__tags {
+    gap: 0 var(--space-5);
   }
 }
