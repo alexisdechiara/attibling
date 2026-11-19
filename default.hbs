@@ -104,14 +104,16 @@
 
     {{!-- Pacifico, the "ly" of the GEEKLY wordmark (use_geekly_logo), served by the theme (this
     @font-face is here so the URL works for a Ghost installed in a subdirectory); it is only
-    downloaded when the wordmark is shown. --}}
+    downloaded when the wordmark is shown. The file holds only the letters l and y (3 KB instead of
+    78 KB for the whole font; OFL-1.1, assets/fonts/pacifico/OFL.txt). --}}
     <style>
       @font-face {
         font-family: 'Pacifico';
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: local('Pacifico-Regular'), url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2');
+        src: local('Pacifico-Regular'), url("{{asset 'fonts/pacifico/pacifico-ly.woff2'}}") format('woff2');
+        unicode-range: U+006C, U+0079;
       }
     </style>
 

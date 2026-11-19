@@ -199,7 +199,8 @@ n'y a rien à régler. Ce que le lecteur télécharge :
   alphabet : latin, latin étendu (polonais, tchèque, turc…), cyrillique, cyrillique étendu, vietnamien. Le
   navigateur ne télécharge que les morceaux dont la page a besoin : pour un site en français, Onest latin
   (25 Ko) partout et Literata latin (79 Ko) sur les articles et les pages ; l'italique de Literata (48 Ko)
-  seulement si le texte en contient.
+  seulement si le texte en contient. Pacifico ne contient que les lettres « l » et « y » du logo (3 Ko) et
+  n'est téléchargée que si le logo GEEKLY coloré est affiché.
 - Ces deux fichiers sont annoncés au navigateur dès le début de la page (`preload`) : le texte s'affiche tout
   de suite dans une police système ajustée aux mêmes dimensions (Arial pour Onest, Times New Roman pour
   Literata), puis la police du thème la remplace sans faire sauter la mise en page.

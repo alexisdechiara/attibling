@@ -72,6 +72,11 @@ describe("fonts", () => {
 		assert.ok(faces.some(f => f.family === "Onest Fallback" && /local\("Arial"\)/.test(f.src)));
 		assert.ok(!faces.some(f => f.family === "Literata"), "Literata only on posts and pages");
 		assert.equal(await page.evaluate(() => document.fonts.check('16px "Onest"')), true);
+		// The wordmark's Pacifico: only its two letters
+		const pacifico = faces.find(f => f.family.replaceAll("'", "") === "Pacifico");
+		assert.match(pacifico.src, /pacifico-ly\.woff2/);
+		assert.match(pacifico.range, /U\+6C, U\+79/i);
+		assert.ok(fontRequests.includes("/assets/fonts/pacifico/pacifico-ly.woff2"), fontRequests.join());
 		await dispose();
 	});
 
