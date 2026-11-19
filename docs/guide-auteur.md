@@ -478,9 +478,12 @@ cases s'empilent en une colonne ; 2 colonnes sur tablette, 4 sur ordinateur) :
 Voici où va chaque texte et chaque image, avec les brouillons de la maquette à coller :
 
 1. **Titre** de la page : `À propos`.
-2. **Excerpt** (réglages de la page) = l'accroche, en grand sous le titre :
+2. **Excerpt** (réglages de la page : la roue crantée en haut à droite de l'éditeur → **Excerpt**) =
+   l'accroche, en grand sous le titre. Une seule phrase, qui dit aussi que vous écrivez hors des rubriques :
    > Mon blog personnel : j'y publie ce qui me fait envie, autour de l'informatique, de la culture pop, des
-   > jeux vidéo et des animés.
+   > jeux vidéo et des animés, et parfois sur tout autre chose, simplement parce que j'ai envie d'en parler.
+
+   Ne répétez pas cette idée dans le texte de la page (point 4).
 3. **Les rubriques** = vos **tags**. Chaque case mène à la page du tag et montre son nom, sa description,
    son nombre d'articles, et son image :
    - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, jusqu'à 12,
@@ -512,12 +515,10 @@ Voici où va chaque texte et chaque image, avec les brouillons de la maquette à
      `test`, `review`, `avis` → coche ; `informatique`, `tech`, `code`, `dev`, `program`, `web` → chevrons ;
      tout autre slug → `#`. La liste est dans `partials/about/tag-icon.hbs` (une ligne à ajouter pour un
      nouveau mot).
-4. **Le texte de la page** (l'éditeur) s'affiche **juste après les rubriques**, en grand, dans la police de
-   lecture, sans cadre : c'est la place de la phrase sur la liberté des sujets.
-   > Et comme c'est mon blog, j'y fais ce que je veux : vous tomberez parfois sur un article qui sort de ces
-   > rubriques, simplement parce que j'avais envie d'en parler.
-
-   Un texte plus long (plusieurs paragraphes, une image) y tient aussi. Sans texte, la case disparaît.
+4. **Le texte de la page** (l'éditeur) est **facultatif**. S'il y en a, il s'affiche juste après les
+   rubriques, en grand, dans la police de lecture, sans cadre (plusieurs paragraphes, une image y tiennent).
+   Sans texte — ou avec seulement la carte `about-links` du point 7, ce que fait GEEKLY — ce bloc
+   disparaît et les cases de l'auteur, du chiffre et de « Suivre » suivent directement les rubriques.
 5. **L'auteur** = les auteurs du site qui ont publié : photo, nom, **Bio**, **Location** et **Website** de
    leur fiche (Settings → Staff ; chaque élément vide disparaît). Un seul auteur : une grande case, le nom
    n'est pas un lien (voir [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)). Plusieurs : une case
@@ -530,9 +531,12 @@ Voici où va chaque texte et chaque image, avec les brouillons de la maquette à
 6. **Le chiffre** : « 102 articles publiés depuis 2023 », calculé par Ghost (tous les articles publiés,
    réservés aux abonnés compris, et l'année du plus ancien). Rien à régler ; sans article publié, la case
    disparaît.
-7. **« Suivre le blog »** = les comptes sociaux du **site** (Settings → General → **Social accounts** :
-   X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram), le flux RSS, et
-   « S'abonner » pour les visiteurs. Pour des liens que Ghost ne connaît pas (portfolio, GitHub…), ajoutez
+7. **« Suivre le blog »** = les comptes sociaux du **site**, le flux RSS, et « S'abonner » pour les
+   visiteurs. Les comptes se saisissent dans Ghost Admin → **Settings** → **General** → **Social
+   accounts** : X, Facebook, LinkedIn, **Bluesky** (votre identifiant, par exemple `monblog.bsky.social`),
+   Threads, Mastodon, TikTok, YouTube, Instagram. Chaque compte rempli devient une icône (avec son nom
+   pour les lecteurs d'écran) ici **et** dans le pied de page de tout le site ; un compte vide n'apparaît
+   nulle part. Pour des liens que Ghost ne connaît pas (portfolio, GitHub…), ajoutez
    dans le texte de la page une carte **HTML** (bouton `+` → HTML) :
 
    ```html
@@ -1087,6 +1091,7 @@ navigateur du lecteur.
 | Pas de bouton « À propos » dans la boîte auteur | Aucune page `a-propos` / `about`, ou le réglage About page ne correspond à aucune page publiée. |
 | Pas de « Tous ses articles », le nom de l'auteur n'est pas un lien | Normal sur un site où un seul auteur a publié ([Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; les liens reviennent dès qu'un deuxième auteur publie. |
 | « Rédacteur » reste dans le menu | C'est un lien de votre navigation : Settings → Navigation, supprimez-le. |
+| Pas d'icône Bluesky (ou Threads, Mastodon…) dans le pied de page et « Suivre le blog » | Le compte n'est pas rempli : Settings → General → **Social accounts**, puis **Save**. |
 | Pas de roue crantée | Réservée aux abonnés connectés, sur les articles, réglage Reading settings activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte). |
 | Le style Immersif ne s'applique pas | Un abonné qui a choisi « Carte » dans ses réglages garde son choix sur tous les articles. |
 | L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une fois par session de navigation (fermez l'onglet ou ouvrez une fenêtre privée pour la revoir), seulement sur la page 1 de l'accueil, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
