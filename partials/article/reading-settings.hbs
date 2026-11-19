@@ -16,6 +16,10 @@ summary); default.hbs applies the saved ones before the first paint, src/css/art
   <form class="reading-settings__form" data-reading-form>
     <div class="reading-field">
       <label class="reading-field__label" for="reading-theme">{{t "Theme"}}</label>
+      {{!-- Plain selects cannot draw the swatch inside the option: this one, over the select, follows the
+      checked option (CSS :has); the customizable select draws its own and hides it --}}
+      <div class="reading-select-wrap">
+      <span class="reading-swatch reading-select__swatch" aria-hidden="true"></span>
       <select class="reading-select reading-select--theme" id="reading-theme" name="theme">
         <button type="button"><selectedcontent></selectedcontent></button>
         <option value="geekly" selected><span class="reading-swatch reading-swatch--geekly" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{@site.title}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "site palette (default)"}}</span></span></option>
@@ -23,6 +27,7 @@ summary); default.hbs applies the saved ones before the first paint, src/css/art
         <option value="ink"><span class="reading-swatch reading-swatch--ink" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{t "Ink"}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "black and white, highest contrast"}}</span></span></option>
         <option value="forest"><span class="reading-swatch reading-swatch--forest" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{t "Forest"}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "soft green, dark ink"}}</span></span></option>
       </select>
+      </div>
     </div>
 
     <div class="reading-row">

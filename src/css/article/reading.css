@@ -394,8 +394,45 @@
   font-weight: var(--weight-regular);
 }
 
+/* The theme list's swatch: inside the options of the customizable select (below), otherwise one
+   swatch drawn over the plain select, on the line of its text, following the checked option */
 .reading-swatch {
   display: none;
+}
+
+.reading-select-wrap {
+  position: relative;
+}
+
+.reading-swatch.reading-select__swatch {
+  display: inline-block;
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: var(--space-3);
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.reading-select-wrap .reading-select {
+  padding-inline-start: calc(var(--space-3) + 20px + var(--space-2));
+}
+
+.reading-select-wrap:has(option[value="desert"]:checked) .reading-select__swatch {
+  --sw-bg: #f1e6d2;
+  --sw-text: #1c1712;
+  --sw-accent: #c96f2e;
+}
+
+.reading-select-wrap:has(option[value="ink"]:checked) .reading-select__swatch {
+  --sw-bg: #ffffff;
+  --sw-text: #000000;
+  --sw-accent: #2f6bff;
+}
+
+.reading-select-wrap:has(option[value="forest"]:checked) .reading-select__swatch {
+  --sw-bg: #eef2ec;
+  --sw-text: #121a15;
+  --sw-accent: #4f9b5e;
 }
 
 @supports (appearance: base-select) {
@@ -409,8 +446,14 @@
     align-items: center;
     background-image: none;
 
+    /* The same chevron as the plain select */
     &::picker-icon {
-      color: var(--color-text-muted);
+      content: "";
+      width: 16px;
+      height: 16px;
+      background-color: var(--color-text-muted);
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        center / 16px no-repeat;
     }
 
     > button {
@@ -484,26 +527,40 @@
 
   .reading-swatch {
     display: inline-block;
-    flex: none;
-    width: 20px;
-    height: 20px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    background: linear-gradient(90deg, var(--sw-bg) 50%, var(--sw-text) 50%);
-    box-shadow: inset 0 0 0 5px transparent;
-    position: relative;
+  }
 
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 6px;
-      border-radius: var(--radius-pill);
-      background: var(--sw-accent);
-    }
+  .reading-swatch.reading-select__swatch {
+    display: none;
+  }
+
+  .reading-select-wrap .reading-select {
+    padding-inline-start: var(--space-3);
   }
 }
 
-.reading-swatch--geekly {
+.reading-swatch {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--sw-bg) 50%, var(--sw-text) 50%);
+
+  &:not(.reading-select__swatch) {
+    position: relative;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--sw-accent);
+  }
+}
+
+.reading-swatch--geekly,
+.reading-select__swatch {
   --sw-bg: #f4f5f7;
   --sw-text: #0b0c0f;
   --sw-accent: #4d8dff;

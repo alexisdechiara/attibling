@@ -205,11 +205,6 @@
   &[hidden] {
     display: none;
   }
-
-  /* tiles.css hides an unsaved bookmark's icon at rest on hover screens (tiles); not here */
-  .bookmark__icon {
-    opacity: 1;
-  }
 }
 
 .article-header__caption {

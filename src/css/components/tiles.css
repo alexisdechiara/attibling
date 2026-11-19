@@ -375,8 +375,9 @@ li:nth-child(4n + 4) > * {
   font-size: 1rem;
 }
 
+/* Tiles only: the labelled button of the article header always shows its icon */
 @media (hover: hover) {
-  .bookmark[aria-pressed="false"] .bookmark__icon {
+  .bookmark:not(.bookmark--labelled)[aria-pressed="false"] .bookmark__icon {
     opacity: 0;
   }
 
