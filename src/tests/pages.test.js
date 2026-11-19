@@ -63,6 +63,7 @@ describe("tag page", () => {
 		assert.equal(view.lead, "Anglais ou français, quelle est la véritable VO de Clair Obscur : Expedition 33 ?");
 		assert.ok(view.grid.length > 0);
 		assert.ok(!view.grid.includes(view.lead), "the lead post is not repeated in the grid");
+		assert.equal(await page.locator(".listing-grid .section-header__more").count(), 0, "no « Tout voir » on the grid");
 		await dispose();
 	});
 
@@ -254,6 +255,7 @@ describe("archives page", () => {
 				.map(li => li.dataset.date),
 		}));
 		assert.equal(view.label, "Series: test");
+		assert.equal(await page.locator(".archives__kicker").isVisible(), false, "no « newest first » for a series");
 		assert.equal(view.dates.length, 3);
 		assert.deepEqual(view.dates, [...view.dates].sort(), "oldest first");
 		await page.locator("[data-archives-clear]").click();

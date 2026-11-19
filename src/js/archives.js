@@ -32,6 +32,7 @@ const setUpArchives = root => {
 	const filterLabel = root.querySelector("[data-archives-filter-label]");
 	const clearFilter = root.querySelector("[data-archives-clear]");
 	const yearNav = root.querySelector("[data-archives-yearnav]");
+	const kicker = root.querySelector(".archives__kicker");
 	const newer = root.querySelector("[data-archives-newer]");
 	const older = root.querySelector("[data-archives-older]");
 	const internalNames = new Map(
@@ -159,6 +160,8 @@ const setUpArchives = root => {
 				: i18nTag.replace("%", tagName(state.tag));
 		}
 		filterBox.hidden = !state.tag;
+		// « newest first » does not hold for a series (oldest first)
+		if (kicker) kicker.hidden = Boolean(state.tag) && isSeries(state.tag);
 
 		// Next / previous year
 		const index = years.indexOf(state.year);

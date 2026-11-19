@@ -16,11 +16,12 @@
   min-height: 220px;
   padding: var(--space-7) var(--space-6);
   overflow: hidden;
+  /* in dark mode the card is close to the page: a line keeps its edge */
+  border: 1px solid light-dark(transparent, var(--color-border));
   border-radius: var(--radius-l);
   background: var(--color-media);
   box-shadow: var(--shadow-1);
   color: var(--color-on-media);
-  color-scheme: dark;
   --color-focus: var(--color-focus-on-media);
 
   @media (width >= 48rem) {
