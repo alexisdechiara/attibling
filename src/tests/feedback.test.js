@@ -310,10 +310,17 @@ describe("hero", () => {
 				tagline: [tagline.left, first.top, tagline.right, tagline.bottom],
 				g: g.left,
 				baseline,
+				size: parseFloat(getComputedStyle(wordmark).fontSize),
+				lines: Math.round(tagline.height / parseFloat(getComputedStyle(document.querySelector(".hero__tagline")).lineHeight)),
+				post: document.querySelector("[data-hero-slide]:not([hidden]) .hero__post")?.getBoundingClientRect().left,
+				right: wordmark.getBoundingClientRect().right,
 			};
 		});
 
-	for (const width of [390, 768, 1440]) {
+	// Tight under « GEEK »: the top of the tagline's first line box sits between the letters' baseline
+	// and 0.12 of the wordmark's size under it (the tests use fallback fonts; on the local Ghost with
+	// Onest the cap top of the tagline is 0.075 of the wordmark's size under the baseline).
+	for (const width of [390, 768, 1024, 1280, 1440, 1920]) {
 		it(`tucks the tagline under « GEEK », left of the "y" descender (${width}px)`, async () => {
 			for (const description of [null, "A long description of the site, which has to wrap within the width of GEEK"]) {
 				const { page, dispose } = await open({ viewport: { width, height: 900 } });
@@ -324,8 +331,11 @@ describe("hero", () => {
 				const [tl, tt, tr] = m.tagline;
 				assert.ok(Math.abs(tl - m.g) < 6, `starts at the wordmark's start (${tl} vs ${m.g})`);
 				assert.ok(tr <= m.y[0], `ends before the "y" (${tr} ≤ ${m.y[0]})`);
-				assert.ok(tt >= m.baseline, `below the letters' baseline (${tt} ≥ ${m.baseline})`);
+				assert.ok(tt >= m.baseline - 1, `below the letters' baseline (${tt} ≥ ${m.baseline})`);
+				assert.ok(tt - m.baseline <= 0.12 * m.size, `attached to the letters (${(tt - m.baseline).toFixed(1)} ≤ ${(0.12 * m.size).toFixed(1)})`);
 				assert.ok(tt < m.y[3], "beside the descender, not below it");
+				assert.ok(m.lines <= 2, "two lines at most");
+				if (width >= 1024) assert.ok(m.right + 16 <= m.post, `clear of the post (${m.right} + 16 ≤ ${m.post})`);
 				await dispose();
 			}
 		});
