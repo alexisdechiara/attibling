@@ -1,0 +1,25 @@
+/* Shared styles of the pages not redesigned yet, on top of app.css (see aliases.css) */
+@import "./aliases.css";
+@import "./global.css";
+@import "./helpers.css";
+@import "./icons.css";
+@import "./animations.css";
+@import "./layouts/wrapper.css";
+@import "./layouts/content.css";
+@import "./ui/button.css";
+@import "./ui/icon-button.css";
+@import "./ui/input.css";
+@import "./ui/section-title.css";
+@import "./ui/small-text.css";
+@import "./ui/not-found.css";
+@import "./hero/hero.css";
+@import "./hero/avatar.css";
+@import "./hero/title.css";
+@import "./hero/description.css";
+@import "./hero/social.css";
+@import "./hero/stats.css";
+@import "./heading/heading.css";
+@import "./heading/title.css";
+@import "./heading/description.css";
+@import "./heading/tag.css";
+@import "./heading/meta.css";

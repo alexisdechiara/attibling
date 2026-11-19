@@ -1,0 +1,87 @@
+/** Helpers */
+
+.hide {
+  display: none;
+}
+
+/* The selector lists below replace Sass @extend: .m-switch-theme input,
+   .m-icon-button, .m-button and .m-input used to extend these helpers. */
+.focusable:focus-visible,
+.m-switch-theme input:focus-visible,
+.m-icon-button:focus-visible,
+.m-button:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.content-centered,
+.m-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-appearance,
+.m-switch-theme input,
+.m-input,
+.m-icon-button,
+.m-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.no-padding {
+  padding: 0;
+}
+
+.no-margin {
+  margin: 0;
+}
+
+.no-scroll-y {
+  overflow-y: hidden;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.pos-relative {
+  position: relative;
+}
+
+.pos-absolute {
+  position: absolute;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.only-desktop {
+  display: none;
+
+  @media (width >= 48rem) {
+    display: block;
+  }
+}

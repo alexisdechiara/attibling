@@ -1,0 +1,111 @@
+/** Wordmark (partials/wordmark.hbs): GEEKly letters, the site logo image, or the site title */
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--color-text);
+  font-family: var(--font-onest);
+  font-size: 24px;
+  font-weight: var(--weight-black);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.wordmark__letters {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.wordmark__g {
+  color: var(--wordmark-g);
+}
+
+.wordmark__e1 {
+  color: var(--wordmark-e1);
+}
+
+.wordmark__e2 {
+  color: var(--wordmark-e2);
+}
+
+.wordmark__k {
+  color: var(--wordmark-k);
+}
+
+.wordmark__script {
+  position: relative;
+  inset-block-start: 0.06em;
+  margin-inline-start: 1px;
+  color: var(--wordmark-script);
+  font-family: var(--font-script);
+  font-size: 1.12em;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Logo image: the dark-mode logo replaces it in dark mode */
+.wordmark__image {
+  display: block;
+  width: auto;
+  height: 34px;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.wordmark__image--dark,
+:root[data-theme="dark"] .wordmark__image--light {
+  display: none;
+}
+
+:root[data-theme="dark"] .wordmark__image--dark {
+  display: block;
+}
+
+.wordmark--footer .wordmark__image {
+  height: 32px;
+}
+
+/* Hero: 120px at 1440px, 62px on phones; the "ly" keeps its descender inside the box so the
+   tagline can sit right under it */
+.wordmark--hero {
+  font-size: clamp(62px, 8.4vw, 120px);
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
+
+  .wordmark__script {
+    display: inline-block;
+    inset-block-start: 0;
+    margin-inline-start: 0.033em;
+    padding-block-end: 0.4em;
+    line-height: 1;
+  }
+
+  &.wordmark--text {
+    font-size: clamp(40px, 6vw, 88px);
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .wordmark__image {
+    height: clamp(64px, 10vw, 140px);
+    max-width: min(560px, 100%);
+  }
+}
+
+/* Over images and dark surfaces: white text, white "ly", the dark-mode logo */
+.wordmark--on-media {
+  color: var(--color-on-media);
+
+  .wordmark__script {
+    color: var(--wordmark-script-on-media);
+  }
+
+  &:has(.wordmark__image--dark) .wordmark__image--light {
+    display: none;
+  }
+
+  .wordmark__image--dark {
+    display: block;
+  }
+}

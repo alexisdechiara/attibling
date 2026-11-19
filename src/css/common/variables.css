@@ -1,9 +1,0 @@
-:root {
-  --show-fade-animation: 1;
-  /* Focus ring: the accent colour (Ghost's accent colour replaces --primary-subtle-color) with its OKLCH
-     lightness kept between 0.58 and 0.6, which gives any hue at least 3:1 against white and black alike,
-     so the ring stays visible on the light and dark palettes, the dark footer and the hero images' shade. */
-  --focus-ring-color: oklch(from var(--primary-subtle-color) clamp(0.58, l, 0.6) c h);
-  /* Height of Ghost's announcement bar, set by app.js */
-  --announcement-bar-height: 0px;
-}

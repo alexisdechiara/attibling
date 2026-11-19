@@ -1,0 +1,14 @@
+{{!--
+Tag tile: the tag's name and number of posts on its feature image (darkened), or, without an image,
+on a tinted surface (the tint cycles with the tile's position). One link to the tag page.
+Use inside a tag context fetched with include="count.posts".
+Parameters:
+  class="..."   extra classes
+--}}
+<a class="tag-tile{{#unless feature_image}} tag-tile--no-image{{/unless}}{{#if class}} {{class}}{{/if}}" href="{{url}}">
+  {{#if feature_image}}
+    <img class="tag-tile__image" src="{{img_url feature_image size="s"}}" srcset="{{img_url feature_image size="s"}} 300w, {{img_url feature_image size="m"}} 600w" sizes="(max-width: 767px) 50vw, 220px" alt="" loading="lazy" decoding="async">
+  {{/if}}
+  <span class="tag-tile__name">{{name}}</span>
+  <span class="tag-tile__count">{{plural count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</span>
+</a>

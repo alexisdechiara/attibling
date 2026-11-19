@@ -1,0 +1,168 @@
+/** Design tokens
+
+   Every component uses these semantic tokens, never a literal colour. Colours are written once with
+   light-dark(): the value used follows the color-scheme of the element, which the theme mode sets on
+   the root (data-theme="light" | "dark", resolved before the first paint by default.hbs; "auto" is
+   resolved to one of them by the script). A part of the page can force a scheme with
+   `color-scheme: dark` (the hero does) and every token inside it follows.
+
+   Reading themes (data-reading-theme on the root, added by the article pages) override the same
+   semantic tokens, light and dark at once, e.g.
+     :root[data-reading-theme="desert"] { --color-bg: light-dark(#f6efe3, #17130e); ... }
+   so no component needs to change.
+
+   Values: final boards Final-accueil-light/-dark and Final-article-light/-dark. */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --color-bg: light-dark(#f4f5f7, #0b0c0f); /* page */
+  --color-surface: light-dark(#ffffff, #15171c); /* raised: promo block, menus, popovers */
+  --color-surface-muted: light-dark(#e8eaee, #1e2128); /* active nav item, selected option, image placeholder */
+  --color-header-glass: light-dark(rgb(244 245 247 / 0.88), rgb(11 12 15 / 0.88)); /* scrolled header */
+
+  /* Text */
+  --color-text: light-dark(#121418, #ecedf0);
+  --color-text-secondary: light-dark(#3d424b, #b6bac3);
+  --color-text-muted: light-dark(#575d67, #9298a3);
+
+  /* Lines */
+  --color-border: light-dark(#d9dce2, #2b2f38);
+  --color-border-strong: #8a909a; /* form fields, dashed "see all" tile */
+
+  /* Accent (links, primary buttons, focus) */
+  --color-accent: light-dark(#1a5fd0, #8ab4f8);
+  --color-on-accent: light-dark(#ffffff, #0a1222);
+  --color-accent-soft: light-dark(#e8f0fc, #16233a); /* icon badges */
+  --color-accent-softer: light-dark(#eef3fc, #141d2e); /* selected setting */
+  --color-progress: #4d8dff;
+  --color-progress-track: rgb(17 19 24 / 0.55);
+
+  /* Inverse: pills on tiles, the strong header button */
+  --color-inverse: light-dark(#121418, #f2f3f5);
+  --color-on-inverse: light-dark(#ffffff, #0b0c0f);
+
+  /* Media: dark surfaces carrying images (hero, banners, tag tiles) and their text */
+  --color-media: #111318;
+  --color-on-media: #f2f3f5;
+  --color-on-media-muted: #e3e5e9;
+  --color-on-media-subtle: #c7cbd2;
+  --color-media-ink: #0b0c0f; /* dark text on light pills over images */
+  --color-scrim: rgb(17 19 24 / 0.8); /* round buttons over images */
+  --color-scrim-strong: rgb(17 19 24 / 0.88);
+  --color-scrim-soft: rgb(17 19 24 / 0.55);
+  --color-scrim-faint: rgb(17 19 24 / 0.25);
+  --color-on-media-glass: rgb(255 255 255 / 0.16);
+  --color-pager-dot: rgb(242 243 245 / 0.6);
+  --color-backdrop: rgb(17 19 24 / 0.4); /* behind the phone menu sheet */
+
+  /* Ranking numerals ("Les plus lus") */
+  --color-numeral-fill: light-dark(#e8eaee, #1e2128);
+  --color-numeral-stroke: light-dark(#575d67, #9298a3);
+
+  /* Tints of the designed no-image state (tiles, posters, tag tiles); softened in dark mode */
+  --tint-1: light-dark(rgb(153 218 255 / 0.75), rgb(153 218 255 / 0.24));
+  --tint-2: light-dark(rgb(252 190 152 / 0.8), rgb(252 190 152 / 0.24));
+  --tint-3: light-dark(rgb(255 214 120 / 0.8), rgb(255 214 120 / 0.24));
+  --tint-4: light-dark(rgb(150 176 250 / 0.7), rgb(138 180 248 / 0.22));
+
+  /* Wordmark letters (the site's own colours) and its script part */
+  --wordmark-g: #4285f4;
+  --wordmark-e1: #db4437;
+  --wordmark-e2: #0f9d58;
+  --wordmark-k: #f4b400;
+  --wordmark-script: light-dark(#121418, #ffffff); /* "ly": black on light surfaces, white on dark */
+  --wordmark-script-on-media: #ffffff;
+
+  /* Focus */
+  --color-focus: var(--color-accent);
+  --color-focus-on-media: #ffffff;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+
+  /* Shadows */
+  --shadow-color-1: light-dark(rgb(18 20 24 / 0.08), rgb(0 0 0 / 0.35));
+  --shadow-color-2: light-dark(rgb(18 20 24 / 0.14), rgb(0 0 0 / 0.4));
+  --shadow-color-3: light-dark(rgb(18 20 24 / 0.12), rgb(0 0 0 / 0.35));
+  --shadow-1: 0 1px 2px var(--shadow-color-1), 0 8px 24px var(--shadow-color-1); /* cards, tiles at rest */
+  --shadow-2: 0 4px 12px var(--shadow-color-2), 0 12px 32px var(--shadow-color-3); /* raised tiles, hover */
+  --shadow-popover: 0 2px 6px var(--shadow-color-3), 0 12px 32px var(--shadow-color-2);
+  --shadow-header: 0 8px 24px var(--shadow-color-1);
+
+  /* Radii */
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 56px;
+  --space-11: 64px;
+
+  /* Layout */
+  --gutter: clamp(16px, 4vw, 56px); /* 16px on phones, 56px at 1440px */
+  --page-max: 1328px; /* content width at 1440px */
+  --header-height: 72px;
+  --target: 44px; /* minimum touch target */
+
+  /* Fonts. Ghost's custom fonts (Admin > Design) set --gh-font-heading and --gh-font-body:
+     the heading font replaces Onest in titles, the body font replaces Onest in the interface
+     and Literata in the article text. */
+  --font-onest:
+    Onest, "Noto Sans JP", "Noto Sans KR", "Noto Sans TC", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
+  --font-ui: var(--gh-font-body, var(--font-onest));
+  --font-heading: var(--gh-font-heading, var(--font-onest));
+  --font-reading: var(--gh-font-body, Literata, Georgia, "Times New Roman", serif);
+  --font-script: Pacifico, "Brush Script MT", cursive;
+  --font-mono: ui-monospace, Menlo, Consolas, "Roboto Mono", "Liberation Mono", monospace;
+
+  /* Type scale (px values of the boards) */
+  --text-xs: 0.75rem; /* 12: pills */
+  --text-s: 0.8125rem; /* 13: meta lines */
+  --text-m: 0.875rem; /* 14: secondary links, notes */
+  --text-nav: 0.9375rem; /* 15: navigation, body of cards */
+  --text-base: 1rem; /* 16 */
+  --text-title-s: 1.03125rem; /* 16.5: tile titles */
+  --text-l: 1.0625rem; /* 17: lead paragraphs */
+  --text-xl: 1.1875rem; /* 19: tag tiles, mobile section titles */
+  --text-2xl: 1.3125rem; /* 21: section titles */
+  --text-3xl: 1.625rem; /* 26 */
+  --text-4xl: 2rem; /* 32 */
+  --text-5xl: 2.375rem; /* 38: lead card title */
+  --text-6xl: 3rem; /* 48: banner title */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-strong: 650;
+  --weight-bold: 700;
+  --weight-heavy: 750;
+  --weight-black: 800;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-s: 150ms;
+  --duration-m: 250ms;
+  --duration-l: 400ms;
+}
+
+/* Theme mode: data-theme is always light or dark once the pre-paint script has run;
+   without it (script blocked) the system preference applies. */
+:root:not([data-theme]) {
+  color-scheme: light dark;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}

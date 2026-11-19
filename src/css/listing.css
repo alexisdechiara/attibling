@@ -1,2 +1,4 @@
-@import "./layouts/grid.css";
-@import "./components/ui/pagination.css";
+/* Tag, author and authors pages (not redesigned yet): the legacy hero, the post grid comes from app.css */
+@import "./legacy/index.css";
+@import "./legacy/layouts/grid.css";
+@import "./components/articles/article-card.css";

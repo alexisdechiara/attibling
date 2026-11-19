@@ -1,0 +1,32 @@
+/** Legacy aliases: the variable names of the old Liebling/Attila stylesheets, mapped onto the new
+   semantic tokens so the pages not redesigned yet follow the new palette (light and dark).
+   Delete this file, and the legacy/ folder, once no page imports legacy/index.css. */
+
+:root {
+  --show-fade-animation: 1;
+  --background-color: var(--color-bg);
+  --primary-foreground-color: var(--color-text-secondary);
+  --secondary-foreground-color: var(--color-text);
+  --primary-subtle-color: var(--color-accent);
+  --secondary-subtle-color: var(--color-surface-muted);
+  --titles-color: var(--color-text);
+  --titles-light-color: var(--color-on-media);
+  --link-color: var(--color-accent);
+  --primary-border-color: var(--color-border-strong);
+  --secondary-border-color: var(--color-border);
+  --article-shadow-normal: var(--shadow-1);
+  --article-shadow-hover: var(--shadow-2);
+  --transparent-background-color: var(--color-header-glass);
+  --footer-background-color: var(--color-media);
+  --button-shadow-color-normal: var(--shadow-color-1);
+  --button-shadow-color-hover: var(--shadow-color-2);
+  --table-background-color-odd: var(--color-surface-muted);
+  --table-head-border-bottom: var(--color-border);
+  --kg-card-img-invert-color: 0;
+  --focus-ring-color: var(--color-focus);
+  --announcement-bar-height: 0px;
+}
+
+:root[data-theme="dark"] {
+  --kg-card-img-invert-color: 1;
+}

@@ -1,4 +1,5 @@
-@import "./common/variables.css";
-@import "./layouts/fullscreen.css";
-@import "./components/ui/back.css";
+/* Subscription page (not redesigned yet) */
+@import "./legacy/index.css";
+@import "./legacy/layouts/fullscreen.css";
+@import "./legacy/ui/back.css";
 @import "./components/subscribe/subscribe-section.css";

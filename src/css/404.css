@@ -1,5 +1,6 @@
-@import "./common/variables.css";
-@import "./layouts/fullscreen.css";
+/* Error page (not redesigned yet) */
+@import "./legacy/index.css";
+@import "./legacy/layouts/fullscreen.css";
 @import "./components/404/title.css";
 @import "./components/404/subtitle.css";
 @import "./components/404/text.css";

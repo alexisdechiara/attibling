@@ -1,0 +1,12 @@
+{{!--
+Pill of a tile (top corner of its picture), inside a post context.
+Parameters:
+  pill="..."      this text
+  pill="none"     no pill
+  (default)       « Format long » when the post takes 10 minutes or more to read
+--}}
+{{#if pill}}
+  {{#match pill "none"}}{{else}}<span class="pill tile__pill">{{pill}}</span>{{/match}}
+{{else}}
+  {{#match reading_time ">=" 10}}<span class="pill tile__pill">{{t "Long read"}}</span>{{/match}}
+{{/if}}

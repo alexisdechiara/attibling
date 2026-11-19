@@ -1,0 +1,24 @@
+{{!--
+Poster tile: a 2:3 picture (the post's feature image cropped upright), or, without one, a
+typographic poster (tinted surface with the title in large type); the title under it. One link;
+members get a bookmark button. Use inside a post context.
+Parameters:
+  pill="..." | "none"   as post-tile.hbs (default « Format long » for long reads)
+  eager=true            load the picture at once
+  nobookmark=true       no bookmark button
+  class="..."           extra classes
+--}}
+<article class="tile tile--poster{{#unless feature_image}} tile--no-image{{/unless}}{{#if class}} {{class}}{{/if}}" data-post-tile>
+  <a class="tile__link" href="{{url}}">
+    <span class="tile__media">
+      {{#if feature_image}}
+        <img class="tile__image" srcset="{{img_url feature_image size="s"}} 300w, {{img_url feature_image size="m"}} 600w" sizes="(max-width: 767px) 45vw, 216px" src="{{img_url feature_image size="m"}}" alt=""{{#if eager}} fetchpriority="high"{{else}} loading="lazy"{{/if}} decoding="async">
+      {{else}}
+        <span class="tile__placeholder" aria-hidden="true"><span>{{title}}</span></span>
+      {{/if}}
+    </span>
+    <h3 class="tile__title">{{title}}</h3>
+    {{> tile-pill}}
+  </a>
+  {{#unless nobookmark}}{{> bookmark-button}}{{/unless}}
+</article>

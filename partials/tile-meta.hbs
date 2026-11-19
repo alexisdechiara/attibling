@@ -1,0 +1,27 @@
+{{!--
+Meta line of a tile, inside a post context.
+Parameters:
+  meta="tag-time" (default)   « Jeux vidéo • 5 min »
+  meta="time"                 « 5 min de lecture »
+  meta="tag-date"             « Jeux vidéo • 19 févr. 2026 »
+  meta="date-time"            « 19 févr. 2026 • 5 min de lecture »
+  meta="none"                 nothing
+--}}
+{{#match meta "none"}}{{else}}
+  <span class="meta tile__meta">
+    {{#match meta "time"}}
+      <span>{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
+    {{else}}
+      {{#match meta "date-time"}}
+        <time datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at format="D MMM YYYY"}}</time><span class="meta__dot" aria-hidden="true">•</span><span>{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
+      {{else}}
+        {{#if primary_tag}}<span class="meta__tag">{{primary_tag.name}}</span><span class="meta__dot" aria-hidden="true">•</span>{{/if}}
+        {{#match meta "tag-date"}}
+          <time datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at format="D MMM YYYY"}}</time>
+        {{else}}
+          <span>{{reading_time minute=(t "1 min") minutes=(t "% min")}}</span>
+        {{/match}}
+      {{/match}}
+    {{/match}}
+  </span>
+{{/match}}

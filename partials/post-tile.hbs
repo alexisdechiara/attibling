@@ -1,0 +1,31 @@
+{{!--
+Post tile: a 16:9 picture (or the designed no-image state: a tinted surface with the title), a pill,
+the meta line and the title; the whole tile is one link. Members get a bookmark button.
+Use inside a post context ({{#foreach posts}}).
+Parameters:
+  size="s" | "m" | "l"     title size: s = shelves and grids (16.5px), m = medium (19px), l = feature (26px)
+  ratio="4-3"              picture ratio (default 16:9)
+  pill="..."               text of the pill (e.g. (t "New")); pill="none" for no pill; default
+                           « Format long » for posts of 10 minutes or more (see tile-pill.hbs)
+  meta="tag-time" | "time" | "tag-date" | "none"   meta line (default "tag-time": « Jeux vidéo • 5 min »)
+  heading="h2"             title element (default h3)
+  eager=true               load the picture at once (above the fold); default lazy
+  sizes="..."              sizes attribute of the picture (default about a third of the page)
+  nobookmark=true          no bookmark button
+  class="..."              extra classes on the tile
+--}}
+<article class="tile tile--{{#if size}}{{size}}{{else}}s{{/if}}{{#if ratio}} tile--ratio-{{ratio}}{{/if}}{{#unless feature_image}} tile--no-image{{/unless}}{{#if class}} {{class}}{{/if}}" data-post-tile>
+  <a class="tile__link" href="{{url}}">
+    <span class="tile__media">
+      {{#if feature_image}}
+        <img class="tile__image" srcset="{{img_url feature_image size="s"}} 300w, {{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w" sizes="{{#if sizes}}{{sizes}}{{else}}(max-width: 767px) 85vw, 33vw{{/if}}" src="{{img_url feature_image size="m"}}" alt=""{{#if eager}} fetchpriority="high"{{else}} loading="lazy"{{/if}} decoding="async">
+      {{else}}
+        <span class="tile__placeholder" aria-hidden="true"><span>{{title}}</span></span>
+      {{/if}}
+    </span>
+    {{#match heading "h2"}}<h2 class="tile__title">{{title}}</h2>{{else}}<h3 class="tile__title">{{title}}</h3>{{/match}}
+    {{> tile-meta}}
+    {{> tile-pill}}
+  </a>
+  {{#unless nobookmark}}{{> bookmark-button}}{{/unless}}
+</article>
