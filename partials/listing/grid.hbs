@@ -1,0 +1,18 @@
+{{!--
+Grid of the page's posts (tag and author pages), under a section header « Tous les articles · du plus
+récent au plus ancien ».
+Parameters:
+  items=posts     the posts to show (the template's posts)
+  title="..."     section title
+  exclude="..."   id of a post to leave out (the lead post shown above the grid)
+--}}
+<section class="container listing-grid" aria-labelledby="listing-grid-title">
+  {{> section-header title=title id="listing-grid-title" note=(t "newest first") url="" divider=true}}
+  <ul class="post-grid" role="list">
+    {{#foreach items}}
+      {{#match id "!=" ../exclude}}<li>{{> post-tile size="s"}}</li>{{/match}}
+    {{else}}
+      <li class="listing-grid__empty">{{t "No posts"}}</li>
+    {{/foreach}}
+  </ul>
+</section>

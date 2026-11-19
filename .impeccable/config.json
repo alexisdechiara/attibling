@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-11-18T10:28:29.466Z",
         "reason": "agent triage: unstyled static test fixture for Playwright behaviour tests, not a shipped page"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/css/pages/content.css"
+        ],
+        "createdAt": "2026-11-19T12:06:47.963Z",
+        "reason": "Claude triage: the rule is the inline-start bar of blockquotes in page content, a conventional quotation mark, not a card with an accent side border"
       }
     ]
   }

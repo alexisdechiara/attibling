@@ -1,0 +1,90 @@
+{{!--
+Body of « À propos » (page-a-propos.hbs for the slug "a-propos", custom-about.hbs for any other slug).
+Inside the page's template context. Nothing personal is written in the theme: everything comes from Ghost.
+  - Title: the page's title. Lead sentence: the page's excerpt (« Extrait » in the page settings).
+  - « Ce que vous trouverez ici »: the site's sections (tags) as an icon-in-badge pill linking to the tag
+    page, followed by the tag's description (Ghost Admin > Tags; omitted when empty). Which tags: the
+    « About page sections » setting (tag slugs separated by commas), else the 6 most used public tags.
+    Icons: partials/about/tag-icon.hbs (from words in the slug).
+  - The page's content (the Ghost editor) follows the sections: free text (« Et comme c'est mon blog… »).
+    An HTML card <ul class="about-links"> in it is moved by about.js into « Suivre le blog ».
+  - « Qui écrit »: the site's authors with posts (avatar, name, bio, links, « Tous ses articles »).
+  - « Suivre le blog »: the site's social accounts (Settings > General > Social accounts), the RSS feed,
+    then the author's extra links (about-links card).
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/about.css"}}" as="style" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/about.css"}}" media="screen" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" src="{{asset "js/about.js"}}"></script>
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main about">
+  <article class="about__column">
+    {{#post}}
+      <header class="about__header">
+        <h1 class="about__title">{{title}}</h1>
+        {{#if custom_excerpt}}<p class="about__lead">{{custom_excerpt}}</p>{{/if}}
+      </header>
+    {{/post}}
+
+    <section class="about__section" aria-labelledby="about-sections-title">
+      <h2 class="about__heading" id="about-sections-title">{{t "What you'll find here"}}</h2>
+      <ul class="about-rubrics" role="list">
+        {{#if @custom.about_tags}}
+          {{#get "tags" filter="slug:[{{@custom.about_tags}}]+visibility:public" include="count.posts" order="count.posts desc" limit="20"}}
+            {{#foreach tags}}{{> "about/rubric"}}{{/foreach}}
+          {{/get}}
+        {{else}}
+          {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="6"}}
+            {{#foreach tags}}{{> "about/rubric"}}{{/foreach}}
+          {{/get}}
+        {{/if}}
+      </ul>
+      {{#post}}
+        {{#if html}}<div class="about__content page-content gh-content">{{content}}</div>{{/if}}
+      {{/post}}
+    </section>
+
+    {{#get "authors" limit="10" include="count.posts" order="count.posts desc"}}
+      <section class="about__section" aria-labelledby="about-authors-title">
+        <h2 class="about__heading" id="about-authors-title">{{t "Who writes"}}</h2>
+        {{#foreach authors}}
+          {{#match count.posts ">" 0}}
+            <div class="about-author">
+              {{> author-avatar avatarClass="about-author__avatar"}}
+              <div class="about-author__body">
+                <h3 class="about-author__name"><a href="{{url}}">{{name}}</a></h3>
+                {{#if bio}}<p class="about-author__bio">{{bio}}</p>{{/if}}
+                {{> author-links linksClass="about-author__links"}}
+                <a class="about-author__more" href="{{url}}">{{t "All their posts"}}{{> "icons/chevron-right" class="icon-flip-rtl"}}</a>
+              </div>
+            </div>
+          {{/match}}
+        {{/foreach}}
+      </section>
+    {{/get}}
+
+    <section class="about__section" aria-labelledby="about-follow-title">
+      <h2 class="about__heading" id="about-follow-title">{{t "Follow the blog"}}</h2>
+      <ul class="about-follow" role="list" data-about-follow>
+        {{#if @site.twitter}}<li><a class="icon-button about-follow__icon" href="{{social_url type="twitter"}}" target="_blank" rel="noopener" aria-label="X">{{> "icons/x"}}</a></li>{{/if}}
+        {{#if @site.facebook}}<li><a class="icon-button about-follow__icon" href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">{{> "icons/facebook"}}</a></li>{{/if}}
+        {{#if @site.linkedin}}<li><a class="icon-button about-follow__icon" href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">{{> "icons/linkedin"}}</a></li>{{/if}}
+        {{#if @site.bluesky}}<li><a class="icon-button about-follow__icon" href="{{social_url type="bluesky"}}" target="_blank" rel="noopener" aria-label="Bluesky">{{> "icons/bluesky"}}</a></li>{{/if}}
+        {{#if @site.threads}}<li><a class="icon-button about-follow__icon" href="{{social_url type="threads"}}" target="_blank" rel="noopener" aria-label="Threads">{{> "icons/threads"}}</a></li>{{/if}}
+        {{#if @site.mastodon}}<li><a class="icon-button about-follow__icon" href="{{social_url type="mastodon"}}" target="_blank" rel="noopener" aria-label="Mastodon">{{> "icons/mastodon"}}</a></li>{{/if}}
+        {{#if @site.tiktok}}<li><a class="icon-button about-follow__icon" href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">{{> "icons/tiktok"}}</a></li>{{/if}}
+        {{#if @site.youtube}}<li><a class="icon-button about-follow__icon" href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">{{> "icons/youtube"}}</a></li>{{/if}}
+        {{#if @site.instagram}}<li><a class="icon-button about-follow__icon" href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">{{> "icons/instagram"}}</a></li>{{/if}}
+        <li><a class="icon-button about-follow__icon" href="{{@site.url}}/rss/" aria-label="{{t "RSS feed"}}">{{> "icons/rss"}}</a></li>
+        {{#unless @member}}<li>{{> subscribe-link class="button button--primary about-follow__subscribe"}}</li>{{/unless}}
+      </ul>
+    </section>
+  </article>
+</main>

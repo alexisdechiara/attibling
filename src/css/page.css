@@ -1,0 +1,55 @@
+/* Generic page (page.hbs), on top of app.css: a calm reading column */
+@import "./pages/content.css";
+
+.page-article {
+  padding-block: var(--space-8) var(--space-9);
+
+  @media (width >= 48rem) {
+    padding-block-start: var(--space-11);
+  }
+}
+
+.page-article__header {
+  width: min(42rem, calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+}
+
+.page-article__title {
+  font-size: clamp(2.25rem, 1.5rem + 2.5vw, 3.25rem);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.page-article__excerpt {
+  margin-block-start: var(--space-4);
+  color: var(--color-text-secondary);
+  font-family: var(--font-reading);
+  font-size: var(--text-xl);
+  line-height: 1.6;
+}
+
+.page-article__figure {
+  width: min(65rem, calc(100% - 2 * var(--gutter)));
+  margin: var(--space-8) auto 0;
+
+  img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: cover;
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-1);
+  }
+
+  figcaption {
+    margin-block-start: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-m);
+    text-align: center;
+  }
+}
+
+.page-article__header + .page-content,
+.page-article__figure + .page-content {
+  margin-block-start: var(--space-8);
+}

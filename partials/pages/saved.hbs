@@ -1,0 +1,81 @@
+{{!--
+Body of « Mes favoris » (page-favoris.hbs for the slug "favoris", custom-saved-posts.hbs for any other
+slug). Inside the page's template context. The page's title is the heading.
+
+Members: the posts they saved with the bookmark (« À lire plus tard »), kept in this browser
+(src/js/store.js, localStorage "attibling-saved": address, title, image, section, reading time — enough
+to draw a tile, nothing is fetched). saved.js draws the grid from the template below, with « Retirer »
+under each tile and « Tout retirer »; an empty list shows the empty state. When the browser storage is
+blocked the unavailable note shows instead.
+Visitors: an invitation to subscribe or sign in (Portal).
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/saved.css"}}" as="style" />
+  {{#if @member}}<link rel="modulepreload" href="{{asset "js/saved.js"}}" />{{/if}}
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/saved.css"}}" media="screen" />
+{{/contentFor}}
+{{#if @member}}
+  {{#contentFor "scripts"}}
+    <script type="module" src="{{asset "js/saved.js"}}"></script>
+  {{/contentFor}}
+{{/if}}
+
+{{> header}}
+
+<main id="main" class="site-main saved">
+  <div class="container">
+    {{#if @member}}
+      <div class="saved__member" data-saved
+        data-i18n-one="{{t "1 post, kept in this browser, on this device only."}}" data-i18n-many="{{t "% posts, kept in this browser, on this device only."}}"
+        data-i18n-minutes="{{t "% min"}}" data-i18n-remove="{{t "Remove “%” from the list"}}" data-i18n-confirm="{{t "Remove every saved post from this list?"}}">
+        <header class="saved__header">
+          <div class="saved__heading">
+            {{#post}}<h1 class="saved__title">{{title}}</h1>{{/post}}
+            <p class="saved__note" data-saved-count>{{t "Kept in this browser, on this device only."}}</p>
+          </div>
+          <button type="button" class="button saved__clear" data-saved-clear hidden>{{t "Remove all"}}</button>
+        </header>
+
+        <ul class="post-grid saved__grid" role="list" data-saved-list></ul>
+
+        <section class="saved-empty" data-saved-empty hidden aria-labelledby="saved-empty-title">
+          <span class="saved-empty__icon" aria-hidden="true">{{> "icons/bookmark"}}</span>
+          <h2 class="saved-empty__title" id="saved-empty-title">{{t "No saved post yet"}}</h2>
+          <p class="saved-empty__text">{{t "Hover a tile or open a post, then touch the bookmark to keep it here. The list stays in this browser, on this device."}}</p>
+          <a class="button button--inverse button--l" href="{{@site.url}}">{{t "See the latest posts"}}</a>
+        </section>
+
+        <p class="saved__unavailable" data-saved-unavailable hidden>{{t "Your browser does not let this site keep a list (private browsing or blocked site data): saved posts cannot be shown here."}}</p>
+
+        <template data-saved-template>
+          <li class="saved-item">
+            <article class="tile tile--s" data-post-tile>
+              <a class="tile__link" href="">
+                <span class="tile__media">
+                  <img class="tile__image" src="" alt="" loading="lazy" decoding="async">
+                  <span class="tile__placeholder" aria-hidden="true"><span data-field="placeholder"></span></span>
+                </span>
+                <h2 class="tile__title" data-field="title"></h2>
+                <span class="meta tile__meta"><span class="meta__tag" data-field="tag"></span><span class="meta__dot" aria-hidden="true">•</span><span data-field="time"></span></span>
+                <span class="pill tile__pill" data-field="pill">{{t "Long read"}}</span>
+              </a>
+            </article>
+            <button type="button" class="button button--s saved-item__remove" data-remove>{{> "icons/close"}}<span>{{t "Remove"}}</span></button>
+          </li>
+        </template>
+      </div>
+    {{else}}
+      <section class="saved-visitor" aria-labelledby="saved-visitor-title">
+        <span class="saved-empty__icon" aria-hidden="true">{{> "icons/bookmark"}}</span>
+        {{#post}}<h1 class="saved-visitor__title" id="saved-visitor-title">{{title}}</h1>{{/post}}
+        <p class="saved-empty__text">{{t "Saved posts are a member feature: subscribe for free or sign in, then touch the bookmark of a post to read it later."}}</p>
+        <div class="saved-visitor__actions">
+          {{> subscribe-link class="button button--primary button--l"}}
+          <a class="button button--l" href="#/portal/signin" data-portal="signin">{{t "Login"}}</a>
+        </div>
+      </section>
+    {{/if}}
+  </div>
+</main>
