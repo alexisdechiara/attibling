@@ -1,6 +1,21 @@
-/* Generic page (page.hbs), on top of app.css: a calm reading column */
+/* Generic page (page.hbs) and reference document (pages/document.hbs), on top of app.css: a calm
+   reading column; the document adds its header, table of contents and heading links. Printing:
+   print.css (loaded with media="print"). */
 @import "./pages/content.css";
 @import "./article/links.css";
+@import "./components/toc.css";
+@import "./components/heading-link.css";
+@import "./pages/document.css";
+
+/* Measure of the text: 34 ems of the reading size (18px), about 68 to 72 characters per line in
+   Literata; the header follows the same column */
+.page-main {
+  --page-measure: calc(34 * 1.125rem);
+
+  .page-content {
+    --column: var(--page-measure);
+  }
+}
 
 .page-article {
   padding-block: var(--space-8) var(--space-9);
@@ -11,7 +26,7 @@
 }
 
 .page-article__header {
-  width: min(42rem, calc(100% - 2 * var(--gutter)));
+  width: min(var(--page-measure), calc(100% - 2 * var(--gutter)));
   margin-inline: auto;
 }
 

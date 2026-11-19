@@ -43,7 +43,16 @@ const PAGE = { title: "Page", html: "<p>Body</p>", custom_excerpt: null };
 
 export const template = (
 	name,
-	{ member = false, site = {}, custom = DEFAULT_CUSTOM, page = {}, post = {}, paged = false, pages = [] } = {},
+	{
+		member = false,
+		site = {},
+		custom = DEFAULT_CUSTOM,
+		page = {},
+		post = {},
+		paged = false,
+		pages = [],
+		locale = "en",
+	} = {},
 ) => {
 	const data = createSite(site);
 	data.pages = pages;
@@ -61,6 +70,7 @@ export const template = (
 		"page-archives": pageContext("Archives"),
 		"page-favoris": pageContext("Saved posts"),
 		"page-a-propos": pageContext("About"),
+		"page-mentions-legales": { post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z" } },
 		"error-404": {},
 	};
 	for (const [custom_, page_] of [
@@ -70,6 +80,7 @@ export const template = (
 		["custom-archives", "page-archives"],
 		["custom-saved-posts", "page-favoris"],
 		["custom-about", "page-a-propos"],
+		["custom-document", "page-mentions-legales"],
 	]) {
 		contexts[custom_] = contexts[page_];
 	}
@@ -86,5 +97,6 @@ export const template = (
 		member: member ? MEMBER : null,
 		custom,
 		page: { show_title_and_feature_image: true, ...page },
+		locale,
 	};
 };
