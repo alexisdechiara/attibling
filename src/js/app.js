@@ -1,5 +1,7 @@
 import { isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
 import { setUpBookmarks } from "./store";
+import { setUpPrefetch } from "./prefetch";
+import { setUpTransitions } from "./transitions";
 
 // Theme mode: "light", "dark" or "auto" (follows the system), stored in localStorage "theme".
 // default.hbs applies it before the first paint; the switch cycles auto -> dark -> light -> auto.
@@ -105,6 +107,8 @@ onReady(() => {
 	const header = document.getElementById("site-header");
 	setUpThemeSwitch();
 	setUpBookmarks();
+	setUpTransitions();
+	setUpPrefetch();
 
 	if (header) {
 		placeAnnouncementBar(header);
