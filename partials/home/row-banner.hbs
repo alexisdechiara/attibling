@@ -1,5 +1,5 @@
 {{!-- Home row « banner »: a full-width card on the tag's feature image (or a dark surface) with the tag's name, number of posts and « Tout voir », and its latest 3 posts. Tag context (rows.hbs). --}}
-{{#get "posts" filter=(concat "tag:" slug) include="tags" limit="3" as |rowposts|}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="3" as |rowposts|}}
   <section class="home-section row row--banner container" aria-labelledby="row-{{../slug}}">
     <div class="banner">
       {{#if ../feature_image}}

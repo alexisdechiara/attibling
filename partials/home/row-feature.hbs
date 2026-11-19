@@ -1,5 +1,5 @@
 {{!-- Home row « feature »: the tag's latest post large (4:3) and the next four in a 2 × 2 grid. Tag context (rows.hbs). --}}
-{{#get "posts" filter=(concat "tag:" slug) include="tags" limit="5" as |rowposts|}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="5" as |rowposts|}}
   <section class="home-section row row--feature container" aria-labelledby="row-{{../slug}}">
     {{> section-header title=../name titleUrl=../url id=(concat "row-" ../slug) note=(plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")) url=../url}}
     <ul class="feature-grid" role="list">

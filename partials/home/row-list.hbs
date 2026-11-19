@@ -1,5 +1,5 @@
 {{!-- Home row « list »: the tag's latest 6 posts as a numbered text list (newest first, and the note says so), three columns on desktop. Tag context (rows.hbs). --}}
-{{#get "posts" filter=(concat "tag:" slug) include="tags" limit="6" as |rowposts|}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="6" as |rowposts|}}
   <section class="home-section row row--list container" aria-labelledby="row-{{../slug}}">
     {{> section-header title=../name titleUrl=../url id=(concat "row-" ../slug) note=(t "newest first") url=../url}}
     <ol class="text-list" role="list">

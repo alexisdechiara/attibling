@@ -264,6 +264,11 @@ export const renderTemplate = (name, options = {}) => {
 		},
 		get(resource, opts) {
 			const { order, limit = 15, page = 1 } = opts.hash;
+			// Like Ghost ("filter.match is not a function"), a filter must be a plain string: build it
+			// with {{path}} inside the string, never with a subexpression such as (concat ...)
+			if (opts.hash.filter !== undefined && typeof opts.hash.filter !== "string") {
+				throw new Error("{{#get}} filter must be a string, not a subexpression result");
+			}
 			// Ghost resolves {{path}} inside the filter against the current context (and @data)
 			const filter = (opts.hash.filter || "").replace(/\{\{(.*?)\}\}/g, (match, p) => {
 				const source = p.startsWith("@") ? opts.data : this;
@@ -335,7 +340,8 @@ export const renderTemplate = (name, options = {}) => {
 			if (!opts.fn) return result;
 			return result ? opts.fn(this) : opts.inverse(this);
 		},
-		concat: (...args) => args.slice(0, -1).join(""),
+		// Ghost's concat returns a SafeString, which {{#get}} cannot take as a filter (see get below)
+		concat: (...args) => safe(args.slice(0, -1).join("")),
 		helperMissing(...args) {
 			const opts = args.pop();
 			// A missing property ({{feature_image_alt}} on a post without one) renders nothing, as in Ghost
