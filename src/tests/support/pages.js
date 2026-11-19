@@ -59,7 +59,7 @@ export const template = (
 	const pageContext = title => ({ post: { ...PAGE, title, ...post } });
 	const contexts = {
 		post: { post: { ...data.posts[1], html: "<p>Body</p>" } },
-		page: { post: { ...data.posts[3], html: "<p>Body</p>" } },
+		page: { post: { ...data.posts[3], html: "<p>Body</p>", ...post } },
 		tag: { tag: data.tags[1], ...indexContext(data) },
 		author: { author: data.authors[0], ...indexContext(data) },
 		"page-tags": pageContext("Tags"),
@@ -70,7 +70,7 @@ export const template = (
 		"page-archives": pageContext("Archives"),
 		"page-favoris": pageContext("Saved posts"),
 		"page-a-propos": pageContext("About"),
-		"page-mentions-legales": { post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z" } },
+		"page-mentions-legales": { post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z", ...post } },
 		"error-404": {},
 	};
 	for (const [custom_, page_] of [
