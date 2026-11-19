@@ -1,4 +1,100 @@
-import { isRTL, isMobile, onReady, contentHeight, setUpPopover, throttleToFrame } from "./helpers";
+import { isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
+import { setUpBookmarks } from "./store";
+
+// Theme mode: "light", "dark" or "auto" (follows the system), stored in localStorage "theme".
+// default.hbs applies it before the first paint; the switch cycles auto -> dark -> light -> auto.
+const setUpThemeSwitch = () => {
+	const switches = document.querySelectorAll(".js-switch-theme");
+	const system = window.matchMedia("(prefers-color-scheme: dark)");
+	const stored = () => {
+		try {
+			return localStorage.getItem("theme");
+		} catch {
+			return null;
+		}
+	};
+	const apply = (mode, persist) => {
+		const resolved = mode === "auto" ? (system.matches ? "dark" : "light") : mode;
+		document.documentElement.setAttribute("data-theme", resolved);
+		if (persist) {
+			try {
+				localStorage.setItem("theme", mode);
+			} catch {
+				// The choice only lasts for this page
+			}
+		}
+		document.querySelectorAll("[data-theme-state]").forEach(icon => {
+			icon.hidden = icon.dataset.themeState !== mode;
+		});
+	};
+	const current = () => (["light", "dark"].includes(stored()) ? stored() : "auto");
+
+	switches.forEach(el =>
+		el.addEventListener("click", () => {
+			const next = { auto: "dark", dark: "light", light: "auto" }[current()];
+			apply(next, true);
+			// Ghost's native comments draw their own frame: reload it in the new mode
+			const comments = document.querySelector(".js-native-comments > div > iframe");
+			comments?.contentDocument?.location.reload();
+		}),
+	);
+	system.addEventListener("change", () => {
+		if (current() === "auto") apply("auto", false);
+	});
+	apply(current(), false);
+};
+
+// Header: the "scrolled" look once the page leaves the top
+const setUpHeader = header => {
+	const update = () => header.toggleAttribute("data-scrolled", window.scrollY > 4);
+	update();
+	window.addEventListener("scroll", throttleToFrame(update), { passive: true });
+};
+
+// Main navigation: the items that do not fit in the bar move to the « Plus » popover (copies; the
+// originals are hidden), and back when there is room again. « Plus » shows when it has something.
+const setUpNavOverflow = header => {
+	const list = header.querySelector("[data-nav-list]");
+	const more = header.querySelector("[data-nav-more]");
+	const overflow = header.querySelector("[data-nav-overflow]");
+	if (!list || !more || !overflow) return;
+	const items = [...list.querySelectorAll(":scope > [data-nav-item]")];
+	const hasSecondary = Boolean(header.querySelector("[data-more-menu] .nav-list--secondary"));
+	const nav = list.closest("nav");
+
+	const layout = () => {
+		items.forEach(item => (item.hidden = false));
+		overflow.replaceChildren();
+		more.hidden = !hasSecondary;
+		if (!nav || nav.offsetParent === null) return;
+		const fits = () => list.scrollWidth <= nav.clientWidth + 1;
+		const moved = [];
+		if (!fits()) more.hidden = false;
+		for (let i = items.length - 1; i >= 0 && !fits(); i--) {
+			items[i].hidden = true;
+			moved.unshift(items[i]);
+		}
+		moved.forEach(item => {
+			const copy = item.cloneNode(true);
+			copy.hidden = false;
+			copy.removeAttribute("data-nav-item");
+			overflow.append(copy);
+		});
+		overflow.hidden = moved.length === 0;
+		more.hidden = !hasSecondary && moved.length === 0;
+	};
+
+	// The bar's room depends on its other parts: lay it out when the bar changes size
+	new ResizeObserver(throttleToFrame(layout)).observe(header.querySelector(".site-header__bar") || header);
+	layout();
+};
+
+// Ghost's announcement bar ({{ghost_head}} adds #announcement-bar-root at the start of <body>)
+// goes right before the header, after the skip link, and scrolls away with the page.
+const placeAnnouncementBar = header => {
+	const bar = document.getElementById("announcement-bar-root");
+	if (bar && header) header.before(bar);
+};
 
 onReady(() => {
 	if (isRTL()) {
@@ -6,232 +102,38 @@ onReady(() => {
 		document.documentElement.classList.add("rtl");
 	}
 
-	const $body = document.body;
-	const $header = document.querySelector(".js-header");
-	const $openMenu = document.querySelectorAll(".js-open-menu");
-	const $closeMenu = document.querySelectorAll(".js-close-menu");
-	const $menu = document.querySelectorAll(".js-menu");
-	const $toggleSubmenu = document.querySelectorAll(".js-toggle-submenu");
-	const $submenu = document.querySelectorAll(".js-submenu");
-	const $openSecondaryMenu = document.querySelector(".js-open-secondary-menu");
-	const $themeSwitcher = document.querySelectorAll(".js-switch-theme");
-	const $newsletterElements = document.querySelectorAll(".js-newsletter");
-	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
+	const header = document.getElementById("site-header");
+	setUpThemeSwitch();
+	setUpBookmarks();
 
-	let secondaryMenu = null;
-	let submenu = null;
+	if (header) {
+		placeAnnouncementBar(header);
+		setUpHeader(header);
+		setUpNavOverflow(header);
 
-	// The submenu is a popover (see setUpPopover); these classes drive its look and animation
-	const onSubmenuToggle = open => {
-		$header.classList.toggle("submenu-is-active", open);
-		$toggleSubmenu.forEach(el => el.classList.toggle("active", open));
-		$submenu.forEach(el => {
-			el.classList.toggle("opened", open);
-			el.classList.toggle("closed", !open);
+		const moreButton = header.querySelector("[data-more-button]");
+		const moreMenu = header.querySelector("[data-more-menu]");
+		if (moreButton && moreMenu) setUpPopover(moreButton, moreMenu);
+	}
+
+	// Phones: the menu sheet (a popover: Escape and a click outside close it)
+	const menuButton = document.querySelector("[data-menu-button]");
+	const menu = document.querySelector("[data-mobile-menu]");
+	if (menuButton && menu) {
+		const sheet = setUpPopover(menuButton, menu, {
+			place: false,
+			onToggle: open => {
+				menuButton.setAttribute("aria-expanded", String(open));
+				if (open) requestAnimationFrame(() => menu.querySelector("[data-menu-close]")?.focus());
+			},
 		});
-
-		if (open) {
-			$header.classList.remove("covered");
-		} else {
-			changeHeaderBackground();
-		}
-	};
-
-	const toggleScrollVertical = () => {
-		$body.classList.toggle("no-scroll-y");
-	};
-
-	const tryToRemoveNewsletter = () => {
-		if (typeof disableNewsletter !== "undefined" && disableNewsletter) {
-			$newsletterElements.forEach(el => el.remove());
-		}
-	};
-
-	// The mobile menu covers the page: focus moves into it, Escape closes it and focus goes back
-	// to the button that opened it.
-	let menuOpener = null;
-
-	const isMenuOpen = () => $header.classList.contains("mobile-menu-opened");
-
-	const closeMenu = () => {
-		$header.classList.remove("mobile-menu-opened");
-		$menu.forEach(menu => menu.classList.remove("opened"));
-		toggleScrollVertical();
-		menuOpener?.focus();
-		menuOpener = null;
-	};
-
-	$openMenu.forEach(el =>
-		el.addEventListener("click", () => {
-			$header.classList.add("mobile-menu-opened");
-			$menu.forEach(menu => menu.classList.add("opened"));
-			toggleScrollVertical();
-			menuOpener = el;
-			$closeMenu[0]?.focus();
-		}),
-	);
-
-	$closeMenu.forEach(el => el.addEventListener("click", closeMenu));
-
-	document.addEventListener("keydown", e => {
-		if (e.key === "Escape" && isMenuOpen()) {
-			closeMenu();
-		}
-	});
-
-	$themeSwitcher.forEach(el =>
-		el.addEventListener("click", () => {
-			if (localStorage.getItem("theme") === "light") {
-				$setAutoTheme();
-			} else if (localStorage.getItem("theme") === "dark") {
-				$setLightTheme();
-			} else {
-				$setDarkTheme();
-			}
-
-			const nativeComments = document.querySelector(".js-native-comments > div > iframe");
-
-			if (nativeComments && nativeComments.contentDocument) {
-				nativeComments.contentDocument.location.reload();
-			}
-		}),
-	);
-
-	const $showThemeIcon = theme => {
-		["light", "dark", "auto"].forEach(name => {
-			document.querySelectorAll(`.${name}-theme-icon`).forEach(icon => {
-				icon.style.display = name === theme ? "block" : "none";
-			});
+		menu.querySelector("[data-menu-close]")?.addEventListener("click", () => {
+			if (!Object.hasOwn(HTMLElement.prototype, "popover")) sheet.close();
+			menuButton.focus();
 		});
-	};
-
-	const $setLightTheme = (persist = true) => {
-		document.documentElement.setAttribute("data-theme", "light");
-		if (persist) {
-			localStorage.setItem("theme", "light");
-		}
-		$showThemeIcon("light");
-	};
-
-	const $setDarkTheme = (persist = true) => {
-		document.documentElement.setAttribute("data-theme", "dark");
-		if (persist) {
-			localStorage.setItem("theme", "dark");
-		}
-		$showThemeIcon("dark");
-	};
-
-	const $setAutoTheme = (persist = true) => {
-		if (window.matchMedia && $darkColorsScheme.matches) {
-			document.documentElement.setAttribute("data-theme", "dark");
-		} else {
-			document.documentElement.setAttribute("data-theme", "light");
-		}
-		if (persist) {
-			localStorage.setItem("theme", "auto");
-		}
-		$showThemeIcon("auto");
-	};
-
-	$darkColorsScheme.addEventListener("change", () => {
-		const storedTheme = localStorage.getItem("theme");
-
-		if (!storedTheme || storedTheme === "auto") {
-			$setAutoTheme(false);
-		}
-	});
-
-	if (localStorage.getItem("theme") === "light") {
-		$setLightTheme(false);
-	} else if (localStorage.getItem("theme") === "dark") {
-		$setDarkTheme(false);
-	} else {
-		$setAutoTheme(false);
+		// Following a link inside the page closes the sheet
+		menu.addEventListener("click", event => {
+			if (event.target.closest("a")) sheet.close();
+		});
 	}
-
-	window.addEventListener(
-		"scroll",
-		throttleToFrame(() => changeHeaderBackground()),
-		{ passive: true },
-	);
-
-	const changeHeaderBackground = () => {
-		if (!$header) {
-			return;
-		}
-
-		if ($header.classList.contains("with-picture")) {
-			const headerTop = $header.getBoundingClientRect().top + window.scrollY;
-
-			$header.classList.toggle("covered", headerTop < contentHeight($header));
-		} else {
-			$header.classList.remove("covered");
-		}
-	};
-
-	// Hide the header while scrolling down and bring it back on the way up, with the classes and
-	// thresholds headroom.js used: a scroll of more than 40px down (20px up) between two frames,
-	// and always shown within 15px of the top.
-	const onHeaderUnpin = () => {
-		if (!isMobile()) {
-			secondaryMenu?.close();
-			submenu?.close();
-		}
-	};
-
-	if ($header) {
-		let lastScrollY = Math.round(window.scrollY);
-
-		const updateHeader = () => {
-			const scrollY = Math.round(window.scrollY);
-			const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
-			const down = scrollY > lastScrollY;
-			const top = scrollY <= 15;
-			const toleranceExceeded = Math.abs(scrollY - lastScrollY) > (down ? 40 : 20);
-
-			// Ignore the rubber-band overscroll of touch devices
-			if (scrollY >= 0 && scrollY <= maxScrollY) {
-				$header.classList.toggle("headroom--top", top);
-				$header.classList.toggle("headroom--not-top", !top);
-
-				if (down && !top && toleranceExceeded) {
-					if (!$header.classList.contains("headroom--unpinned")) {
-						$header.classList.remove("headroom--pinned");
-						$header.classList.add("headroom--unpinned");
-						onHeaderUnpin();
-					}
-				} else if ((!down && toleranceExceeded) || top) {
-					$header.classList.replace("headroom--unpinned", "headroom--pinned");
-				}
-			}
-
-			lastScrollY = scrollY;
-		};
-
-		$header.classList.add("headroom");
-		updateHeader();
-		window.addEventListener("scroll", throttleToFrame(updateHeader), { passive: true });
-	}
-
-	// Ghost's announcement bar ({{ghost_head}} adds #announcement-bar-root and fills it later) goes at
-	// the top of the fixed header; --announcement-bar-height keeps the page and the submenu below it.
-	const $announcementBar = document.getElementById("announcement-bar-root");
-
-	if ($announcementBar && $header) {
-		$header.classList.add("with-announcement-bar");
-		$header.prepend($announcementBar);
-		new ResizeObserver(() => {
-			document.documentElement.style.setProperty("--announcement-bar-height", `${$announcementBar.offsetHeight}px`);
-		}).observe($announcementBar);
-	}
-
-	if ($toggleSubmenu[0] && $submenu[0]) {
-		submenu = setUpPopover($toggleSubmenu[0], $submenu[0], { onToggle: onSubmenuToggle, place: false });
-	}
-
-	if ($openSecondaryMenu) {
-		secondaryMenu = setUpPopover($openSecondaryMenu, document.querySelector(".js-secondary-menu"));
-	}
-
-	tryToRemoveNewsletter();
 });

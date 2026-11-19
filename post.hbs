@@ -19,13 +19,13 @@ into the {body} of the default.hbs template --}}
 
 {{!-- Special header.hbs partial to generate the <header> tag --}}
   {{#post}}
-  {{> header background=feature_image}}
+  {{> header}}
   {{/post}}
 
   <main id="main" class="main-wrap">
     {{#post}}
     {{!-- Inject styles of the hero image to make it responsive --}}
-    {{> hero background=feature_image}}
+    {{> legacy-hero background=feature_image}}
     {{#if feature_image}}
     <header class="m-hero__content m-heading in-post l-wrapper" data-animate="fade-down">
       <div class="m-heading__tags">
@@ -202,10 +202,9 @@ into the {body} of the default.hbs template --}}
         <section class="m-recommended">
           <div class="l-wrapper in-recommended">
             <h3 class="m-section-title in-recommended">{{t "Recommended for you"}}</h3>
-            <div class="m-recommended-articles">
-              {{!-- The tag below iterates over all the related posts --}}
-              {{> "loop"}}
-            </div>
+            <ul class="post-grid" role="list">
+              {{#foreach related limit="3"}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
+            </ul>
           </div>
         </section>
         {{/if}}

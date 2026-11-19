@@ -1,0 +1,368 @@
+/** Site header (partials/header.hbs): sticky bar, navigation, « Plus » popover, phone pills and menu sheet */
+
+.site-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--duration-m) ease,
+    box-shadow var(--duration-m) ease;
+
+  /* Once the page has scrolled (app.js): translucent, blurred, with a line and a shadow */
+  &[data-scrolled] {
+    background: var(--color-header-glass);
+    box-shadow:
+      inset 0 -1px 0 var(--color-border),
+      var(--shadow-header);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: 60px;
+
+  @media (width >= 48rem) {
+    height: var(--header-height);
+  }
+}
+
+/* The logo keeps its place while it is hidden on the home page, so the navigation never moves */
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-width: 88px;
+  min-height: var(--target);
+  border-radius: var(--radius-s);
+  transition:
+    opacity var(--duration-l) var(--ease-out),
+    transform var(--duration-l) var(--ease-out),
+    visibility 0s;
+}
+
+/* Home page docking (home.js, src/js/dock.js): the template renders data-dock="undocked" and the
+   logo appears ("docked") once the hero wordmark has scrolled under the bar: a short rise and fade,
+   a fade only under reduced motion. The hidden logo is out of the tab order (visibility). On the
+   home page itself the logo only links to the page being read, so nothing is lost without the script. */
+.site-header[data-dock="undocked"] .site-header__logo {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.92);
+  transition:
+    opacity var(--duration-m) ease,
+    transform var(--duration-m) ease,
+    visibility 0s var(--duration-m);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header__logo,
+  .site-header[data-dock="undocked"] .site-header__logo {
+    transform: none;
+  }
+}
+
+/* Main navigation (desktop) */
+.site-nav {
+  display: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  /* Items that do not fit move to « Plus » (app.js); the margin keeps the focus rings visible */
+  overflow: clip;
+  overflow-clip-margin: 6px;
+
+  @media (width >= 48rem) {
+    display: block;
+  }
+}
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.site-nav .nav-link,
+.nav-pills .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding-inline: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-medium);
+  transition:
+    background-color var(--duration-s) ease,
+    color var(--duration-s) ease;
+
+  &:hover {
+    color: var(--color-text);
+    background: var(--color-surface-muted);
+  }
+
+  &[aria-current="page"] {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+}
+
+/* The « Plus » button anchors its popover */
+.site-nav__more-button {
+  anchor-name: --site-more;
+
+  &[aria-expanded="true"],
+  &:has(+ :popover-open) {
+    color: var(--color-text);
+  }
+}
+
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+.site-header__subscribe {
+  margin-inline-start: var(--space-2);
+}
+
+/* Phones: no theme switch in the bar (it is in the menu sheet), the menu button instead */
+.site-header__theme {
+  display: none;
+
+  @media (width >= 48rem) {
+    display: inline-grid;
+  }
+}
+
+.site-header__menu-button {
+  @media (width >= 48rem) {
+    display: none;
+  }
+}
+
+/* Popovers shared by the header menus: a raised card under their button */
+.menu-popover {
+  min-width: 220px;
+  max-width: min(320px, calc(100vw - 32px));
+  margin: 0;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-popover);
+
+  .nav-list + .nav-list {
+    margin-block-start: 6px;
+    padding-block-start: 6px;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--target);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-s);
+    color: var(--color-text-secondary);
+    font-size: var(--text-nav);
+    font-weight: var(--weight-medium);
+
+    &:hover,
+    &[aria-current="page"] {
+      background: var(--color-surface-muted);
+      color: var(--color-text);
+    }
+  }
+}
+
+/* The « Plus » popover: in the top layer, below its button. CSS anchor positioning places it where
+   supported; elsewhere app.js sets --dropdown-top/left (data-placed), and toggles .is-open where the
+   Popover API is missing. */
+.site-more {
+  display: none;
+  position: fixed;
+  inset: auto;
+  top: var(--dropdown-top, 0);
+  left: var(--dropdown-left, 0);
+  z-index: 60;
+  translate: -50% 0;
+  opacity: 0;
+  transition:
+    opacity var(--duration-m),
+    display var(--duration-m) allow-discrete,
+    overlay var(--duration-m) allow-discrete;
+
+  &:is(:popover-open, .is-open) {
+    display: block;
+    opacity: 1;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+}
+
+@supports (position-area: bottom) {
+  .site-more:not([data-placed]) {
+    position-anchor: --site-more;
+    position-area: bottom;
+    top: auto;
+    left: auto;
+    margin-block-start: 10px;
+    translate: none;
+  }
+}
+
+/* Phones: the navigation as pills that scroll sideways under the bar */
+.nav-pills {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (width >= 48rem) {
+    display: none;
+  }
+}
+
+.nav-pills__list {
+  display: flex;
+  gap: var(--space-2);
+  width: max-content;
+  padding: 0 var(--gutter) var(--space-2);
+
+  .nav-link {
+    min-height: var(--target);
+    height: auto;
+    background: var(--color-surface);
+  }
+}
+
+/* Phones: the menu sheet, from the inline end edge */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  inset-inline-start: auto;
+  width: min(360px, 100vw);
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-3) var(--space-4) var(--space-6);
+  border: 0;
+  overflow-y: auto;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-popover);
+  opacity: 0;
+  translate: 24px 0;
+  transition:
+    opacity var(--duration-m),
+    translate var(--duration-m) var(--ease-out),
+    display var(--duration-m) allow-discrete,
+    overlay var(--duration-m) allow-discrete;
+
+  &:dir(rtl) {
+    translate: -24px 0;
+  }
+
+  &:is(:popover-open, .is-open) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    opacity: 1;
+    translate: 0 0;
+
+    @starting-style {
+      opacity: 0;
+      translate: 24px 0;
+    }
+  }
+
+  &::backdrop {
+    background: var(--color-backdrop);
+  }
+
+  &:not([popover]) {
+    display: none;
+  }
+
+  &.is-open:not([popover]) {
+    display: flex;
+    z-index: 70;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    translate: 0 0;
+  }
+
+  .nav-list + .nav-list {
+    margin-block-start: var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-s);
+    font-size: var(--text-l);
+    font-weight: var(--weight-semibold);
+
+    &[aria-current="page"] {
+      background: var(--color-surface-muted);
+    }
+  }
+}
+
+:root:has(.mobile-menu:popover-open) {
+  overflow: hidden;
+}
+
+.mobile-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--target);
+}
+
+.mobile-menu__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: auto;
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+
+  .button {
+    flex: 1;
+  }
+}
+
+/* Theme switch: only the icon of the current mode is shown (app.js) */
+.theme-switch__state {
+  display: inline-grid;
+  place-items: center;
+}

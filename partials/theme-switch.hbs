@@ -1,0 +1,13 @@
+{{!--
+Theme switch: a button cycling the theme mode auto -> dark -> light -> auto (app.js, stored in
+localStorage "theme"; default.hbs applies it before the first paint). Its accessible name is
+"Switch theme" followed by the current mode; only the current mode's icon is shown.
+Parameters:
+  class="..."   extra classes of the button
+--}}
+<button type="button" class="icon-button theme-switch js-switch-theme{{#if class}} {{class}}{{/if}}" data-theme-switch>
+  <span class="sr-only">{{t "Switch theme"}}</span>
+  <span class="theme-switch__state light-theme-icon" data-theme-state="light" hidden>{{> "icons/theme-light" class="theme-switch__icon"}}<span class="sr-only">{{t "Light theme"}}</span></span>
+  <span class="theme-switch__state dark-theme-icon" data-theme-state="dark" hidden>{{> "icons/theme-dark" class="theme-switch__icon"}}<span class="sr-only">{{t "Dark theme"}}</span></span>
+  <span class="theme-switch__state auto-theme-icon" data-theme-state="auto">{{> "icons/theme-auto" class="theme-switch__icon"}}<span class="sr-only">{{t "Automatic theme"}}</span></span>
+</button>

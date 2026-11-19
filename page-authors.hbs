@@ -19,13 +19,13 @@ into the {body} of the default.hbs template --}}
 
 {{!-- Special header.hbs partial to generate the <header> tag --}}
 {{#post}}
-  {{> header background=feature_image}}
+  {{> header}}
 {{/post}}
 
 {{#post}}
   <main id="main" class="main-wrap">
     {{!-- Inject styles of the hero image to make it responsive --}}
-    {{> hero background=feature_image}}
+    {{> legacy-hero background=feature_image}}
     <div class="m-hero__content" data-animate="fade-down">
       <h1 class="m-hero-title bigger">{{title}}</h1>
       {{#if custom_excerpt}}

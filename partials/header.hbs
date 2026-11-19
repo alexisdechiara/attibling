@@ -1,175 +1,91 @@
 {{!--
-This header template is shared across all the pages.
---}}
+Site header, shared by every template: logo, main navigation with a « Plus » popover (the secondary
+navigation, plus the main items that do not fit), search (Ghost's native search, data-ghost-search),
+theme switch, « S'abonner » for visitors or « Compte » for members. Phones get a top bar (search,
+subscribe or account, menu button), a row of navigation pills under it and a menu sheet.
+The bar sticks to the top of the page; app.js sets data-scrolled once the page has scrolled.
 
-<header class="m-header {{#if background}}with-picture covered{{/if}} {{#if homepage}} in-homepage {{/if}} js-header">
-  <div class="m-mobile-topbar" data-animate="fade-down">
-    <button class="m-icon-button in-mobile-topbar js-open-menu" aria-label="{{t "Open menu"}}">
-      {{> "icons/menu"}}
-    </button>
-    {{#if @site.logo}}
-      <a href="{{@site.url}}" class="m-logo in-mobile-topbar">
-        <img src="{{@site.logo}}" alt="{{@site.title}}" class="{{#if @custom.dark_mode_logo}}m-logo__image-light{{/if}}">
-        {{#if @custom.dark_mode_logo}}
-          <img src="{{@custom.dark_mode_logo}}" alt="{{@site.title}}" class="m-logo__image-dark">
-        {{/if}}
-      </a>
-    {{else}}
-      <a href="{{@site.url}}" class="m-site-name in-mobile-topbar">
-        {{#if @custom.use_geekly_logo}}
-          {{!-- The letters are decorative: assistive tech reads the site title instead of "G E E K ly" --}}
-          <span class="sr-only">{{@site.title}}</span>
-          <span class="geekly-blue" aria-hidden="true">G</span>
-          <span class="geekly-red" aria-hidden="true">E</span>
-          <span class="geekly-green" aria-hidden="true">E</span>
-          <span class="geekly-yellow" aria-hidden="true">K</span>
-          <span class="geekly-manwrite" aria-hidden="true">ly</span>
-        {{else}}
-          {{@site.title}}
-        {{/if}}
-      </a>
-    {{/if}}
-    <button class="m-icon-button in-mobile-topbar" data-ghost-search aria-label="{{t "Open search"}}">
-      {{> "icons/search"}}
-    </button>
+Parameters:
+  home=true   home page: the bar starts without its logo while the hero wordmark is visible and
+              home.js docks the logo into it on scroll (data-dock="undocked" | "docked" on the header).
+              Every other page always shows the logo.
+
+Stable hooks (other scripts rely on them): #site-header, [data-header-logo] (the logo link: the
+target of the hero wordmark for docking and page transitions), [data-ghost-search].
+--}}
+<header class="site-header" id="site-header"{{#if home}} data-dock="undocked"{{/if}}>
+  <div class="site-header__bar container">
+    <a class="site-header__logo" href="{{@site.url}}" data-header-logo>
+      {{> wordmark size="header"}}
+    </a>
+
+    <nav class="site-nav" aria-label="{{t "Main menu"}}">
+      <ul class="site-nav__list" role="list" data-nav-list>
+        {{navigation}}
+        <li class="site-nav__more" data-nav-more{{#unless @site.secondary_navigation}} hidden{{/unless}}>
+          <button type="button" class="nav-link site-nav__more-button" popovertarget="site-more" data-more-button>
+            {{t "More"}}{{> "icons/chevron-down"}}
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button type="button" class="icon-button" data-ghost-search aria-label="{{t "Open search"}}">
+        {{> "icons/search"}}
+      </button>
+      {{> theme-switch class="site-header__theme"}}
+      {{#if @member}}
+        <a class="icon-button site-header__account" href="#/portal/account" data-portal="account" aria-label="{{t "Account"}}">
+          {{> "icons/user"}}
+        </a>
+      {{else}}
+        {{> subscribe-link class="button button--inverse button--s site-header__subscribe"}}
+      {{/if}}
+      <button type="button" class="icon-button site-header__menu-button" popovertarget="site-menu" data-menu-button aria-label="{{t "Open menu"}}">
+        {{> "icons/menu"}}
+      </button>
+    </div>
   </div>
 
-  <div class="m-menu js-menu">
-    <button class="m-icon-button outlined as-close-menu js-close-menu" aria-label="{{t "Close menu"}}">
+  {{!-- « Plus »: the main items that do not fit (moved here by app.js) and the secondary navigation --}}
+  <div class="menu-popover site-more" id="site-more" popover data-more-menu>
+    <ul class="nav-list" role="list" data-nav-overflow hidden></ul>
+    {{#if @site.secondary_navigation}}
+      {{navigation type="secondary"}}
+    {{/if}}
+  </div>
+</header>
+
+{{!-- Phones: the main navigation as a row of pills that scrolls sideways (hidden on larger screens) --}}
+<nav class="nav-pills" aria-label="{{t "Sections"}}">
+  <ul class="nav-pills__list" role="list">
+    {{navigation}}
+  </ul>
+</nav>
+
+{{!-- Phones: the menu sheet, opened by the menu button of the top bar --}}
+<div class="mobile-menu" id="site-menu" popover data-mobile-menu>
+  <div class="mobile-menu__head">
+    {{> wordmark size="header"}}
+    <button type="button" class="icon-button" popovertarget="site-menu" popovertargetaction="hide" data-menu-close aria-label="{{t "Close menu"}}">
       {{> "icons/close"}}
     </button>
-    <div class="m-menu__main" data-animate="fade-down">
-      <div class="l-wrapper">
-        <div class="m-nav js-main-nav">
-          <nav class="m-nav__left js-main-nav-left" role="navigation" aria-label="{{t "Main menu"}}">
-            <ul>
-              {{#if @site.logo}}
-                <li class="only-desktop">
-                  <a href="{{@site.url}}" class="m-logo">
-                    <img src="{{@site.logo}}" alt="{{@site.title}}" class="{{#if @custom.dark_mode_logo}}m-logo__image-light{{/if}}">
-                    {{#if @custom.dark_mode_logo}}
-                      <img src="{{@custom.dark_mode_logo}}" alt="{{@site.title}}" class="m-logo__image-dark">
-                    {{/if}}
-                  </a>
-                </li>
-                {{else}}
-                <li class="only-desktop">
-                  <a href="{{@site.url}}" class="m-site-name in-desktop-menu">
-                    {{#if @custom.use_geekly_logo}}
-                      {{!-- The letters are decorative: assistive tech reads the site title instead of "G E E K ly" --}}
-                      <span class="sr-only">{{@site.title}}</span>
-                      <span class="geekly-blue" aria-hidden="true">G</span>
-                      <span class="geekly-red" aria-hidden="true">E</span>
-                      <span class="geekly-green" aria-hidden="true">E</span>
-                      <span class="geekly-yellow" aria-hidden="true">K</span>
-                      <span class="geekly-manwrite" aria-hidden="true">ly</span>
-                    {{else}}
-                      {{@site.title}}
-                    {{/if}}
-                  </a>
-                </li>
-              {{/if}}
-              {{#if @site.navigation}}
-                {{navigation}}
-              {{/if}}
-              {{#if @site.secondary_navigation}}
-                <li class="more">
-                  <span>
-                    <button type="button" class="js-open-secondary-menu" popovertarget="secondary-navigation">
-                      {{t "More"}}
-                      {{> "icons/chevron-down"}}
-                    </button>
-                  </span>
-                </li>
-              {{/if}}
-              <li class="submenu-option js-submenu-option">
-                <button type="button" class="m-icon-button in-menu-main more js-toggle-submenu" popovertarget="submenu" aria-label="{{t "Open submenu"}}">
-                  {{> "icons/more"}}
-                </button>
-                <div class="m-submenu js-submenu" id="submenu" popover>
-                  <div class="l-wrapper in-submenu">
-                    <section class="m-recent-articles">
-                      <h3 class="m-submenu-title in-recent-articles">{{t "Recent articles"}}</h3>
-                      {{#get "posts" limit="4" order="published_at desc" as |recent|}}
-                        {{#if recent}}
-                          <div class="m-recent-articles__list">
-                            {{#foreach recent}}
-                                <div class="m-recent-articles__item">
-                                  <a href="{{url}}" class="m-recent-article">
-                                    <div class="m-recent-article__picture {{#unless feature_image}}no-picture{{/unless}}">
-                                      {{#if feature_image}}
-                                        <img src="{{img_url feature_image size="s"}}" loading="lazy" decoding="async" alt="">
-                                      {{else}}
-                                        <img src="{{asset "images/no-image.png"}}" width="256" height="256" loading="lazy" decoding="async" alt="">
-                                      {{/if}}
-                                    </div>
-                                    <h3 class="m-recent-article__title" title="{{title}}">
-                                      {{title}}
-                                    </h3>
-                                    <span class="m-recent-article__date">{{date published_at timeago="true" locale=@site.locale timezone=@site.timezone}}</span>
-                                  </a>
-                                </div>
-                            {{/foreach}}
-                          </div>
-                        {{else}}
-                          <div class="m-not-found in-recent-articles">{{t "No recent articles found :("}}</div>
-                        {{/if}}
-                      {{/get}}
-                    </section>
-                    <section class="m-tags">
-                      <h3 class="m-submenu-title">{{t "Tags"}}</h3>
-                      {{#get "tags" limit="10"}}
-                        <ul>
-                          {{#foreach tags}}
-                            <li>
-                              <a href="{{url}}">{{name}}</a>
-                            </li>
-                            {{else}}
-                              <li class="m-not-found">{{t "No tags found :("}}</li>
-                          {{/foreach}}
-                        </ul>
-                      {{/get}}
-                    </section>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </nav>
-          <div class="m-nav__right">
-            <button class="m-icon-button in-menu-main" data-ghost-search aria-label="{{t "Open search"}}">
-              {{> "icons/search"}}
-            </button>
-            <div class="m-switch-theme" data-tooltip="{{t "Switch theme"}}" data-tooltip-position="bottom">
-              <label for="switch-theme" class="sr-only">
-                {{t "Switch theme"}}
-              </label>
-              <input id="switch-theme" type="button" class="js-switch-theme">
-              <div>
-                {{> "icons/moon" class="dark-theme-icon"}}
-                {{> "icons/sunny" class="light-theme-icon"}}
-                {{> "icons/eclipse" class="auto-theme-icon"}}
-              </div>
-            </div>
-            {{#unless @member}}
-                {{#unless @site.members_invite_only}}
-                    <a class="subsribe-button" href="#/portal/signup" data-portal="signup">{{t "Subscribe"}}</a>
-                {{else}}
-                    <a class="login-button" href="#/portal/signin" data-portal="signin">{{t "Login"}}</a>
-                {{/unless}}
-            {{else}}
-                <a class="m-icon-button in-menu-main" href="#/portal/account" data-portal="account" aria-label="{{t "Account"}}">
-                  {{> "icons/user" class="medium"}}
-                </a>
-            {{/unless}}
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
-  {{#if @site.secondary_navigation}}
-    <div id="secondary-navigation" class="m-dropdown js-secondary-menu" popover>
+  <nav class="mobile-menu__nav" aria-label="{{t "Main menu"}}">
+    <ul class="nav-list" role="list">
+      {{navigation}}
+    </ul>
+    {{#if @site.secondary_navigation}}
       {{navigation type="secondary"}}
-    </div>
-  {{/if}}
-</header>
+    {{/if}}
+  </nav>
+  <div class="mobile-menu__footer">
+    {{> theme-switch class="mobile-menu__theme"}}
+    {{#if @member}}
+      <a class="button button--ghost" href="#/portal/account" data-portal="account">{{> "icons/user"}}{{t "Account"}}</a>
+    {{else}}
+      {{> subscribe-link class="button button--inverse"}}
+    {{/if}}
+  </div>
+</div>

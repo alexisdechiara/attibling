@@ -1,73 +1,38 @@
 {{!--
-This footer template is shared across all the pages.
+Site footer, shared by every template: wordmark, secondary navigation (Settings > Navigation),
+the site's social accounts (Settings > General > Social accounts) and RSS, then the copyright line
+with the site description and the JavaScript licence link (LibreJS).
 --}}
-
-<footer class="m-footer">
-  <div class="m-footer__content">
-    {{#if @site.secondary_navigation}}
-      <nav class="m-footer__nav-secondary" role="navigation" aria-label="{{t "Secondary menu in footer"}}">
-        {{navigation type="secondary"}}
-      </nav>
-    {{/if}}
-    <nav class="m-footer-social" aria-label="{{t "Social links"}}">
-      {{!-- Site-wide accounts from Settings > General > Social accounts.
-      The X account is stored in the "twitter" field; social_url outputs an x.com URL. --}}
-      {{#if @site.twitter}}
-        <a href="{{social_url type="twitter"}}" target="_blank" rel="noopener" aria-label="X">
-          {{> "icons/x"}}
-        </a>
-      {{/if}}
-      {{#if @site.facebook}}
-        <a href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">
-          {{> "icons/facebook"}}
-        </a>
-      {{/if}}
-      {{#if @site.linkedin}}
-        <a href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">
-          {{> "icons/linkedin"}}
-        </a>
-      {{/if}}
-      {{#if @site.bluesky}}
-        <a href="{{social_url type="bluesky"}}" target="_blank" rel="noopener" aria-label="Bluesky">
-          {{> "icons/bluesky"}}
-        </a>
-      {{/if}}
-      {{#if @site.threads}}
-        <a href="{{social_url type="threads"}}" target="_blank" rel="noopener" aria-label="Threads">
-          {{> "icons/threads"}}
-        </a>
-      {{/if}}
-      {{#if @site.mastodon}}
-        <a href="{{social_url type="mastodon"}}" target="_blank" rel="noopener" aria-label="Mastodon">
-          {{> "icons/mastodon"}}
-        </a>
-      {{/if}}
-      {{#if @site.tiktok}}
-        <a href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">
-          {{> "icons/tiktok"}}
-        </a>
-      {{/if}}
-      {{#if @site.youtube}}
-        <a href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">
-          {{> "icons/youtube"}}
-        </a>
-      {{/if}}
-      {{#if @site.instagram}}
-        <a href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">
-          {{> "icons/instagram"}}
-        </a>
-      {{/if}}
-      <a href="{{@site.url}}/rss" aria-label="RSS">
-        {{> "icons/rss"}}
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__top">
+      <a class="site-footer__logo" href="{{@site.url}}">
+        {{> wordmark size="footer"}}
       </a>
-    </nav>
-    <p class="m-footer-copyright">
+      <nav class="site-footer__nav" aria-label="{{t "Secondary menu in footer"}}">
+        {{#if @site.secondary_navigation}}
+          {{navigation type="secondary"}}
+        {{/if}}
+        <ul class="nav-list site-footer__social" role="list" aria-label="{{t "Social links"}}">
+          {{!-- The X account is stored in the "twitter" field; social_url outputs an x.com URL --}}
+          {{#if @site.twitter}}<li><a class="icon-button" href="{{social_url type="twitter"}}" target="_blank" rel="noopener" aria-label="X">{{> "icons/x"}}</a></li>{{/if}}
+          {{#if @site.facebook}}<li><a class="icon-button" href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">{{> "icons/facebook"}}</a></li>{{/if}}
+          {{#if @site.linkedin}}<li><a class="icon-button" href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">{{> "icons/linkedin"}}</a></li>{{/if}}
+          {{#if @site.bluesky}}<li><a class="icon-button" href="{{social_url type="bluesky"}}" target="_blank" rel="noopener" aria-label="Bluesky">{{> "icons/bluesky"}}</a></li>{{/if}}
+          {{#if @site.threads}}<li><a class="icon-button" href="{{social_url type="threads"}}" target="_blank" rel="noopener" aria-label="Threads">{{> "icons/threads"}}</a></li>{{/if}}
+          {{#if @site.mastodon}}<li><a class="icon-button" href="{{social_url type="mastodon"}}" target="_blank" rel="noopener" aria-label="Mastodon">{{> "icons/mastodon"}}</a></li>{{/if}}
+          {{#if @site.tiktok}}<li><a class="icon-button" href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">{{> "icons/tiktok"}}</a></li>{{/if}}
+          {{#if @site.youtube}}<li><a class="icon-button" href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">{{> "icons/youtube"}}</a></li>{{/if}}
+          {{#if @site.instagram}}<li><a class="icon-button" href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">{{> "icons/instagram"}}</a></li>{{/if}}
+          <li><a class="nav-link" href="{{@site.url}}/rss/">RSS</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="site-footer__legal">
       <span>{{@site.title}} &copy; {{date format="YYYY"}}</span>
-      <span>&nbsp; &bull; &nbsp;</span>
-      <span>{{t "Published with"}} <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a></span>
-    </p>
-    <p class="m-footer-copyright jslicense">
-      <a href="{{asset "html/javascript.html"}}" rel="jslicense">{{t "JavaScript license information"}}</a>
+      {{#if @site.description}}<span aria-hidden="true"> · </span><span>{{@site.description}}</span>{{/if}}
+      <span aria-hidden="true"> · </span><span>{{t "Published with"}} <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a></span>
+      <span aria-hidden="true"> · </span><a href="{{asset "html/javascript.html"}}" rel="jslicense">{{t "JavaScript license information"}}</a>
     </p>
   </div>
 </footer>

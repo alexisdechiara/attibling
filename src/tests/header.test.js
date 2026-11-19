@@ -1,182 +1,115 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
-import { launch, close, open, waitFor, settle } from "./support/harness.js";
+import { launch, close, open, waitFor } from "./support/harness.js";
+import { home, template } from "./support/pages.js";
 
-const classes = (page, selector) => page.evaluate(sel => [...document.querySelector(sel).classList], selector);
+const PHONE = { width: 390, height: 800 };
+
+const withoutPopover = () => {
+	for (const name of ["popover", "showPopover", "hidePopover", "togglePopover"]) delete HTMLElement.prototype[name];
+	for (const name of ["popoverTargetElement", "popoverTargetAction"]) delete HTMLButtonElement.prototype[name];
+};
+
+const sheetOpen = page =>
+	page.evaluate(() => {
+		const sheet = document.querySelector("[data-mobile-menu]");
+		return getComputedStyle(sheet).display !== "none" && sheet.getBoundingClientRect().width > 0;
+	});
 
 describe("header", () => {
 	before(launch);
 	after(close);
 
-	it("opens and closes the mobile menu", async () => {
-		const { page, dispose } = await open({ viewport: { width: 375, height: 700 } });
-
-		await page.locator(".js-open-menu").click();
-		assert.ok((await classes(page, ".js-header")).includes("mobile-menu-opened"));
-		assert.ok((await classes(page, ".js-menu")).includes("opened"));
-		assert.ok((await classes(page, "body")).includes("no-scroll-y"));
-
-		await page.locator(".js-close-menu").click();
-		assert.ok(!(await classes(page, ".js-header")).includes("mobile-menu-opened"));
-		assert.ok(!(await classes(page, ".js-menu")).includes("opened"));
-		assert.ok(!(await classes(page, "body")).includes("no-scroll-y"));
-
-		await dispose();
-	});
-
-	it("moves focus into the mobile menu, closes it on Escape and gives focus back", async () => {
-		const { page, dispose } = await open({ viewport: { width: 375, height: 700 } });
-		const focused = () => page.evaluate(() => document.activeElement.className);
-
-		await page.locator(".js-open-menu").focus();
-		await page.keyboard.press("Enter");
-		assert.ok((await classes(page, ".js-menu")).includes("opened"));
-		assert.match(await focused(), /js-close-menu/);
-
-		await page.keyboard.press("Escape");
-		assert.ok(!(await classes(page, ".js-menu")).includes("opened"));
-		assert.ok(!(await classes(page, "body")).includes("no-scroll-y"));
-		assert.match(await focused(), /js-open-menu/);
-
-		await dispose();
-	});
-
-	it("toggles the submenu and closes it on a click outside", async () => {
-		const { page, dispose } = await open();
-		const toggle = page.locator(".js-toggle-submenu");
-
-		await toggle.click();
-		assert.ok((await classes(page, ".js-header")).includes("submenu-is-active"));
-		assert.ok((await classes(page, ".js-toggle-submenu")).includes("active"));
-		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
-
-		await toggle.click();
-		assert.ok(!(await classes(page, ".js-header")).includes("submenu-is-active"));
-		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
-
-		await toggle.click();
-		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
-		await page.locator(".js-submenu .m-submenu-title").first().click();
-		assert.ok((await classes(page, ".js-submenu")).includes("opened"), "click inside keeps it open");
-
-		await page.mouse.click(5, 790);
-		assert.ok(!(await classes(page, ".js-header")).includes("submenu-is-active"));
-		assert.ok(!(await classes(page, ".js-toggle-submenu")).includes("active"));
-		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
-
-		await dispose();
-	});
-
-	it("closes the submenu on Escape and gives focus back to its button", async () => {
-		const { page, dispose } = await open();
-		await page.locator(".js-toggle-submenu").focus();
-		await page.keyboard.press("Enter");
-		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
-		await page.waitForTimeout(400);
-		const shown = await page.evaluate(() => {
-			const box = document.querySelector(".js-submenu").getBoundingClientRect();
-			const hit = document.elementFromPoint(box.left + 10, box.bottom - 10);
-			return { below: Math.round(box.top) === 60, onTop: Boolean(hit?.closest(".js-submenu")), width: box.width };
-		});
-		assert.deepEqual(shown, { below: true, onTop: true, width: 1280 });
-
-		await page.keyboard.press("Escape");
-		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
-		assert.ok(!(await classes(page, ".js-header")).includes("submenu-is-active"));
-		assert.equal(await page.evaluate(() => document.activeElement.classList.contains("js-toggle-submenu")), true);
-		await dispose();
-	});
-
-	it("closes the submenu when the header hides on scroll", async () => {
-		const { page, dispose } = await open();
-		await settle(page);
-		await page.locator(".js-toggle-submenu").click();
-		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
-		await page.evaluate(() => window.scrollTo(0, 1500));
-		assert.equal(await waitFor(async () => (await classes(page, ".js-submenu")).includes("closed")), true);
-		await dispose();
-	});
-
-	it("still opens and closes the submenu without the Popover API", async () => {
-		const { page, dispose } = await open({
-			initScript: () => {
-				for (const name of ["popover", "showPopover", "hidePopover", "togglePopover"])
-					delete HTMLElement.prototype[name];
-			},
-		});
-		const toggle = page.locator(".js-toggle-submenu");
-		await toggle.click();
-		assert.ok((await classes(page, ".js-submenu")).includes("opened"));
-		await page.keyboard.press("Escape");
-		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
-		await toggle.click();
-		await page.mouse.click(5, 790);
-		assert.ok((await classes(page, ".js-submenu")).includes("closed"));
-		await dispose();
-	});
-
-	it("removes the covered background once scrolled past the header", async () => {
-		const { page, dispose } = await open();
-		assert.ok((await classes(page, ".js-header")).includes("covered"));
-
-		await page.evaluate(() => window.scrollTo(0, 1500));
-		assert.equal(await waitFor(async () => !(await classes(page, ".js-header")).includes("covered")), true);
-
-		await page.evaluate(() => window.scrollTo(0, 0));
-		assert.equal(await waitFor(async () => (await classes(page, ".js-header")).includes("covered")), true);
-
-		await dispose();
-	});
-
-	it("hides the header when scrolling down and shows it again when scrolling up", async () => {
-		const { page, dispose } = await open({ fixture: "post.html" });
-		const scrollTo = y =>
-			page.evaluate(
-				y =>
-					new Promise(resolve => {
-						window.scrollTo(0, y);
-						requestAnimationFrame(() => requestAnimationFrame(resolve));
-					}),
-				y,
+	it("shows search, theme and « Subscribe » to visitors, « Account » to members", async () => {
+		const visitor = await open({ viewport: { width: 1440, height: 900 } });
+		const actions = page =>
+			page.$$eval(".site-header__actions > :is(a, button)", els =>
+				els
+					.filter(el => getComputedStyle(el).display !== "none")
+					.map(el => el.getAttribute("aria-label") || el.innerText.trim().replace(/\s+/g, " ")),
 			);
-		const shown = async () => {
-			await page.waitForTimeout(450);
-			return page.evaluate(() => document.querySelector(".js-header").getBoundingClientRect().bottom > 0);
-		};
+		assert.deepEqual(await actions(visitor.page), ["Open search", "Switch theme Automatic theme", "Subscribe"]);
+		await visitor.dispose();
 
-		assert.equal(await shown(), true, "shown at the top");
-		await scrollTo(600);
-		assert.equal(await shown(), false, "hidden after scrolling down");
-		await scrollTo(590);
-		assert.equal(await shown(), false, "still hidden after a small scroll up");
-		await scrollTo(500);
-		assert.equal(await shown(), true, "shown after scrolling up");
-		await scrollTo(530);
-		assert.equal(await shown(), true, "still shown after a small scroll down");
-		await scrollTo(1000);
-		assert.equal(await shown(), false, "hidden again");
-		await scrollTo(10);
-		assert.equal(await shown(), true, "shown near the top");
+		const member = await open({ render: home({ member: true }), viewport: { width: 1440, height: 900 } });
+		assert.deepEqual(await actions(member.page), ["Open search", "Switch theme Automatic theme", "Account"]);
+		await member.dispose();
+	});
 
+	it("marks the current page in the navigation", async () => {
+		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
+		assert.equal(await page.locator(".site-nav [aria-current=page]").textContent(), "Home");
 		await dispose();
 	});
 
-	it("moves the hero picture on scroll (parallax)", async () => {
-		const { page, dispose } = await open();
-		const transform = () => page.evaluate(() => getComputedStyle(document.querySelector(".m-hero__picture")).transform);
-
-		await page.evaluate(() => window.scrollTo(0, 200));
-		assert.equal(await waitFor(async () => (await transform()) === "matrix(1, 0, 0, 1, 0, 100)"), true);
-
+	it("sticks to the top and changes its look once the page has scrolled", async () => {
+		const { page, dispose } = await open({ render: template("tag") });
+		const state = () =>
+			page.evaluate(() => {
+				const header = document.getElementById("site-header");
+				return { top: Math.round(header.getBoundingClientRect().top), scrolled: header.hasAttribute("data-scrolled") };
+			});
+		assert.deepEqual(await state(), { top: 0, scrolled: false });
+		await page.evaluate(() => window.scrollTo(0, 1200));
+		assert.equal(await waitFor(async () => (await state()).scrolled), true);
+		assert.equal((await state()).top, 0, "still at the top of the viewport");
 		await dispose();
 	});
 
-	it("does not move the hero picture when reduced motion is preferred", async () => {
-		const { page, dispose } = await open({ reducedMotion: "reduce" });
-		await page.evaluate(() => window.scrollTo(0, 200));
-		await page.waitForTimeout(150);
-		const transform = await page.evaluate(() => getComputedStyle(document.querySelector(".m-hero__picture")).transform);
-		assert.equal(transform, "none");
+	it("shows the navigation as pills that scroll sideways on a phone", async () => {
+		const { page, dispose } = await open({ viewport: PHONE });
+		const pills = await page.evaluate(() => {
+			const nav = document.querySelector(".nav-pills");
+			return {
+				visible: getComputedStyle(nav).display !== "none",
+				desktopNav: getComputedStyle(document.querySelector(".site-nav")).display,
+				links: [...nav.querySelectorAll("a")].map(a => a.textContent),
+			};
+		});
+		assert.deepEqual(pills, { visible: true, desktopNav: "none", links: ["Home", "Newsletter", "Dossier", "News"] });
+		await dispose();
+	});
+
+	it("opens the phone menu, moves focus into it, closes it on Escape and gives focus back", async () => {
+		const { page, dispose } = await open({ viewport: PHONE });
+		const button = page.locator("[data-menu-button]");
+		await button.focus();
+		await page.keyboard.press("Enter");
+		assert.equal(await waitFor(() => sheetOpen(page)), true);
+		assert.equal(await button.getAttribute("aria-expanded"), "true");
+		assert.equal(
+			await waitFor(() => page.evaluate(() => document.activeElement.hasAttribute("data-menu-close"))),
+			true,
+		);
+		assert.deepEqual(await page.locator("[data-mobile-menu] .nav-link").allTextContents(), [
+			"Home",
+			"Newsletter",
+			"Dossier",
+			"News",
+			"About",
+			"Contact",
+		]);
+
+		await page.keyboard.press("Escape");
+		assert.equal(await waitFor(async () => !(await sheetOpen(page))), true);
+		assert.equal(await page.evaluate(() => document.activeElement.hasAttribute("data-menu-button")), true);
+		await dispose();
+	});
+
+	it("closes the phone menu with its close button, also without the Popover API", async () => {
+		for (const initScript of [null, withoutPopover]) {
+			const { page, dispose } = await open({ viewport: PHONE, initScript });
+			await page.locator("[data-menu-button]").click();
+			assert.equal(await waitFor(() => sheetOpen(page)), true);
+			await page.locator("[data-menu-close]").click();
+			assert.equal(await waitFor(async () => !(await sheetOpen(page))), true);
+			await dispose();
+		}
+	});
+
+	it("leaves the page's own scroll alone while the menu is closed", async () => {
+		const { page, dispose } = await open({ viewport: PHONE });
+		assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), "visible");
 		await dispose();
 	});
 });

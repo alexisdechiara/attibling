@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{@site.locale}}">
+{{!-- data-member: a signed-in member (members-only features in the scripts, src/js/store.js) --}}
+<html lang="{{@site.locale}}"{{#if @member}} data-member{{/if}}>
   <head>
     {{!-- Document Settings --}}
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     {{!-- Base Meta --}}
     <title>{{meta_title}}</title>
@@ -18,65 +18,59 @@
     {{!-- This #block helper will try to preload page-specific assets --}}
     {{{block "preload"}}}
 
-    {{!-- This script sets the theme mode (light or dark) before the first paint --}}
+    {{!-- Before the first paint: the theme mode (data-theme light | dark, from localStorage "theme",
+    "auto" or nothing following the system), and the home subscription block closed for good
+    (data-promo-closed, localStorage "attibling-promo-closed"). --}}
     <script>
       // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
       (function () {
+        var root = document.documentElement
         var theme = null
+        var promo = null
         try {
           theme = localStorage.getItem('theme')
+          promo = localStorage.getItem('attibling-promo-closed')
         } catch (e) {}
         if (theme !== 'light' && theme !== 'dark') {
           theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         }
-        document.documentElement.setAttribute('data-theme', theme)
+        root.setAttribute('data-theme', theme)
+        if (promo) root.setAttribute('data-promo-closed', '')
       })()
       // @license-end
     </script>
 
-    {{!-- Google fonts, only the styles and weights the CSS can select:
-    Noto Sans (body text: 400 to 700, and up to 900 for bold text inside semibold or bold elements, roman and italic),
-    Noto Serif (homepage description 400, quotes 400 italic and 700 italic for bold text),
-    Manrope (post headings 800, and 500 to 700 for the headings of Ghost's cards), Montserrat (page titles 700).
-    Noto Sans JP / KR / TC follow Noto Sans in the body font stack for Japanese, Korean and Chinese text:
-    they are only loaded for a site in one of those languages. --}}
+    {{!-- Fonts (Google Fonts, display=swap), only the styles the CSS selects: Onest 400 to 800 for the
+    interface and the headings; Literata (article text, roman 400 to 650 and italic 400) only on posts
+    and pages. Noto Sans JP / KR / TC follow Onest for Japanese, Korean and Chinese sites.
+    Ghost's custom fonts (Admin > Design) replace them through --gh-font-heading / --gh-font-body. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500..800&amp;family=Montserrat:wght@700&amp;family=Noto+Sans:ital,wght@0,400..900;1,400..900&amp;family=Noto+Serif:ital,wght@0,400;1,400..700&amp;display=swap">
+    {{#is "post, page"}}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..650;1,7..72,400&amp;family=Onest:wght@400..800&amp;display=swap">
+    {{else}}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400..800&amp;display=swap">
+    {{/is}}
     {{#match @site.locale "~^" "ja"}}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400..900&amp;display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400..800&amp;display=swap">
     {{/match}}
     {{#match @site.locale "~^" "ko"}}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400..900&amp;display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400..800&amp;display=swap">
     {{/match}}
     {{#match @site.locale "~^" "zh"}}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400..900&amp;display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400..800&amp;display=swap">
     {{/match}}
 
-    {{!-- Styles & Scripts --}}
+    {{!-- Pacifico, the "ly" of the GEEKLY wordmark (use_geekly_logo), served by the theme (this
+    @font-face is here so the URL works for a Ghost installed in a subdirectory); it is only
+    downloaded when the wordmark is shown. --}}
     <style>
-      /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory.
-         They are only downloaded when the GEEKLY wordmark (use_geekly_logo) is shown, which only uses
-         Pacifico and Product Sans bold (its 600 and 700 weights both resolve to the bold face). */
-
-      /* Pacifico */
       @font-face {
         font-family: 'Pacifico';
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: local('Pacifico-Regular'),
-            url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2');
-      }
-
-      /* Product Sans Bold */
-      @font-face {
-        font-family: 'Product Sans';
-        font-style: normal;
-        font-weight: 700;
-        font-display: swap;
-        src: local('ProductSans-Bold'),
-            url("{{asset 'fonts/product-sans/product-sans-bold.woff2'}}") format('woff2');
+        src: local('Pacifico-Regular'), url("{{asset 'fonts/pacifico/pacifico.woff2'}}") format('woff2');
       }
     </style>
 
@@ -85,32 +79,17 @@
     {{!-- This #block helper will inject a stylesheet for a specific page --}}
     {{{block "styles"}}}
 
-    {{!-- This #block helper will pull data from the hero partial
-    to inject styles of the hero image to make it responsive --}}
-    {{{block "herobackground"}}}
-
     {{!-- This tag outputs SEO meta+structured data and other important settings --}}
     {{ghost_head}}
 
-    {{!-- This style overrides the accent color to match the one from the Admin --}}
-    <style>
-      :root {
-        --primary-subtle-color: var(--ghost-accent-color) !important;
-      }
-    </style>
-
-    {{!-- This variable disbale the fade animation when it's enabled --}}
+    {{!-- "Disable fade animation" setting: no entrance animations (data-animate, legacy pages) --}}
     {{#if @custom.disable_fade_animation}}
-      <style>
-        :root {
-          --show-fade-animation: 0;
-        }
-      </style>
+      <style>:root { --show-fade-animation: 0; }</style>
     {{/if}}
   </head>
   <body class="{{body_class}}">
     {{!-- Skip link: first focusable element; every template gives its <main> id="main" --}}
-    <a class="sr-only focusable skip-link" href="#main">{{t "Skip to content"}}</a>
+    <a class="sr-only skip-link" href="#main">{{t "Skip to content"}}</a>
 
     {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}
     {{{body}}}

@@ -2,14 +2,18 @@ import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/
 import assert from "node:assert/strict";
 import { launch, close, open, waitFor } from "./support/harness.js";
 
+// The switch in the header bar (desktop); the one of the phone menu sheet follows the same state
 const themeState = page =>
-	page.evaluate(() => ({
-		theme: document.documentElement.getAttribute("data-theme"),
-		stored: localStorage.getItem("theme"),
-		icons: ["light", "dark", "auto"].filter(
-			name => getComputedStyle(document.querySelector(`.${name}-theme-icon`)).display !== "none",
-		),
-	}));
+	page.evaluate(() => {
+		const button = document.querySelector(".site-header__theme");
+		return {
+			theme: document.documentElement.getAttribute("data-theme"),
+			stored: localStorage.getItem("theme"),
+			icons: [...button.querySelectorAll("[data-theme-state]")]
+				.filter(icon => getComputedStyle(icon).display !== "none")
+				.map(icon => icon.dataset.themeState),
+		};
+	});
 
 describe("theme switcher", () => {
 	before(launch);
@@ -26,9 +30,17 @@ describe("theme switcher", () => {
 		await dark.dispose();
 	});
 
+	it("names the current mode in the button's accessible name", async () => {
+		const { page, dispose } = await open({ colorScheme: "light" });
+		assert.equal(await page.getByRole("button", { name: "Switch theme Automatic theme" }).count(), 1);
+		await page.locator(".site-header__theme").click();
+		assert.equal(await page.getByRole("button", { name: "Switch theme Dark theme" }).count(), 1);
+		await dispose();
+	});
+
 	it("cycles auto -> dark -> light -> auto", async () => {
 		const { page, dispose } = await open({ colorScheme: "light" });
-		const switcher = page.locator(".js-switch-theme");
+		const switcher = page.locator(".site-header__theme");
 
 		await switcher.click();
 		assert.deepEqual(await themeState(page), { theme: "dark", stored: "dark", icons: ["dark"] });
@@ -57,6 +69,15 @@ describe("theme switcher", () => {
 		const auto = await open({ colorScheme: "dark", storage: { theme: "auto" } });
 		assert.deepEqual(await themeState(auto.page), { theme: "dark", stored: "auto", icons: ["auto"] });
 		await auto.dispose();
+	});
+
+	it("switches the page's colours", async () => {
+		const { page, dispose } = await open({ colorScheme: "light" });
+		const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+		assert.equal(await bg(), "rgb(244, 245, 247)");
+		await page.locator(".site-header__theme").click();
+		assert.equal(await bg(), "rgb(11, 12, 15)");
+		await dispose();
 	});
 
 	it("keeps an explicit choice when the system scheme changes", async () => {
