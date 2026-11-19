@@ -1,5 +1,546 @@
-/* Subscription page (not redesigned yet) */
-@import "./legacy/index.css";
-@import "./legacy/layouts/fullscreen.css";
-@import "./legacy/ui/back.css";
-@import "./components/subscribe/subscribe-section.css";
+/* Subscription page (partials/pages/subscribe.hbs), on top of app.css */
+
+.subscribe {
+  /* Form states; light-dark() follows the scheme of the part they are in (the opening band is dark) */
+  --color-success: light-dark(#0b7a3e, #7fd6a4);
+  --color-danger: light-dark(#b3261e, #ffb4a8);
+  padding-block-end: 0;
+}
+
+/* 1. Opening section: a dark band straight in the page, at least the first screen tall (the screen minus
+   the header bar: 60px on phones, --header-height from 48rem), its content centred vertically */
+.subscribe-hero {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 60px);
+  min-height: calc(100svh - 60px);
+  padding-block: var(--space-8);
+  background: var(--color-media);
+  color: var(--color-on-media);
+  color-scheme: dark;
+
+  @media (width >= 48rem) {
+    min-height: calc(100vh - var(--header-height));
+    min-height: calc(100svh - var(--header-height));
+    padding-block: var(--space-11);
+  }
+}
+
+.subscribe-hero__inner {
+  display: grid;
+  gap: var(--space-9);
+
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0;
+  }
+}
+
+.subscribe-hero__main {
+  max-width: 46rem;
+
+  @media (width >= 64rem) {
+    padding-inline-end: var(--space-9);
+  }
+}
+
+.subscribe-hero__title {
+  font-size: clamp(2.25rem, 1.2rem + 3.2vw, 4rem);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+
+.subscribe-hero__lead {
+  margin-block-start: var(--space-5);
+  color: var(--color-on-media-muted);
+  font-size: var(--text-l);
+  line-height: 1.55;
+
+  @media (width >= 48rem) {
+    font-size: 1.375rem;
+  }
+}
+
+/* Ghost's members form: Ghost adds .loading, .success, .error on the <form> */
+.subscribe-form {
+  margin-block-start: var(--space-8);
+}
+
+.subscribe-form__label {
+  display: block;
+  margin-block-end: var(--space-3);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+}
+
+.subscribe-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  @media (width >= 40rem) {
+    flex-direction: row;
+  }
+}
+
+.subscribe-form__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding-inline: var(--space-5);
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-on-media);
+  color: var(--color-media-ink);
+  font: inherit;
+  font-size: var(--text-l);
+  --color-focus: var(--color-focus-on-media);
+
+  &:focus-visible {
+    border-color: var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.subscribe-form__button {
+  min-height: 52px;
+  font-size: var(--text-l);
+  font-weight: var(--weight-bold);
+}
+
+.subscribe-form__spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: subscribe-spin 0.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 2.4s;
+  }
+}
+
+@keyframes subscribe-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.subscribe-form.loading {
+  .subscribe-form__spinner {
+    display: inline-block;
+  }
+
+  .subscribe-form__button {
+    pointer-events: none;
+    opacity: 0.85;
+  }
+}
+
+.subscribe-form__success {
+  display: none;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-m);
+  background: var(--color-on-media-glass);
+  color: var(--color-on-media);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  --color-focus: var(--color-focus-on-media);
+
+  .icon {
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--color-success);
+    font-size: 1.25rem;
+  }
+}
+
+.subscribe-form.success {
+  .subscribe-form__label,
+  .subscribe-form__fields,
+  .subscribe-form__hint {
+    display: none;
+  }
+
+  .subscribe-form__success {
+    display: flex;
+  }
+}
+
+.subscribe-form__error {
+  display: none;
+  margin-block-start: var(--space-3);
+  color: var(--color-danger);
+  font-size: var(--text-m);
+  font-weight: var(--weight-semibold);
+}
+
+/* Ghost writes its own message in [data-members-error]; the theme's sentence shows when it stays empty */
+.subscribe-form.error {
+  .subscribe-form__error {
+    display: block;
+  }
+
+  .subscribe-form__input {
+    border-color: var(--color-danger);
+  }
+
+  [data-members-error]:not(:empty) + .subscribe-form__error-default {
+    display: none;
+  }
+}
+
+.subscribe-form__hint {
+  margin-block-start: var(--space-4);
+  color: var(--color-on-media-subtle);
+  font-size: var(--text-m);
+}
+
+/* The page's own text under the form (consent, legal notice) */
+.subscribe-hero__notes {
+  margin-block-start: var(--space-2);
+  color: var(--color-on-media-subtle);
+  font-size: var(--text-s);
+  line-height: 1.55;
+
+  > * + * {
+    margin-block-start: var(--space-2);
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+.subscribe-hero__signin {
+  margin-block-start: var(--space-6);
+  font-size: var(--text-base);
+
+  a {
+    color: var(--color-accent);
+    font-weight: var(--weight-bold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+}
+
+/* What a subscription brings */
+.subscribe-hero__benefits {
+  @media (width >= 64rem) {
+    padding-inline-start: var(--space-10);
+    border-inline-start: 1px solid var(--color-on-media-glass);
+  }
+}
+
+.subscribe-benefit {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.subscribe-benefit__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-pill);
+  background: var(--color-on-media-glass);
+  color: var(--color-accent);
+  font-size: 1.375rem;
+}
+
+.subscribe-benefit__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.01em;
+}
+
+.subscribe-benefit__text {
+  margin-block-start: var(--space-1);
+  color: var(--color-on-media-subtle);
+  font-size: var(--text-nav);
+}
+
+.subscribe-hero__tools-title {
+  margin-block: var(--space-7) var(--space-3);
+  font-size: var(--text-m);
+  font-weight: var(--weight-bold);
+}
+
+.subscribe-hero__tools {
+  display: grid;
+  gap: var(--space-3) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (width >= 40rem) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  li {
+    display: flex;
+    gap: var(--space-3);
+    color: var(--color-on-media-subtle);
+    font-size: var(--text-nav);
+    line-height: 1.45;
+  }
+
+  .icon {
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--color-accent);
+    font-size: 1.125rem;
+  }
+}
+
+.subscribe-hero__tools b,
+.subscribe-hero__comments b {
+  display: block;
+  color: var(--color-on-media);
+  font-weight: var(--weight-semibold);
+}
+
+.subscribe-hero__comments {
+  display: flex;
+  gap: var(--space-3);
+  margin-block-start: var(--space-5);
+  padding-block-start: var(--space-5);
+  border-block-start: 1px solid var(--color-on-media-glass);
+  color: var(--color-on-media-muted);
+  font-size: var(--text-nav);
+
+  .icon {
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--color-accent);
+    font-size: 1.125rem;
+  }
+}
+
+/* 2. Questions */
+.subscribe-faq {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: var(--space-10) var(--space-8);
+
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--space-10);
+    max-width: calc(70rem + 2 * var(--gutter));
+    padding-block: var(--space-11) var(--space-9);
+  }
+}
+
+.subscribe-faq__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.02em;
+
+  @media (width >= 48rem) {
+    font-size: var(--text-4xl);
+  }
+}
+
+.subscribe-faq__list {
+  border-block-start: 1px solid var(--color-border);
+}
+
+.subscribe-faq__item {
+  border-block-end: 1px solid var(--color-border);
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: 60px;
+    padding-block: var(--space-3);
+    font-family: var(--font-heading);
+    font-size: var(--text-l);
+    font-weight: var(--weight-bold);
+    list-style: none;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    .icon {
+      font-size: 1.25rem;
+      transition: transform var(--duration-s) ease;
+    }
+  }
+
+  &[open] summary .icon {
+    transform: rotate(180deg);
+  }
+
+  p {
+    padding-block-end: var(--space-5);
+    color: var(--color-text-secondary);
+    font-size: var(--text-base);
+    line-height: 1.6;
+  }
+}
+
+/* 3. Closing call to action */
+.subscribe-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-8) var(--space-11);
+  text-align: center;
+
+  .button {
+    margin-block-start: var(--space-3);
+
+    @media (width < 40rem) {
+      width: 100%;
+    }
+  }
+}
+
+.subscribe-cta__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.02em;
+
+  @media (width >= 48rem) {
+    font-size: var(--text-4xl);
+  }
+}
+
+.subscribe-cta__text {
+  color: var(--color-text-secondary);
+  font-size: var(--text-l);
+}
+
+/* Members */
+.subscribe-member {
+  max-width: calc(48rem + 2 * var(--gutter));
+  padding-block: var(--space-8) var(--space-11);
+
+  @media (width >= 48rem) {
+    padding-block-start: var(--space-11);
+  }
+}
+
+.subscribe-member__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-success);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-bold);
+
+  .icon {
+    font-size: 1.5rem;
+  }
+}
+
+.subscribe-member__title {
+  margin-block-start: var(--space-3);
+  font-size: clamp(2rem, 1.3rem + 2.4vw, 3rem);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.subscribe-member__text {
+  margin-block-start: var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--text-l);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+
+  strong {
+    color: var(--color-text);
+  }
+}
+
+.subscribe-member__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-6);
+}
+
+.subscribe-member__signout {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  padding-inline: var(--space-3);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.subscribe-member__heading {
+  margin-block: var(--space-10) var(--space-3);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+}
+
+.subscribe-tools {
+  margin: 0;
+  padding: 0;
+  border-block-start: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.subscribe-tools__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding-block: var(--space-4);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.subscribe-tools__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 1.125rem;
+}
+
+.subscribe-tools__text {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: var(--text-nav);
+
+  b {
+    color: var(--color-text);
+    font-size: var(--text-l);
+  }
+}

@@ -5,7 +5,8 @@ Subscription block (« encart »), visitors only, between « Derniers articles �
 Portal. The close button (shown by home.js) hides the block for good on this browser: localStorage
 "attibling-promo-closed", read before the first paint by default.hbs (data-promo-closed on <html>),
 so a closed block never flashes.
-The comments benefit only shows when comments are open to all members (Settings > Membership).
+The comments benefit only shows when comments are open to all members (Settings > Membership;
+Ghost gives themes @site.comments_access = "all" | "paid" and a boolean @site.comments_enabled).
 --}}
 {{#unless @member}}
   {{#if @site.members_enabled}}
@@ -25,7 +26,7 @@ The comments benefit only shows when comments are open to all members (Settings 
             <li><span class="promo__icon" aria-hidden="true">{{> "icons/bookmark"}}</span><span><b>{{t "“Read later”"}}</b>{{t "Save posts to come back to them whenever you like."}}</span></li>
             <li><span class="promo__icon" aria-hidden="true">{{> "icons/clock"}}</span><span><b>{{t "Continue reading"}}</b>{{t "Pick a post up where you left it."}}</span></li>
             <li><span class="promo__icon" aria-hidden="true">{{> "icons/sliders"}}</span><span><b>{{t "Reading settings"}}</b>{{t "Font, spacing, alignment: read your way."}}</span></li>
-            {{#match @site.comments_enabled "all"}}
+            {{#match @site.comments_access "all"}}
               <li><span class="promo__icon" aria-hidden="true">{{> "icons/comment"}}</span><span><b>{{t "Comment on posts"}}</b>{{t "Share your opinion under every post."}}</span></li>
             {{/match}}
           </ul>
