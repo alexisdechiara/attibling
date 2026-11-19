@@ -1,0 +1,1 @@
+import{o as e}from"./chunks/helpers-BkB3oTBA.js";e(()=>{let e=document.querySelector(`[data-about-follow]`);document.querySelectorAll(`.about__content .about-links`).forEach(t=>{e.prepend(...t.children);let n=t.closest(`.kg-card, .kg-html-card`)||t;t.remove(),n!==t&&!n.textContent.trim()&&n.remove()})});
