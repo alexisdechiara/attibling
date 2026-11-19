@@ -82,6 +82,10 @@ To get the latest version please head over the [releases page](https://github.co
 each part of the theme appear: the theme settings (coloured wordmark, subscribe page, the tags of the home
 rows), the internal tags (`#top`, `#top-1`…`#top-10` for « Les plus lus »), featured posts and the home hero,
 the subscription block, the members-only features (bookmarks, « Reprendre la lecture ») and the navigation.
+For posts: the « Carte » / « Immersif » styles (`article_style` setting, `#immersif` / `#carte` tags), series
+(`#serie-…` tags, `total: N` in the tag description), the « En bref » summary (an HTML card
+`<ol class="en-bref">`, with an optional AI hook `data-source="ia"`), the review card (`<aside
+class="fiche-test">`, Review structured data), `#mis-a-jour`, the author box and the members' display settings.
 
 To know how to enable the search, comments, newsletter and more, please head to the [Liebling Wiki](https://github.com/eddiesigner/liebling/wiki).
 

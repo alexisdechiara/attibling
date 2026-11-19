@@ -38,9 +38,21 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
    - [Page 404](#page-404)
    - [Fichier routes.yaml](#fichier-routesyaml)
    - [Dépannage](#dépannage)
+- [Articles](#articles)
+   - [Les deux styles : « Carte » et « Immersif »](#les-deux-styles--carte-et-immersif)
+   - [En-tête, sommaire, partage](#en-tête-sommaire-partage)
+   - [Séries : le tag #serie-…](#séries--le-tag-serie-)
+   - [« En bref » : le résumé en points numérotés](#en-bref--le-résumé-en-points-numérotés)
+   - [Résumé par IA (facultatif)](#résumé-par-ia-facultatif)
+   - [Fiche de test](#fiche-de-test)
+   - [« Mis à jour le » : le tag #mis-a-jour](#mis-à-jour-le--le-tag-mis-a-jour)
+   - [Boîte auteur](#boîte-auteur)
+   - [Réglages d'affichage (abonnés)](#réglages-daffichage-abonnés)
+   - [Copier un lien, copier du code](#copier-un-lien-copier-du-code)
+   - [Dépannage des articles](#dépannage-des-articles)
 
-Les sections des articles (séries, « En bref », fiche de test, réglages d'affichage…) et des autres pages
-(archives, favoris, à propos, abonnement) sont ajoutées à la suite de ce guide.
+Les articles (séries, « En bref », fiche de test, réglages d'affichage…) sont décrits dans la section
+[Articles](#articles).
 
 ---
 
@@ -49,8 +61,8 @@ Les sections des articles (séries, « En bref », fiche de test, réglages d'af
 ### Où sont les réglages du thème
 
 Ghost Admin → **Settings** (roue dentée en bas à gauche) → **Design & branding** → bouton **Customize**.
-À droite, trois onglets : **Brand** (couleur, logo, couverture, polices), **Site wide** (réglages communs du
-thème) et **Homepage** (réglages de la page d'accueil). Les réglages propres au thème Attibling sont dans
+À droite, quatre onglets : **Brand** (couleur, logo, couverture, polices), **Site wide** (réglages communs du
+thème), **Homepage** (réglages de la page d'accueil) et **Post** (réglages des articles). Les réglages propres au thème Attibling sont dans
 **Site wide** et **Homepage**. Cliquez sur **Save** en haut à droite.
 
 ### Les tags internes
@@ -274,8 +286,13 @@ sont pas affichés plutôt que de faire semblant. Rien à régler dans Ghost.
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré |
 | Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque |
 | About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques listées sur la page « À propos » : slugs séparés par des virgules |
+| Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») |
+| Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles |
+| Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs |
+| About page | Post | vide (`a-propos` ou `about`) | Page liée par « À propos » dans la boîte auteur |
 
-Les tags internes utilisés par ces sections : `#top`, `#top-1` … `#top-10`.
+Les tags internes utilisés par le thème : `#top`, `#top-1` … `#top-10` (accueil), `#serie-…`,
+`#mis-a-jour`, `#immersif`, `#carte` (articles, voir [Articles](#articles)).
 
 ---
 
@@ -515,3 +532,229 @@ défaut (Settings → Labs → Routes).
 | La bio ne s'enregistre pas | Ghost limite la bio à 250 caractères. |
 | « Mes favoris » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
 | L'article « À la une » d'une rubrique n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
+
+---
+
+## Articles
+
+Tout ce qui suit concerne la page d'un article (modèle `post.hbs`). Rien n'est obligatoire : un article sans
+tag interne ni carte particulière s'affiche en style « Carte », avec son sommaire, son partage, la boîte
+auteur et « Recommandé pour vous ».
+
+Les « cartes HTML » mentionnées plus bas s'insèrent dans l'éditeur Ghost : tapez `/html` (ou cliquez sur le
+« + » à gauche d'une ligne vide → **HTML**), collez le modèle, modifiez le texte, puis cliquez hors de la
+carte. Astuce : une fois une carte remplie, son menu (« … ») propose **Save as snippet** ; elle se réinsère
+ensuite avec `/` + le nom du snippet.
+
+### Les deux styles : « Carte » et « Immersif »
+
+- **Carte** (par défaut) : l'image à la une dans une carte sombre arrondie, le titre posé dessus ; le texte
+  dans une colonne de lecture (Literata, environ 60 à 72 caractères par ligne, justifié sur ordinateur et
+  aligné à gauche sur téléphone) ; le sommaire dans la marge de droite sur grand écran.
+- **Immersif** : l'image d'en-tête d'un bord à l'autre, le texte et les images sur toute la largeur de la
+  page (moins les marges) ; sur un écran très large, seul le texte est plafonné à 1 808 px et centré.
+  L'encadré de série et « En bref » se placent côte à côte (l'un sous l'autre sous 900 px environ), et le
+  sommaire devient un bouton « Sommaire » en haut du texte.
+
+Qui décide, du plus fort au plus faible :
+1. l'abonné, s'il a choisi un style dans ses [réglages d'affichage](#réglages-daffichage-abonnés) ;
+2. l'article : tag interne **`#immersif`** (force Immersif) ou **`#carte`** (force Carte) ;
+3. le site : réglage **Article style** (Settings → Design & branding → Customize → onglet **Post**),
+   `Card` par défaut ou `Immersive`.
+
+### En-tête, sommaire, partage
+
+- En-tête : rubrique principale (pastille) et deuxième tag public, titre, auteur, date, temps de lecture ;
+  pour un abonné, le bouton « À lire plus tard » (le même signet que sur les tuiles). Sans image à la une,
+  le titre s'affiche sur le fond de la page.
+- Légende de l'image à la une : celle saisie dans Ghost sous l'image (« Add a caption »).
+- Sommaire : construit automatiquement à partir des intertitres H2 et H3 ; il n'apparaît qu'à partir de deux
+  intertitres. Rien à faire.
+- Anneau de progression en bas à droite : il se remplit pendant la lecture ; un clic remonte en haut.
+- En fin d'article : la ligne « Publié le · Mis à jour le » (voir plus bas), la ligne « Précédent /
+  Suivant » de la série (toujours le dernier élément), les mots clés (tags publics) et le partage (X,
+  Facebook, LinkedIn, e-mail).
+- Commentaires : ceux de Ghost (Settings → **Membership** → **Commenting**), titre « Discussion entre
+  abonnés ».
+- « Recommandé pour vous » : trois autres articles qui partagent un tag avec celui-ci, du plus récent au plus
+  ancien.
+
+### Séries : le tag #serie-…
+
+Une **série** = les articles publiés qui portent le même tag interne dont le nom commence par `#serie-`.
+
+1. Sur chaque partie, ajoutez le même tag interne, par exemple **`#serie-avent`** (son slug devient
+   `hash-serie-avent`). Une seule série par article.
+2. Facultatif mais conseillé : dans Ghost Admin → **Tags** → onglet **Internal tags** → ouvrez le tag →
+   champ **Description**, écrivez le **nom de la série** et, si vous connaissez le nombre de parties prévu,
+   `total: N`. Exemples testés :
+   - `Calendrier de l’Avent 2025 · total: 24`
+   - `Construire son homelab` (pas de total : le total est le nombre de parties publiées)
+
+Ce que voit le lecteur, en haut du texte : « Série », le nom, « Partie 12 sur 24 » (« 12 / 24 » sur
+téléphone), une barre de progression, la liste des parties dans l'ordre de publication (la partie lue est
+surlignée), « Précédent » / « Suivant » et « Voir toute la série ». Une longue série (plus de 7 parties)
+est condensée : première partie, « ⋯ 9 parties » (un bouton qui les déplie), précédente, actuelle,
+suivante, « ⋯ 10 parties », dernière. Avec `total:`, les parties pas encore publiées sont annoncées par une
+ligne « 12 parties à venir ». La même navigation « Précédent / Suivant », avec le titre des parties, termine
+l'article.
+
+- Les articles **programmés** ou en **brouillon** n'apparaissent jamais : Ghost ne les donne pas au thème.
+  Pendant un calendrier de l'Avent, la liste s'allonge chaque jour toute seule.
+- « Voir toute la série » mène à la page Archives filtrée sur la série (`/archives/?tag=hash-serie-avent`,
+  du plus ancien au plus récent) : la page Archives doit exister avec le slug `archives` (voir
+  [Archives](#archives)). Les tags internes n'ont pas de page à eux.
+- Une seule partie publiée, ou pas de tag de série : pas d'encadré.
+- Sans JavaScript : la liste complète s'affiche et le total est le nombre de parties publiées.
+- Au plus 100 parties (limite de Ghost par requête).
+
+### « En bref » : le résumé en points numérotés
+
+Quelques points clés en tête de l'article. C'est l'auteur qui les écrit, dans une carte HTML placée **tout en
+haut** de l'article (le thème la place de toute façon au-dessus du texte, sous l'encadré de série) :
+
+```html
+<ol class="en-bref">
+  <li>Blizzard relance son jeu avec une saison par an et une vraie histoire.</li>
+  <li>Cinq nouveaux héros arrivent dès la première saison.</li>
+  <li>Les problèmes d’équilibrage persistent malgré tout.</li>
+</ol>
+```
+
+Mettez autant de `<li>` que de points (trois est un bon nombre). Le titre « En bref » et la mention
+« Résumé de l'auteur » sont ajoutés par le thème : ne les écrivez pas.
+
+- **Abonnés** : ils voient le bloc. Il s'affiche sans JavaScript.
+- **Visiteurs** : à la place, un encart « En bref — Résumé réservé aux abonnés » avec « S'abonner » et « Se
+  connecter » (seulement sur les articles qui ont une carte `en-bref`). Le texte des points reste dans le
+  code de la page (il est masqué, pas retiré) : ne mettez pas d'information secrète dans un résumé.
+- Pour montrer le résumé à tout le monde : réglage **Summary for visitors** (onglet **Post**).
+- Un abonné peut masquer « En bref » dans ses réglages d'affichage.
+- Pas de carte `en-bref` : pas de bloc, pas d'encart.
+
+### Résumé par IA (facultatif)
+
+Le thème n'appelle aucun service d'IA. Si un jour une intégration (un petit service externe branché sur les
+webhooks de Ghost, par exemple « Post published ») génère un résumé, elle doit l'**enregistrer avec
+l'article**, par l'Admin API, sous la même forme avec en plus `data-source="ia"` :
+
+```html
+<ol class="en-bref" data-source="ia">
+  <li>Point généré un.</li>
+  <li>Point généré deux.</li>
+</ol>
+```
+
+Contrat : une carte HTML (`<!--kg-card-begin: html-->…<!--kg-card-end: html-->` en HTML source, ou une carte
+HTML Lexical) contenant `ol.en-bref[data-source="ia"]` et des `<li>` en texte simple, placée en tête de
+l'article. Le thème l'affiche avec la mention « Résumé généré par IA », avec les mêmes règles
+abonnés / visiteurs. Si l'article contient **aussi** un résumé de l'auteur (sans `data-source`), c'est
+celui de l'auteur qui s'affiche. Sans aucune des deux cartes : pas de bloc.
+
+### Fiche de test
+
+La carte récapitulative d'un test (jeu, anime, outil…), à placer à la fin de l'article, avant la conclusion
+ou après :
+
+```html
+<aside class="fiche-test">
+  <p class="fiche-test__type">Fiche de test</p>
+  <h2 class="fiche-test__titre">Jeu Fictif 2077</h2>
+  <p class="fiche-test__note"><strong>8,5</strong>/10</p>
+  <dl class="fiche-test__infos">
+    <dt>Plateformes</dt><dd>PC, PS5</dd>
+    <dt>Genre</dt><dd>Action-RPG</dd>
+  </dl>
+  <div class="fiche-test__plus">
+    <p>Points forts</p>
+    <ul><li>Direction artistique</li><li>Bande-son</li><li>Durée de vie</li></ul>
+  </div>
+  <div class="fiche-test__moins">
+    <p>Points faibles</p>
+    <ul><li>Quelques bugs</li><li>Interface chargée</li></ul>
+  </div>
+  <p class="fiche-test__verdict"><strong>Verdict</strong> · Un excellent jeu, à quelques détails près.</p>
+</aside>
+```
+
+- La note s'écrit `<strong>8,5</strong>/10` (virgule ou point ; `/5`, `/20`… marchent aussi).
+- Un champ vide (`<dd></dd>`, liste sans point, paragraphe vide) est masqué ; vous pouvez aussi supprimer la
+  ligne. On peut ajouter d'autres paires `<dt>…</dt><dd>…</dd>` (« Testé sur », « Prix »…).
+- Le titre (H2) entre dans le sommaire de l'article.
+- Données structurées : quand la note est présente, le thème ajoute pour les moteurs de recherche une
+  donnée « Review » (note, meilleure note, nom de l'œuvre, auteur, date, verdict). Pour un jeu vidéo,
+  vous pouvez préciser le type : `<aside class="fiche-test" data-type="VideoGame">`.
+- Sur téléphone, la carte passe sur une colonne.
+
+### « Mis à jour le » : le tag #mis-a-jour
+
+Ghost change la date de modification à chaque enregistrement, même pour une coquille. Le thème n'affiche donc
+la mise à jour que si l'article porte le tag interne **`#mis-a-jour`** : « Mis à jour le … » sous la date dans
+l'en-tête, et la ligne « Publié le … · Mis à jour le … » à la fin du texte. La date affichée est celle du
+dernier enregistrement : ajoutez le tag quand la mise à jour compte, puis enregistrez. Sans le tag : seule la
+date de publication.
+
+### Boîte auteur
+
+Remplie depuis la fiche de l'auteur principal : Ghost Admin → Settings → **Staff** → l'auteur → photo,
+**Bio**. Elle affiche « Écrit par », le nom, la bio, puis deux boutons :
+- **À propos** : la page dont le slug est le réglage **About page** (onglet **Post**) ; s'il est vide, la
+  page `a-propos` ou, à défaut, `about`. Pas de page trouvée : pas de bouton.
+- **Tous ses articles** : la page de l'auteur.
+Sans photo : une icône ; sans bio : la ligne disparaît.
+
+### Réglages d'affichage (abonnés)
+
+Un abonné connecté voit, sur les articles seulement, une roue crantée dans l'en-tête (à côté de la recherche
+et du bouton clair / sombre). Elle ouvre « Réglages d'affichage » (un panneau sur ordinateur, une feuille
+qui monte du bas sur téléphone) :
+
+| Réglage | Choix (défaut en premier) |
+|---|---|
+| Thème | GEEKLY (nom du site), Désert, Encre, Forêt — chacun en clair et en sombre, selon le bouton clair / sombre |
+| Police des titres | Onest, Space Grotesk, Libre Baskerville, Poppins, Lora, JetBrains Mono |
+| Police du texte | Literata, Merriweather, IBM Plex Serif, Inter, Noto Sans, Fira Mono |
+| Largeur de l'article | M, S, L (en Immersif : L pleine largeur, M 1 200 px, S 864 px) |
+| Taille du texte | M (19 px), S (17 px), L (21 px) |
+| Interligne | Normal, Serré, Aéré |
+| Alignement | Justifié (aligné à gauche sur téléphone), À gauche, Centré, À droite — paragraphes seulement |
+| Style des liens | Soulignés, Couleur (souligné au survol) |
+| Image de couverture | Afficher, Masquer |
+| Style de l'article | Carte / Immersif (le défaut est celui de l'article) |
+| Résumé « En bref » | Afficher, Masquer |
+
+« Réinitialiser » remet tout par défaut. Les choix sont gardés dans le navigateur de l'abonné (sur cet
+appareil) et appliqués avant l'affichage de la page, sans clignotement. Le thème choisi habille toute la page
+de l'article, en-tête et pied de page compris. Les polices autres que celles par défaut ne sont téléchargées
+que si l'abonné les choisit, depuis fonts.bunny.net (le même service que les polices personnalisées de
+Ghost). Pour retirer la roue : réglage **Reading settings** (onglet **Post**). Les visiteurs ne la voient
+jamais.
+
+Si vous avez choisi des polices personnalisées dans Ghost (Brand → Typography), elles remplacent Onest et
+Literata par défaut ; la liste garde les noms « Onest » et « Literata » pour l'option par défaut.
+
+### Copier un lien, copier du code
+
+Rien à faire. Au survol (ou au clavier) d'un intertitre H2 ou H3, un bouton « lien » copie l'adresse de la
+section (« Lien copié ») ; sur téléphone il est après le titre. Chaque bloc de code a un bouton « Copier »
+(« Copié » pendant 2 s) et affiche sa langue si elle est choisie dans la carte Code de Ghost (`bash`,
+`javascript`…).
+
+### Dépannage des articles
+
+- **L'encadré de série n'apparaît pas** : le tag doit être interne (nom commençant par `#`) et commencer par
+  `#serie-` ; il faut au moins deux parties **publiées** portant exactement le même tag.
+- **« Partie 3 sur 3 » alors que la série en compte plus** : ajoutez `total: N` dans la description du tag.
+- **« Voir toute la série » mène à une page 404** : créez la page Archives (slug `archives`, voir
+  [Archives](#archives)).
+- **« En bref » ne s'affiche pas** : la carte doit être une carte **HTML** (pas un paragraphe) et la liste doit
+  avoir la classe `en-bref` ; un visiteur voit l'encart à la place ; l'abonné l'a peut-être masqué dans ses
+  réglages (« Réinitialiser »).
+- **La fiche de test n'a pas de style** : vérifiez la classe `fiche-test` et que c'est une carte HTML.
+- **« Mis à jour le » n'apparaît pas** : il manque le tag interne `#mis-a-jour`.
+- **Pas de bouton « À propos » dans la boîte auteur** : aucune page `a-propos` / `about`, ou le réglage
+  About page ne correspond à aucune page publiée.
+- **Pas de roue crantée** : réservée aux abonnés connectés, sur les articles, réglage Reading settings
+  activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte).
+- **Le style Immersif ne s'applique pas** : un abonné qui a choisi « Carte » dans ses réglages garde son
+  choix sur tous les articles.
