@@ -7,6 +7,9 @@
 //  - featured: false to remove the "featured" flag from every post
 //  - top: false to remove the #top / #top-N internal tags
 //  - settings: merged over the default site settings
+//  - extra: number of generated posts appended after the real ones (older, one every 9 days), to test
+//    lists of more than 100 posts
+//  - series: true to put the internal tag #serie-test on 3 posts (indexes 3, 6 and 9)
 
 const TAGS = [
 	["Actualité", "actualites", true],
@@ -157,6 +160,8 @@ export const createSite = (options = {}) => {
 		top = true,
 		settings = {},
 		count = POSTS.length,
+		extra = 0,
+		series = false,
 	} = options;
 
 	const author = {
@@ -170,28 +175,40 @@ export const createSite = (options = {}) => {
 	};
 
 	const start = Date.UTC(2026, 2, 25, 9, 0, 0);
-	const posts = POSTS.slice(0, count).map(([title, slug, minutes, tagSlugs, isFeatured, internal], i) => {
-		const tags = [...tagSlugs, ...(top ? internal : internal.filter(t => !t.startsWith("#top")))].map(slugToTag);
-		const post = {
-			id: `post-${i + 1}`,
-			uuid: `uuid-${i + 1}`,
-			title,
-			slug,
-			url: `/${slug}/`,
-			featured: featured && isFeatured,
-			published_at: new Date(start - i * 9 * 86400000).toISOString(),
-			reading_time: minutes,
-			custom_excerpt: null,
-			excerpt:
-				"L’année démarre très fort. On retrouve, dès cette première saison, pas mal de grosses licences qui reviennent, quelques suites très attendues, et aussi une ou deux nouveautés qui pourraient bien créer la surprise.",
-			tags,
-			primary_tag: tags.find(t => t.visibility === "public") || null,
-			authors: [author],
-			primary_author: author,
-		};
-		post.feature_image = image(post, i);
-		return post;
-	});
+	const generated = Array.from({ length: extra }, (_, n) => [
+		`Archive post ${n + 1}`,
+		`archive-post-${n + 1}`,
+		3,
+		[n % 2 ? "informatique" : "anime"],
+		false,
+		[],
+	]);
+	const SERIES = [3, 6, 9];
+	const posts = [...POSTS.slice(0, count), ...generated].map(
+		([title, slug, minutes, tagSlugs, isFeatured, internal], i) => {
+			const own = [...internal, ...(series && SERIES.includes(i) ? ["#serie-test"] : [])];
+			const tags = [...tagSlugs, ...(top ? own : own.filter(t => !t.startsWith("#top")))].map(slugToTag);
+			const post = {
+				id: `post-${i + 1}`,
+				uuid: `uuid-${i + 1}`,
+				title,
+				slug,
+				url: `/${slug}/`,
+				featured: featured && isFeatured,
+				published_at: new Date(start - i * 9 * 86400000).toISOString(),
+				reading_time: minutes,
+				custom_excerpt: null,
+				excerpt:
+					"L’année démarre très fort. On retrouve, dès cette première saison, pas mal de grosses licences qui reviennent, quelques suites très attendues, et aussi une ou deux nouveautés qui pourraient bien créer la surprise.",
+				tags,
+				primary_tag: tags.find(t => t.visibility === "public") || null,
+				authors: [author],
+				primary_author: author,
+			};
+			post.feature_image = image(post, i);
+			return post;
+		},
+	);
 
 	const tags = TAGS.map(([, slug]) => {
 		const tag = slugToTag(slug);
@@ -202,7 +219,10 @@ export const createSite = (options = {}) => {
 			count: { posts: posts.filter(p => p.tags.some(t => t.slug === slug)).length },
 		};
 	}).concat(
-		["#top", "#top-1", "#top-2", "#top-3", "#top-4"].map(name => ({ ...slugToTag(name), count: { posts: 1 } })),
+		["#top", "#top-1", "#top-2", "#top-3", "#top-4", ...(series ? ["#serie-test"] : [])].map(name => ({
+			...slugToTag(name),
+			count: { posts: 1 },
+		})),
 	);
 
 	return {
@@ -222,7 +242,8 @@ export const createSite = (options = {}) => {
 			members_enabled: true,
 			members_invite_only: false,
 			paid_members_enabled: false,
-			comments_enabled: "all",
+			comments_enabled: true,
+			comments_access: "all",
 			navigation: [
 				{ label: "Home", url: "/" },
 				{ label: "Newsletter", url: "/newsletter/" },

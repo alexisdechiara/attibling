@@ -36,25 +36,50 @@ export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM
 	};
 };
 
-export const template = (name, { member = false, site = {}, custom = DEFAULT_CUSTOM } = {}) => {
+// Pages using one of the theme's page templates (page-*.hbs, custom-*.hbs): the page's own data
+const PAGE = { title: "Page", html: "<p>Body</p>", custom_excerpt: null };
+
+export const template = (
+	name,
+	{ member = false, site = {}, custom = DEFAULT_CUSTOM, page = {}, post = {}, paged = false } = {},
+) => {
 	const data = createSite(site);
+	const pageContext = title => ({ post: { ...PAGE, title, ...post } });
 	const contexts = {
 		post: { post: { ...data.posts[1], html: "<p>Body</p>" } },
 		page: { post: { ...data.posts[3], html: "<p>Body</p>" } },
 		tag: { tag: data.tags[1], ...indexContext(data) },
 		author: { author: data.authors[0], ...indexContext(data) },
-		"page-tags": { post: { title: "Tags" } },
-		"page-authors": { post: { title: "Authors" } },
-		"page-newsletter": { post: { title: "Newsletter" } },
+		"page-tags": pageContext("Tags"),
+		"page-authors": pageContext("Authors"),
+		"page-newsletter": pageContext("Newsletter"),
+		"page-archives": pageContext("Archives"),
+		"page-favoris": pageContext("Saved posts"),
+		"page-a-propos": pageContext("About"),
 		"error-404": {},
 	};
-	const ghostContext = { "page-tags": "page", "page-authors": "page", "page-newsletter": "page", "error-404": "error" };
+	for (const [custom_, page_] of [
+		["custom-tags", "page-tags"],
+		["custom-authors", "page-authors"],
+		["custom-subscribe", "page-newsletter"],
+		["custom-archives", "page-archives"],
+		["custom-saved-posts", "page-favoris"],
+		["custom-about", "page-a-propos"],
+	]) {
+		contexts[custom_] = contexts[page_];
+	}
+	if (paged && contexts[name]?.pagination) {
+		Object.assign(contexts[name], indexContext(data, { page: 2 }));
+	}
+	if (contexts[name]?.post && name !== "post") Object.assign(contexts[name].post, post);
+	const ghostContext = name === "error-404" ? "error" : /^(page|custom)-/.test(name) ? "page" : name;
 	return {
 		template: name,
 		site: data,
 		context: contexts[name] || {},
-		contexts: [ghostContext[name] || name],
+		contexts: paged ? ["paged", ghostContext] : [ghostContext],
 		member: member ? MEMBER : null,
 		custom,
+		page: { show_title_and_feature_image: true, ...page },
 	};
 };
