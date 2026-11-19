@@ -32,7 +32,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 PACKAGES = os.path.join(ROOT, "node_modules", "@fontsource-variable")
 OUT = os.path.join(ROOT, "assets", "fonts")
 PARTIAL = os.path.join(ROOT, "partials", "fonts.hbs")
-SUBSETS = ["latin", "latin-ext", "cyrillic", "cyrillic-ext", "vietnamese"]
+# Order of the @font-face rules, as Google Fonts and fontsource write them: where two ranges overlap (œ, ‡,
+# combining accents are in latin AND latin-ext), the browser uses the face declared LAST, so latin comes
+# last and a French page never downloads latin-ext for an œ.
+SUBSETS = ["cyrillic-ext", "cyrillic", "vietnamese", "latin-ext", "latin"]
 
 # family, package file pattern, output name, CSS style, CSS weight, axis limits
 FACES = [

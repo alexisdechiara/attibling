@@ -92,4 +92,21 @@ describe("fonts", () => {
 		assert.ok(!requests.some(url => /fonts\.(googleapis|gstatic)\.com/.test(url)));
 		await dispose();
 	});
+
+	it("download another script subset only for its own letters (œ stays in latin, Š needs latin-ext)", async () => {
+		const files = async html => {
+			const { page, requests, dispose } = await open({ render: article({ html }) });
+			await page.evaluate(() => document.fonts.ready);
+			await page.waitForTimeout(200);
+			const list = requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname.split("/").pop());
+			await dispose();
+			return list;
+		};
+		const french = await files("<p>Le cœur de l’œuvre, « en bref ».</p>");
+		assert.ok(!french.some(f => /ext|cyrillic/.test(f)), french.join());
+		const lithuanian = await files("<p>Švitrigailos g. 34, Vilnius</p>");
+		assert.ok(lithuanian.includes("literata-latin-ext.woff2"), lithuanian.join());
+		const russian = await files("<p>Привет, мир</p>");
+		assert.ok(russian.includes("literata-cyrillic.woff2"), russian.join());
+	});
 });
