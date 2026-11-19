@@ -1,5 +1,5 @@
 {{!-- Home row « shelf »: the tag's latest 10 posts as 16:9 tiles in a row that scrolls sideways. Tag context (rows.hbs). --}}
-{{#get "posts" filter="tag:{{slug}}" include="tags" limit="10" as |rowposts|}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="10" as |rowposts|}}{{#if rowposts}}
   <section class="home-section row row--shelf" aria-labelledby="row-{{../slug}}">
     <div class="container">
       {{> section-header title=../name titleUrl=../url id=(concat "row-" ../slug) note=(plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")) url=../url}}
@@ -11,4 +11,4 @@
       {{> shelf-controls label=../name}}
     </div>
   </section>
-{{/get}}
+{{/if}}{{/get}}

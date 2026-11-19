@@ -35,20 +35,23 @@ most recent post leads. The lead post is left out of the grid of the first page.
   {{/tag}}
 
   {{!-- The grid partial gets the page's posts as items: from inside {{#get}} and {{#foreach}} they are
-  one or two levels up --}}
+  two levels up. Ghost renders the block of {{#get}} even when nothing matches (its {{else}} is only
+  for a failed request): the result is tested with {{#if lead}}. --}}
   {{#is "paged"}}
     {{> "listing/grid" items=posts title=(t "All posts")}}
   {{else}}
-    {{#get "posts" filter="tag:{{tag.slug}}+featured:true" include="tags" limit="1"}}
-      {{#foreach posts}}
-        {{> "listing/lead"}}
-        {{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}
-      {{/foreach}}
-    {{else}}
-      {{#foreach posts limit="1"}}
-        {{> "listing/lead"}}
-        {{> "listing/grid" items=../posts exclude=id title=(t "All posts")}}
-      {{/foreach}}
+    {{#get "posts" filter="tag:{{tag.slug}}+featured:true" include="tags" limit="1" as |lead|}}
+      {{#if lead}}
+        {{#foreach lead}}
+          {{> "listing/lead"}}
+          {{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}
+        {{/foreach}}
+      {{else}}
+        {{#foreach ../posts limit="1"}}
+          {{> "listing/lead"}}
+          {{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}
+        {{/foreach}}
+      {{/if}}
     {{/get}}
   {{/is}}
   {{pagination}}

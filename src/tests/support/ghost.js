@@ -294,7 +294,9 @@ export const renderTemplate = (name, options = {}) => {
 			items = items.slice((page - 1) * size, page * size);
 			const meta = { pagination: { page: Number(page), limit: size, pages: Math.ceil(total / size), total } };
 			const result = { [resource]: items, meta };
-			if (!items.length) return opts.inverse(this, { data: opts.data });
+			// Like Ghost (core/frontend/helpers/get.js, renderResponse): the block is rendered even when
+			// nothing matches; {{else}} only renders when the request fails. Templates test the result
+			// themselves ({{#if posts}}, or the block parameter).
 			return opts.fn(result, { data: opts.data, blockParams: [items, meta.pagination] });
 		},
 		is(names, opts) {

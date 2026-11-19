@@ -3,9 +3,10 @@
 outlined numerals behind the tiles; the row scrolls sideways.
 Fed by the posts carrying the internal tag #top. Their order: the internal tags #top-1 to #top-10 give
 the rank (#top-1 first); #top posts without a rank follow, newest first. The numerals count the
-posts shown (CSS counter), so gaps in the ranks do not show. No #top post: no section.
+posts shown (CSS counter), so gaps in the ranks do not show. No #top post: no section (Ghost renders
+the block of {{#get}} even when nothing matches, hence the {{#if top}}).
 --}}
-{{#get "posts" filter="tag:hash-top" include="tags" limit="20" as |top|}}
+{{#get "posts" filter="tag:hash-top" include="tags" limit="20" as |top|}}{{#if top}}
   <section class="home-section top" aria-labelledby="top-title">
     <div class="container">
       {{> section-header title=(t "Most read") note=(t "ranking set by the author") id="top-title"}}
@@ -27,4 +28,4 @@ posts shown (CSS counter), so gaps in the ranks do not show. No #top post: no se
       {{> shelf-controls label=(t "Most read")}}
     </div>
   </section>
-{{/get}}
+{{/if}}{{/get}}
