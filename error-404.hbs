@@ -1,31 +1,50 @@
 {{!--
-This error template is used for all 404 errors, which might occur on your site.
+Page not found (every 404 of the site): the theme's 404 texts, a « Retrouver l'article » card with a
+large « Ouvrir la recherche » button (Ghost's native search, data-ghost-search; it gets the focus on
+arrival), the home link and the first sections of the main navigation, then the 4 latest posts.
+No post → « Aucun article récent trouvé ».
 --}}
 
-{{!-- This block preloads specific assets for the 404 page --}}
 {{#contentFor "preload"}}
   <link rel="preload" href="{{asset "css/404.css"}}" as="style" />
 {{/contentFor}}
 
-{{!-- This block loads specific styles for the 404 page --}}
 {{#contentFor "styles"}}
   <link rel="stylesheet" type="text/css" href="{{asset "css/404.css"}}" media="screen" />
 {{/contentFor}}
 
-{{!-- The tag below means: insert everything in this file
-into the {body} of the default.hbs template --}}
 {{!< default}}
 
-{{!-- Special header.hbs partial to generate the <header> tag --}}
 {{> header}}
 
-<main id="main" class="l-fullscreen">
-  <section class="l-fullscreen__content" data-animate="fade-up">
-    <h1 class="m-404-title">404</h1>
-    <p class="m-404-subtitle">{{t "Page not found"}}</p>
-    <p class="m-404-text">
-      {{t "Unfortunately the page you were looking for could not be found."}}
-    </p>
-    <a href="{{@site.url}}" class="m-button outlined">{{t "Go to the home page"}}</a>
+<main id="main" class="site-main error-page">
+  <div class="container error-page__top">
+    <div class="error-page__intro">
+      <p class="error-page__code" aria-hidden="true">404</p>
+      <h1 class="error-page__title">{{t "Page not found"}}</h1>
+      <p class="error-page__text">{{t "Unfortunately the page you were looking for could not be found."}}</p>
+    </div>
+    <section class="error-page__card" aria-labelledby="error-find-title">
+      <h2 class="error-page__card-title" id="error-find-title">{{t "Find the post"}}</h2>
+      <p class="error-page__help">{{t "One word of the title is enough: the site search goes through every post."}}</p>
+      <button type="button" class="error-page__search" data-ghost-search autofocus>{{> "icons/search"}}<span>{{t "Open search"}}</span></button>
+      <ul class="error-page__shortcuts" role="list">
+        <li><a class="button button--inverse" href="{{@site.url}}">{{t "Go to the home page"}}</a></li>
+        {{#foreach @site.navigation}}
+          {{#match url "!=" "/"}}{{#match url "!=" @site.url}}<li class="error-page__shortcut"><a class="button" href="{{url}}">{{label}}</a></li>{{/match}}{{/match}}
+        {{/foreach}}
+      </ul>
+    </section>
+  </div>
+
+  <section class="container error-page__recent" aria-labelledby="error-recent-title">
+    {{> section-header title=(t "Recent posts") id="error-recent-title" url=@site.url divider=true}}
+    {{#get "posts" limit="4" include="tags"}}
+      <ul class="post-grid error-page__grid" role="list">
+        {{#foreach posts}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
+      </ul>
+    {{else}}
+      <p class="error-page__empty">{{t "No recent posts found"}}</p>
+    {{/get}}
   </section>
 </main>

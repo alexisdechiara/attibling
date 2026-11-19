@@ -1,57 +1,47 @@
 {{!--
-This template is used for the posts that are marked as pages.
+Generic page (« Mentions légales », any static page): a calm reading column. The title, the excerpt and
+the feature image show unless the page's « Show title and feature image » setting is off
+(@page.show_title_and_feature_image); the text uses the reading font and Ghost's cards keep their
+widths (wide, full). An empty page body shows nothing more than its heading.
 --}}
 
-{{!-- This block preloads specific assets for the post page --}}
 {{#contentFor "preload"}}
-  <link rel="preload" href="{{asset "css/post.css"}}" as="style" />
+  <link rel="preload" href="{{asset "css/page.css"}}" as="style" />
   <link rel="modulepreload" href="{{asset "js/page.js"}}" />
 {{/contentFor}}
 
-{{!-- This block loads specific styles for the post page --}}
 {{#contentFor "styles"}}
-  <link rel="stylesheet" type="text/css" href="{{asset "css/post.css"}}" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{asset "css/page.css"}}" media="screen" />
 {{/contentFor}}
 
-{{!-- The tag below means: insert everything in this file
-into the {body} of the default.hbs template --}}
 {{!< default}}
 
-{{!-- Special header.hbs partial to generate the <header> tag --}}
-{{#post}}
-  {{> header}}
-{{/post}}
+{{> header}}
 
-<main id="main" class="main-wrap">
-  {{!-- Everything inside the #post tags pulls data from the post --}}
+<main id="main" class="site-main page-main">
   {{#post}}
-
-    {{#match @page.show_title_and_feature_image }}
-    {{!-- Inject styles of the hero image to make it responsive --}}
-    {{> legacy-hero background=feature_image}}
-    <div class="m-hero__content" data-animate="fade-down">
-      <h1 class="m-hero-title bigger">{{title}}</h1>
-      {{#if custom_excerpt}}
-        <p class="m-hero-description">{{custom_excerpt}}</p>
-      {{/if}}
-    </div>
-    </section>
-    {{/match}}
-    <article>
-      <div class="l-content {{#unless @page.show_title_and_feature_image}}no-image{{/unless}}">
-        <div class="l-wrapper in-post" data-animate="fade-up">
-          <div class="l-post-content">
-            <div class="pos-relative js-post-content">
-              {{content}}
-            </div>
-          </div>
-        </div>
+    <article class="page-article">
+      {{#match @page.show_title_and_feature_image}}
+        <header class="page-article__header">
+          <h1 class="page-article__title">{{title}}</h1>
+          {{#if custom_excerpt}}<p class="page-article__excerpt">{{custom_excerpt}}</p>{{/if}}
+        </header>
+        {{#if feature_image}}
+          <figure class="page-article__figure">
+            <img class="page-article__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 1100px) 100vw, 1040px" src="{{img_url feature_image size="l"}}" alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}" fetchpriority="high">
+            {{#if feature_image_caption}}<figcaption>{{feature_image_caption}}</figcaption>{{/if}}
+          </figure>
+        {{/if}}
+      {{else}}
+        <h1 class="sr-only">{{title}}</h1>
+      {{/match}}
+      <div class="page-content gh-content js-post-content">
+        {{content}}
       </div>
     </article>
   {{/post}}
 </main>
 
-{{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
 {{#contentFor "scripts"}}
   <script type="module" src="{{asset "js/page.js"}}"></script>
 {{/contentFor}}
