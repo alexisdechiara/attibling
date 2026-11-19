@@ -1,0 +1,28 @@
+{{!--
+Lead post of a tag page (« À la une de la rubrique »): a large picture and, beside it on wide screens,
+the pill, title, excerpt and meta line (tag • date • reading time). One link; members get a bookmark.
+Inside a post context.
+--}}
+<section class="container listing-lead-section" aria-label="{{t "Featured in this section"}}">
+  <article class="listing-lead{{#unless feature_image}} listing-lead--no-image{{/unless}}" data-post-tile>
+    <a class="listing-lead__link" href="{{url}}">
+      <span class="listing-lead__media">
+        {{#if feature_image}}
+          <img class="listing-lead__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 767px) 100vw, 640px" src="{{img_url feature_image size="l"}}" alt="" decoding="async">
+        {{else}}
+          <span class="tile__placeholder" aria-hidden="true"><span>{{title}}</span></span>
+        {{/if}}
+      </span>
+      <span class="listing-lead__text">
+        <span class="pill pill--soft listing-lead__pill">{{> "icons/star"}}{{t "Featured in this section"}}</span>
+        <h2 class="listing-lead__title">{{title}}</h2>
+        <span class="listing-lead__excerpt">{{excerpt words="45"}}</span>
+        <span class="meta listing-lead__meta">
+          {{#if primary_tag}}<span class="meta__tag">{{primary_tag.name}}</span><span class="meta__dot" aria-hidden="true">•</span>{{/if}}
+          <time datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at format="D MMM YYYY"}}</time><span class="meta__dot" aria-hidden="true">•</span><span>{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
+        </span>
+      </span>
+    </a>
+    {{> bookmark-button}}
+  </article>
+</section>

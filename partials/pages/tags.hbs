@@ -1,0 +1,33 @@
+{{!--
+Body of the « Tags » page (page-tags.hbs, custom-tags.hbs). Inside the page's template context.
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/listing.css"}}" as="style" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/listing.css"}}" media="screen" />
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main listing">
+  <div class="container">
+    {{#post}}
+      <header class="page-heading listing-heading">
+        <h1 class="page-heading__title">{{title}}</h1>
+        {{#if custom_excerpt}}<p class="listing-heading__lead">{{custom_excerpt}}</p>{{/if}}
+      </header>
+    {{/post}}
+    <ul class="tag-grid listing-tags" role="list">
+      {{!-- Ghost caps {{#get}} at 100 results: the second page takes the next 100 --}}
+      {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="name asc"}}
+        {{#foreach tags}}{{#match count.posts ">" 0}}<li>{{> tag-tile}}</li>{{/match}}{{/foreach}}
+      {{else}}
+        <li class="listing-grid__empty">{{t "No tags found"}}</li>
+      {{/get}}
+      {{#get "tags" limit="100" page="2" include="count.posts" filter="visibility:public" order="name asc"}}
+        {{#foreach tags}}{{#match count.posts ">" 0}}<li>{{> tag-tile}}</li>{{/match}}{{/foreach}}
+      {{/get}}
+    </ul>
+  </div>
+</main>
