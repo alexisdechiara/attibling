@@ -48,14 +48,21 @@
 			"dark_mode_logo": {
 				"type": "image"
 			},
-			"disable_fade_animation": {
+			"page_transitions": {
 				"type": "boolean",
-				"default": false
+				"default": true,
+				"description": "Animated transitions between pages, where the browser supports them (never with reduced motion)."
 			},
 			"use_geekly_logo": {
 				"type": "boolean",
 				"default": false,
 				"group": "homepage"
+			},
+			"arrival_animation": {
+				"type": "boolean",
+				"default": true,
+				"group": "homepage",
+				"description": "Home: the GEEKly wordmark is drawn on arrival, once per visit (a fade for a logo or title)."
 			},
 			"subscribe_url": {
 				"type": "text",

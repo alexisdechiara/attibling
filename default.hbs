@@ -37,6 +37,28 @@
         }
         root.setAttribute('data-theme', theme)
         if (promo) root.setAttribute('data-promo-closed', '')
+        {{#is "home"}}{{#if @custom.arrival_animation}}
+        // First page of the home: the arrival animation (partials/home/intro.hbs, src/css/home/intro.css),
+        // once per session, never with reduced motion; any click, key, wheel, touch or scroll ends it.
+        // It removes itself after 2.1 s whatever happens (the CSS animation is over by then).
+        try {
+          if (!sessionStorage.getItem('attibling-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            sessionStorage.setItem('attibling-intro', '1')
+            root.setAttribute('data-intro', '{{#if @custom.use_geekly_logo}}play{{else}}sober{{/if}}')
+            var events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll']
+            var done = function () {
+              root.removeAttribute('data-intro')
+              for (var i = 0; i < events.length; i++) removeEventListener(events[i], skip, true)
+            }
+            var skip = function () {
+              if (root.getAttribute('data-intro') == 'play') root.setAttribute('data-intro', 'skip')
+              setTimeout(done, 160)
+            }
+            for (var i = 0; i < events.length; i++) addEventListener(events[i], skip, { capture: true, passive: true })
+            setTimeout(done, 2100)
+          }
+        } catch (e) {}
+        {{/if}}{{/is}}
         {{#is "post"}}{{#if @custom.reading_settings}}
         // Article pages, members: the display settings ("attibling-reading", src/js/reading-settings.js)
         // as data-reading-<name> on <html>, and the chosen fonts (fonts.bunny.net, as Ghost's own)
@@ -104,9 +126,11 @@
     {{!-- This tag outputs SEO meta+structured data and other important settings --}}
     {{ghost_head}}
 
-    {{!-- "Disable fade animation" setting: no entrance animations (data-animate, legacy pages) --}}
-    {{#if @custom.disable_fade_animation}}
-      <style>:root { --show-fade-animation: 0; }</style>
+    {{!-- "Page transitions" setting: the browser animates from one page to the next (cross-document
+    View Transitions, where supported, never with reduced motion); the named pairs and the timing
+    are in src/css/components/transitions.css, the clicked tile is named by src/js/transitions.js. --}}
+    {{#if @custom.page_transitions}}
+      <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
     {{/if}}
   </head>
   <body class="{{body_class}}">

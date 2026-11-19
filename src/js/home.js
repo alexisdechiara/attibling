@@ -1,5 +1,6 @@
 import { onReady, setUpSlider } from "./helpers";
 import { setUpDock } from "./dock";
+import { setUpIntro } from "./intro";
 import { isAvailable, readingProgress, savedPosts } from "./store";
 
 const PROMO_KEY = "attibling-promo-closed";
@@ -209,6 +210,7 @@ const setUpShelves = () => {
 };
 
 onReady(() => {
+	setUpIntro();
 	setUpDock();
 	const hero = document.querySelector("[data-hero]");
 	if (hero) setUpHero(hero);

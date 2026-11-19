@@ -1,4 +1,5 @@
 /* Home page (index.hbs, partials/home/) */
+@import "./home/intro.css";
 @import "./home/hero.css";
 @import "./home/latest.css";
 @import "./home/promo.css";

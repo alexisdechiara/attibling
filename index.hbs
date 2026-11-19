@@ -23,6 +23,8 @@ right after them, so its « Tout voir » link loses no post.
 {{!< default}}
 
 {{#is "home"}}
+  {{!-- The arrival animation's layer (only drawn while default.hbs's script plays it) --}}
+  {{#if @custom.arrival_animation}}{{#if @custom.use_geekly_logo}}{{> "home/intro"}}{{/if}}{{/if}}
   {{> header home=true}}
 
   <main id="main" class="site-main home">
