@@ -315,7 +315,7 @@ souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix 
 | Mes favoris | `favoris` | Saved Posts | rien (seul le titre sert) |
 | À propos | `a-propos` | About | titre, extrait, texte (voir plus bas) |
 | Abonnement | `newsletter` | Subscribe | extrait (accroche) et une ligne légale (voir plus bas) |
-| Tous les tags | `tags` | Tags | titre, extrait facultatif |
+| Tous les tags | `tags` | Tags | titre, contenu ou extrait facultatif (introduction) |
 | Tous les auteurs | `authors` | Authors | titre, extrait facultatif |
 
 Pas à pas :
@@ -362,12 +362,55 @@ disparaît.
 
 ### Pages « Tags » et « Auteurs »
 
-Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques qui ont des articles, en tuiles
-(image du tag ou surface teintée, nom, nombre d'articles), par ordre alphabétique. Ghost renvoie au plus 100
-tags par requête ; le modèle en fait deux, soit 200 tags.
+Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques qui ont des articles, en
+mosaïque, détaillée juste en dessous ([Page « Tags » : la mosaïque](#page--tags---la-mosaïque)).
 
 Créez une page `authors` (ou le modèle **Authors**) : une carte par auteur (photo, nom, nombre d'articles,
 bio, liens), du plus prolifique au moins prolifique.
+
+### Page « Tags » : la mosaïque
+
+**Ce qu'on voit.** Le titre de la page, le nombre de tags, une introduction (le **contenu** de la page, à
+défaut son **extrait**), un bouton **« Mélanger »**, puis une mosaïque (« bento ») de tous les tags publics
+qui ont au moins un article : des cases de tailles variées (1×1, 2×1, 1×2, 2×2) sur 2 colonnes (téléphone),
+4 (tablette) ou 6 (ordinateur), sans trou. Chaque case montre l'**image du tag** sous un voile sombre (texte
+lisible sur toute image) ou, sans image, une **surface teintée** avec le nombre d'articles dessiné en grand ;
+puis le nom et le nombre d'articles. Les grandes cases (2×2) affichent aussi la **description** du tag. En bas,
+un lien « Tous les articles, par date » mène à `/archives/` (créez la page Archives, voir plus bas).
+
+**Rendre la page plus riche (Ghost Admin → Tags → le tag) :**
+- **Tag image** : c'est elle qui fait la page. Les grandes cases vont de préférence aux tags qui ont une image
+  et beaucoup d'articles ; un tag sans image, sans description et hors des 3 plus fournis n'est jamais en 2×2.
+- **Description** : affichée dans les grandes cases et dans l'aperçu (ci-dessous). Une ou deux phrases.
+- Les tags internes (`#…`) et les tags sans article n'apparaissent pas.
+
+**Une disposition différente à chaque visite.** Quelles cases sont grandes et dans quel ordre elles viennent
+change à chaque visite (et à chaque rechargement), tiré au hasard mais pondéré : les tags les plus fournis et
+illustrés restent plutôt en tête et plutôt grands. Le tirage se fait avant l'affichage (rien ne bouge sous les
+yeux du lecteur) ; l'ordre du clavier et des lecteurs d'écran suit l'ordre visuel (les cases sont réellement
+réordonnées dans la page). En revenant sur la page (bouton Précédent), le lecteur retrouve la disposition qu'il
+avait quittée. **« Mélanger »** tire une nouvelle disposition, avec une courte animation (aucune si le lecteur
+a demandé moins d'animations).
+Sans JavaScript, ou avec le mode « économie de données » du navigateur, la page garde l'ordre par défaut : du
+tag le plus fourni au moins fourni, le premier en grand. Il n'y a pas de réglage pour couper le hasard : si
+vous le voulez, retirez la ligne `{{> "tags/prepaint"}}` de `partials/pages/tags.hbs` (l'ordre par défaut
+reste, sans « Mélanger »).
+
+**L'aperçu au survol.** Avec une souris, laisser le pointeur environ une demi-seconde sur une case l'agrandit
+en une carte posée au-dessus des autres : image, nom, nombre d'articles, description, **les 3 derniers
+articles du tag** (titre, date, temps de lecture) et un bouton **« Voir la rubrique »**. La carte se ferme quand
+le pointeur s'en va, avec Échap, en cliquant ailleurs ou en faisant défiler la page. Au clavier et sur écran
+tactile, le petit bouton **(i) « Détails »** dans le coin de la case ouvre la même carte (un clic ou un
+toucher sur la case, lui, ouvre toujours la page du tag) ; Échap ou « Fermer » la referme.
+Les derniers articles viennent des **200 articles les plus récents** du site, lus une seule fois par la page :
+un tag dont tous les articles sont plus anciens montre seulement son nombre d'articles. (Mesuré sur un Ghost 6
+local de 102 articles et 32 tags : 145 ms pour la page avec ces articles, contre 177 ms avec une requête par
+tag, qui monterait vers 0,8 s avec 200 tags.)
+
+**Plus de 200 tags.** Ghost renvoie au plus 100 tags par requête ; le modèle en fait deux, soit 200 tags.
+Pour aller au-delà, ajoutez dans `partials/pages/tags.hbs` un bloc
+`{{#get "tags" limit="100" page="3" include="count.posts" filter="visibility:public" order="count.posts desc"}}…{{/get}}`
+sur le modèle du deuxième.
 
 ### Archives
 
