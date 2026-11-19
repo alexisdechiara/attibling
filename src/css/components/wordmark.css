@@ -65,7 +65,9 @@
 /* A site logo drawn for dark backgrounds (src/js/logo-ink.js sets data-ink="light": white ink on
    transparency): on light surfaces its white parts take the "ly" ink colour, its colours stay. Dark mode
    and images (on-media) show it as it is. */
-:root[data-theme="light"] .wordmark--logo[data-ink="light"]:not(.wordmark--on-media) .wordmark__image:not(.wordmark__image--dark) {
+:root[data-theme="light"]
+  .wordmark--logo[data-ink="light"]:not(.wordmark--on-media)
+  .wordmark__image:not(.wordmark__image--dark) {
   filter: url("#attibling-logo-ink");
 }
 

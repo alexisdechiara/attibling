@@ -311,7 +311,9 @@ describe("hero", () => {
 				g: g.left,
 				baseline,
 				size: parseFloat(getComputedStyle(wordmark).fontSize),
-				lines: Math.round(tagline.height / parseFloat(getComputedStyle(document.querySelector(".hero__tagline")).lineHeight)),
+				lines: Math.round(
+					tagline.height / parseFloat(getComputedStyle(document.querySelector(".hero__tagline")).lineHeight),
+				),
 				post: document.querySelector("[data-hero-slide]:not([hidden]) .hero__post")?.getBoundingClientRect().left,
 				right: wordmark.getBoundingClientRect().right,
 			};
@@ -332,7 +334,10 @@ describe("hero", () => {
 				assert.ok(Math.abs(tl - m.g) < 6, `starts at the wordmark's start (${tl} vs ${m.g})`);
 				assert.ok(tr <= m.y[0], `ends before the "y" (${tr} ≤ ${m.y[0]})`);
 				assert.ok(tt >= m.baseline - 1, `below the letters' baseline (${tt} ≥ ${m.baseline})`);
-				assert.ok(tt - m.baseline <= 0.12 * m.size, `attached to the letters (${(tt - m.baseline).toFixed(1)} ≤ ${(0.12 * m.size).toFixed(1)})`);
+				assert.ok(
+					tt - m.baseline <= 0.12 * m.size,
+					`attached to the letters (${(tt - m.baseline).toFixed(1)} ≤ ${(0.12 * m.size).toFixed(1)})`,
+				);
 				assert.ok(tt < m.y[3], "beside the descender, not below it");
 				assert.ok(m.lines <= 2, "two lines at most");
 				if (width >= 1024) assert.ok(m.right + 16 <= m.post, `clear of the post (${m.right} + 16 ≤ ${m.post})`);

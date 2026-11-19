@@ -162,9 +162,14 @@ describe("compact rows lift as one block", () => {
 		const { page, dispose } = await open({ viewport: DESKTOP, reducedMotion: "reduce" });
 		await page.evaluate(() => document.querySelector(".latest").scrollIntoView());
 		const shadow = () =>
-			page.evaluate(() => getComputedStyle(document.querySelector(".latest__list li:nth-child(2) .row-item__media")).boxShadow);
+			page.evaluate(
+				() => getComputedStyle(document.querySelector(".latest__list li:nth-child(2) .row-item__media")).boxShadow,
+			);
 		const rest = await shadow();
-		const [, media, title] = await moves(page, ".latest__list li:nth-child(2)", [".row-item__media", ".row-item__title"]);
+		const [, media, title] = await moves(page, ".latest__list li:nth-child(2)", [
+			".row-item__media",
+			".row-item__title",
+		]);
 		assert.equal(media, 0);
 		assert.equal(title, 0);
 		assert.notEqual(await shadow(), rest);
@@ -195,7 +200,9 @@ describe("pages use the site's font", () => {
 		page.evaluate(selectors => {
 			const read = () =>
 				Object.fromEntries(
-					selectors.filter(s => document.querySelector(s)).map(s => [s, getComputedStyle(document.querySelector(s)).fontFamily]),
+					selectors
+						.filter(s => document.querySelector(s))
+						.map(s => [s, getComputedStyle(document.querySelector(s)).fontFamily]),
 				);
 			const theme = read();
 			document.documentElement.style.setProperty("--gh-font-body", '"Body Test Font", serif');
@@ -215,7 +222,8 @@ describe("pages use the site's font", () => {
 			const f = await families(page, selectors);
 			assert.ok(Object.keys(f.theme).length > 0, "something to check");
 			for (const [selector, family] of Object.entries(f.theme)) assert.match(family, /^Onest,/, selector);
-			for (const [selector, family] of Object.entries(f.custom)) assert.equal(family, '"Body Test Font", serif', selector);
+			for (const [selector, family] of Object.entries(f.custom))
+				assert.equal(family, '"Body Test Font", serif', selector);
 			await dispose();
 		});
 	}
@@ -228,12 +236,22 @@ describe("pages use the site's font", () => {
 	});
 
 	it("legal text keeps a comfortable measure in the sans-serif (60 to 75 characters per line)", async () => {
-		const text = "<p>" + "Le présent site est édité à titre personnel par son auteur, qui en assure la publication. ".repeat(12) + "</p>";
-		const { page, dispose } = await open({ render: template("page-mentions-legales", { post: { html: text } }), viewport: DESKTOP });
+		const text =
+			"<p>" +
+			"Le présent site est édité à titre personnel par son auteur, qui en assure la publication. ".repeat(12) +
+			"</p>";
+		const { page, dispose } = await open({
+			render: template("page-mentions-legales", { post: { html: text } }),
+			viewport: DESKTOP,
+		});
 		const m = await page.evaluate(() => {
 			const p = document.querySelector(".document__content p");
 			const style = getComputedStyle(p);
-			return { width: p.getBoundingClientRect().width, size: parseFloat(style.fontSize), lh: parseFloat(style.lineHeight) };
+			return {
+				width: p.getBoundingClientRect().width,
+				size: parseFloat(style.fontSize),
+				lh: parseFloat(style.lineHeight),
+			};
 		});
 		// The tests do not load web fonts: the measure is checked in ems, with Onest's average width of a
 		// character of French text (0.449 em, measured on the local Ghost with the real font)
@@ -301,13 +319,18 @@ describe("footer", () => {
 
 	it("lists the secondary navigation and the social accounts set in Ghost (Bluesky included)", async () => {
 		const { page, dispose } = await open({
-			render: template("tag", { site: { settings: { bluesky: "geekly.bsky.social", mastodon: "@geekly@mastodon.social" } } }),
+			render: template("tag", {
+				site: { settings: { bluesky: "geekly.bsky.social", mastodon: "@geekly@mastodon.social" } },
+			}),
 			viewport: DESKTOP,
 		});
 		const labels = await page.evaluate(() =>
-			[...document.querySelectorAll(".site-footer__nav a")].map(a => a.getAttribute("aria-label") || a.textContent.trim()),
+			[...document.querySelectorAll(".site-footer__nav a")].map(
+				a => a.getAttribute("aria-label") || a.textContent.trim(),
+			),
 		);
-		for (const label of ["About", "Contact", "X", "Bluesky", "Mastodon", "RSS"]) assert.ok(labels.includes(label), label);
+		for (const label of ["About", "Contact", "X", "Bluesky", "Mastodon", "RSS"])
+			assert.ok(labels.includes(label), label);
 		await dispose();
 	});
 
@@ -321,7 +344,7 @@ describe("footer", () => {
 	});
 });
 
-describe("the wordmark's \"ly\"", () => {
+describe('the wordmark\'s "ly"', () => {
 	before(launch);
 	after(close);
 
@@ -403,7 +426,9 @@ describe("the wordmark's \"ly\"", () => {
 
 	it("a white-ink logo gets the text colour on light surfaces only", async () => {
 		const light = await logoPage("/src/tests/fixtures/logo-light-ink.svg", "dark", { theme: "light" });
-		assert.ok(await waitFor(() => light.page.evaluate(() => document.querySelector(".wordmark--logo[data-ink]") !== null)));
+		assert.ok(
+			await waitFor(() => light.page.evaluate(() => document.querySelector(".wordmark--logo[data-ink]") !== null)),
+		);
 		for (const w of await inkOf(light.page)) {
 			assert.equal(w.ink, "light");
 			assert.match(w.filter, /url\(/);
@@ -450,7 +475,9 @@ describe("the wordmark's \"ly\"", () => {
 			viewport: DESKTOP,
 		});
 		await sleep(400);
-		const filter = await page.evaluate(() => getComputedStyle(document.querySelector("#hero-wordmark .wordmark__image")).filter);
+		const filter = await page.evaluate(
+			() => getComputedStyle(document.querySelector("#hero-wordmark .wordmark__image")).filter,
+		);
 		assert.equal(filter, "none");
 		await dispose();
 	});

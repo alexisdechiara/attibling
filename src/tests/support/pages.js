@@ -70,7 +70,9 @@ export const template = (
 		"page-archives": pageContext("Archives"),
 		"page-favoris": pageContext("Saved posts"),
 		"page-a-propos": pageContext("About"),
-		"page-mentions-legales": { post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z", ...post } },
+		"page-mentions-legales": {
+			post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z", ...post },
+		},
 		"error-404": {},
 	};
 	for (const [custom_, page_] of [
