@@ -1,153 +1,491 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open, waitFor } from "./support/harness.js";
+import { home, paged, template } from "./support/pages.js";
 
-describe("home page", () => {
+const heroState = page =>
+	page.evaluate(() => ({
+		dots: [...document.querySelectorAll("[data-hero-dot]")].map(dot => dot.getAttribute("aria-current")),
+		active: [...document.querySelectorAll("[data-hero-slide]")]
+			.filter(slide => !slide.inert && !slide.hidden && getComputedStyle(slide).visibility !== "hidden")
+			.map(slide => slide.querySelector(".hero__post-title").textContent),
+		pagerHidden: document.querySelector("[data-hero-pager]")?.hidden ?? null,
+	}));
+
+describe("home hero", () => {
 	before(launch);
 	after(close);
 
-	// The featured post whose slide fills the slider, and the state of the two buttons.
-	const sliderState = page =>
-		page.evaluate(() => {
-			const track = document.querySelector(".js-featured-slider .js-slider-track").getBoundingClientRect();
-			const shown = [...document.querySelectorAll(".m-featured-slider__list__item")].filter(slide => {
-				const box = slide.getBoundingClientRect();
-				return Math.abs(box.left - track.left) < 2 && Math.abs(box.width - track.width) < 2;
+	it("shows the latest featured post and switches posts with the pager", async () => {
+		for (const width of [390, 1440]) {
+			const { page, errors, dispose } = await open({ viewport: { width, height: 900 } });
+			let state = await heroState(page);
+			assert.equal(state.pagerHidden, false, "the pager shows once the script runs");
+			assert.deepEqual(state.dots, ["true", null, null, null, null, null], `six dots, the first current at ${width}px`);
+			assert.deepEqual(state.active, ["Test de Dokploy : une alternative sérieuse à Coolify"]);
+
+			await page.locator("[data-hero-dot]").nth(2).click();
+			state = await waitFor(async () => {
+				const s = await heroState(page);
+				return s.active.length === 1 && s.active[0].startsWith("Voici Knowless") && s;
 			});
-			return {
-				shown: shown.map(slide => slide.querySelector(".m-featured-article__title").getAttribute("title")),
-				prev: !document.querySelector(".js-featured-slider [aria-label=Previous]").disabled,
-				next: !document.querySelector(".js-featured-slider [aria-label=Next]").disabled,
-			};
-		});
-	const showing = (page, title, prev, next) =>
-		waitFor(async () => {
-			const state = await sliderState(page);
-			return state.shown.length === 1 && state.shown[0] === title && state.prev === prev && state.next === next;
-		});
-
-	it("shows one featured post at a time and moves between them with the buttons", async () => {
-		for (const width of [390, 1280]) {
-			const { page, errors, dispose } = await open({ viewport: { width, height: 800 } });
-			assert.equal(await showing(page, "Featured post 1", false, true), true, `starts on the first post at ${width}px`);
-
-			const next = page.getByRole("button", { name: "Next" });
-			const prev = page.getByRole("button", { name: "Previous" });
-			await next.click();
-			assert.equal(await showing(page, "Featured post 2", true, true), true, `next at ${width}px`);
-			await next.click();
-			assert.equal(await showing(page, "Featured post 3", true, false), true, `last post at ${width}px`);
-			await prev.click();
-			assert.equal(await showing(page, "Featured post 2", true, true), true, `previous at ${width}px`);
+			assert.ok(state, `the third post shows at ${width}px`);
+			assert.deepEqual(state.dots, [null, null, "true", null, null, null]);
 			assert.deepEqual(errors.map(String), []);
 			await dispose();
 		}
 	});
 
-	it("moves between featured posts from the keyboard", async () => {
-		const { page, dispose } = await open();
-		await page.getByRole("button", { name: "Next" }).focus();
-		await page.keyboard.press("Enter");
-		assert.equal(await showing(page, "Featured post 2", true, true), true);
-		await page.keyboard.press("Enter");
-		assert.equal(await showing(page, "Featured post 3", true, false), true);
+	it("names each dot and moves between them with the arrow keys", async () => {
+		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
+		const first = page.locator("[data-hero-dot]").first();
 		assert.equal(
-			await page.evaluate(() => document.activeElement.getAttribute("aria-label")),
-			"Previous",
-			"focus moves to the other button when the focused one is disabled",
+			await first.textContent().then(t => t.trim()),
+			"1 of 6: Test de Dokploy : une alternative sérieuse à Coolify",
+		);
+		await first.focus();
+		await page.keyboard.press("ArrowDown");
+		assert.deepEqual((await heroState(page)).dots.slice(0, 2), [null, "true"]);
+		assert.equal(await page.evaluate(() => document.activeElement.matches("[data-hero-dot]:nth-of-type(2)")), true);
+		await page.keyboard.press("ArrowUp");
+		await page.keyboard.press("ArrowUp");
+		assert.equal((await heroState(page)).dots.at(-1), "true", "wraps around to the last post");
+		await dispose();
+	});
+
+	it("keeps the posts that are not shown out of the keyboard's reach", async () => {
+		const { page, dispose } = await open();
+		const reachable = await page.evaluate(() =>
+			[...document.querySelectorAll("[data-hero-slide]")].map(slide => !slide.closest("[inert]") && !slide.hidden),
+		);
+		assert.deepEqual(reachable, [true, false, false, false, false, false]);
+		await dispose();
+	});
+
+	it("has no pager with a single featured post, and a plain card with none", async () => {
+		const one = await open({ render: home({ site: { featured: false } }) });
+		assert.equal(await one.page.locator("[data-hero-slide]").count(), 0);
+		assert.equal(await one.page.locator("[data-hero-pager]").count(), 0);
+		assert.equal(await one.page.locator(".hero__slide--static").count(), 1);
+		assert.equal(
+			await one.page
+				.locator("h1#hero-title")
+				.textContent()
+				.then(t => t.trim().startsWith("Geekly")),
+			true,
+		);
+		await one.dispose();
+	});
+});
+
+describe("wordmark docking", () => {
+	before(launch);
+	after(close);
+
+	const dock = page =>
+		page.evaluate(() => {
+			const header = document.getElementById("site-header");
+			const logo = header.querySelector("[data-header-logo]");
+			const style = getComputedStyle(logo);
+			return { dock: header.dataset.dock, visible: style.visibility === "visible" };
+		});
+
+	for (const reducedMotion of ["no-preference", "reduce"]) {
+		it(`docks the wordmark into the header once the hero has scrolled away (${reducedMotion})`, async () => {
+			const { page, dispose } = await open({ reducedMotion, viewport: { width: 1440, height: 900 } });
+			assert.deepEqual(await dock(page), { dock: "undocked", visible: false }, "no logo while the hero shows");
+
+			await page.evaluate(() => window.scrollTo(0, 700));
+			assert.equal(await waitFor(async () => (await dock(page)).dock === "docked"), true);
+			assert.equal(await waitFor(async () => (await dock(page)).visible), true, "the logo shows");
+
+			await page.evaluate(() => window.scrollTo(0, 0));
+			assert.equal(await waitFor(async () => (await dock(page)).dock === "undocked"), true, "and leaves again");
+			await dispose();
+		});
+	}
+
+	it("keeps the hidden logo out of the tab order", async () => {
+		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
+		await page.keyboard.press("Tab");
+		await page.keyboard.press("Tab");
+		assert.equal(
+			await page.evaluate(() => document.activeElement.matches("[data-header-logo]")),
+			false,
+			"the second Tab goes past the hidden logo",
 		);
 		await dispose();
 	});
 
-	it("counts every press when the buttons are pressed in quick succession", async () => {
+	it("always shows the logo on the other pages", async () => {
+		for (const render of [paged(2), template("tag"), template("post")]) {
+			const { page, dispose } = await open({ render, viewport: { width: 1440, height: 900 } });
+			assert.deepEqual(await dock(page), { dock: undefined, visible: true }, render.template);
+			await dispose();
+		}
+	});
+});
+
+describe("subscription block", () => {
+	before(launch);
+	after(close);
+
+	const promoShown = page =>
+		page.evaluate(() => {
+			const promo = document.querySelector("[data-promo]");
+			return Boolean(promo) && getComputedStyle(promo).display !== "none";
+		});
+
+	it("shows to visitors only", async () => {
+		const visitor = await open();
+		assert.equal(await promoShown(visitor.page), true);
+		assert.equal(await visitor.page.locator("[data-promo] a[data-portal=signin]").count(), 1);
+		await visitor.dispose();
+
+		const member = await open({ render: home({ member: true }) });
+		assert.equal(await member.page.locator("[data-promo]").count(), 0);
+		await member.dispose();
+
+		const closed = await open({ render: home({ site: { settings: { members_enabled: false } } }) });
+		assert.equal(await closed.page.locator("[data-promo]").count(), 0, "not when members are disabled");
+		await closed.dispose();
+	});
+
+	it("closes for good with its close button", async () => {
 		const { page, dispose } = await open();
-		const next = page.getByRole("button", { name: "Next" });
-		await next.click();
-		await next.click();
-		assert.equal(await showing(page, "Featured post 3", true, false), true);
+		await page.getByRole("button", { name: "Close", exact: true }).click();
+		assert.equal(await promoShown(page), false);
+		assert.equal(await page.evaluate(() => localStorage.getItem("attibling-promo-closed")), "1");
+
+		// Hidden from the first paint on the next visit
+		const hiddenBeforeScripts = await page.evaluate(
+			() =>
+				new Promise(resolve => {
+					const frame = document.createElement("iframe");
+					frame.style.width = "1200px";
+					frame.src = location.href;
+					frame.addEventListener("load", () => {
+						resolve(frame.contentDocument.documentElement.hasAttribute("data-promo-closed"));
+					});
+					document.body.append(frame);
+				}),
+		);
+		assert.equal(hiddenBeforeScripts, true);
+		await page.reload();
+		assert.equal(await promoShown(page), false, "still closed after a reload");
 		await dispose();
 	});
+});
 
-	it("moves between featured posts in a right-to-left page", async () => {
-		const { page, dispose } = await open({ lang: "ar" });
-		assert.equal(await page.evaluate(() => document.documentElement.dir), "rtl");
-		assert.equal(await showing(page, "Featured post 1", false, true), true);
-		await page.getByRole("button", { name: "Next" }).click();
-		assert.equal(await showing(page, "Featured post 2", true, true), true);
-		await page.getByRole("button", { name: "Next" }).click();
-		assert.equal(await showing(page, "Featured post 3", true, false), true);
-		await dispose();
-	});
+const PROGRESS = [
+	{
+		url: "/overwatch-renaissance/",
+		title: "Overwatch est-il en train de renaître ?",
+		image: "",
+		tag: "Actualité",
+		readingTime: 11,
+		progress: 0.4,
+		updatedAt: 2,
+	},
+	{
+		url: "/top-jeux-2025/",
+		title: "Mon top des jeux auquel j’ai joué en 2025",
+		image: "",
+		tag: "",
+		readingTime: 20,
+		progress: 0.75,
+		updatedAt: 1,
+	},
+];
+const SAVED = [
+	{
+		url: "/battlefield-6/",
+		title: "Annonce de Battlefield 6",
+		image: "",
+		tag: "Actualité",
+		readingTime: 5,
+		savedAt: 1,
+	},
+];
 
-	it("can swipe through the featured posts", async () => {
-		const { page, dispose } = await open({ viewport: { width: 390, height: 800 } });
-		await page.evaluate(() => {
-			const track = document.querySelector(".js-featured-slider .js-slider-track");
-			track.scrollTo({ left: track.clientWidth * 0.7, behavior: "instant" });
-		});
-		assert.equal(await showing(page, "Featured post 2", true, true), true, "snaps to a whole post");
-		await dispose();
-	});
+describe("members' lists", () => {
+	before(launch);
+	after(close);
 
-	it("lays the recent articles out as a strip that scrolls sideways", async () => {
-		const { page, dispose } = await open({ viewport: { width: 390, height: 800 } });
-		await page.locator(".js-open-menu").click();
-		const strip = await page.evaluate(() => {
-			const list = document.querySelector(".m-recent-articles__list");
-			const tops = [...list.children].map(item => Math.round(item.getBoundingClientRect().top));
-			list.scrollLeft = 200;
-			return { sameRow: new Set(tops).size === 1, scrolled: list.scrollLeft };
-		});
-		assert.deepEqual(strip, { sameRow: true, scrolled: 200 });
-		await dispose();
-	});
-
-	it("clamps long titles to a few lines without altering their text", async () => {
-		for (const viewport of [
-			{ width: 390, height: 800 },
-			{ width: 1280, height: 800 },
-		]) {
-			const { page, dispose } = await open({ viewport });
-			// Show the recent articles too: in the mobile menu, or in the desktop submenu
-			await page.locator(viewport.width < 768 ? ".js-open-menu" : ".js-toggle-submenu").click();
-			await page.waitForTimeout(500);
-			const titles = await page.$$eval(
-				".m-article-card__title, .m-featured-article__title, .m-recent-article__title",
-				(nodes, width) =>
-					nodes.map(node => ({
-						title: node.getAttribute("title"),
-						text: node.innerText.trim(),
-						full: node.textContent.trim(),
-						height: node.getBoundingClientRect().height,
-						clipped: node.scrollHeight > node.clientHeight + 1,
-						lines: Math.round(node.getBoundingClientRect().height / parseFloat(getComputedStyle(node).lineHeight)),
-						width,
-					})),
-				viewport.width,
-			);
-			const byTitle = Object.fromEntries(titles.map(t => [t.title, t]));
-			for (const t of titles) assert.equal(t.text, t.full, `${t.title} text was altered at ${t.width}px`);
-			const expected = {
-				"Card 1": [3, 100],
-				"Card 2": [6, 250],
-				"Featured post 1": [viewport.width >= 768 ? 4 : 5, 200],
-				"Recent post 1": [2, 50],
+	const lists = page =>
+		page.evaluate(() => {
+			const section = document.querySelector("[data-member-lists]");
+			if (!section) return null;
+			return {
+				hidden: section.hidden,
+				title: section.querySelector("[data-list-switch]").textContent.trim(),
+				cards: [...section.querySelectorAll("[data-list-items] .tile__title")].map(t => t.textContent),
+				metas: [...section.querySelectorAll("[data-list-items] .tile__meta")].map(m =>
+					m.textContent.replace(/\s+/g, " ").trim(),
+				),
+				clear: !section.querySelector("[data-list-clear]").hidden,
+				all: !section.querySelector("[data-list-all]").hidden,
 			};
-			for (const [title, [lines, maxHeight]] of Object.entries(expected)) {
-				const t = byTitle[title];
-				assert.ok(t.clipped, `${title} is not clipped at ${t.width}px`);
-				assert.equal(t.lines, lines, `${title} shows ${t.lines} lines at ${t.width}px`);
-				assert.ok(t.height <= maxHeight, `${title} is ${t.height}px tall at ${t.width}px`);
-			}
+		});
+
+	it("does not exist for visitors", async () => {
+		const { page, dispose } = await open({ storage: { "attibling-progress": JSON.stringify(PROGRESS) } });
+		assert.equal(await lists(page), null);
+		await dispose();
+	});
+
+	it("stays hidden for a member with nothing in progress or saved", async () => {
+		const { page, dispose } = await open({ render: home({ member: true }) });
+		assert.equal((await lists(page)).hidden, true);
+		await dispose();
+	});
+
+	it("shows the reading in progress first, with progress and time left", async () => {
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			storage: { "attibling-progress": JSON.stringify(PROGRESS), "attibling-saved": JSON.stringify(SAVED) },
+		});
+		const state = await lists(page);
+		assert.equal(state.hidden, false);
+		assert.equal(state.title, "Continue reading");
+		assert.deepEqual(state.cards, [PROGRESS[0].title, PROGRESS[1].title]);
+		assert.deepEqual(state.metas, ["40% read•about 7 min left", "75% read•about 5 min left"]);
+		assert.deepEqual([state.clear, state.all], [true, false]);
+		await dispose();
+	});
+
+	it("switches to « Read later » with the title, from the keyboard", async () => {
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			storage: { "attibling-progress": JSON.stringify(PROGRESS), "attibling-saved": JSON.stringify(SAVED) },
+		});
+		const button = page.locator("[data-list-switch]");
+		assert.equal(await button.getAttribute("aria-haspopup"), "listbox");
+		await button.focus();
+		await page.keyboard.press("Enter");
+		assert.equal(await button.getAttribute("aria-expanded"), "true");
+		assert.equal(await page.evaluate(() => document.activeElement.getAttribute("aria-selected")), "true");
+		await page.keyboard.press("ArrowDown");
+		await page.keyboard.press("Enter");
+		assert.equal(await button.getAttribute("aria-expanded"), "false");
+		assert.equal(await page.evaluate(() => document.activeElement.hasAttribute("data-list-switch")), true);
+		const state = await lists(page);
+		assert.equal(state.title, "Read later");
+		assert.deepEqual(state.cards, [SAVED[0].title]);
+		assert.deepEqual(state.metas, ["Actualité•5 min"]);
+		assert.deepEqual([state.clear, state.all], [false, true]);
+
+		await button.click();
+		await page.keyboard.press("Escape");
+		assert.equal(await button.getAttribute("aria-expanded"), "false", "Escape closes the list");
+		await dispose();
+	});
+
+	it("opens on « Read later » when nothing is in progress, and says when a list is empty", async () => {
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			storage: { "attibling-saved": JSON.stringify(SAVED) },
+		});
+		assert.equal((await lists(page)).title, "Read later");
+		await page.locator("[data-list-switch]").click();
+		await page.locator("[role=option][data-list=resume]").click();
+		assert.deepEqual((await lists(page)).cards, []);
+		assert.equal(await page.locator("[data-list-empty=resume]").isVisible(), true);
+		await dispose();
+	});
+
+	it("removes a card, and disappears when both lists are empty", async () => {
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			storage: { "attibling-progress": JSON.stringify(PROGRESS.slice(0, 1)) },
+		});
+		await page.getByRole("button", { name: `Remove “${PROGRESS[0].title}” from the list` }).click();
+		assert.equal(await page.evaluate(() => localStorage.getItem("attibling-progress")), "[]");
+		assert.equal((await lists(page)).hidden, true);
+		await dispose();
+	});
+
+	it("hides when the browser storage is blocked", async () => {
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			initScript: () => {
+				Object.defineProperty(window, "localStorage", {
+					get() {
+						throw new DOMException("blocked", "SecurityError");
+					},
+				});
+			},
+		});
+		assert.equal((await lists(page)).hidden, true);
+		assert.equal(await page.locator("[data-bookmark]:visible").count(), 0, "no bookmark pretends to work");
+		await dispose();
+	});
+});
+
+describe("bookmarks", () => {
+	before(launch);
+	after(close);
+
+	it("are not rendered for visitors", async () => {
+		const { page, dispose } = await open();
+		assert.equal(await page.locator("[data-bookmark]").count(), 0);
+		await dispose();
+	});
+
+	it("save a post for a member, keep it after a reload and fill « Read later »", async () => {
+		const { page, dispose } = await open({ render: home({ member: true }), viewport: { width: 1440, height: 900 } });
+		const tile = page.locator(".row--shelf [data-post-tile]").first();
+		const button = tile.locator("[data-bookmark]");
+		assert.equal(await button.getAttribute("aria-pressed"), "false");
+		assert.match(await button.getAttribute("aria-label"), /^Read later: /);
+		await tile.scrollIntoViewIfNeeded();
+		await tile.hover();
+		await button.click();
+		assert.equal(await button.getAttribute("aria-pressed"), "true");
+		const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-saved")));
+		assert.equal(saved.length, 1);
+		assert.equal(saved[0].url, "/overwatch-renaissance/");
+		assert.equal(saved[0].readingTime, 11);
+
+		const same = await page
+			.locator('[data-bookmark][data-url="/overwatch-renaissance/"]')
+			.evaluateAll(buttons => buttons.map(b => b.getAttribute("aria-pressed")));
+		assert.ok(same.length > 1 && same.every(v => v === "true"), "every button of the post follows");
+		assert.equal(await page.locator("[data-member-lists]").isVisible(), true, "the members' section appears");
+
+		await page.reload();
+		assert.equal(await page.locator(".row--shelf [data-bookmark]").first().getAttribute("aria-pressed"), "true");
+		await button.click();
+		assert.equal(await page.evaluate(() => localStorage.getItem("attibling-saved")), "[]");
+		await dispose();
+	});
+
+	it("show on hover on desktop and always on touch screens; a saved post keeps its mark", async () => {
+		const opacity = page =>
+			page.evaluate(() =>
+				[...document.querySelectorAll(".row--shelf [data-bookmark] .bookmark__icon")]
+					.slice(0, 2)
+					.map(icon => getComputedStyle(icon).opacity),
+			);
+		const desktop = await open({
+			render: home({ member: true }),
+			storage: { "attibling-saved": JSON.stringify([{ url: "/hytale-records/", title: "x", savedAt: 1 }]) },
+		});
+		assert.deepEqual(await opacity(desktop.page), ["0", "1"], "unsaved hidden, saved shown at rest");
+		await desktop.dispose();
+
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			viewport: { width: 390, height: 800 },
+			hasTouch: true,
+		});
+		assert.deepEqual(await opacity(page), ["1", "1"]);
+		await dispose();
+	});
+});
+
+describe("« Most read »", () => {
+	before(launch);
+	after(close);
+
+	it("lists the #top posts in the order of their #top-N tags", async () => {
+		const { page, dispose } = await open();
+		const titles = await page.locator(".top__item .tile__title").allTextContents();
+		assert.deepEqual(titles, [
+			"Overwatch est-il en train de renaître ?",
+			"Anglais ou français, quelle est la véritable VO de Clair Obscur : Expedition 33 ?",
+			"Rockstar persiste à ne pas proposer de VF pour GTA VI et c’est un problème",
+			"Mon top des jeux auquel j’ai joué en 2025",
+			"Bluesky peut-il devenir le Twitter de demain ?",
+		]);
+		await dispose();
+	});
+
+	it("is absent when no post carries #top", async () => {
+		const { page, dispose } = await open({ render: home({ site: { top: false } }) });
+		assert.equal(await page.locator(".top").count(), 0);
+		await dispose();
+	});
+});
+
+describe("rows by tag", () => {
+	before(launch);
+	after(close);
+
+	const rows = page =>
+		page.$$eval(".row", sections =>
+			sections.map(s => [s.className.match(/row--(\w+)/)[1], s.querySelector("h2").textContent.trim()]),
+		);
+
+	it("follow the theme's sequence of forms with the most used tags", async () => {
+		const { page, dispose } = await open();
+		assert.deepEqual(await rows(page), [
+			["shelf", "Jeux vidéo"],
+			["tags", "Sections"],
+			["posters", "VF"],
+			["list", "Actualité"],
+			["banner", "Anime"],
+			["feature", "Informatique"],
+		]);
+		await dispose();
+	});
+
+	it("use the tags pinned in the settings, and drop a row whose tag does not exist", async () => {
+		const custom = {
+			home_row_1: "jeux-video",
+			home_row_2: "anime",
+			home_row_3: "actualites",
+			home_row_4: "none",
+			home_row_5: "dossiers",
+		};
+		const { page, dispose } = await open({ render: home({ custom }) });
+		assert.deepEqual(await rows(page), [
+			["shelf", "Jeux vidéo"],
+			["tags", "Sections"],
+			["posters", "Anime"],
+			["list", "Actualité"],
+			["feature", "Dossier"],
+		]);
+		await dispose();
+	});
+});
+
+describe("home layout", () => {
+	before(launch);
+	after(close);
+
+	it("does not overflow horizontally on a phone", async () => {
+		for (const member of [false, true]) {
+			const { page, dispose } = await open({
+				render: home({ member }),
+				viewport: { width: 390, height: 800 },
+				storage: { "attibling-progress": JSON.stringify(PROGRESS) },
+			});
+			await page.waitForTimeout(100);
+			const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+			assert.ok(scrollWidth <= 390, `page is ${scrollWidth}px wide in a 390px viewport (member: ${member})`);
 			await dispose();
 		}
 	});
 
-	it("does not overflow horizontally on a phone", async () => {
-		const { page, dispose } = await open({ viewport: { width: 390, height: 800 } });
-		await page.waitForTimeout(100);
-		const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-		assert.ok(scrollWidth <= 390, `page is ${scrollWidth}px wide in a 390px viewport`);
+	it("shows « Latest posts » as a lead card and six rows as tall as it", async () => {
+		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
+		const box = await page.evaluate(() => {
+			const lead = document.querySelector(".lead").getBoundingClientRect();
+			const list = document.querySelector(".latest__list").getBoundingClientRect();
+			return { rows: document.querySelectorAll(".latest__list li").length, lead: lead.height, list: list.height };
+		});
+		assert.equal(box.rows, 6);
+		assert.ok(Math.abs(box.lead - box.list) < 2, `lead ${box.lead}px, list ${box.list}px`);
+		await dispose();
+	});
+
+	it("shows page 2 and after as a plain grid without the hero", async () => {
+		const { page, dispose } = await open({ render: paged(2) });
+		assert.equal(await page.locator("[data-hero]").count(), 0);
+		assert.equal(await page.locator("h1").textContent(), "All posts");
+		assert.equal(await page.locator(".post-grid > li").count(), 7);
+		assert.equal(await page.locator(".pagination a[rel=prev]").getAttribute("href"), "/");
 		await dispose();
 	});
 });

@@ -17,7 +17,7 @@
 		"ghost": ">=6.0.0"
 	},
 	"config": {
-		"posts_per_page": 10,
+		"posts_per_page": 7,
 		"card_assets": {
 			"exclude": [
 				"bookmark",
@@ -56,6 +56,41 @@
 				"type": "boolean",
 				"default": false,
 				"group": "homepage"
+			},
+			"subscribe_url": {
+				"type": "text",
+				"default": "",
+				"description": "Where « Subscribe » leads, e.g. /newsletter/. Empty: Ghost sign-up window."
+			},
+			"home_row_1": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 1 (shelf of 16:9 tiles). Empty: most used tag. none: hide the row."
+			},
+			"home_row_2": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 2 (2:3 posters). Empty: 2nd most used tag. none: hide the row."
+			},
+			"home_row_3": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 3 (numbered list). Empty: 3rd most used tag. none: hide the row."
+			},
+			"home_row_4": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 4 (collection banner). Empty: 4th most used tag. none: hide the row."
+			},
+			"home_row_5": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 5 (one large post and four). Empty: 5th most used tag. none: hide the row."
 			}
 		}
 	},

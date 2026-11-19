@@ -1,0 +1,36 @@
+{{!--
+Subscription block (« encart »), visitors only, between « Derniers articles » and the next section
+(members see their lists in the same place). Shown when members are enabled and sign-up is open.
+« S'abonner gratuitement » goes to the subscription page (subscribe-link.hbs), « Se connecter » opens
+Portal. The close button (shown by home.js) hides the block for good on this browser: localStorage
+"attibling-promo-closed", read before the first paint by default.hbs (data-promo-closed on <html>),
+so a closed block never flashes.
+The comments benefit only shows when comments are open to all members (Settings > Membership).
+--}}
+{{#unless @member}}
+  {{#if @site.members_enabled}}
+    {{#unless @site.members_invite_only}}
+      <section class="promo container" aria-labelledby="promo-title" data-promo>
+        <div class="promo__card">
+          <button type="button" class="icon-button promo__close" aria-label="{{t "Close"}}" data-promo-close hidden>{{> "icons/close"}}</button>
+          <div class="promo__intro">
+            <h2 class="promo__title" id="promo-title">{{t "Subscribe to {blogtitle}" blogtitle=@site.title}}</h2>
+            <p class="promo__text">{{t "It's free: all you need is an email address. You get the new posts and unlock the site's reading tools."}}</p>
+            {{> subscribe-link class="button button--primary button--l promo__subscribe" label=(t "Subscribe for free")}}
+            <p class="promo__signin">{{t "Already a member?"}} <a href="#/portal/signin" data-portal="signin">{{t "Login"}}</a></p>
+          </div>
+          <ul class="promo__benefits" role="list" aria-label="{{t "What a subscription brings"}}">
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/mail"}}</span><span><b>{{t "New posts by email"}}</b>{{t "The newsletter: every new post lands in your inbox."}}</span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/summary"}}</span><span><b>{{t "“In short”"}}</b>{{t "A summary at the top of long posts."}}</span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/bookmark"}}</span><span><b>{{t "“Read later”"}}</b>{{t "Save posts to come back to them whenever you like."}}</span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/clock"}}</span><span><b>{{t "Continue reading"}}</b>{{t "Pick a post up where you left it."}}</span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/sliders"}}</span><span><b>{{t "Reading settings"}}</b>{{t "Font, spacing, alignment: read your way."}}</span></li>
+            {{#match @site.comments_enabled "all"}}
+              <li><span class="promo__icon" aria-hidden="true">{{> "icons/comment"}}</span><span><b>{{t "Comment on posts"}}</b>{{t "Share your opinion under every post."}}</span></li>
+            {{/match}}
+          </ul>
+        </div>
+      </section>
+    {{/unless}}
+  {{/if}}
+{{/unless}}

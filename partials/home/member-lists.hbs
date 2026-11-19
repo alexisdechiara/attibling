@@ -1,0 +1,53 @@
+{{!--
+Members only: one section with two lists kept in this browser (src/js/store.js):
+« Reprendre la lecture » (posts started and not finished, with their progress) and « À lire plus
+tard » (bookmarked posts). The title is the switch between them: a borderless button opening a
+listbox. Default list: « Reprendre la lecture » when a reading is in progress, else « À lire plus
+tard ». The section stays hidden when both lists are empty or the browser storage is unavailable.
+Each card is one link with a « Retirer » button; « Tout effacer » empties the reading list,
+« Tout voir » leads to the « Mes favoris » page (a page with the slug "favoris").
+home.js fills the list from the templates below; the translated strings are data-* attributes
+("%" is replaced by a number or a title).
+--}}
+{{#if @member}}
+  <section class="home-section member-lists" aria-labelledby="member-lists-title" data-member-lists hidden
+    data-i18n-read="{{t "% read"}}" data-i18n-left="{{t "about % min left"}}" data-i18n-minutes="{{t "% min"}}" data-i18n-remove="{{t "Remove “%” from the list"}}">
+    <div class="container member-lists__head">
+      <h2 class="section-header__title member-lists__heading">
+        <button type="button" class="member-lists__switch" id="member-lists-title" aria-haspopup="listbox" aria-expanded="false" aria-controls="member-lists-menu" data-list-switch>
+          <span data-list-switch-label>{{t "Continue reading"}}</span>{{> "icons/chevron-down"}}
+        </button>
+      </h2>
+      <ul class="menu-popover member-lists__menu" id="member-lists-menu" role="listbox" aria-label="{{t "Choose the list"}}" data-list-menu hidden>
+        <li class="member-lists__option" role="option" id="member-list-resume" tabindex="-1" aria-selected="true" data-list="resume"><span>{{t "Continue reading"}}</span>{{> "icons/check"}}</li>
+        <li class="member-lists__option" role="option" id="member-list-saved" tabindex="-1" aria-selected="false" data-list="saved"><span>{{t "Read later"}}</span>{{> "icons/check"}}</li>
+      </ul>
+      <span class="section-header__note">{{t "kept on this device"}}</span>
+      <button type="button" class="button button--ghost button--s member-lists__action" data-list-clear>{{t "Clear all"}}</button>
+      <a class="section-header__more member-lists__action" href="{{@site.url}}/favoris/" data-list-all hidden>{{t "See all"}}<span class="sr-only"> ({{t "Read later"}})</span>{{> "icons/chevron-right" class="icon-flip-rtl"}}</a>
+    </div>
+    <div class="shelf" data-shelf>
+      <ol class="shelf__track js-slider-track" role="list" data-list-items></ol>
+      {{> shelf-controls}}
+    </div>
+    <p class="container member-lists__empty" data-list-empty="resume" hidden>{{t "No reading in progress."}}</p>
+    <p class="container member-lists__empty" data-list-empty="saved" hidden>{{t "No saved post yet: use the bookmark on a post to read it later."}}</p>
+
+    <template data-list-template>
+      <li class="shelf__item">
+        <article class="tile tile--s" data-post-tile>
+          <a class="tile__link" href="">
+            <span class="tile__media">
+              <img class="tile__image" src="" alt="" loading="lazy" decoding="async">
+              <span class="tile__placeholder" aria-hidden="true"><span data-field="placeholder"></span></span>
+              <span class="progress" aria-hidden="true"><span class="progress__bar"></span></span>
+            </span>
+            <h3 class="tile__title" data-field="title"></h3>
+            <span class="meta tile__meta"><b class="meta__strong" data-field="lead"></b><span class="meta__dot" aria-hidden="true">•</span><span data-field="rest"></span></span>
+          </a>
+          <button type="button" class="icon-button icon-button--scrim tile__remove" data-remove>{{> "icons/close"}}</button>
+        </article>
+      </li>
+    </template>
+  </section>
+{{/if}}

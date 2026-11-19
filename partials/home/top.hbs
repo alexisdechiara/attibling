@@ -1,0 +1,30 @@
+{{!--
+« Les plus lus »: a ranking chosen by the author (a theme cannot know view counts), with large
+outlined numerals behind the tiles; the row scrolls sideways.
+Fed by the posts carrying the internal tag #top. Their order: the internal tags #top-1 to #top-10 give
+the rank (#top-1 first); #top posts without a rank follow, newest first. The numerals count the
+posts shown (CSS counter), so gaps in the ranks do not show. No #top post: no section.
+--}}
+{{#get "posts" filter="tag:hash-top" include="tags" limit="20" as |top|}}
+  <section class="home-section top" aria-labelledby="top-title">
+    <div class="container">
+      {{> section-header title=(t "Most read") note=(t "ranking set by the author") id="top-title"}}
+    </div>
+    <div class="shelf" data-shelf>
+      <ol class="shelf__track top__list js-slider-track" role="list">
+        {{#foreach top}}{{#has tag="#top-1"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-2"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-3"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-4"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-5"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-6"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-7"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-8"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-9"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-10"}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+        {{#foreach top}}{{#has tag="#top-1,#top-2,#top-3,#top-4,#top-5,#top-6,#top-7,#top-8,#top-9,#top-10"}}{{else}}{{> "home/top-item"}}{{/has}}{{/foreach}}
+      </ol>
+      {{> shelf-controls label=(t "Most read")}}
+    </div>
+  </section>
+{{/get}}

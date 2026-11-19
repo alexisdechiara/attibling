@@ -1,3 +1,6 @@
-@import "./common/variables.css";
-@import "./components/articles/featured-slider.css";
-@import "./components/articles/featured-article.css";
+/* Home page (index.hbs, partials/home/) */
+@import "./home/hero.css";
+@import "./home/latest.css";
+@import "./home/promo.css";
+@import "./home/member-lists.css";
+@import "./home/rows.css";

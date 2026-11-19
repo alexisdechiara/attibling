@@ -1,0 +1,14 @@
+{{!-- Home row « shelf »: the tag's latest 10 posts as 16:9 tiles in a row that scrolls sideways. Tag context (rows.hbs). --}}
+{{#get "posts" filter=(concat "tag:" slug) include="tags" limit="10" as |rowposts|}}
+  <section class="home-section row row--shelf" aria-labelledby="row-{{../slug}}">
+    <div class="container">
+      {{> section-header title=../name titleUrl=../url id=(concat "row-" ../slug) note=(plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")) url=../url}}
+    </div>
+    <div class="shelf" data-shelf>
+      <ol class="shelf__track js-slider-track" role="list">
+        {{#foreach rowposts}}<li class="shelf__item">{{> post-tile size="s"}}</li>{{/foreach}}
+      </ol>
+      {{> shelf-controls label=../name}}
+    </div>
+  </section>
+{{/get}}
