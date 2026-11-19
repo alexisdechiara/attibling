@@ -1,6 +1,6 @@
 /** Print (generic page and reference document: page.hbs, pages/document.hbs, loaded with media="print").
    The screen stylesheets are media="screen", so on paper the page starts from the browser's defaults:
-   this sheet keeps only the title, the date and the text, in black on white, in the theme's fonts, and
+   this sheet keeps only the title, the date and the text, in black on white, in the site's font (Onest), and
    prints the address of each external link after it. The header, the footer, the table of contents
    (no page numbers on paper) and the buttons are left out. */
 
@@ -16,7 +16,7 @@ body {
   margin: 0;
   background: #fff;
   color: #000;
-  font-family: Literata, Georgia, "Times New Roman", serif;
+  font-family: var(--gh-font-body, Onest, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
   font-size: 10.5pt;
   line-height: 1.5;
 }

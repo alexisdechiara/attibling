@@ -1,10 +1,11 @@
 /** Text written in Ghost's editor on pages (page.hbs, « À propos », notes of the subscription page):
-   a reading column in the reading font, and Ghost's cards (image, gallery, embed, callout, toggle,
+   a reading column in the site's font (Onest, or Ghost's body font; Literata is for articles only),
+   and Ghost's cards (image, gallery, embed, callout, toggle,
    bookmark, button, quote, code). Cards keep their widths: .kg-width-wide (wider than the column) and
    .kg-width-full (the whole page width). */
 
 .page-content {
-  --column: 42rem;
+  --column: 31em;
   --wide: 65rem;
   display: grid;
   grid-template-columns:
@@ -14,9 +15,9 @@
     [main-end] minmax(0, calc((var(--wide) - var(--column)) / 2))
     [wide-end] minmax(var(--gutter), 1fr) [full-end];
   color: var(--color-text);
-  font-family: var(--font-reading);
-  font-size: 1.125rem;
-  line-height: 1.75;
+  font-family: var(--font-ui);
+  font-size: 1.0625rem;
+  line-height: 1.7;
   overflow-wrap: break-word;
 
   > * {

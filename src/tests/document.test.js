@@ -122,9 +122,9 @@ describe("reference document", () => {
 		await dispose();
 	});
 
-	// About 0.52 em per character in Literata (as for articles): 60 to 75 characters per line is 31 to 39 em
-	// of the text size. (The tests do not load web fonts; on the local Ghost with Literata the median full
-	// line of the legal notice is 66 characters at 1440 px.)
+	// Pages are set in Onest, about 0.45 em per character of French text on average: 60 to 75 characters
+	// per line is 27 to 33.5 em of the text size. (The tests do not load web fonts; see the local Ghost
+	// measures in the report of the header and footer feedback.)
 	it("keeps the text at a reading measure on wide screens, for documents and ordinary pages", async () => {
 		for (const render of [legal(), template("page", { post: { html: HTML } })]) {
 			const { page, dispose } = await open({ render, viewport: WIDE });
@@ -132,7 +132,7 @@ describe("reference document", () => {
 				const p = document.querySelector(".page-content > p");
 				return p.getBoundingClientRect().width / parseFloat(getComputedStyle(p).fontSize);
 			});
-			assert.ok(ems >= 31 && ems <= 39, `${render.template}: ${ems.toFixed(1)} em`);
+			assert.ok(ems >= 27 && ems <= 33.5, `${render.template}: ${ems.toFixed(1)} em`);
 			await dispose();
 		}
 	});

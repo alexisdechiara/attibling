@@ -233,13 +233,11 @@ describe("pages use the site's font", () => {
 		const m = await page.evaluate(() => {
 			const p = document.querySelector(".document__content p");
 			const style = getComputedStyle(p);
-			const canvas = document.createElement("canvas").getContext("2d");
-			canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-			const sample = p.textContent.slice(0, 400);
-			const perChar = canvas.measureText(sample).width / sample.length;
-			return { width: p.getBoundingClientRect().width, perChar, size: parseFloat(style.fontSize), lh: parseFloat(style.lineHeight) };
+			return { width: p.getBoundingClientRect().width, size: parseFloat(style.fontSize), lh: parseFloat(style.lineHeight) };
 		});
-		const cpl = m.width / m.perChar;
+		// The tests do not load web fonts: the measure is checked in ems, with Onest's average width of a
+		// character of French text (0.449 em, measured on the local Ghost with the real font)
+		const cpl = m.width / m.size / 0.449;
 		assert.ok(cpl >= 60 && cpl <= 75, `${Math.round(cpl)} characters per line`);
 		assert.ok(m.lh / m.size >= 1.5, "line height");
 		await dispose();

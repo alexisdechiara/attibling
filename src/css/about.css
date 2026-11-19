@@ -36,9 +36,9 @@
 .about__lead {
   margin-block-start: var(--space-5);
   color: var(--color-text-secondary);
-  font-family: var(--font-reading);
+  font-family: var(--font-ui);
   font-size: var(--text-xl);
-  line-height: 1.55;
+  line-height: 1.5;
   text-wrap: pretty;
 
   @media (width >= 48rem) {
@@ -385,9 +385,9 @@
   --column: 100%;
   --wide: 100%;
   --gutter: 0px;
-  max-width: 46rem;
+  max-width: 38rem;
   color: var(--color-text);
-  font-family: var(--font-reading);
+  font-family: var(--font-ui);
   font-size: var(--text-xl);
   line-height: 1.6;
   text-wrap: pretty;
