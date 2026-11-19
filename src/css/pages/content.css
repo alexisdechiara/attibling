@@ -555,3 +555,9 @@
     padding-inline-start: var(--space-5);
   }
 }
+
+/* The facade of a third-party embed quotes its text in the articles' reading font
+   (components/embeds.css); on pages it takes the site's font like the rest of the text */
+.page-content .embed-facade blockquote {
+  font-family: var(--font-ui);
+}

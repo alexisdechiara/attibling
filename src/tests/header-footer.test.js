@@ -210,7 +210,14 @@ describe("pages use the site's font", () => {
 		}, selectors);
 
 	const cases = [
-		["page", [".page-content", ".page-article__excerpt"], { custom_excerpt: "A lead sentence." }],
+		[
+			"page",
+			[".page-content", ".page-article__excerpt", ".embed-facade blockquote"],
+			{
+				custom_excerpt: "A lead sentence.",
+				html: '<p>Body</p><figure class="kg-card kg-embed-card"><div class="embed-facade"><blockquote>A post on X</blockquote></div></figure>',
+			},
+		],
 		["page-a-propos", [".about__lead", ".about-note__text"], { custom_excerpt: "A lead sentence." }],
 		["page-mentions-legales", [".document__content", ".document__lead"], { custom_excerpt: "A lead sentence." }],
 		["page-newsletter", [".subscribe-hero__notes"], {}],
