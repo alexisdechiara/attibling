@@ -21,13 +21,13 @@ Ghost gives themes @site.comments_access = "all" | "paid" and a boolean @site.co
             <p class="promo__signin">{{t "Already a member?"}} <a href="#/portal/signin" data-portal="signin">{{t "Login"}}</a></p>
           </div>
           <ul class="promo__benefits" role="list" aria-label="{{t "What a subscription brings"}}">
-            <li><span class="promo__icon" aria-hidden="true">{{> "icons/mail"}}</span><span><b>{{t "New posts by email"}}</b>{{t "The newsletter: every new post lands in your inbox."}}</span></li>
-            <li><span class="promo__icon" aria-hidden="true">{{> "icons/summary"}}</span><span><b>{{t "“In short”"}}</b>{{t "A summary at the top of long posts."}}</span></li>
-            <li><span class="promo__icon" aria-hidden="true">{{> "icons/bookmark"}}</span><span><b>{{t "“Read later”"}}</b>{{t "Save posts to come back to them whenever you like."}}</span></li>
-            <li><span class="promo__icon" aria-hidden="true">{{> "icons/clock"}}</span><span><b>{{t "Continue reading"}}</b>{{t "Pick a post up where you left it."}}</span></li>
-            <li><span class="promo__icon" aria-hidden="true">{{> "icons/sliders"}}</span><span><b>{{t "Reading settings"}}</b>{{t "Font, spacing, alignment: read your way."}}</span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/mail"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "New posts by email"}}</b><span class="promo__benefit-text">{{t "The newsletter: every new post lands in your inbox."}}</span></span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/summary"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "“In short”"}}</b><span class="promo__benefit-text">{{t "A summary at the top of long posts."}}</span></span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/bookmark"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "“Read later”"}}</b><span class="promo__benefit-text">{{t "Save posts to come back to them whenever you like."}}</span></span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/clock"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "Continue reading"}}</b><span class="promo__benefit-text">{{t "Pick a post up where you left it."}}</span></span></li>
+            <li><span class="promo__icon" aria-hidden="true">{{> "icons/sliders"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "Reading settings"}}</b><span class="promo__benefit-text">{{t "Font, spacing, alignment: read your way."}}</span></span></li>
             {{#match @site.comments_access "all"}}
-              <li><span class="promo__icon" aria-hidden="true">{{> "icons/comment"}}</span><span><b>{{t "Comment on posts"}}</b>{{t "Share your opinion under every post."}}</span></li>
+              <li><span class="promo__icon" aria-hidden="true">{{> "icons/comment"}}</span><span class="promo__benefit"><b class="promo__benefit-title">{{t "Comment on posts"}}</b><span class="promo__benefit-text">{{t "Share your opinion under every post."}}</span></span></li>
             {{/match}}
           </ul>
         </div>
