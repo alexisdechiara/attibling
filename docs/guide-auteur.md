@@ -433,8 +433,8 @@ besoin de la créer.
 défaut son **extrait**), un bouton **« Mélanger »**, puis une mosaïque (« bento ») de tous les tags publics
 qui ont au moins un article : des cases de tailles variées (1×1, 2×1, 1×2, 2×2) sur 2 colonnes (téléphone),
 4 (tablette) ou 6 (ordinateur), sans trou. Chaque case montre l'**image du tag** sous un voile sombre (texte
-lisible sur toute image) ou, sans image, une **surface teintée** avec le nombre d'articles dessiné en grand ;
-puis le nom et le nombre d'articles. Les grandes cases (2×2) affichent aussi la **description** du tag. En bas,
+lisible sur toute image) ou, sans image, une **surface teintée** ; une icône choisie d'après le slug du tag
+(la même règle que les rubriques de la page À propos, voir plus bas) ; puis le nom et le nombre d'articles. Les grandes cases (2×2) affichent aussi la **description** du tag. En bas,
 un lien « Tous les articles, par date » mène à `/archives/` (créez la page Archives, voir plus bas).
 
 **Rendre la page plus riche (Ghost Admin → Tags → le tag) :**

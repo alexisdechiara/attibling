@@ -72,14 +72,14 @@ export const setUpPreviews = (page, grid) => {
 		const image = element("img", "tag-preview__image");
 		image.alt = "";
 		image.decoding = "async";
-		const numeral = element("span", "tag-preview__numeral");
-		numeral.setAttribute("aria-hidden", "true");
+		const icon = element("span", "tag-preview__icon");
+		icon.setAttribute("aria-hidden", "true");
 		const heading = element("div", "tag-preview__heading");
 		const name = element("p", "tag-preview__name");
 		name.id = "tag-preview-name";
 		const count = element("p", "tag-preview__count");
 		heading.append(name, count);
-		media.append(image, numeral, heading);
+		media.append(image, icon, heading);
 		const body = element("div", "tag-preview__body");
 		const description = element("p", "tag-preview__description");
 		const label = element("p", "tag-preview__label", labels.i18nLatest);
@@ -97,7 +97,7 @@ export const setUpPreviews = (page, grid) => {
 		close.innerHTML = ICONS.close;
 		close.addEventListener("click", () => hide({ restore: true }));
 		panel.append(media, body, close);
-		parts = { media, image, numeral, name, count, body, description, label, posts, more };
+		parts = { media, image, icon, name, count, body, description, label, posts, more };
 	};
 
 	const fill = cell => {
@@ -113,7 +113,7 @@ export const setUpPreviews = (page, grid) => {
 			parts.image.sizes = "440px";
 			parts.image.src = source.currentSrc || source.src;
 		} else parts.image.removeAttribute("src");
-		parts.numeral.textContent = cell.dataset.posts;
+		parts.icon.innerHTML = cell.querySelector(".tag-cell__icon")?.innerHTML || "";
 		parts.name.textContent = text(".tag-cell__name");
 		parts.count.textContent = text(".tag-cell__count");
 		parts.description.textContent = text(".tag-cell__description");

@@ -1,7 +1,7 @@
 {{!--
 A cell of the « Tags » grid (partials/pages/tags.hbs), in a tag context fetched with include="count.posts":
-one link to the tag (its picture under a scrim, or a tinted surface with the number of posts drawn large;
-name, number of posts, description when the tag has one) and a « Détails » button (shown by
+one link to the tag (its picture under a scrim, or a tinted surface, as the « À propos » sections: the
+icon of partials/about/tag-icon.hbs in a badge, name, number of posts, description when the tag has one) and a « Détails » button (shown by
 src/js/tags.js) that opens the preview with the tag's latest posts.
 data-posts / data-image feed the arrangement (src/js/tags/layout.js), data-description the preview.
 Parameters:
@@ -11,9 +11,8 @@ Parameters:
   <a class="tag-cell__link" href="{{url}}">
     {{#if feature_image}}
       <img class="tag-cell__image" src="{{img_url feature_image size="m"}}" srcset="{{img_url feature_image size="s"}} 300w, {{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w" sizes="auto, (min-width: 64rem) 220px, (min-width: 40rem) 25vw, 50vw" alt="" loading="lazy" decoding="async">
-    {{else}}
-      <span class="tag-cell__numeral" aria-hidden="true">{{count.posts}}</span>
     {{/if}}
+    <span class="tag-cell__icon" aria-hidden="true">{{> "about/tag-icon"}}</span>
     <span class="tag-cell__text">
       <span class="tag-cell__name">{{name}}</span>
       <span class="tag-cell__count">{{plural count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</span>

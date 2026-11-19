@@ -185,10 +185,14 @@
   background: var(--color-media);
   box-shadow: var(--shadow-1);
   color: var(--color-on-media);
-  transition: box-shadow var(--duration-m) ease;
+  transition:
+    transform var(--duration-m) var(--ease-out),
+    box-shadow var(--duration-m) var(--ease-out);
 
+  /* Lifts slightly on hover, like the « À propos » sections */
   &:hover {
     box-shadow: var(--shadow-2);
+    transform: translateY(-3px);
 
     .tag-cell__name {
       text-decoration: underline;
@@ -208,13 +212,23 @@
   transition: transform var(--duration-l) var(--ease-out);
 
   .tag-cell__link:hover & {
-    transform: scale(1.04);
+    transform: scale(1.03);
   }
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
 
     .tag-cell__link:hover & {
+      transform: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tag-cell__link {
+    transition: box-shadow var(--duration-m) ease;
+
+    &:hover {
       transform: none;
     }
   }
@@ -235,7 +249,7 @@
   );
 }
 
-/* Without a picture: the tag's tint, and its number of posts drawn large in outline */
+/* Without a picture: the tag's tint */
 .tag-cell--no-image .tag-cell__link {
   background:
     radial-gradient(130% 110% at 100% 0%, var(--tile-tint, var(--tint-1)) 0%, transparent 72%),
@@ -244,21 +258,24 @@
   color: var(--color-text);
 }
 
-.tag-cell__numeral {
+/* The tag's icon in a badge (as the « À propos » sections): a surface on the tint, a scrim on a picture */
+.tag-cell__icon {
   position: absolute;
   inset-block-start: var(--space-3);
-  inset-inline-start: var(--space-4);
-  z-index: -1;
-  color: transparent;
-  font-family: var(--font-heading);
-  font-size: min(44cqh, 34cqw);
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--weight-black);
-  letter-spacing: -0.04em;
-  line-height: 1;
-  -webkit-text-stroke: 1.5px var(--color-numeral-stroke);
-  opacity: 0.45;
-  pointer-events: none;
+  inset-inline-start: var(--space-3);
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 1.25rem;
+
+  .tag-cell--image & {
+    background: var(--color-scrim);
+    color: var(--color-on-media);
+  }
 }
 
 .tag-cell__text {
@@ -335,6 +352,14 @@
   .tag-cell__description {
     display: -webkit-box;
     max-width: 34ch;
+  }
+
+  .tag-cell__icon {
+    inset-block-start: var(--space-5);
+    inset-inline-start: var(--space-5);
+    width: 52px;
+    height: 52px;
+    font-size: 1.625rem;
   }
 }
 
@@ -484,23 +509,22 @@
   }
 }
 
-.tag-preview__numeral {
+.tag-preview__icon {
   position: absolute;
   inset-block-start: var(--space-4);
-  inset-inline-start: var(--space-5);
-  z-index: -1;
-  color: transparent;
-  font-family: var(--font-heading);
-  font-size: calc(var(--media-h, 180px) * 0.42);
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--weight-black);
-  letter-spacing: -0.04em;
-  line-height: 1;
-  -webkit-text-stroke: 1.5px var(--color-numeral-stroke);
-  opacity: 0.45;
+  inset-inline-start: var(--space-4);
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 1.5rem;
 
   .tag-preview--image & {
-    display: none;
+    background: var(--color-scrim);
+    color: var(--color-on-media);
   }
 }
 

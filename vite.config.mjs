@@ -18,7 +18,20 @@ const lightningcssTargets = Object.fromEntries(
 );
 
 const js = ["app", "home", "post", "page", "archives", "saved", "newsletter", "about", "tags"];
-const css = ["app", "home", "listing", "post", "newsletter", "404", "page", "about", "archives", "saved", "print", "tags"];
+const css = [
+	"app",
+	"home",
+	"listing",
+	"post",
+	"newsletter",
+	"404",
+	"page",
+	"about",
+	"archives",
+	"saved",
+	"print",
+	"tags",
+];
 
 // The build writes into assets/, which also holds committed images, fonts and HTML, so it
 // cannot empty its output directory: remove the previous JS and CSS output instead.
