@@ -1,1 +1,1 @@
-import{t as e}from"./chunks/medium-zoom.esm-ClkNNR2V.js";import{a as t,i as n,o as r,r as i,t as a}from"./chunks/helpers-BtTkdf2h.js";t(()=>{r(),a(),n(),i(e)});
+import{t as e}from"./chunks/medium-zoom.esm-ClkNNR2V.js";import{a as t,i as n,o as r,r as i,t as a,u as o}from"./chunks/helpers-D0Qg6vi9.js";t(()=>{document.querySelectorAll(`.gh-content`).forEach(o),r(),a(),n(),i(e)});
