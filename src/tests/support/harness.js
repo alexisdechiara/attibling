@@ -4,6 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { renderTemplate } from "./ghost.js";
+import { home } from "./pages.js";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const SITE = "http://theme.test";
@@ -32,17 +34,19 @@ const close = async () => {
 /**
  * Opens a fixture page.
  * options:
- *  - fixture: file name in tests/fixtures (default "home.html")
+ *  - fixture: file name in tests/fixtures (without fixture or render: the home page, see pages.js)
+ *  - render: { template, ...options } renders a theme template with ghost.js instead of a fixture
+ *    (template: "index", "post"...; the other options are renderTemplate's: site, context, member...)
  *  - comments: HTML injected in place of <!--COMMENTS-->
  *  - storage: object of localStorage entries set before any script runs
  *  - initScript: function run in the page before any of its scripts
  *  - lang: value of the lang attribute of <html> (default "en")
  *  - bodyStart: HTML inserted at the start of <body>, where {{ghost_head}} scripts add theirs
- *  - colorScheme, reducedMotion, viewport: browser context options
+ *  - colorScheme, reducedMotion, viewport, hasTouch: browser context options
  */
 const open = async (options = {}) => {
 	const {
-		fixture = "home.html",
+		fixture = null,
 		comments = "",
 		storage = null,
 		initScript = null,
@@ -51,9 +55,11 @@ const open = async (options = {}) => {
 		colorScheme = "light",
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
+		hasTouch = false,
 	} = options;
+	const render = options.render || (fixture ? null : home());
 
-	const context = await browser.newContext({ colorScheme, reducedMotion, viewport });
+	const context = await browser.newContext({ colorScheme, reducedMotion, viewport, hasTouch });
 	const page = await context.newPage();
 	const requests = [];
 	const errors = [];
@@ -93,6 +99,14 @@ const open = async (options = {}) => {
 		const url = new URL(route.request().url());
 		requests.push(url.href);
 
+		if (url.origin === SITE && render && url.pathname === "/__render") {
+			const { template, ...renderOptions } = render;
+			const html = renderTemplate(template, renderOptions)
+				.replace(/<html lang="[^"]*"/, `<html lang="${lang}"`)
+				.replace(/<body[^>]*>/, tag => tag + bodyStart);
+			return route.fulfill({ status: 200, contentType: "text/html", body: html });
+		}
+
 		if (url.origin === SITE) {
 			const file = path.join(REPO_ROOT, decodeURIComponent(url.pathname));
 			if (!file.startsWith(REPO_ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
@@ -116,7 +130,7 @@ const open = async (options = {}) => {
 		return route.abort();
 	});
 
-	await page.goto(`${SITE}/src/tests/fixtures/${fixture}`, { waitUntil: "load" });
+	await page.goto(render ? `${SITE}/__render` : `${SITE}/src/tests/fixtures/${fixture}`, { waitUntil: "load" });
 
 	return {
 		page,
