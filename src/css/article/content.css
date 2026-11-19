@@ -86,24 +86,7 @@
     line-height: 1.35;
   }
 
-  /* Links: underlined in the accent colour (display settings « Couleur »: see reading.css) */
-  a:not(
-    .kg-btn,
-    .kg-bookmark-container,
-    .kg-file-card-container,
-    [class*="kg-product-card-button"],
-    .kg-signup-card-button
-  ) {
-    color: var(--color-accent);
-    text-decoration: underline;
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 3px;
-    text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
-
-    &:hover {
-      text-decoration-color: currentColor;
-    }
-  }
+  /* Links: article/links.css (the « Style des liens » display setting) */
 
   strong,
   b {

@@ -1,5 +1,6 @@
 /* Generic page (page.hbs), on top of app.css: a calm reading column */
 @import "./pages/content.css";
+@import "./article/links.css";
 
 .page-article {
   padding-block: var(--space-8) var(--space-9);

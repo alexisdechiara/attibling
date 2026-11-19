@@ -82,6 +82,14 @@
           }
         } catch (e) {}
         {{/if}}{{/is}}
+        {{#is "page"}}{{#if @custom.reading_settings}}
+        // Pages, members: only the link style of the display settings (src/css/article/links.css),
+        // so a member who chose « Soulignés » on posts gets it in the pages too
+        try {
+          var pr = root.hasAttribute('data-member') && JSON.parse(localStorage.getItem('attibling-reading'))
+          if (pr && pr.links == 'underline') root.setAttribute('data-reading-links', 'underline')
+        } catch (e) {}
+        {{/if}}{{/is}}
       })()
       // @license-end
     </script>

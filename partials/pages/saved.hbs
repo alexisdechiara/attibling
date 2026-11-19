@@ -73,7 +73,7 @@ Visitors: an invitation to subscribe or sign in (Portal).
         <p class="saved-empty__text">{{t "Saved posts are a member feature: subscribe for free or sign in, then touch the bookmark of a post to read it later."}}</p>
         <div class="saved-visitor__actions">
           {{> subscribe-link class="button button--primary button--l"}}
-          <a class="button button--l" href="#/portal/signin" data-portal="signin">{{t "Login"}}</a>
+          {{> signin-link class="button button--l"}}
         </div>
       </section>
     {{/if}}

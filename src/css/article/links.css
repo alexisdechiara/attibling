@@ -1,0 +1,32 @@
+/** Links in the text of posts and pages (.gh-content: post.hbs, page.hbs, the « À propos » page), the
+   « Style des liens » display setting (reading.css, src/js/reading-settings.js):
+     « Couleur » (default, everyone): the accent colour, no underline at rest; the underline appears on
+                 hover and on keyboard focus.
+     « Soulignés » (data-reading-links="underline" on <html>, a member's choice): the text colour with an
+                 underline, as Wikiwand; thicker and in the accent colour on hover and focus.
+   The accent differs from the body text by its hue and lightness (about 1.8:1 to 3:1 depending on the
+   reading theme, see docs/guide-auteur.md): « Soulignés » is the choice for readers who need more.
+   Ghost's own button-like cards (kg-… classes) and the theme's copy buttons are left alone. */
+.gh-content a:not([class*="kg-"]),
+.page-content a:not([class]) {
+  color: var(--color-accent);
+  text-decoration-line: none;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration-line: underline;
+  }
+}
+
+:root[data-reading-links="underline"] :is(.gh-content a:not([class*="kg-"]), .page-content a:not([class])) {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 70%, transparent);
+  text-decoration-thickness: 1px;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2.5px;
+  }
+}

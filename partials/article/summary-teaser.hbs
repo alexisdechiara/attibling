@@ -9,7 +9,7 @@ when the post has such a card (CSS :has()). Not rendered when the theme setting 
     <p class="summary-teaser__text">{{t "Summary reserved for members."}}</p>
     <p class="summary-teaser__actions">
       {{> subscribe-link class="button button--primary" label=(t "Subscribe")}}
-      <a class="summary-teaser__login" href="#/portal/signin" data-portal="signin">{{t "Login"}}</a>
+      {{> signin-link class="summary-teaser__login"}}
     </p>
   </section>
 {{/unless}}{{/unless}}

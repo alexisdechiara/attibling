@@ -66,8 +66,13 @@
   color: var(--color-text-muted);
   font-size: var(--text-s);
 
+  /* Links in the muted line: the accent colour tells them apart, the underline comes on hover/focus */
   a {
-    text-decoration: underline;
+    color: var(--color-accent);
     text-underline-offset: 3px;
+
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
+    }
   }
 }

@@ -4,6 +4,7 @@
    (no dense packing), so the reading order is the visual order; the size rules below fill every row for
    1 to 12 rubrics. */
 @import "./pages/content.css";
+@import "./article/links.css";
 @import "./pages/people.css";
 
 .about__inner {
