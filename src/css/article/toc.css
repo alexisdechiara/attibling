@@ -1,0 +1,126 @@
+/** Table of contents (partials/article/toc.hbs, tocbot): a « Sommaire » disclosure at the top of the
+   text; style « Carte » on wide screens (≥ 75rem): sticky in the margin, its summary hidden and the
+   disclosure kept open by post.js. */
+
+.article-toc {
+  grid-row: 1;
+  margin-block-end: var(--space-6);
+  font-family: var(--font-ui);
+  font-size: var(--text-nav);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.article-toc__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  .icon {
+    font-size: 1.125rem;
+  }
+}
+
+.article-toc__chevron {
+  transition: transform var(--duration-s) ease;
+}
+
+.article-toc[open] .article-toc__chevron {
+  transform: rotate(180deg);
+}
+
+.article-toc__nav {
+  margin-block-start: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.article-toc__title {
+  display: none;
+}
+
+/* tocbot's lists */
+.toc {
+  .toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-list .toc-list {
+    padding-inline-start: var(--space-4);
+  }
+
+  .toc-link {
+    display: block;
+    padding: 6px 0 6px var(--space-4);
+    border-inline-start: 2px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.45;
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  .is-active-link {
+    border-inline-start-color: var(--color-accent);
+    color: var(--color-text);
+    font-weight: var(--weight-bold);
+  }
+}
+
+/* Wide screens, style « Carte »: in the margin, sticky */
+@media (width >= 75rem) {
+  .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
+    /* The margin column along the whole text; contain: size keeps it from stretching the rows */
+    z-index: 1;
+    grid-column: main-end / full-end;
+    grid-row: 1 / -1;
+    contain: size;
+    margin: 0;
+    padding-inline-start: var(--space-9);
+
+    .article-toc__toggle {
+      display: none;
+    }
+
+    .article-toc__nav {
+      position: sticky;
+      inset-block-start: calc(var(--header-height) + var(--space-6));
+      width: min(100%, 224px);
+      max-height: calc(100vh - var(--header-height) - var(--space-9));
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: none;
+      box-shadow: none;
+    }
+
+    .article-toc__title {
+      display: block;
+      margin-block-end: var(--space-4);
+      color: var(--color-text-secondary);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-medium);
+    }
+  }
+}

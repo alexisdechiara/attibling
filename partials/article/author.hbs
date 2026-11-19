@@ -1,0 +1,36 @@
+{{!--
+Author box (post context), from the primary author's profile (Ghost Admin > Settings > Staff): photo,
+name, bio, « À propos » (a page whose slug is the theme setting about_page, or a-propos / about when it
+is empty; no link when no such page exists) and « Tous ses articles » (the author's page). Parts with
+no data are left out.
+--}}
+{{#primary_author}}
+  <section class="author-box container" aria-labelledby="author-box-name">
+    <div class="author-box__inner">
+      <a class="author-box__avatar" href="{{url}}" tabindex="-1" aria-hidden="true">
+        {{#if profile_image}}
+          <img src="{{img_url profile_image size="s"}}" alt="" width="100" height="100" loading="lazy" decoding="async">
+        {{else}}
+          <span>{{> "icons/user"}}</span>
+        {{/if}}
+      </a>
+      <div class="author-box__body">
+        <p class="author-box__eyebrow">{{t "Written by"}}</p>
+        <h2 class="author-box__name" id="author-box-name"><a href="{{url}}">{{name}}</a></h2>
+        {{#if bio}}<p class="author-box__bio">{{bio}}</p>{{/if}}
+        <p class="author-box__links">
+          {{#if @custom.about_page}}
+            {{#get "pages" filter="slug:{{@custom.about_page}}" limit="1" as |about|}}
+              {{#foreach about}}<a class="button button--outline" href="{{url}}">{{t "About"}}</a>{{/foreach}}
+            {{/get}}
+          {{else}}
+            {{#get "pages" filter="slug:[a-propos,about]" limit="1" as |about|}}
+              {{#foreach about}}<a class="button button--outline" href="{{url}}">{{t "About"}}</a>{{/foreach}}
+            {{/get}}
+          {{/if}}
+          <a class="button" href="{{url}}">{{t "All their posts"}}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+{{/primary_author}}

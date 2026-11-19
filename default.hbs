@@ -20,7 +20,8 @@
 
     {{!-- Before the first paint: the theme mode (data-theme light | dark, from localStorage "theme",
     "auto" or nothing following the system), and the home subscription block closed for good
-    (data-promo-closed, localStorage "attibling-promo-closed"). --}}
+    (data-promo-closed, localStorage "attibling-promo-closed"); on article pages, the members' display
+    settings (data-reading-*, localStorage "attibling-reading", see src/js/reading-settings.js). --}}
     <script>
       // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
       (function () {
@@ -36,6 +37,27 @@
         }
         root.setAttribute('data-theme', theme)
         if (promo) root.setAttribute('data-promo-closed', '')
+        {{#is "post"}}{{#if @custom.reading_settings}}
+        // Article pages, members: the display settings ("attibling-reading", src/js/reading-settings.js)
+        // as data-reading-<name> on <html>, and the chosen fonts (fonts.bunny.net, as Ghost's own)
+        try {
+          var r = (root.hasAttribute('data-member') && JSON.parse(localStorage.getItem('attibling-reading'))) || {}
+          var f = []
+          var font = function (v, w) { if (typeof v == 'string' && v != 'default' && /^[a-z-]+$/.test(v)) f.push(v + w) }
+          for (var k in r) {
+            if (/^[a-z]+$/.test(k) && /^[a-z0-9-]+$/.test(r[k])) root.setAttribute('data-reading-' + k, r[k])
+          }
+          font(r.heading, ':400,700')
+          font(r.body, ':400,400i,700')
+          if (f.length) {
+            var l = document.createElement('link')
+            l.rel = 'stylesheet'
+            l.href = 'https://fonts.bunny.net/css?family=' + f.join('|') + '&display=swap'
+            l.setAttribute('data-reading-fonts', '')
+            document.head.appendChild(l)
+          }
+        } catch (e) {}
+        {{/if}}{{/is}}
       })()
       // @license-end
     </script>

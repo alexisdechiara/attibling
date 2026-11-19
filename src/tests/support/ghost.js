@@ -240,7 +240,15 @@ export const renderTemplate = (name, options = {}) => {
 			return opts.fn(this.tag || this);
 		},
 		foreach(items, opts) {
-			const list = Array.isArray(items) ? items : Object.values(items || {});
+			let list = Array.isArray(items) ? items : Object.values(items || {});
+			// Like Ghost: items other than posts (tags, authors) are filtered by visibility, "public"
+			// unless visibility="internal" | "all" is given
+			const isPost = item => item && typeof item === "object" && "title" in item && "published_at" in item;
+			const visibility = opts.hash.visibility || (list.length && isPost(list[0]) ? "all" : "public");
+			if (visibility !== "all") {
+				const wanted = visibility.split(",").map(v => v.trim());
+				list = list.filter(item => !item || item.visibility === undefined || wanted.includes(item.visibility));
+			}
 			const from = (opts.hash.from || 1) - 1;
 			const to = opts.hash.to || (opts.hash.limit ? from + Number(opts.hash.limit) : list.length);
 			const slice = list.slice(from, to);
@@ -272,10 +280,10 @@ export const renderTemplate = (name, options = {}) => {
 			// Ghost resolves {{path}} inside the filter against the current context (and @data)
 			const filter = (opts.hash.filter || "").replace(/\{\{(.*?)\}\}/g, (match, p) => {
 				const source = p.startsWith("@") ? opts.data : this;
-				const value = p
-					.replace(/^@/, "")
-					.split(".")
-					.reduce((o, k) => (o == null ? o : o[k]), source);
+				const get = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
+				// "tags[*].slug": a field of every item of a list, as Ghost's path queries
+				const [list, field] = p.replace(/^@/, "").split("[*].");
+				const value = field ? (get(source, list) || []).map(item => get(item, field)) : get(source, list);
 				return Array.isArray(value) ? value.map(v => v.slug ?? v).join(",") : (value ?? "");
 			});
 			const defaults = { posts: "published_at desc", tags: null, authors: null };

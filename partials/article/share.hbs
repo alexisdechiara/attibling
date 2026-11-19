@@ -1,0 +1,22 @@
+{{!--
+Tags (public tags of the post, as pills) and share links (post context).
+--}}
+<div class="article-share">
+  {{#if tags}}
+    <div class="article-share__group">
+      <span class="article-share__label" id="article-tags-label">{{t "Tags"}}</span>
+      <ul class="article-share__tags" role="list" aria-labelledby="article-tags-label">
+        {{#foreach tags}}<li><a class="article-share__tag" href="{{url}}">{{name}}</a></li>{{/foreach}}
+      </ul>
+    </div>
+  {{/if}}
+  <div class="article-share__group article-share__group--share">
+    <span class="article-share__label" id="article-share-label">{{t "Share"}}</span>
+    <ul class="article-share__links" role="list" aria-labelledby="article-share-label">
+      <li><a class="article-share__link" href="https://x.com/intent/tweet?text={{encode title}}&amp;url={{encode (url absolute="true")}}" target="_blank" rel="noopener" aria-label="X">{{> "icons/x"}}</a></li>
+      <li><a class="article-share__link" href="https://www.facebook.com/sharer/sharer.php?u={{encode (url absolute="true")}}" target="_blank" rel="noopener" aria-label="Facebook">{{> "icons/facebook-f"}}</a></li>
+      <li><a class="article-share__link" href="https://www.linkedin.com/sharing/share-offsite/?url={{encode (url absolute="true")}}" target="_blank" rel="noopener" aria-label="LinkedIn">{{> "icons/linkedin-in"}}</a></li>
+      <li><a class="article-share__link" href="mailto:?subject={{encode title}}&amp;body={{encode (url absolute="true")}}" aria-label="{{t "Email"}}">{{> "icons/mail"}}</a></li>
+    </ul>
+  </div>
+</div>

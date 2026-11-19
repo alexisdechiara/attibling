@@ -1,0 +1,15 @@
+{{!--
+« En bref » for visitors (post context): the summary itself is the author's HTML card
+<ol class="en-bref"> in the content, shown to members only; a visitor sees this teaser instead, and only
+when the post has such a card (CSS :has()). Not rendered when the theme setting summary_for_visitors is on.
+--}}
+{{#unless @member}}{{#unless @custom.summary_for_visitors}}
+  <section class="summary-teaser" aria-labelledby="summary-teaser-title" data-summary-teaser>
+    <h2 class="summary-teaser__title" id="summary-teaser-title">{{> "icons/lock"}}{{t "In short"}}</h2>
+    <p class="summary-teaser__text">{{t "Summary reserved for members."}}</p>
+    <p class="summary-teaser__actions">
+      {{> subscribe-link class="button button--primary" label=(t "Subscribe")}}
+      <a class="summary-teaser__login" href="#/portal/signin" data-portal="signin">{{t "Login"}}</a>
+    </p>
+  </section>
+{{/unless}}{{/unless}}

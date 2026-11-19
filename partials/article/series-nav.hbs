@@ -1,0 +1,17 @@
+{{!--
+Series line at the end of the article (post context): « Précédent » / « Suivant » with the title of the
+part. Always the last element of the article content, after the « Publié le · Mis à jour le » line.
+Same series rule as article/series.hbs (internal tag #serie-…, at least two published parts).
+--}}
+{{#foreach tags visibility="internal"}}
+  {{#match slug "~^" "hash-serie-"}}
+    {{#get "posts" filter="tag:{{slug}}" limit="100" order="published_at asc" as |parts pages|}}
+      {{#match pages.total ">" 1}}
+        <nav class="series-line" aria-label="{{t "Series"}}" data-series-line>
+          {{> article/series-link parts=parts current=../../id direction="prev" detailed=true}}
+          {{> article/series-link parts=parts current=../../id direction="next" detailed=true}}
+        </nav>
+      {{/match}}
+    {{/get}}
+  {{/match}}
+{{/foreach}}
