@@ -302,3 +302,87 @@
     }
   }
 }
+
+/* Docking, where scroll-driven animations exist and motion is welcome (src/js/dock.js sets
+   data-dock-travel and the --dock-* measures on #site-header): from the top of the page to the point
+   where the hero wordmark reaches the header logo's place, the header logo starts as the hero
+   wordmark (same place and size) and shrinks into its own place while the hero wordmark fades out.
+   The logo's link stays hidden (out of the tab order) until data-dock="docked", as with the fade;
+   only its wordmark is drawn during the way. Elsewhere: the fade of site-header.css. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header[data-dock-travel] {
+      .site-header__logo {
+        opacity: 1;
+        transform: none;
+        transition: visibility 0s;
+      }
+
+      .site-header__logo .wordmark {
+        transform-origin: top left;
+        animation: dock-travel linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 var(--dock-range);
+
+        &:dir(rtl) {
+          transform-origin: top right;
+        }
+      }
+
+      .site-header__logo .wordmark__script {
+        animation: dock-script linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 var(--dock-range);
+      }
+    }
+
+    :root:has(.site-header[data-dock-travel]) #hero-wordmark {
+      animation: dock-fade linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 var(--dock-range);
+    }
+  }
+}
+
+/* The logo keeps the hero wordmark's place and size while they cross-fade (0–35 %: its top left
+   corner moves exactly as the hero's, the scroll distance being the vertical offset), then shrinks
+   into its place; its "ly" turns from the white of the hero to the header's colour. */
+@keyframes dock-travel {
+  from {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(var(--dock-x), var(--dock-y)) scale(var(--dock-scale));
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  35% {
+    transform: translate(var(--dock-x), calc(var(--dock-y) * 0.65)) scale(var(--dock-scale));
+  }
+
+  to {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+
+@keyframes dock-fade {
+  15% {
+    opacity: 1;
+  }
+
+  30%,
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dock-script {
+  from,
+  35% {
+    color: var(--wordmark-script-on-media);
+  }
+}
