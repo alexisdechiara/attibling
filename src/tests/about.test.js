@@ -32,11 +32,19 @@ const rubrics = (
 	return { tags, about_tags: tags.map(t => t.slug).join(",") };
 };
 
-const about = ({ n = 6, authors = 1, html, excerpt = "Mon blog personnel.", member = false, ...opts } = {}) => {
+const about = ({
+	n = 6,
+	authors = 1,
+	html,
+	excerpt = "Mon blog personnel.",
+	member = false,
+	settings = {},
+	...opts
+} = {}) => {
 	const { tags, about_tags } = rubrics(n, opts);
 	const render = template("page-a-propos", {
 		member,
-		site: { authors },
+		site: { authors, settings },
 		custom: { use_geekly_logo: true, about_tags },
 		post: { custom_excerpt: excerpt, html: html ?? "<p>Et comme c’est mon blog, j’y fais ce que je veux.</p>" },
 	});
@@ -261,6 +269,68 @@ describe("« À propos » bento", () => {
 		assert.equal(await only.page.locator("[data-about-note]").count(), 0);
 		assert.equal(await only.page.locator("[data-about-links] a").count(), 1);
 		await only.dispose();
+	});
+
+	it("goes straight from the rubrics to the people when the page has no text of its own", async () => {
+		const links = '<ul class="about-links"><li><a href="https://example.com/portfolio">Portfolio</a></li></ul>';
+		for (const viewport of [PHONE, TABLET, DESKTOP]) {
+			for (const html of ["", `<!--kg-card-begin: html-->${links}<!--kg-card-end: html-->`]) {
+				const { page, dispose } = await open({ render: about({ html }), viewport });
+				const view = await page.evaluate(() => {
+					const bento = document.querySelector(".about-bento");
+					const rubrics = document.querySelector(".about-bento__rubrics").getBoundingClientRect();
+					const people = document.querySelector(".about-bento__people").getBoundingClientRect();
+					return {
+						note: document.querySelectorAll("[data-about-note]").length,
+						space: Math.round(people.top - rubrics.bottom),
+						gap: Math.round(parseFloat(getComputedStyle(bento).rowGap)),
+						overflow: document.documentElement.scrollWidth - window.innerWidth,
+					};
+				});
+				assert.equal(view.note, 0, `${viewport.width}px: no empty text block`);
+				assert.equal(view.space, view.gap, `${viewport.width}px: the bento's own gap, nothing more`);
+				assert.equal(view.overflow, 0);
+				assert.deepEqual(await holes(page), [], `${viewport.width}px`);
+				await dispose();
+			}
+		}
+	});
+
+	it("lists every social account Ghost has (Bluesky included) in « Suivre » and in the footer", async () => {
+		const ACCOUNTS = {
+			twitter: ["@geeklyFR", "X"],
+			facebook: ["geekly", "Facebook"],
+			linkedin: ["geekly", "LinkedIn"],
+			bluesky: ["geekly.example", "Bluesky"],
+			threads: ["@geekly", "Threads"],
+			mastodon: ["geekly@mastodon.social", "Mastodon"],
+			tiktok: ["@geekly", "TikTok"],
+			youtube: ["@geekly", "YouTube"],
+			instagram: ["geekly", "Instagram"],
+		};
+		const labels = (page, selector) =>
+			page.$$eval(selector, links => links.map(a => [a.getAttribute("aria-label"), a.getAttribute("href")]));
+		const settings = Object.fromEntries(Object.entries(ACCOUNTS).map(([k, [handle]]) => [k, handle]));
+		const all = await open({ render: about({ settings }) });
+		for (const selector of [".about-follow__icon", ".site-footer__social .icon-button"]) {
+			const found = await labels(all.page, selector);
+			assert.deepEqual(
+				found.map(([label]) => label).filter(l => l !== "RSS feed"),
+				Object.values(ACCOUNTS).map(([, label]) => label),
+				selector,
+			);
+			assert.ok(
+				found.some(([, href]) => href === "https://bsky.app/profile/geekly.example"),
+				`${selector}: Bluesky`,
+			);
+			assert.equal(await all.page.locator(`${selector}[aria-label="Bluesky"] svg`).count(), 1, "drawn icon");
+		}
+		await all.dispose();
+
+		const none = await open({ render: about({ settings: { bluesky: null } }) });
+		for (const selector of [".about-follow__icon", ".site-footer__social .icon-button"])
+			assert.equal(await none.page.locator(`${selector}[aria-label="Bluesky"]`).count(), 0, selector);
+		await none.dispose();
 	});
 
 	it("reads in DOM order on a phone, without overflow, even with long names and 12 rubrics", async () => {

@@ -220,7 +220,11 @@ export const renderTemplate = (name, options = {}) => {
 		social_url(opts) {
 			const type = opts.hash.type;
 			const handle = this[type] || settings[type];
-			const prefixes = { twitter: "https://x.com/", facebook: "https://www.facebook.com/" };
+			const prefixes = {
+				twitter: "https://x.com/",
+				facebook: "https://www.facebook.com/",
+				bluesky: "https://bsky.app/profile/",
+			};
 			return handle ? (prefixes[type] || `https://${type}.example/`) + String(handle).replace(/^@/, "") : "";
 		},
 		navigation(opts) {
