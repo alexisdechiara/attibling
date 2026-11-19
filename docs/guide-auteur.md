@@ -25,6 +25,19 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
    - [Les rangées par rubrique](#les-rangées-par-rubrique)
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
 5. [Récapitulatif des réglages du thème](#5-récapitulatif-des-réglages-du-thème)
+- [Pages du site](#pages-du-site)
+   - [Créer une page et lui donner son modèle](#créer-une-page-et-lui-donner-son-modèle)
+   - [Rubriques (pages de tag)](#rubriques-pages-de-tag)
+   - [Pages d'auteur](#pages-dauteur)
+   - [Pages « Tags » et « Auteurs »](#pages-tags-et-auteurs)
+   - [Archives](#archives)
+   - [Mes favoris](#mes-favoris)
+   - [À propos](#à-propos)
+   - [Page d'abonnement](#page-dabonnement)
+   - [Pages ordinaires (mentions légales…)](#pages-ordinaires-mentions-légales)
+   - [Page 404](#page-404)
+   - [Fichier routes.yaml](#fichier-routesyaml)
+   - [Dépannage](#dépannage)
 
 Les sections des articles (séries, « En bref », fiche de test, réglages d'affichage…) et des autres pages
 (archives, favoris, à propos, abonnement) sont ajoutées à la suite de ce guide.
@@ -260,5 +273,245 @@ sont pas affichés plutôt que de faire semblant. Rien à régler dans Ghost.
 | Subscribe url | Site wide | vide (Portal) | Destination des boutons « S'abonner » |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré |
 | Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque |
+| About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques listées sur la page « À propos » : slugs séparés par des virgules |
 
 Les tags internes utilisés par ces sections : `#top`, `#top-1` … `#top-10`.
+
+---
+
+## Pages du site
+
+Les pages autres que l'accueil et les articles : rubriques (pages de tag), auteurs, « Tags », « Auteurs »,
+« Archives », « Mes favoris », « À propos », la page d'abonnement, les pages ordinaires et la page 404.
+Aucun fichier `routes.yaml` n'est nécessaire : tout repose sur des **pages Ghost** et des **modèles** du thème.
+
+### Créer une page et lui donner son modèle
+
+Une page « spéciale » (archives, favoris, à propos, abonnement, tags, auteurs) est une page Ghost ordinaire,
+souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix :
+
+1. **Par le slug (rien d'autre à faire)** : si l'adresse de la page est exactement le slug par défaut du
+   tableau ci-dessous, Ghost applique le modèle tout seul.
+2. **Par le menu « Template »** (pour une autre adresse, par exemple un site en anglais qui veut `/about/`) :
+   dans les réglages de la page, choisissez le modèle dans la liste **Template**.
+
+| Page | Slug par défaut (modèle automatique) | Nom dans le menu « Template » | Ce que vous écrivez dans Ghost |
+|---|---|---|---|
+| Archives | `archives` | Archives | rien (le contenu, s'il y en a, s'affiche en introduction) |
+| Mes favoris | `favoris` | Saved Posts | rien (seul le titre sert) |
+| À propos | `a-propos` | About | titre, extrait, texte (voir plus bas) |
+| Abonnement | `newsletter` | Subscribe | extrait (accroche) et une ligne légale (voir plus bas) |
+| Tous les tags | `tags` | Tags | titre, extrait facultatif |
+| Tous les auteurs | `authors` | Authors | titre, extrait facultatif |
+
+Pas à pas :
+
+1. Ghost Admin → **Pages** → **New page**.
+2. Tapez le **titre** (il devient le grand titre de la page : « Archives », « Mes favoris », « À propos »…).
+3. Ouvrez les réglages de la page (icône en haut à droite) :
+   - **Page URL** : le slug du tableau (`archives`, `favoris`, `a-propos`, `newsletter`, `tags`, `authors`) ;
+   - ou, pour une autre adresse, **Template** → le modèle voulu ;
+   - **Excerpt** (extrait) : la phrase d'accroche quand la page en utilise une (à propos, abonnement, tags,
+     auteurs).
+4. **Publish**.
+5. Pour la rendre visible : Settings → **Navigation** → ajoutez le lien (par exemple dans la navigation
+   secondaire, qui forme le pied de page et le menu « Plus » : « Archives » → `/archives/`, « Mes favoris » →
+   `/favoris/`).
+
+> Le lien « Tout voir » de « À lire plus tard » (accueil), le bouton « Voir ma liste » de la page
+> d'abonnement et « Voir toute la série » (articles) pointent vers `/favoris/` et `/archives/` : gardez ces
+> slugs, ou prévoyez une redirection (Settings → Labs → Redirects) si vous en choisissez d'autres.
+
+### Rubriques (pages de tag)
+
+Chaque tag public a sa page (`/tag/<slug>/`) : un en-tête habillé, l'article « À la une de la rubrique », puis
+la grille des autres articles (7 par page) et la pagination.
+
+- **Image** : Ghost Admin → **Tags** → le tag → **Tag image**. Elle remplit la droite de l'en-tête et se fond
+  dans le fond sombre sous le texte (sur téléphone, toute la carte, sous un voile). Sans image : carte sombre
+  unie.
+- **Description** : même écran, champ **Description**. Elle s'affiche sous le nom (et sur la page
+  « À propos »). Vide : la ligne disparaît.
+- **Nombre d'articles** : automatique (« 24 articles avec ce mot clé »).
+- **Article en tête** : le plus récent des articles du tag marqués **Feature this post** (réglages de
+  l'article). S'il n'y en a aucun, l'article le plus récent du tag. Il n'est pas répété dans la grille de la
+  page 1 ; les pages 2 et suivantes n'ont que la grille.
+- Les tags internes (`#…`) n'ont pas de page : c'est le comportement de Ghost.
+
+### Pages d'auteur
+
+`/author/<slug>/` montre la photo, le nom, la bio, le lieu, les liens et les articles de l'auteur. Tout se règle
+dans Ghost Admin → **Settings** → **Staff** → l'auteur : **Profile picture**, **Cover picture** (image de
+l'en-tête), **Bio** (250 caractères au plus, limite de Ghost), **Location**, **Website** et les comptes
+sociaux (X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram). Chaque élément vide
+disparaît.
+
+### Pages « Tags » et « Auteurs »
+
+Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques qui ont des articles, en tuiles
+(image du tag ou surface teintée, nom, nombre d'articles), par ordre alphabétique. Ghost renvoie au plus 100
+tags par requête ; le modèle en fait deux, soit 200 tags.
+
+Créez une page `authors` (ou le modèle **Authors**) : une carte par auteur (photo, nom, nombre d'articles,
+bio, liens), du plus prolifique au moins prolifique.
+
+### Archives
+
+La page liste **tous** les articles publiés, du plus récent au plus ancien, groupés par année puis par mois
+(jour, titre, rubrique, durée). En haut, une barre sans bordure filtre la liste sans recharger la page :
+boutons d'année (« Toutes », puis chaque année trouvée), champ « Rechercher un titre » (sans tenir compte des
+accents ni des majuscules), liste « Rubrique » (tags publics avec leur nombre d'articles sur tout le site) et
+le nombre d'articles affichés. Avec une année choisie, des boutons mènent à l'année suivante et à la
+précédente. La recherche de Ghost (loupe de l'en-tête) reste là pour chercher dans le texte des articles.
+
+- **À créer** : une page `archives` (ou le modèle **Archives**), vide. Si vous y écrivez un texte, il
+  s'affiche en introduction sous le titre.
+- **Plus de 100 articles** : Ghost renvoie au plus 100 articles par requête. Le modèle enchaîne dix requêtes
+  de 100 (pages 1 à 10), soit **1 000 articles** ; les requêtes vides n'affichent rien. Au-delà, ajoutez une
+  ligne `{{#get "posts" limit="100" page="11" include="tags"}}…` dans `partials/pages/archives.hbs`.
+  Le site local de test (102 articles) les affiche bien tous.
+- **Adresse filtrée** : les filtres se reflètent dans l'adresse (`?year=2025`, `?q=hytale`, `?tag=anime`),
+  qu'on peut partager. `?tag=` accepte **n'importe quel tag, interne compris** : `/archives/?tag=hash-serie-avent`
+  montre la série `#serie-avent` du plus ancien au plus récent, avec « Série : avent » et un bouton
+  « Tous les articles ». C'est là que mène « Voir toute la série » dans un article.
+- **Sans JavaScript** : la barre est cachée et la liste complète reste lisible (chaque ligne porte sa date
+  complète).
+
+### Mes favoris
+
+Réservée aux **abonnés connectés** : la grille des articles gardés avec le signet (« À lire plus tard »), du
+dernier gardé au premier, avec un bouton « Retirer » sous chaque tuile et « Tout retirer » en haut (avec
+confirmation). La liste est gardée **dans le navigateur, sur cet appareil** (elle ne suit pas l'abonné sur un
+autre appareil et disparaît si l'on efface les données du site) ; la phrase sous le titre le dit. Liste vide :
+« Aucun article enregistré pour l'instant » et le geste à faire. Stockage bloqué (navigation privée stricte) :
+un message l'explique. Un **visiteur** voit une invitation à s'abonner ou à se connecter.
+
+À créer : une page `favoris` (ou le modèle **Saved Posts**), vide ; son titre (« Mes favoris ») est le grand
+titre. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent.
+
+### À propos
+
+Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personnel. Créez une page `a-propos`
+(ou le modèle **About**). Voici où va chaque texte, avec les brouillons de la maquette à coller :
+
+1. **Titre** de la page : `À propos`.
+2. **Excerpt** (réglages de la page) = l'accroche, en grand sous le titre :
+   > Mon blog personnel : j'y publie ce qui me fait envie, autour de l'informatique, de la culture pop, des
+   > jeux vidéo et des animés.
+3. **« Ce que vous trouverez ici »** = vos rubriques, tirées des **tags** :
+   - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, par exemple
+     `actualites,jeux-video,anime,dossiers,ia,test` (affichés du plus fourni au moins fourni). Vide : les
+     6 tags publics les plus utilisés ;
+   - la phrase de chaque rubrique = la **Description** du tag (Ghost Admin → Tags → le tag). Les textes de la
+     maquette :
+
+     | Tag | Description à coller |
+     |---|---|
+     | Actualité | Ce qui bouge dans la tech, le jeu vidéo et la pop culture, avec mon avis. |
+     | Jeux vidéo | L'actualité des jeux qui m'intéressent, mes avis et mes tops de l'année. |
+     | Anime | Les séries à voir en VF chaque saison, et le doublage en général. |
+     | Dossier | Les articles longs, quand un sujet mérite qu'on s'y arrête. |
+     | IA | Les outils et les débats autour de l'intelligence artificielle. |
+     | Test | Logiciels, services et jeux essayés pour de bon. |
+
+     (Ces descriptions s'affichent aussi en tête des pages de rubrique.) Sans description, la pastille reste
+     seule ;
+   - l'**icône** de chaque pastille vient de mots du **slug** du tag : `actu`, `news` → journal ; `jeu`,
+     `game`, `esport` → manette ; `anime`, `manga`, `serie`, `film`, `cinema`, `video`, `tv` → écran ;
+     `dossier`, `guide`, `long` → dossier ; `ia` (seul, ou `ia-…`/`…-ia`), `ai`, `intelligence` → étincelle ;
+     `test`, `review`, `avis` → coche ; `informatique`, `tech`, `code`, `dev`, `program`, `web` → chevrons ;
+     tout autre slug → `#`. La liste est dans `partials/about/tag-icon.hbs` (une ligne à ajouter pour un
+     nouveau mot).
+4. **Le texte de la page** (l'éditeur) s'affiche **après les rubriques** :
+   > Et comme c'est mon blog, j'y fais ce que je veux : vous tomberez parfois sur un article qui sort de ces
+   > rubriques, simplement parce que j'avais envie d'en parler.
+5. **« Qui écrit »** = les auteurs du site qui ont publié : photo, nom, **Bio** et liens de leur fiche
+   (Settings → Staff), puis « Tous ses articles ». Ghost limite la bio à **250 caractères** : le texte de la
+   maquette (environ 600) est trop long ; une version courte possible :
+   > Développeur front-end et designer UX/UI en freelance (Nuxt, Tailwind, Figma). GEEKLY, c'est mon terrain
+   > de jeu : j'y écris seul, à mon rythme, sur ce qui m'occupe en dehors du travail.
+
+   Pour garder le texte complet, mettez-le dans le texte de la page (point 4).
+6. **« Suivre le blog »** = les comptes sociaux du **site** (Settings → General → **Social accounts** :
+   X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram), le flux RSS, et
+   « S'abonner » pour les visiteurs. Pour des liens que Ghost ne connaît pas (portfolio, GitHub…), ajoutez
+   dans le texte de la page une carte **HTML** (bouton `+` → HTML) :
+
+   ```html
+   <ul class="about-links">
+     <li><a href="https://alexisdechiara.fr">Portfolio</a></li>
+     <li><a href="https://github.com/alexisdechiara">GitHub</a></li>
+   </ul>
+   ```
+
+   Le thème déplace ces liens en tête de « Suivre le blog », en pastilles. Sans JavaScript ils restent où vous
+   les avez mis, avec le même style.
+
+### Page d'abonnement
+
+La page vers laquelle mènent tous les boutons « S'abonner » : une grande bande sombre d'au moins la hauteur
+de l'écran (titre « S'abonner à GEEKLY », accroche, formulaire, avantages), puis les questions fréquentes
+repliables et un rappel « Prêt à vous abonner ? » qui ramène au formulaire.
+
+1. **Créer la page** : slug `newsletter` (ou le modèle **Subscribe**). Son titre ne s'affiche pas (le grand
+   titre est « S'abonner à » + le nom du site).
+2. **Relier les boutons** : réglage du thème **Subscribe url** (Site wide) = `/newsletter/`. Vide, les
+   boutons ouvrent la fenêtre d'abonnement de Ghost (Portal).
+3. **Accroche** = l'**Excerpt** de la page. Vide : la phrase du thème (« C'est gratuit : recevez les derniers
+   articles directement dans votre boîte mail et profitez des outils de lecture réservés aux abonnés. »).
+4. **Ligne légale** = le **texte de la page** (l'éditeur), affiché en petit sous le formulaire. À coller :
+   > En vous inscrivant, vous déclarez avoir lu et accepté les [mentions légales](/mentions-legales/). Votre
+   > adresse sert seulement à vous envoyer les articles et vos liens de connexion ; elle n'est pas revendue.
+
+   Gardez-le court (une ou deux phrases) : c'est l'endroit pour tout ce qui est propre à votre site
+   (consentement, usage de l'adresse).
+5. **Dans Ghost** : Settings → **Membership** → inscription ouverte à tous (**Anyone can sign up**) et au
+   moins une newsletter active (Settings → **Newsletters**). Si l'inscription est fermée ou sur invitation, le
+   formulaire et le rappel final ne s'affichent pas.
+
+Ce que le thème écrit lui-même (identique pour tout site utilisant le thème, donc vrai partout) : la liste
+des avantages (la newsletter, puis les outils de lecture du thème réservés aux abonnés : « En bref »,
+« À lire plus tard », « Reprendre la lecture », « Réglages de lecture » ; « Commenter les articles » seulement
+si les commentaires sont ouverts à tous les abonnés, Settings → Membership → Commenting), « Aucun paiement ·
+désinscription en un clic depuis chaque e-mail », et les trois questions (gratuit ? mot de passe ?
+désinscription ?), qui décrivent le fonctionnement de Ghost (inscription gratuite, connexion par lien envoyé
+par e-mail, lien de désinscription dans chaque e-mail).
+
+Le formulaire est celui de Ghost (`data-members-form`) : pendant l'envoi le bouton montre une roue, puis
+« Super ! Vous vous êtes inscrit avec succès. Regardez votre boîte mail… » ; en cas d'erreur, le message de
+Ghost s'affiche sous le champ. **Abonné connecté** : à la même adresse, « Vous êtes abonné à GEEKLY », son
+adresse e-mail, les boutons **Compte** (Portal : e-mails et profil), **Retour à l'accueil**, **Se
+déconnecter**, et ses outils (avec « Voir ma liste » → `/favoris/`).
+
+### Pages ordinaires (mentions légales…)
+
+Toute autre page utilise une colonne de lecture calme (police de lecture, cartes Ghost à leur largeur :
+large, pleine largeur). Le titre, l'extrait et l'image s'affichent, sauf si vous décochez **Show title and
+feature image** dans les réglages de la page (le titre reste lisible par les lecteurs d'écran).
+
+### Page 404
+
+Rien à faire : textes « Page non trouvée », un grand bouton « Ouvrir la recherche » (la recherche de Ghost,
+qui reçoit le focus à l'arrivée), « Aller à la page d'accueil » et les trois premières rubriques de la
+navigation principale, puis les 4 derniers articles.
+
+### Fichier routes.yaml
+
+Aucun n'est nécessaire : toutes ces pages sont des pages Ghost avec un modèle. Laissez le `routes.yaml` par
+défaut (Settings → Labs → Routes).
+
+### Dépannage
+
+| Symptôme | Cause et solution |
+|---|---|
+| La page « Archives » (ou « Mes favoris », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
+| « Voir toute la série », « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `archives` ou `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
+| Les boutons « S'abonner » ouvrent une fenêtre au lieu de la page | Réglage **Subscribe url** vide : mettez `/newsletter/`. |
+| Pas de formulaire sur la page d'abonnement | Inscription fermée ou sur invitation (Settings → Membership), ou vous êtes connecté (vue abonné). |
+| Le formulaire affiche une erreur à chaque essai | Ghost n'arrive pas à envoyer l'e-mail : vérifiez la configuration e-mail du serveur (Mailgun / SMTP). |
+| Une rubrique n'a pas de phrase sur « À propos » ou en tête de sa page | Le tag n'a pas de **Description**. |
+| Une rubrique manque sur « À propos » | Slug mal tapé dans **About tags** (vérifiez dans Tags), ou tag sans article. |
+| Une icône de rubrique est un `#` | Aucun mot connu dans le slug : voir la liste plus haut. |
+| La bio ne s'enregistre pas | Ghost limite la bio à 250 caractères. |
+| « Mes favoris » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
+| L'article « À la une » d'une rubrique n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
