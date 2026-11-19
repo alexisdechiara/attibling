@@ -1,0 +1,10 @@
+{{!--
+Gear button of the header opening « Réglages d'affichage » (partials/article/reading-settings.hbs).
+Article pages only, signed-in members only, and only when the theme setting reading_settings is on;
+hidden until src/js/reading-settings.js finds a working localStorage.
+--}}
+{{#is "post"}}{{#if @member}}{{#if @custom.reading_settings}}
+  <button type="button" class="icon-button site-header__settings" popovertarget="reading-settings" aria-label="{{t "Display settings"}}" aria-haspopup="dialog" aria-expanded="false" data-reading-button hidden>
+    {{> "icons/settings"}}
+  </button>
+{{/if}}{{/if}}{{/is}}

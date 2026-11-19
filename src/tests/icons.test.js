@@ -1,18 +1,23 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
+import { article } from "./support/article.js";
 
 describe("icons", () => {
 	before(launch);
 	after(close);
 
 	it("render as inline SVG in the colour and font size of their control", async () => {
-		const { page, dispose } = await open({ fixture: "post.html" });
+		const { page, dispose } = await open({ render: article() });
 		const icon = await page.evaluate(() => {
 			const button = document.querySelector(".js-scrolltop");
 			const svg = button.querySelector("svg.m-icon-svg");
 			const box = () => svg.getBoundingClientRect();
-			const fill = () => getComputedStyle(svg.querySelector("path")).fill;
+			// Fill glyphs paint with fill, stroke icons with stroke: either way in currentColor
+			const fill = () => {
+				const style = getComputedStyle(svg.querySelector("path"));
+				return style.fill === "none" ? style.stroke : style.fill;
+			};
 			const before = { width: box().width, height: box().height, fill: fill(), color: getComputedStyle(button).color };
 			button.style.transition = "none";
 			button.style.setProperty("color", "rgb(255, 0, 0)", "important");

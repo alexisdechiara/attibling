@@ -1,0 +1,29 @@
+{{!--
+« Précédent » or « Suivant » link of a series (series box and series line at the end of the article).
+Handlebars cannot look one item back or ahead, so a link is rendered for every other part and the CSS
+shows only the part right before the current one (direction="prev") or right after it ("next"); at the
+first or last part nothing shows. Parameters:
+  parts         the published parts, in order (from {{#get}})
+  current       id of the post being read
+  direction     "prev" | "next"
+  detailed=true also show the part's title under the label (series line at the end of the article)
+--}}
+<span class="series-step series-step--{{direction}}{{#if detailed}} series-step--detailed{{/if}}">
+  {{#foreach parts}}
+    {{#match id ../current}}
+      <span class="series-step__current" hidden></span>
+    {{else}}
+      {{#match ../direction "prev"}}
+        <a class="series-step__link" href="{{url}}" aria-label="{{t "Previous part: {title}" title=title}}">
+          {{> "icons/arrow-left" class="icon-flip-rtl"}}
+          <span class="series-step__text"><span class="series-step__label">{{t "Previous"}}</span>{{#if ../detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
+        </a>
+      {{else}}
+        <a class="series-step__link" href="{{url}}" aria-label="{{t "Next part: {title}" title=title}}">
+          <span class="series-step__text"><span class="series-step__label">{{t "Next"}}</span>{{#if ../detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
+          {{> "icons/arrow-right" class="icon-flip-rtl"}}
+        </a>
+      {{/match}}
+    {{/match}}
+  {{/foreach}}
+</span>

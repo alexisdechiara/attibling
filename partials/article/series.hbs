@@ -1,0 +1,70 @@
+{{!--
+Series box (post context), at the top of the text. A series = the published posts sharing an internal
+tag whose name starts with #serie- (slug hash-serie-…), in publication order; scheduled posts and drafts
+are not returned by Ghost, so they never show. At most 100 parts (Ghost's limit per request).
+(Paths: inside {{#get}} ../ is the series tag and ../../ the post; inside its {{#foreach}} ../../../ is the post.) Shown when the series has at least two published parts.
+
+The tag's description gives the series name and, optionally, the planned total: « Calendrier de
+l'Avent 2025 · total: 24 ». post.js reads it (data-description): « Partie 12 sur 24 », the progress bar
+and « 12 parties à venir »; without « total: » the total is the number of published parts. post.js also
+condenses long lists (first, … n parts, previous, current, next, … n parts, last; each « … » button
+unfolds its parts). « Voir toute la série » leads to the Archives page filtered by the series tag
+(/archives/?tag=hash-serie-…, the pages' convention: internal tags have no page of their own).
+Without the script the full list shows and the total is the published count.
+--}}
+{{#foreach tags visibility="internal"}}
+  {{#match slug "~^" "hash-serie-"}}
+    {{#get "posts" filter="tag:{{slug}}" limit="100" order="published_at asc" as |parts pages|}}
+      {{#match pages.total ">" 1}}
+        <nav class="series" aria-labelledby="series-name" data-series
+          data-description="{{../description}}" data-published="{{pages.total}}"
+          data-label-count="{{t "Part {n} of {total}" n="{n}" total="{total}"}}" data-label-more="{{t "% parts"}}" data-label-upcoming="{{t "% parts to come"}}">
+          <div class="series__head">
+            <p class="series__heading" id="series-name">
+              <span class="series__label">{{t "Series"}}</span>
+              <span class="series__name" data-series-name>{{#match ../description "~" "total:"}}{{else}}{{../description}}{{/match}}</span>
+            </p>
+            {{#foreach parts}}{{#match id ../../../id}}
+              <p class="series__count" data-series-count data-current="{{@number}}">
+                <span class="series__count-long">{{t "Part {n} of {total}" n=@number total=pages.total}}</span>
+                <span class="series__count-short" aria-hidden="true">{{@number}} / {{pages.total}}</span>
+              </p>
+              <span class="series__bar" aria-hidden="true" style="--part: {{@number}}; --total: {{pages.total}}"></span>
+            {{/match}}{{/foreach}}
+          </div>
+
+          <ol class="series__list" role="list" data-series-list>
+            {{#foreach parts}}
+              {{#match id ../../../id}}
+                <li class="series__item series__item--current" aria-current="page" data-part="{{@number}}">
+                  <span class="series__number">{{@number}}</span>
+                  <span class="series__text">
+                    <span class="series__title">{{title}}</span>
+                    <span class="series__note">{{t "You are reading this part"}}</span>
+                  </span>
+                </li>
+              {{else}}
+                <li class="series__item" data-part="{{@number}}">
+                  <a class="series__link" href="{{url}}">
+                    <span class="series__number" aria-hidden="true">{{@number}}</span>
+                    <span class="series__title">{{title}}</span>
+                  </a>
+                </li>
+              {{/match}}
+            {{/foreach}}
+          </ol>
+
+          <div class="series__nav">
+            <span class="series__prev">
+              {{> article/series-link parts=parts current=../../id direction="prev"}}
+            </span>
+            <a class="series__all" href="{{@site.url}}/archives/?tag={{../slug}}" data-series-all>{{t "See the whole series"}}</a>
+            <span class="series__next">
+              {{> article/series-link parts=parts current=../../id direction="next"}}
+            </span>
+          </div>
+        </nav>
+      {{/match}}
+    {{/get}}
+  {{/match}}
+{{/foreach}}
