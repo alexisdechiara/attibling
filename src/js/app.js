@@ -46,11 +46,42 @@ const setUpThemeSwitch = () => {
 	apply(current(), false);
 };
 
-// Header: the "scrolled" look once the page leaves the top
+// Header: the "scrolled" look once the page leaves the top, and out of the way on a fast scroll down
+// (data-hidden), back on the way up, with the thresholds of the earlier theme (headroom.js): more than
+// 40 px down (20 px up) between two frames, always shown within 15 px of the top. It never hides while
+// a menu, a popover (« Plus », •••, the display settings) or the phone sheet is open, while focus is in
+// the header (focusing one of its controls brings it back), nor before it has scrolled past its own
+// place (Ghost's announcement bar above it included). Reduced motion: it disappears without sliding.
+export const HEADROOM = { down: 40, up: 20, top: 15 };
 const setUpHeader = header => {
-	const update = () => header.toggleAttribute("data-scrolled", window.scrollY > 4);
+	let lastY = Math.round(window.scrollY);
+	const menuOpen = () => {
+		if (document.querySelector(".is-open")) return true;
+		try {
+			return Boolean(document.querySelector(":popover-open"));
+		} catch {
+			return false; // no Popover API: the menus use .is-open
+		}
+	};
+	const show = () => header.removeAttribute("data-hidden");
+	const update = () => {
+		const y = Math.round(window.scrollY);
+		const max = document.documentElement.scrollHeight - window.innerHeight;
+		header.toggleAttribute("data-scrolled", y > 4);
+		// Ignore the rubber-band overscroll of touch screens
+		if (y < 0 || y > max) return;
+		const delta = y - lastY;
+		lastY = y;
+		const bar = document.getElementById("announcement-bar-root");
+		const place = (bar && bar.nextElementSibling === header ? bar.offsetHeight : 0) + header.offsetHeight;
+		if (y <= HEADROOM.top) show();
+		else if (delta > HEADROOM.down && y > place) {
+			if (!menuOpen() && !header.contains(document.activeElement)) header.setAttribute("data-hidden", "");
+		} else if (delta < -HEADROOM.up) show();
+	};
 	update();
 	window.addEventListener("scroll", throttleToFrame(update), { passive: true });
+	header.addEventListener("focusin", show);
 };
 
 // Main navigation: the items that do not fit in the bar move to the « Plus » popover (copies; the
@@ -118,6 +149,30 @@ onReady(() => {
 		const moreButton = header.querySelector("[data-more-button]");
 		const moreMenu = header.querySelector("[data-more-menu]");
 		if (moreButton && moreMenu) setUpPopover(moreButton, moreMenu);
+
+		// « ••• »: recent posts and tags, a panel right under the bar
+		const discoverButton = header.querySelector("[data-discover-button]");
+		const discover = header.querySelector("[data-discover-menu]");
+		if (discoverButton && discover) {
+			const place = () =>
+				discover.style.setProperty("--discover-top", `${Math.round(header.getBoundingClientRect().bottom)}px`);
+			let panel = null;
+			const onScroll = throttleToFrame(place);
+			panel = setUpPopover(discoverButton, discover, {
+				place: false,
+				onToggle: open => {
+					discoverButton.setAttribute("aria-expanded", String(open));
+					if (open) {
+						place();
+						window.addEventListener("scroll", onScroll, { passive: true });
+					} else window.removeEventListener("scroll", onScroll);
+				},
+			});
+			// Following a link closes it (a link to the page being read included)
+			discover.addEventListener("click", event => {
+				if (event.target.closest("a")) panel.close();
+			});
+		}
 	}
 
 	// Phones: the menu sheet (a popover: Escape and a click outside close it)

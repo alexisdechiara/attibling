@@ -1,0 +1,25 @@
+{{!--
+Content of the « ••• » menu of the header (the earlier theme's submenu, in the new design): the 4 most
+recent posts as compact rows with their date, and the most used public tags as pills with « Tous les
+tags ». Rendered by the server (two {{#get}}, no request from the browser); used twice: in the desktop
+popover (header.hbs, #site-dots) and in the phone menu sheet.
+Parameters:
+  prefix="..."   prefix of the ids of the headings (each use needs its own)
+--}}
+<section class="discover__section discover__section--posts" aria-labelledby="{{prefix}}-recent">
+  <h2 class="discover__title" id="{{prefix}}-recent">{{t "Recent posts"}}</h2>
+  {{#get "posts" limit="4" include="tags" as |recent|}}{{#if recent}}
+    <ul class="discover__posts" role="list">
+      {{#foreach recent}}<li>{{> row-item meta="tag-date"}}</li>{{/foreach}}
+    </ul>
+  {{/if}}{{/get}}
+</section>
+<section class="discover__section discover__section--tags" aria-labelledby="{{prefix}}-tags">
+  <h2 class="discover__title" id="{{prefix}}-tags">{{t "Tags"}}</h2>
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}{{#if discovertags}}
+    <ul class="discover__tags" role="list">
+      {{#foreach discovertags}}<li><a class="discover__tag" href="{{url}}">{{name}}</a></li>{{/foreach}}
+    </ul>
+  {{/if}}{{/get}}
+  <a class="discover__all" href="{{@site.url}}/tags/">{{t "All tags"}}{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
+</section>

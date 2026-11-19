@@ -1,9 +1,11 @@
 {{!--
 Site header, shared by every template: logo, main navigation with a « Plus » popover (the secondary
-navigation, plus the main items that do not fit), search (Ghost's native search, data-ghost-search),
+navigation, plus the main items that do not fit) and a « ••• » panel (recent posts and tags,
+header-discover.hbs; also in the phone menu sheet), search (Ghost's native search, data-ghost-search),
 theme switch, « S'abonner » for visitors or « Compte » for members. Phones get a top bar (search,
 subscribe or account, menu button), a row of navigation pills under it and a menu sheet.
-The bar sticks to the top of the page; app.js sets data-scrolled once the page has scrolled.
+The bar sticks to the top of the page; app.js sets data-scrolled once the page has scrolled, and
+data-hidden while it is out of the way after a fast scroll down.
 
 Parameters:
   home=true   home page: the bar starts without its logo while the hero wordmark is visible and
@@ -25,6 +27,11 @@ target of the hero wordmark for docking and page transitions), [data-ghost-searc
         <li class="site-nav__more" data-nav-more{{#unless @site.secondary_navigation}} hidden{{/unless}}>
           <button type="button" class="nav-link site-nav__more-button" popovertarget="site-more" data-more-button>
             {{t "More"}}{{> "icons/chevron-down"}}
+          </button>
+        </li>
+        <li class="site-nav__discover">
+          <button type="button" class="nav-link site-nav__discover-button" popovertarget="site-discover" aria-label="{{t "Recent posts and tags"}}" data-discover-button>
+            {{> "icons/dots"}}
           </button>
         </li>
       </ul>
@@ -56,6 +63,13 @@ target of the hero wordmark for docking and page transitions), [data-ghost-searc
       {{navigation type="secondary"}}
     {{/if}}
   </div>
+
+  {{!-- « ••• »: recent posts and tags, a panel under the bar (desktop) --}}
+  <div class="discover" id="site-discover" popover data-discover-menu>
+    <div class="discover__inner">
+      {{> header-discover prefix="discover"}}
+    </div>
+  </div>
 </header>
 
 {{!-- Phones: the main navigation as a row of pills that scrolls sideways (hidden on larger screens) --}}
@@ -81,6 +95,9 @@ target of the hero wordmark for docking and page transitions), [data-ghost-searc
       {{navigation type="secondary"}}
     {{/if}}
   </nav>
+  <div class="mobile-menu__discover">
+    {{> header-discover prefix="menu-discover"}}
+  </div>
   <div class="mobile-menu__footer">
     {{> theme-switch class="mobile-menu__theme"}}
     {{#if @member}}

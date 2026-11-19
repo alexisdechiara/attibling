@@ -26,6 +26,8 @@
       // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
       (function () {
         var root = document.documentElement
+        // Scripts run: the CSS may hide what they will show (e.g. the home header logo until it docks)
+        root.setAttribute('data-js', '')
         var theme = null
         var promo = null
         try {
