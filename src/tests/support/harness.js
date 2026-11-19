@@ -43,6 +43,8 @@ const close = async () => {
  *  - lang: value of the lang attribute of <html> (default "en")
  *  - bodyStart: HTML inserted at the start of <body>, where {{ghost_head}} scripts add theirs
  *  - colorScheme, reducedMotion, viewport, hasTouch: browser context options
+ *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
+ *    every other path that is not a file of the repository (e.g. a post opened from a tile)
  */
 const open = async (options = {}) => {
 	const {
@@ -56,6 +58,7 @@ const open = async (options = {}) => {
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
 		hasTouch = false,
+		pages = {},
 	} = options;
 	const render = options.render || (fixture ? null : home());
 
@@ -99,8 +102,11 @@ const open = async (options = {}) => {
 		const url = new URL(route.request().url());
 		requests.push(url.href);
 
-		if (url.origin === SITE && render && url.pathname === "/__render") {
-			const { template, ...renderOptions } = render;
+		const repoFile = path.join(REPO_ROOT, decodeURIComponent(url.pathname));
+		const isFile = fs.existsSync(repoFile) && fs.statSync(repoFile).isFile();
+		const other = url.origin === SITE && !isFile && (pages[url.pathname] || pages["*"]);
+		if (url.origin === SITE && ((render && url.pathname === "/__render") || other)) {
+			const { template, ...renderOptions } = url.pathname === "/__render" ? render : other;
 			const html = renderTemplate(template, renderOptions)
 				.replace(/<html lang="[^"]*"/, `<html lang="${lang}"`)
 				.replace(/<body[^>]*>/, tag => tag + bodyStart);
