@@ -341,6 +341,22 @@ describe("hero", () => {
 				assert.ok(tt < m.y[3], "beside the descender, not below it");
 				assert.ok(m.lines <= 2, "two lines at most");
 				if (width >= 1024) assert.ok(m.right + 16 <= m.post, `clear of the post (${m.right} + 16 ≤ ${m.post})`);
+				// During the font swap: « Onest Fallback » for the letters and the tagline, another face for
+				// the "ly". The tagline keeps its place under the baseline (no visible jump when Onest arrives).
+				if (!description) {
+					await page.addStyleTag({
+						content:
+							'.hero__brand, .hero__brand .wordmark { font-family: "Onest Fallback", sans-serif !important } .hero__brand .wordmark__script { font-family: serif !important }',
+					});
+					const f = await geometry(page);
+					const gap = f.tagline[1] - f.baseline;
+					assert.ok(gap >= -1 && gap <= 0.12 * f.size, `fallback faces: attached (${gap.toFixed(1)})`);
+					assert.ok(
+						Math.abs(gap - (tt - m.baseline)) <= 0.02 * m.size,
+						`no jump when the font arrives (${gap.toFixed(1)} vs ${(tt - m.baseline).toFixed(1)})`,
+					);
+					assert.ok(f.tagline[2] <= f.y[0], 'fallback faces: ends before the "y"');
+				}
 				await dispose();
 			}
 		});
