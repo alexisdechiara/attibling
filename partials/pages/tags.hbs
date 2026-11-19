@@ -1,33 +1,73 @@
 {{!--
 Body of the « Tags » page (page-tags.hbs, custom-tags.hbs). Inside the page's template context.
+
+Heading: the page's title, the number of tags, its content (or excerpt) as an introduction, « Mélanger ».
+Then every public tag that has posts as a cell of a bento grid (partials/tags/cell.hbs), most posts first.
+Ghost returns at most 100 tags per {{#get}}: a second query covers tags 101 to 200.
+The server's order with the first cells large is the result without JavaScript. The inline script right
+after the grid (partials/tags/prepaint.hbs, built from src/js/tags/layout.js) arranges it before the
+first paint: a new arrangement on each visit, the same one when coming back. src/js/tags.js adds
+« Mélanger » and the previews, which list each tag's latest posts from the <template> below (the 200
+latest posts, fetched once: see docs/guide-auteur.md, « Page Tags »).
 --}}
 {{#contentFor "preload"}}
-  <link rel="preload" href="{{asset "css/listing.css"}}" as="style" />
+  <link rel="preload" href="{{asset "css/tags.css"}}" as="style" />
+  <link rel="modulepreload" href="{{asset "js/tags.js"}}" />
 {{/contentFor}}
 {{#contentFor "styles"}}
-  <link rel="stylesheet" type="text/css" href="{{asset "css/listing.css"}}" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{asset "css/tags.css"}}" media="screen" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" src="{{asset "js/tags.js"}}"></script>
 {{/contentFor}}
 
 {{> header}}
 
-<main id="main" class="site-main listing">
+<main id="main" class="site-main tags-page" data-tags-page
+  data-i18n-latest="{{t "Latest posts"}}" data-i18n-more="{{t "See the section"}}" data-i18n-close="{{t "Close"}}">
+  {{!-- Until the inline script after the grid has arranged it, the grid is hidden (no visible reshuffle)
+  and the places of the count and of « Mélanger » are kept (nothing moves when they appear) --}}
+  <script>document.documentElement.setAttribute("data-tags-arranging", "")</script>
   <div class="container">
     {{#post}}
-      <header class="page-heading listing-heading">
-        <h1 class="page-heading__title">{{title}}</h1>
-        {{#if custom_excerpt}}<p class="listing-heading__lead">{{custom_excerpt}}</p>{{/if}}
+      <header class="tags-header">
+        <div class="tags-header__text">
+          <h1 class="tags-header__title">{{title}}</h1>
+          <p class="tags-header__count" data-tags-count></p>
+          {{#if html}}
+            <div class="tags-header__intro">{{content}}</div>
+          {{else if custom_excerpt}}
+            <p class="tags-header__intro">{{custom_excerpt}}</p>
+          {{/if}}
+        </div>
+        <button type="button" class="button tags-shuffle" data-tags-shuffle hidden>{{> "icons/shuffle"}}{{t "Shuffle"}}</button>
       </header>
     {{/post}}
-    <ul class="tag-grid listing-tags" role="list">
-      {{!-- Ghost caps {{#get}} at 100 results: the second page takes the next 100 --}}
-      {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="name asc"}}
-        {{#foreach tags}}{{#match count.posts ">" 0}}<li>{{> tag-tile}}</li>{{/match}}{{/foreach}}
-      {{else}}
-        <li class="listing-grid__empty">{{t "No tags found"}}</li>
+
+    <ul class="tag-bento" role="list" data-tag-bento data-i18n-one="{{t "1 tag"}}" data-i18n-many="{{t "% tags"}}">
+      {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="count.posts desc"}}
+        {{#foreach tags}}{{#match count.posts ">" 0}}{{#has number="1"}}{{> "tags/cell" size="feature"}}{{else}}{{#has number="2,3"}}{{> "tags/cell" size="wide"}}{{else}}{{> "tags/cell"}}{{/has}}{{/has}}{{/match}}{{/foreach}}
       {{/get}}
-      {{#get "tags" limit="100" page="2" include="count.posts" filter="visibility:public" order="name asc"}}
-        {{#foreach tags}}{{#match count.posts ">" 0}}<li>{{> tag-tile}}</li>{{/match}}{{/foreach}}
+      {{#get "tags" limit="100" page="2" include="count.posts" filter="visibility:public" order="count.posts desc"}}
+        {{#foreach tags}}{{#match count.posts ">" 0}}{{> "tags/cell"}}{{/match}}{{/foreach}}
       {{/get}}
     </ul>
+    {{> "tags/prepaint"}}
+
+    <div class="tags-empty">
+      <p class="tags-empty__text">{{t "No tags found"}}</p>
+      <a class="button button--inverse" href="{{@site.url}}/archives/">{{t "All posts"}}</a>
+    </div>
+
+    <p class="tags-footer"><a class="tags-footer__link" href="{{@site.url}}/archives/">{{t "Every post, by date"}}{{> "icons/arrow-right" class="icon-flip-rtl"}}</a></p>
+
+    <p class="sr-only" aria-live="polite" data-tags-status data-i18n-shuffled="{{t "Tags shuffled"}}"></p>
+
+    {{!-- Latest posts of each tag for the previews: the 200 latest posts with their tags, grouped by
+    src/js/tags.js; a tag whose posts are all older shows its count only --}}
+    <template data-tags-recent>
+      {{#get "posts" limit="100" include="tags"}}{{> "tags/recent"}}{{/get}}
+      {{#get "posts" limit="100" page="2" include="tags"}}{{> "tags/recent"}}{{/get}}
+    </template>
   </div>
 </main>

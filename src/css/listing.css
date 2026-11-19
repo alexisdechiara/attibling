@@ -1,4 +1,4 @@
-/* Tag, author, all tags and all authors pages, on top of app.css (tiles, post grid, tag grid, section
+/* Tag, author and all authors pages, on top of app.css (tiles, post grid, tag grid, section
    header, pagination come from there) */
 @import "./pages/people.css";
 
@@ -279,14 +279,6 @@
   color: var(--color-text-secondary);
   font-size: var(--text-l);
   line-height: 1.5;
-}
-
-.listing-tags {
-  margin: 0;
-
-  .tag-tile {
-    height: 160px;
-  }
 }
 
 /* Authors */

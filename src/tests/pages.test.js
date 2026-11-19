@@ -117,12 +117,10 @@ describe("author, tags and authors pages", () => {
 		await dispose();
 	});
 
-	it("all tags: a tile per public tag with posts, with its count", async () => {
+	it("all tags: a cell per public tag with posts, with its count (more in tags.test.js)", async () => {
 		const { page, dispose } = await open({ render: template("page-tags") });
 		const tiles = await page.evaluate(() =>
-			[...document.querySelectorAll(".listing-tags .tag-tile")].map(
-				t => t.querySelector(".tag-tile__count").textContent,
-			),
+			[...document.querySelectorAll(".tag-bento .tag-cell")].map(t => t.querySelector(".tag-cell__count").textContent),
 		);
 		assert.ok(tiles.length >= 5);
 		assert.ok(tiles.every(t => /post/.test(t)));

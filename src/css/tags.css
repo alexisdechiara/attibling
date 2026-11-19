@@ -1,0 +1,673 @@
+/* « Tags » page (partials/pages/tags.hbs, partials/tags/*, src/js/tags.js), on top of app.css.
+   A bento grid of every tag: 2 columns on phones, 4 on tablets, 6 from 64rem. The cells' spans come from
+   the arrangement (src/js/tags/layout.js: --w2/--h2, --w4/--h4, --w6/--h6, an exact tiling placed by the
+   ordinary auto-placement); without it (no JavaScript) the first cell is 2×2, the next two 2×1, the rest
+   1×1, packed densely. The type grows with the cell (container queries), so a large cell says more. */
+
+.tags-page {
+  padding-block-end: var(--space-10);
+}
+
+/* Heading */
+.tags-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5) var(--space-6);
+  padding-block: var(--space-8) var(--space-6);
+
+  @media (width >= 48rem) {
+    padding-block: var(--space-11) var(--space-7);
+  }
+}
+
+.tags-header__text {
+  flex: 1 1 26rem;
+  min-width: 0;
+}
+
+.tags-header__title {
+  font-size: clamp(2.25rem, 1.4rem + 2.8vw, 3.5rem);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.tags-header__count {
+  margin-block-start: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--text-l);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+
+  &:empty {
+    display: none;
+  }
+
+  :root[data-tags-arranging] & {
+    display: block;
+    min-height: 1lh;
+  }
+}
+
+.tags-header__intro {
+  max-width: 42rem;
+  margin-block-start: var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--text-l);
+  line-height: 1.55;
+  text-wrap: pretty;
+
+  > * + * {
+    margin-block-start: var(--space-3);
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.tags-shuffle {
+  flex: none;
+
+  &[hidden] {
+    display: none;
+  }
+
+  :root[data-tags-arranging] &[hidden] {
+    display: inline-flex;
+    visibility: hidden;
+  }
+
+  .icon {
+    transition: transform var(--duration-l) var(--ease-out);
+  }
+
+  &:active .icon {
+    transform: rotate(-12deg) scale(0.92);
+  }
+}
+
+/* The grid. A row is 0.8 of a column: cells are a little wider than tall. */
+.tag-bento {
+  --cols: 2;
+  --gap: 10px;
+  --row: max(
+    112px,
+    calc((min(100vw - 2 * var(--gutter), var(--page-max)) - (var(--cols) - 1) * var(--gap)) / var(--cols) * 0.8)
+  );
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-rows: var(--row);
+  grid-auto-flow: row dense;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+
+  @media (width >= 40rem) {
+    --cols: 4;
+    --gap: 12px;
+  }
+
+  @media (width >= 64rem) {
+    --cols: 6;
+    --gap: 14px;
+  }
+
+  /* Until the inline script after it has arranged it: no visible reshuffle */
+  :root[data-tags-arranging] & {
+    visibility: hidden;
+  }
+
+  &[data-arranged] {
+    grid-auto-flow: row;
+
+    > .tag-cell {
+      grid-column: span var(--w2, 1);
+      grid-row: span var(--h2, 1);
+
+      @media (width >= 40rem) {
+        grid-column: span var(--w4, 1);
+        grid-row: span var(--h4, 1);
+      }
+
+      @media (width >= 64rem) {
+        grid-column: span var(--w6, 1);
+        grid-row: span var(--h6, 1);
+      }
+    }
+  }
+}
+
+.tag-cell {
+  position: relative;
+  min-width: 0;
+  view-transition-class: tag-cell;
+
+  /* Without JavaScript: the tints cycle (the script gives each tag its own, kept when it moves) */
+  &:nth-child(4n + 2) {
+    --tile-tint: var(--tint-2);
+  }
+
+  &:nth-child(4n + 3) {
+    --tile-tint: var(--tint-3);
+  }
+
+  &:nth-child(4n + 4) {
+    --tile-tint: var(--tint-4);
+  }
+}
+
+.tag-cell--feature {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.tag-cell--wide {
+  grid-column: span 2;
+}
+
+.tag-cell__link {
+  container: tag-cell / size;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: var(--space-4);
+  overflow: hidden;
+  border-radius: var(--radius-l);
+  background: var(--color-media);
+  box-shadow: var(--shadow-1);
+  color: var(--color-on-media);
+  transition: box-shadow var(--duration-m) ease;
+
+  &:hover {
+    box-shadow: var(--shadow-2);
+
+    .tag-cell__name {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.15em;
+    }
+  }
+}
+
+.tag-cell__image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-l) var(--ease-out);
+
+  .tag-cell__link:hover & {
+    transform: scale(1.04);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    .tag-cell__link:hover & {
+      transform: none;
+    }
+  }
+}
+
+/* Scrim under the text (AA for the white text on any picture) */
+.tag-cell--image .tag-cell__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    0deg,
+    var(--color-scrim-strong) 0%,
+    var(--color-scrim-soft) 50%,
+    var(--color-scrim-faint) 80%,
+    transparent 100%
+  );
+}
+
+/* Without a picture: the tag's tint, and its number of posts drawn large in outline */
+.tag-cell--no-image .tag-cell__link {
+  background:
+    radial-gradient(130% 110% at 100% 0%, var(--tile-tint, var(--tint-1)) 0%, transparent 72%),
+    var(--color-surface-muted);
+  box-shadow: none;
+  color: var(--color-text);
+}
+
+.tag-cell__numeral {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-4);
+  z-index: -1;
+  color: transparent;
+  font-family: var(--font-heading);
+  font-size: min(44cqh, 34cqw);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-black);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  -webkit-text-stroke: 1.5px var(--color-numeral-stroke);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.tag-cell__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Long words are hyphenated (lang of the page) rather than cut anywhere; narrow cells use a smaller size */
+.tag-cell__name {
+  font-family: var(--font-heading);
+  font-size: clamp(var(--text-base), 12.5cqi, var(--text-xl));
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: balance;
+}
+
+.tag-cell__count {
+  color: var(--color-on-media-muted);
+  font-size: var(--text-s);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-medium);
+
+  .tag-cell--no-image & {
+    color: var(--color-text-secondary);
+  }
+}
+
+.tag-cell__description {
+  display: none;
+  margin-block-start: var(--space-2);
+  overflow: hidden;
+  color: var(--color-on-media-muted);
+  font-size: var(--text-nav);
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+
+  .tag-cell--no-image & {
+    color: var(--color-text-secondary);
+  }
+}
+
+/* Wide or tall cells */
+@container tag-cell (min-width: 250px) or (min-height: 230px) {
+  .tag-cell__name {
+    font-size: var(--text-3xl);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Large cells: bigger name, the description */
+@container tag-cell (min-width: 250px) and (min-height: 230px) {
+  .tag-cell__link {
+    padding: var(--space-6);
+  }
+
+  .tag-cell__name {
+    font-size: clamp(var(--text-3xl), 11cqi, var(--text-5xl));
+    font-weight: var(--weight-black);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .tag-cell__count {
+    font-size: var(--text-m);
+  }
+
+  .tag-cell__description {
+    display: -webkit-box;
+    max-width: 34ch;
+  }
+}
+
+/* « Détails » (shown by src/js/tags.js): always on touch screens, on hover or focus elsewhere. A 44px
+   target around a 32px round button. */
+.tag-cell__details {
+  position: absolute;
+  inset-block-start: var(--space-1);
+  inset-inline-end: var(--space-1);
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: var(--target);
+  height: var(--target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-on-media);
+  font-size: 1.25rem;
+  cursor: pointer;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-scrim);
+    transition: background-color var(--duration-s) ease;
+  }
+
+  &:hover::before {
+    background: var(--color-scrim-strong);
+  }
+
+  .icon {
+    position: relative;
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-on-media);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 calc(var(--focus-ring-width) + 2px) var(--color-media);
+  }
+
+  &[hidden] {
+    display: none;
+  }
+
+  .tag-cell--no-image & {
+    color: var(--color-text);
+
+    &::before {
+      background: var(--color-surface);
+      box-shadow: var(--shadow-1);
+    }
+
+    &:hover::before {
+      background: var(--color-bg);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    opacity: 0;
+    transition: opacity var(--duration-s) ease;
+
+    .tag-cell:hover &,
+    .tag-cell:focus-within &,
+    &[aria-expanded="true"] {
+      opacity: 1;
+    }
+  }
+}
+
+/* The preview card (src/js/tags/preview.js): a manual popover in the top layer, placed in page
+   coordinates by the script; without the Popover API, an absolute box inside the cell. */
+.tag-preview {
+  position: absolute;
+  inset: auto;
+  z-index: 1;
+  width: 360px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  /* in dark mode the card is close to the page: a line keeps its edge */
+  border: 1px solid light-dark(transparent, var(--color-border));
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  box-shadow:
+    var(--shadow-popover),
+    0 28px 64px var(--shadow-color-2);
+  color: var(--color-text);
+
+  &:not(:popover-open, .is-open) {
+    display: none;
+  }
+}
+
+.tag-cell.is-previewed {
+  z-index: 20;
+}
+
+.tag-preview__media {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: var(--media-h, 180px);
+  padding: var(--space-5);
+  overflow: hidden;
+  background: var(--color-media);
+  color: var(--color-on-media);
+
+  .tag-preview--image &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      0deg,
+      var(--color-scrim-strong) 0%,
+      var(--color-scrim-soft) 55%,
+      var(--color-scrim-faint) 85%,
+      transparent 100%
+    );
+  }
+
+  .tag-preview--no-image & {
+    background:
+      radial-gradient(130% 110% at 100% 0%, var(--tile-tint, var(--tint-1)) 0%, transparent 72%),
+      var(--color-surface-muted);
+    color: var(--color-text);
+  }
+}
+
+.tag-preview__image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.tag-preview__numeral {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-start: var(--space-5);
+  z-index: -1;
+  color: transparent;
+  font-family: var(--font-heading);
+  font-size: calc(var(--media-h, 180px) * 0.42);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-black);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  -webkit-text-stroke: 1.5px var(--color-numeral-stroke);
+  opacity: 0.45;
+
+  .tag-preview--image & {
+    display: none;
+  }
+}
+
+.tag-preview__name {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: balance;
+}
+
+.tag-preview__count {
+  margin-block-start: 2px;
+  color: var(--color-on-media-muted);
+  font-size: var(--text-m);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-medium);
+
+  .tag-preview--no-image & {
+    color: var(--color-text-secondary);
+  }
+}
+
+.tag-preview__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.tag-preview__description {
+  color: var(--color-text-secondary);
+  font-size: var(--text-nav);
+  line-height: 1.5;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.tag-preview__label {
+  margin-block-start: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-s);
+  font-weight: var(--weight-semibold);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.tag-preview__posts {
+  display: flex;
+  flex-direction: column;
+  margin: 0 calc(-1 * var(--space-2));
+  padding: 0;
+
+  &[hidden] {
+    display: none;
+  }
+
+  > li + li {
+    border-block-start: 1px solid var(--color-border);
+  }
+}
+
+.tag-preview__post {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: var(--target);
+  padding: var(--space-2);
+  border-radius: var(--radius-s);
+
+  &:hover {
+    background: var(--color-surface-muted);
+
+    .tag-preview__post-title {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  &:focus-visible {
+    outline-offset: 0;
+  }
+}
+
+.tag-preview__post-title {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.tag-preview__post-meta {
+  display: flex;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-s);
+  font-variant-numeric: tabular-nums;
+}
+
+.tag-preview__more {
+  align-self: flex-start;
+  margin-block-start: var(--space-2);
+}
+
+.tag-preview__close {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-end: var(--space-2);
+}
+
+/* No tag at all */
+.tags-empty {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-l);
+  color: var(--color-text-secondary);
+  font-size: var(--text-l);
+
+  .tags-page:not(:has(.tag-cell)) & {
+    display: flex;
+  }
+}
+
+.tags-footer {
+  display: flex;
+  justify-content: center;
+  margin-block-start: var(--space-9);
+
+  .tags-page:not(:has(.tag-cell)) & {
+    display: none;
+  }
+}
+
+.tags-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  padding-inline: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+
+  &:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* « Mélanger »: the cells move to their new place */
+::view-transition-group(*.tag-cell) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
