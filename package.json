@@ -67,7 +67,7 @@
 			"subscribe_url": {
 				"type": "text",
 				"default": "",
-				"description": "Where « Subscribe » leads, e.g. /newsletter/. Empty: Ghost sign-up window."
+				"description": "Forces where « Subscribe » leads. Empty: the page newsletter, abonnement or subscribe, else Portal."
 			},
 			"home_row_1": {
 				"type": "text",

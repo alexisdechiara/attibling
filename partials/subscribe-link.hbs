@@ -1,6 +1,7 @@
 {{!--
-« S'abonner » link to the subscription page: the "Subscribe page URL" setting (subscribe_url, e.g.
-/newsletter/ for a page using page-newsletter.hbs) when it is set, Ghost's Portal sign-up otherwise.
+« S'abonner » link: to the theme's subscription page (its sign-up form), found as subscribe-href.hbs
+says (the subscribe_url setting, else a page with the slug newsletter / abonnement / subscribe), Ghost's
+Portal sign-up only when the site has no such page.
 Shown only when members are enabled and sign-up is open; render it inside {{#unless @member}}.
 Parameters:
   class="..."   classes of the link (default "button button--inverse")
@@ -8,10 +9,6 @@ Parameters:
 --}}
 {{#if @site.members_enabled}}
   {{#unless @site.members_invite_only}}
-    {{#if @custom.subscribe_url}}
-      <a class="{{#if class}}{{class}}{{else}}button button--inverse{{/if}}" href="{{@custom.subscribe_url}}">{{#if label}}{{label}}{{else}}{{t "Subscribe"}}{{/if}}</a>
-    {{else}}
-      <a class="{{#if class}}{{class}}{{else}}button button--inverse{{/if}}" href="#/portal/signup" data-portal="signup">{{#if label}}{{label}}{{else}}{{t "Subscribe"}}{{/if}}</a>
-    {{/if}}
+    <a class="{{#if class}}{{class}}{{else}}button button--inverse{{/if}}" {{> subscribe-href signin=false}}>{{#if label}}{{label}}{{else}}{{t "Subscribe"}}{{/if}}</a>
   {{/unless}}
 {{/if}}
