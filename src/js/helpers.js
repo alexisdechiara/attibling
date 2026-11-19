@@ -3,25 +3,6 @@ export const isRTL = () => {
 	return ["ar", "he", "fa"].includes($html.getAttribute("lang"));
 };
 
-export const isMobile = (width = "768px") => {
-	return window.matchMedia(`(max-width: ${width})`).matches;
-};
-
-export const getParameterByName = (name, url) => {
-	if (!url) url = window.location.href;
-
-	name = name.replace(/[\[\]]/g, "\\$&");
-
-	const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
-	const results = regex.exec(url);
-
-	if (!results) return null;
-
-	if (!results[2]) return "";
-
-	return decodeURIComponent(results[2].replace(/\+/g, " "));
-};
-
 export const adjustImageGallery = () => {
 	const images = document.querySelectorAll(".kg-gallery-image img");
 
@@ -156,12 +137,6 @@ export const onReady = callback => {
 	} else {
 		callback();
 	}
-};
-
-// Content height of an element, excluding padding.
-export const contentHeight = el => {
-	const style = getComputedStyle(el);
-	return el.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
 };
 
 export const managePostImages = () => {

@@ -169,14 +169,6 @@ const waitFor = async (fn, { timeout = 3000, interval = 25 } = {}) => {
 	return last;
 };
 
-// Waits until the entrance animations (data-animate) have finished moving things into place.
-const settle = page =>
-	page.waitForFunction(() =>
-		[...document.querySelectorAll("[data-animate]")].every(el =>
-			el.getAnimations().every(animation => animation.playState === "finished"),
-		),
-	);
-
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-export { launch, close, open, waitFor, settle, sleep, REPO_ROOT, SITE };
+export { launch, close, open, waitFor, sleep, REPO_ROOT, SITE };

@@ -350,6 +350,7 @@ describe("prefetch", () => {
 				query: test('<a href="/archives/?tag=x">'),
 				file: test('<a href="/content/files/a.pdf">'),
 				external: test('<a href="/x/" target="_blank">'),
+				marked: test('<a href="/x/" data-no-prefetch>'),
 				post: test('<a href="/un-article/">'),
 				tag: test('<a href="/tag/jeux-video/">'),
 			};
@@ -363,6 +364,7 @@ describe("prefetch", () => {
 			query: true,
 			file: true,
 			external: true,
+			marked: true,
 			post: false,
 			tag: false,
 		});
