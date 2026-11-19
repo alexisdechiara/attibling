@@ -1,130 +1,461 @@
-/* « À propos » (partials/pages/about.hbs), on top of app.css: one column of 800px */
+/* « À propos » (partials/pages/about.hbs), on top of app.css: an opening (title, lead) and one bento.
+   The bento is two grids sharing one rhythm: the rubrics, then the page's own text, then the people
+   (author, figures, follow). 1 column on phones, 2 from 40rem, 4 from 64rem. Cells are placed in DOM order
+   (no dense packing), so the reading order is the visual order; the size rules below fill every row for
+   1 to 12 rubrics. */
 @import "./pages/content.css";
 @import "./pages/people.css";
 
-.about__column {
-  width: min(50rem, calc(100% - 2 * var(--gutter)));
-  margin-inline: auto;
-  padding-block: var(--space-8) var(--space-9);
+.about__inner {
+  padding-block: var(--space-8) var(--space-10);
 
   @media (width >= 48rem) {
-    padding-block-start: var(--space-11);
+    padding-block-start: var(--space-10);
+  }
+}
+
+/* Opening */
+.about__header {
+  max-width: 46rem;
+  margin-block-end: var(--space-8);
+
+  @media (width >= 48rem) {
+    margin-block-end: var(--space-9);
   }
 }
 
 .about__title {
-  font-size: clamp(2.25rem, 1.6rem + 2vw, 3rem);
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
   font-weight: var(--weight-black);
   letter-spacing: -0.03em;
-  line-height: 1.08;
+  line-height: 1.05;
+  text-wrap: balance;
 }
 
 .about__lead {
-  margin-block-start: var(--space-6);
-  color: var(--color-text);
+  margin-block-start: var(--space-5);
+  color: var(--color-text-secondary);
   font-family: var(--font-reading);
   font-size: var(--text-xl);
-  line-height: 1.6;
+  line-height: 1.55;
+  text-wrap: pretty;
 
   @media (width >= 48rem) {
     font-size: 1.375rem;
   }
 }
 
-.about__section {
-  margin-block-start: var(--space-10);
-}
+/* The bento */
+.about-bento {
+  --bento-gap: var(--space-3);
+  --bento-row: 9rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bento-gap);
 
-.about__heading {
-  margin-block-end: var(--space-5);
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-bold);
-  letter-spacing: -0.01em;
+  @media (width >= 40rem) {
+    --bento-gap: var(--space-4);
+    --bento-row: 12rem;
+  }
 
-  @media (width >= 48rem) {
-    font-size: var(--text-3xl);
+  @media (width >= 64rem) {
+    --bento-row: 13.5rem;
   }
 }
 
-/* Sections: a pill per tag (icon in a badge + name), then its description */
-.about-rubrics {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+.about-rubrics,
+.about-bento__people {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--bento-gap);
   margin: 0;
   padding: 0;
   list-style: none;
-}
 
-.about-rubric {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
+  @media (width >= 40rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-  @media (width >= 48rem) {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-4);
+  @media (width >= 64rem) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-.about-rubric__pill {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 148px;
-  min-height: var(--target);
-  padding-inline: 6px var(--space-4);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-muted);
-  color: var(--color-text);
-  font-size: var(--text-nav);
-  font-weight: var(--weight-bold);
+.about-rubrics {
+  grid-auto-rows: minmax(var(--bento-row), auto);
+}
 
-  &:hover .about-rubric__name {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+/* A cell: one surface, one radius; links lift slightly on hover like the site's tiles */
+.about-cell,
+.about-rubric {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--radius-l);
+}
+
+.about-cell {
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+
+  @media (width >= 64rem) {
+    padding: var(--space-7);
+  }
+}
+
+/* Rubric cells */
+.about-rubric {
+  --tile-tint: var(--tint-1);
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  overflow: hidden;
+  background: radial-gradient(120% 110% at 100% 0%, var(--tile-tint) 0%, transparent 68%), var(--color-surface-muted);
+  color: var(--color-text);
+  transition:
+    transform var(--duration-m) var(--ease-out),
+    box-shadow var(--duration-m) var(--ease-out);
+
+  &:nth-child(4n + 2) {
+    --tile-tint: var(--tint-2);
+  }
+
+  &:nth-child(4n + 3) {
+    --tile-tint: var(--tint-3);
+  }
+
+  &:nth-child(4n + 4) {
+    --tile-tint: var(--tint-4);
+  }
+
+  &:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-3px);
+  }
+
+  /* Keyboard focus on the name's link rings the whole cell */
+  &:has(.about-rubric__link:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow var(--duration-m) ease;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  @media (width >= 64rem) {
+    padding: var(--space-6);
   }
 }
 
 .about-rubric__icon {
   display: inline-grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-pill);
-  background: var(--color-accent-soft);
+  background: var(--color-surface);
   color: var(--color-accent);
-  font-size: 1.125rem;
+  font-size: 1.375rem;
+}
+
+.about-rubric__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.about-rubric__name {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.about-rubric__link {
+  color: inherit;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  /* The whole cell is the link's target */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+}
+
+/* Without :has(), the ring stays on the link itself */
+@supports not selector(:has(*)) {
+  .about-rubric__link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus);
+  }
 }
 
 .about-rubric__text {
+  max-width: 34em;
   color: var(--color-text-secondary);
   font-size: var(--text-nav);
-  line-height: 1.55;
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
-/* The page's own text after the sections: same column as the rest */
-.about__content {
+.about-rubric__count {
+  margin-block-start: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--text-s);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+}
+
+/* With the tag's image: the picture fills the cell; the text sits on a scrim that is never lighter than
+   --color-scrim behind any line (the fade is in the body's top padding, where there is no text) */
+.about-rubric--image {
+  --color-focus: var(--color-focus-on-media);
+  background: var(--color-media);
+  color: var(--color-on-media);
+
+  /* A soft shade over the whole picture, so the text's scrim has no visible edge */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to top, var(--color-scrim-soft) 0%, var(--color-scrim-faint) 55%, transparent 100%);
+  }
+
+  .about-rubric__icon {
+    background: var(--color-scrim);
+    color: var(--color-on-media);
+  }
+
+  .about-rubric__body {
+    --fade: var(--space-11);
+    margin: calc(-1 * var(--fade)) calc(-1 * var(--cell-pad, var(--space-5))) calc(-1 * var(--cell-pad, var(--space-5)));
+    padding: calc(var(--fade) + var(--space-2)) var(--cell-pad, var(--space-5)) var(--cell-pad, var(--space-5));
+    background: linear-gradient(
+      to top,
+      var(--color-scrim-strong) 0%,
+      var(--color-scrim) calc(100% - var(--fade)),
+      rgb(17 19 24 / 0.6) calc(100% - var(--fade) * 0.6),
+      rgb(17 19 24 / 0.25) calc(100% - var(--fade) * 0.25),
+      transparent 100%
+    );
+  }
+
+  .about-rubric__text,
+  .about-rubric__count {
+    color: var(--color-on-media-muted);
+  }
+
+  @media (width >= 64rem) {
+    --cell-pad: var(--space-6);
+  }
+}
+
+.about-rubric__image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-l) var(--ease-out);
+
+  .about-rubric:hover & {
+    transform: scale(1.03);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    .about-rubric:hover & {
+      transform: none;
+    }
+  }
+}
+
+/* The first rubric (most posts) leads: larger type at every width */
+.about-rubric:first-child {
+  .about-rubric__name {
+    font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
+    letter-spacing: -0.025em;
+  }
+
+  .about-rubric__text {
+    font-size: var(--text-l);
+  }
+
+  .about-rubric__icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+  }
+}
+
+/* Phones: the lead cell is taller */
+@media (width < 40rem) {
+  .about-rubric:first-child {
+    min-height: calc(var(--bento-row) * 1.4);
+  }
+}
+
+/* Two columns: the lead spans the row; a last cell left alone spans it too */
+@media (40rem <= width < 64rem) {
+  .about-rubric:first-child {
+    grid-column: span 2;
+    min-height: calc(var(--bento-row) * 1.3);
+  }
+
+  .about-rubric:nth-child(even):last-child {
+    grid-column: span 2;
+  }
+}
+
+/* Four columns: the lead is 2×2, the second 2×1, the next two fill the lead's second row; later rows
+   hold four cells, and a short last row widens its first cells so no hole is left */
+@media (width >= 64rem) {
+  .about-rubric:first-child {
+    grid-row: span 2;
+    grid-column: span 2;
+  }
+
+  .about-rubric:nth-child(2) {
+    grid-column: span 2;
+  }
+
+  /* 1 rubric: the whole row; 2: three quarters + one quarter on two rows; 3: the third is 2×1 */
+  .about-rubric:only-child {
+    grid-row: auto;
+    grid-column: 1 / -1;
+  }
+
+  .about-rubric:first-child:nth-last-child(2) {
+    grid-column: span 3;
+  }
+
+  .about-rubric:nth-child(2):last-child {
+    grid-row: span 2;
+    grid-column: span 1;
+  }
+
+  .about-rubric:nth-child(3):last-child {
+    grid-column: span 2;
+  }
+
+  /* From the 5th: last row of 1 → full row; of 2 → halves; of 3 → half + two quarters */
+  .about-rubric:nth-child(4n + 5):last-child {
+    grid-column: 1 / -1;
+  }
+
+  .about-rubric:nth-child(4n + 5):nth-last-child(2),
+  .about-rubric:nth-child(4n + 5):nth-last-child(2) + .about-rubric,
+  .about-rubric:nth-child(4n + 5):nth-last-child(3) {
+    grid-column: span 2;
+  }
+}
+
+/* The page's own text (Ghost editor): a calm text cell in the reading font */
+.about-note {
+  padding: var(--space-5) 0;
+  border: 0;
+  background: transparent;
+
+  @media (width >= 64rem) {
+    padding: var(--space-7) 0;
+  }
+}
+
+.about-note__text {
   --column: 100%;
   --wide: 100%;
   --gutter: 0px;
-  margin-block-start: var(--space-6);
-  color: var(--color-text-secondary);
-  font-family: var(--font-ui);
-  font-size: var(--text-base);
-  line-height: 1.65;
+  max-width: 46rem;
+  color: var(--color-text);
+  font-family: var(--font-reading);
+  font-size: var(--text-xl);
+  line-height: 1.6;
+  text-wrap: pretty;
+
+  > * + * {
+    margin-block-start: 1em;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  @media (width >= 48rem) {
+    font-size: 1.5rem;
+    line-height: 1.5;
+  }
 }
 
-/* Who writes */
-.about-author {
-  display: flex;
-  gap: var(--space-5);
+/* People: author (larger), the figures, follow */
+@media (width >= 40rem) {
+  .about-author {
+    grid-column: span 2;
+  }
+}
 
-  & + & {
-    margin-block-start: var(--space-8);
+/* Four columns: the author half the row, then the figures and « Suivre » a quarter each */
+@media (width >= 64rem) {
+  /* Without the figures (no published post), « Suivre » takes their place */
+  .about-bento__people:not(:has(.about-facts)) .about-follow {
+    grid-column: span 2;
+  }
+
+  /* Several authors: the whole row, people side by side; figures and « Suivre » share the next */
+  .about-author--many {
+    grid-column: 1 / -1;
+  }
+
+  .about-author--many ~ .about-follow {
+    grid-column: span 3;
+  }
+
+  .about-bento__people:not(:has(.about-facts)) .about-author--many ~ .about-follow {
+    grid-column: 1 / -1;
+  }
+}
+
+.about-author__list {
+  display: grid;
+  gap: var(--space-7);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  .about-author--many & {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  }
+}
+
+.about-author__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+
+  @media (width >= 30rem) {
+    flex-direction: row;
+    gap: var(--space-5);
   }
 }
 
@@ -134,45 +465,73 @@
   @media (width >= 48rem) {
     --avatar-size: 88px;
   }
+
+  .about-author--many & {
+    --avatar-size: 56px;
+  }
 }
 
 .about-author__body {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: var(--space-3);
   min-width: 0;
 }
 
 .about-author__name {
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-bold);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+
+  .about-author--many & {
+    font-size: var(--text-xl);
+  }
 
   a {
-    color: var(--color-accent);
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--color-border-strong);
+    text-underline-offset: 4px;
 
     &:hover {
-      text-decoration: underline;
-      text-underline-offset: 4px;
+      text-decoration-color: currentcolor;
     }
   }
 }
 
 .about-author__bio {
+  max-width: 38em;
   color: var(--color-text-secondary);
   font-size: var(--text-base);
-  line-height: 1.7;
+  line-height: 1.65;
   white-space: pre-line;
+  text-wrap: pretty;
 }
 
-.about-author__more {
+.about-author__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  font-weight: var(--weight-semibold);
+}
+
+.about-author__fact {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-2);
   min-height: var(--target);
+
+  .icon {
+    font-size: 1.125rem;
+  }
+}
+
+.about-author__website {
   color: var(--color-accent);
-  font-size: var(--text-m);
-  font-weight: var(--weight-bold);
 
   &:hover {
     text-decoration: underline;
@@ -180,8 +539,53 @@
   }
 }
 
-/* Follow the blog: icon buttons, the RSS feed, the author's extra links (about-links card) */
-.about-follow,
+/* The figures: a sentence whose number carries the weight */
+.about-facts {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  background: radial-gradient(120% 140% at 0% 100%, var(--color-accent-soft) 0%, transparent 70%), var(--color-surface);
+}
+
+.about-facts__number {
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: clamp(2.75rem, 2rem + 2.5vw, 4rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-black);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.about-facts__text {
+  color: var(--color-text);
+  font-size: var(--text-l);
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
+}
+
+/* Follow: icon buttons, the RSS feed, the author's extra links (about-links card), subscribe */
+.about-follow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  gap: var(--space-4);
+}
+
+.about-follow__list {
+  flex-basis: 100%;
+}
+
+.about-follow__title {
+  flex-basis: 100%;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.01em;
+}
+
+.about-follow__list,
 .about-links {
   display: flex;
   flex-wrap: wrap;
@@ -203,7 +607,7 @@
 
 /* Extra links typed in the page (HTML card <ul class="about-links">): text pills */
 .about-links a,
-.about-follow > li > a:not([class]) {
+.about-follow__list > li > a:not([class]) {
   display: inline-flex;
   align-items: center;
   min-height: var(--target);
@@ -221,6 +625,10 @@
   }
 }
 
-.about-follow .about-links {
-  display: contents;
+.about-follow__links {
+  flex-basis: 100%;
+
+  &:empty {
+    display: none;
+  }
 }

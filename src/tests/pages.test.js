@@ -1,5 +1,5 @@
 // Pages other than the home and the article: tag, author, all tags, all authors, generic page, 404,
-// archives, « Mes favoris », « À propos », subscription page.
+// archives, « Mes favoris », subscription page (« À propos »: about.test.js).
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open, waitFor } from "./support/harness.js";
@@ -320,59 +320,7 @@ describe("« Mes favoris » page", () => {
 	});
 });
 
-describe("« À propos » page", () => {
-	before(launch);
-	after(close);
-
-	it("lists sections from the tags (icon in a badge, description when present), the authors and the links", async () => {
-		const render = template("page-a-propos", { post: { custom_excerpt: "Mon blog personnel." } });
-		render.site.tags = render.site.tags.map(t =>
-			t.slug === "anime" ? { ...t, description: "Les séries à voir en VF." } : t,
-		);
-		const { page, dispose } = await open({ render });
-		const view = await page.evaluate(() => ({
-			lead: document.querySelector(".about__lead")?.textContent,
-			rubrics: [...document.querySelectorAll(".about-rubric")].map(li => ({
-				name: li.querySelector(".about-rubric__name").textContent,
-				icon: Boolean(li.querySelector(".about-rubric__icon svg")),
-				text: li.querySelector(".about-rubric__text")?.textContent ?? null,
-			})),
-			author: document.querySelector(".about-author__name")?.textContent.trim(),
-			follow: [...document.querySelectorAll("[data-about-follow] a")].map(
-				a => a.getAttribute("aria-label") || a.textContent.trim(),
-			),
-		}));
-		assert.equal(view.lead, "Mon blog personnel.");
-		assert.equal(view.rubrics.length, 6, "the 6 most used tags by default");
-		assert.ok(view.rubrics.every(r => r.icon));
-		assert.equal(view.rubrics.find(r => r.name === "Anime").text, "Les séries à voir en VF.");
-		assert.equal(view.rubrics.find(r => r.name === "Jeux vidéo").text, null, "no description, no line");
-		assert.equal(view.author, "Alexis De Chiara");
-		assert.deepEqual(view.follow, ["X", "RSS feed", "Subscribe"]);
-		await dispose();
-	});
-
-	it("takes its sections from the setting, and moves the author's extra links to « Suivre le blog »", async () => {
-		const render = template("page-a-propos", {
-			custom: { about_tags: "anime,ia" },
-			post: {
-				html: '<p>Et comme c’est mon blog…</p><ul class="about-links"><li><a href="https://github.com/x">GitHub</a></li></ul>',
-			},
-		});
-		const { page, dispose } = await open({ render });
-		const view = await page.evaluate(() => ({
-			rubrics: [...document.querySelectorAll(".about-rubric__name")].map(n => n.textContent).sort(),
-			follow: [...document.querySelectorAll("[data-about-follow] a")].map(
-				a => a.getAttribute("aria-label") || a.textContent.trim(),
-			),
-			left: document.querySelectorAll(".about__content .about-links").length,
-		}));
-		assert.deepEqual(view.rubrics, ["Anime", "IA"]);
-		assert.equal(view.follow[0], "GitHub");
-		assert.equal(view.left, 0);
-		await dispose();
-	});
-});
+// « À propos »: src/tests/about.test.js
 
 describe("subscription page", () => {
 	before(launch);
@@ -504,7 +452,7 @@ describe("pages at 390 px and keyboard focus", () => {
 			["page-newsletter", {}, ".subscribe-faq summary"],
 			["page-favoris", { member: true }, "[data-remove]"],
 			["tag", {}, ".listing-lead__link"],
-			["page-a-propos", {}, ".about-rubric__pill"],
+			["page-a-propos", {}, ".about-follow__icon"],
 		];
 		for (const [name, options, selector] of checks) {
 			const { page, dispose } = await open({
