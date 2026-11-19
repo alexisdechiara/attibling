@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { launch, close, open, REPO_ROOT } from "./support/harness.js";
 import { article } from "./support/article.js";
-import { home } from "./support/pages.js";
+import { home, template } from "./support/pages.js";
 
 const openPanel = async page => {
 	await page.locator("[data-reading-button]").click();
@@ -88,5 +88,29 @@ describe("finishing: bookmark icons", () => {
 		);
 		assert.equal(tile, "0", "a tile's bookmark appears on hover or focus only");
 		await index.dispose();
+	});
+});
+
+describe("finishing: page text", () => {
+	before(launch);
+	after(close);
+
+	it("keeps loose text in the reading column, full width on phones", async () => {
+		const html = "<p>Avant.</p>Alexis – DPO<br>50 boulevard<h2>Titre</h2><p>Après.</p>";
+		const { page, dispose } = await open({
+			render: template("page", { post: { html } }),
+			viewport: { width: 390, height: 800 },
+		});
+		const layout = await page.evaluate(() => {
+			const content = document.querySelector(".page-content");
+			const loose = [...content.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).length;
+			const columns = new Set([...content.children].map(c => Math.round(c.getBoundingClientRect().left)));
+			const first = content.firstElementChild.getBoundingClientRect();
+			return { loose, columns: columns.size, width: Math.round(first.width), view: innerWidth };
+		});
+		assert.equal(layout.loose, 0, "loose text wrapped in a paragraph");
+		assert.equal(layout.columns, 1, "every block in the same column");
+		assert.ok(layout.width >= layout.view - 2 * 24, `the column fills the phone (${layout.width}px)`);
+		await dispose();
 	});
 });

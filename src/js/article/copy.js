@@ -60,6 +60,8 @@ export const setUpHeadingLinks = content => {
 export const setUpCodeBlocks = content => {
 	content.querySelectorAll("pre").forEach(pre => {
 		if (pre.closest(".code-block")) return;
+		// A long line scrolls sideways: the keyboard can reach and scroll the block too
+		if (!pre.hasAttribute("tabindex")) pre.tabIndex = 0;
 		const code = pre.querySelector("code") || pre;
 		const language = [...code.classList].find(name => name.startsWith("language-"))?.slice(9);
 		const block = document.createElement("div");

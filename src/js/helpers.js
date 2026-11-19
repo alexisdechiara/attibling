@@ -192,3 +192,27 @@ export const makeImagesZoomable = mediumZoom => {
 		}, 10);
 	});
 };
+
+// Text written straight into the content (an HTML card or an old import, without a <p>) would become
+// an anonymous item of the content's grid and land in a side column: wrap each run of such loose
+// text and inline elements in a paragraph.
+const INLINE = /^(A|ABBR|B|BR|CITE|CODE|EM|I|KBD|MARK|Q|S|SMALL|SPAN|STRONG|SUB|SUP|TIME|U)$/;
+export const wrapLooseText = content => {
+	if (!content) return;
+	let run = [];
+	const flush = () => {
+		if (run.some(node => node.nodeType === Node.ELEMENT_NODE || node.textContent.trim())) {
+			const p = document.createElement("p");
+			run[0].before(p);
+			p.append(...run);
+		}
+		run = [];
+	};
+	[...content.childNodes].forEach(node => {
+		const inline =
+			node.nodeType === Node.TEXT_NODE || (node.nodeType === Node.ELEMENT_NODE && INLINE.test(node.tagName));
+		if (inline) run.push(node);
+		else flush();
+	});
+	flush();
+};

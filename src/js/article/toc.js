@@ -13,7 +13,8 @@ export const setUpToc = (toc, content) => {
 		tocSelector: "[data-toc-list]",
 		contentSelector: "[data-article-content]",
 		headingSelector: "h2, h3",
-		ignoreSelector: ".js-toc-ignore, .en-bref",
+		// Headings inside Ghost cards (header, signup, toggle…) are not sections of the text
+		ignoreSelector: ".js-toc-ignore, .en-bref, .kg-card *",
 		hasInnerContainers: true,
 		orderedList: false,
 		headingsOffset: 120,

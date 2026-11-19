@@ -321,8 +321,13 @@
     color: var(--color-text);
   }
 
-  .kg-file-card-container {
-    border: 0;
+  /* Ghost's card CSS comes after the theme's (card_assets): these need its specificity plus one */
+  .kg-file-card .kg-file-card-container {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+    color: var(--color-text);
     text-decoration: none;
   }
 
@@ -517,6 +522,37 @@
 
   .kg-product-card-title {
     font-family: var(--article-font-heading);
+  }
+
+  /* Buttons of Ghost's cards: the theme's pill; the accent style in the theme's accent, whose text
+     keeps AA contrast (Ghost's accent colour with white text may not) */
+  .kg-product-card .kg-product-card-button,
+  .kg-signup-card .kg-signup-card-button,
+  .kg-header-card.kg-header-card .kg-header-card-button {
+    min-height: var(--target);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-ui);
+    font-weight: var(--weight-semibold);
+  }
+
+  .kg-product-card .kg-product-card-btn-accent,
+  .kg-signup-card .kg-signup-card-button.kg-style-accent,
+  .kg-header-card.kg-header-card .kg-header-card-button.kg-style-accent {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+
+    span {
+      color: inherit;
+    }
+  }
+
+  .kg-signup-card .kg-signup-card-fields {
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+  }
+
+  .kg-signup-card .kg-signup-card-input {
+    padding-inline-start: var(--space-5);
   }
 
   /* Twitter / X embeds and other third-party blocks: centred */

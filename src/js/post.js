@@ -2,7 +2,14 @@
 // contents, copy buttons, series box, « En bref », fiche de test structured data, reading progress
 // (ring, back to the top, members' « Reprendre la lecture »), and the members' display settings.
 import mediumZoom from "medium-zoom";
-import { setEmbedRatios, adjustImageGallery, managePostImages, makeImagesZoomable, onReady } from "./helpers";
+import {
+	setEmbedRatios,
+	adjustImageGallery,
+	managePostImages,
+	makeImagesZoomable,
+	onReady,
+	wrapLooseText,
+} from "./helpers";
 import { ensureHeadingIds, setUpCodeBlocks, setUpHeadingLinks } from "./article/copy";
 import { setUpSeries } from "./article/series";
 import { setUpSummary } from "./article/summary";
@@ -16,6 +23,7 @@ onReady(() => {
 	const content = document.querySelector("[data-article-content]");
 	if (!article || !content) return;
 
+	wrapLooseText(content);
 	setEmbedRatios();
 	adjustImageGallery();
 	managePostImages();
