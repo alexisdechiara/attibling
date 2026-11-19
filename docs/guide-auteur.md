@@ -11,8 +11,8 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
-5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, 404
-6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage
+5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
+6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, vidéos et contenus intégrés
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
 9. [Référence : les conventions](#9-référence--les-conventions)
@@ -60,7 +60,10 @@ Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section q
 7. **Cartes HTML** dans les articles, si voulu : « En bref » (`<ol class="en-bref">`), fiche de test
    (`<aside class="fiche-test">`) — modèles en [section 6](#6-articles), récapitulatif en
    [section 9](#9-référence--les-conventions).
-8. **Vérifier** : ouvrez l'accueil dans une fenêtre privée (visiteur) puis connecté (abonné) ; en cas de
+8. **Code injection** : retirez de Settings → **Code injection** → *Site header* les lignes qui chargent des
+   polices depuis Google (le thème sert ses polices lui-même) — détail dans
+   [Polices du thème](#polices-du-thème-et-polices-personnalisées).
+9. **Vérifier** : ouvrez l'accueil dans une fenêtre privée (visiteur) puis connecté (abonné) ; en cas de
    surprise, voir le [dépannage](#10-dépannage).
 
 Aucun fichier `routes.yaml` n'est nécessaire.
@@ -185,12 +188,56 @@ Le bouton rond (demi-cercle) de l'en-tête fait tourner : automatique (suit le r
 sombre → clair → automatique. Le choix est gardé dans le navigateur du lecteur et appliqué avant
 l'affichage (pas de flash). Rien à régler dans Ghost.
 
-### Polices personnalisées
+### Polices du thème et polices personnalisées
 
-Par défaut : **Onest** pour l'interface et les titres, **Literata** pour le texte des articles, **Pacifico**
-pour le « ly » du logo. Si vous choisissez des polices dans Settings → Design & branding → Brand →
-*Typography*, la police des titres remplace Onest dans les titres, et la police du corps remplace Onest dans
-l'interface et Literata dans les articles. Le logo garde ses polices.
+Par défaut : **Onest** pour l'interface et les titres, **Literata** pour le texte des articles et des pages,
+**Pacifico** pour le « ly » du logo. **Les trois sont servies par le site lui-même** (dossier
+`assets/fonts/` du thème) : le thème ne contacte aucun service de polices (ni Google Fonts, ni un autre), il
+n'y a rien à régler. Ce que le lecteur télécharge :
+
+- Onest et Literata sont des polices « variables » (un seul fichier pour toutes les graisses), découpées par
+  alphabet : latin, latin étendu (polonais, tchèque, turc…), cyrillique, cyrillique étendu, vietnamien. Le
+  navigateur ne télécharge que les morceaux dont la page a besoin : pour un site en français, Onest latin
+  (25 Ko) partout et Literata latin (79 Ko) sur les articles et les pages ; l'italique de Literata (48 Ko)
+  seulement si le texte en contient.
+- Ces deux fichiers sont annoncés au navigateur dès le début de la page (`preload`) : le texte s'affiche tout
+  de suite dans une police système ajustée aux mêmes dimensions (Arial pour Onest, Times New Roman pour
+  Literata), puis la police du thème la remplace sans faire sauter la mise en page.
+- Japonais, coréen, chinois, arabe, hébreu, persan, thaï : ces alphabets ne sont pas dans Onest et Literata,
+  le navigateur prend les polices du système du lecteur (rien n'est téléchargé).
+- Licence : SIL Open Font License 1.1 (fichiers `OFL.txt` à côté des polices), qui autorise cet usage.
+
+**Polices personnalisées de Ghost.** Si vous choisissez des polices dans Settings → Design & branding →
+Brand → *Typography*, la police des titres remplace Onest dans les titres, et la police du corps remplace
+Onest dans l'interface et Literata dans les articles. Le logo garde ses polices. Attention : c'est **Ghost**
+qui charge alors ces polices, depuis **Bunny Fonts** (`fonts.bunny.net`, voir plus bas) ; à mentionner dans vos
+mentions légales si vous vous en servez.
+
+**Les polices choisies par un abonné** dans ses réglages d'affichage (une dizaine de familles, voir
+[Réglages d'affichage](#réglages-daffichage-abonnés)) viennent aussi de Bunny Fonts, et seulement pour
+l'abonné qui en choisit une. Bunny Fonts déclare une politique « zero-tracking and no-logging » (aucun suivi,
+aucun journal) et que « no data or logs are ever collected or passed to a third party » ; le service est
+exploité par BunnyWay d.o.o., société établie dans l'Union européenne (Slovénie), et servi par son réseau
+mondial (page https://fonts.bunny.net/about, consultée le 19 novembre 2026). Le navigateur de l'abonné lui
+transmet tout de même son adresse IP, comme à tout serveur. Héberger ces familles dans le thème coûterait
+une vingtaine de fichiers par famille (graisses, italiques, alphabets) pour un choix que peu de lecteurs
+font, et grossirait le thème pour tous les sites : le thème garde donc Bunny Fonts pour ce cas.
+
+**Ce qu'il faut retirer de l'injection de code (GEEKLY).** Le site GEEKLY charge en plus, depuis Settings →
+**Code injection** → *Site header*, des polices chez Google. Ces trois lignes, en tête du champ, sont à
+**supprimer** :
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto&family=Pacifico&display=swap" rel="stylesheet">
+```
+
+Pourquoi : Pacifico est déjà servie par le thème ; « Noto » n'est utilisée nulle part par le thème ; et ces
+lignes font contacter Google (fonts.googleapis.com, fonts.gstatic.com) à chaque visite, ce que le thème
+évite désormais. Gardez le reste du champ (la ligne `analytics.geekly.blog` de Plausible, le bloc
+`application/ld+json`). Le petit script qui cherche `.l-post-content h4` et le style `.after-h4` visaient
+l'ancien thème : ils ne font plus rien et peuvent partir aussi. Puis **Save**.
 
 ---
 
@@ -782,13 +829,32 @@ données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
 | `ghost-history` | sessionStorage | Ghost | tous | Pages vues pendant la visite, pour savoir d'où vient un nouvel abonné (réglage Ghost « Member sources ») | Fin de la session |
 
 Et du côté de Ghost : les cookies `ghost-members-ssr` et `ghost-members-ssr.sig` (connexion d'un abonné,
-environ 6 mois). Services externes que le thème appelle : Google Fonts (`fonts.googleapis.com`,
-`fonts.gstatic.com`, polices Onest et Literata), `fonts.bunny.net` (seulement la police choisie par un abonné
-dans ses réglages d'affichage) ; Ghost ajoute `cdn.jsdelivr.net` (Portal, recherche, commentaires).
-Les intégrations que vous mettez dans vos articles (YouTube, X…) chargent leurs propres services.
+environ 6 mois). Les services externes contactés (polices, contenus intégrés…) sont dans le tableau suivant.
 
 > Ce tableau suit le code : le test `src/tests/document.test.js` échoue si le thème se met à utiliser une clé
 > qui n'y figure pas (ou cesse d'en utiliser une), et si `docs/mentions-legales-proposition.md` ne la cite pas.
+
+### Ce que le navigateur charge, et d'où (confidentialité)
+
+Pour vos mentions légales (rubrique « services externes ») : ce que le navigateur d'un lecteur demande à
+d'autres sites que le vôtre, et quand. Relevé sur un vrai Ghost 6 avec ce thème (journal réseau de Chromium),
+en visiteur et en abonné.
+
+| Quoi | Depuis | Quand | Qui le décide |
+|---|---|---|---|
+| Polices Onest, Literata, Pacifico | votre site (`/assets/fonts/`) | toujours | thème |
+| Portal (abonnement, compte), recherche, commentaires | `cdn.jsdelivr.net` | toujours (commentaires : articles où ils sont ouverts) | Ghost |
+| Stripe, hCaptcha / Turnstile | `js.stripe.com`… | seulement si Portal en a besoin (paiement, anti-spam) | Ghost |
+| Polices personnalisées (Brand → Typography) | `fonts.bunny.net` | si vous en avez choisi | Ghost |
+| Police de lecture choisie par un abonné | `fonts.bunny.net` | seulement pour l'abonné qui en choisit une | thème |
+| Vidéos YouTube | `youtube-nocookie.com`, puis `googlevideo.com`, `i.ytimg.com`, `google.com`, `gstatic.com`… | **après le clic** du lecteur (ou s'il a choisi « Toujours afficher ») | thème (réglage *Embed consent*) |
+| Publications X, autres contenus intégrés | le service (`platform.twitter.com`, `twimg.com`…) | **après le clic** du lecteur (ou « Toujours afficher ») | thème (réglage *Embed consent*) |
+| Images collées par adresse, images Unsplash | leur site (`images.unsplash.com`…) | quand elles s'affichent | vous (contenu) |
+| Ce que vous ajoutez dans Code injection (statistiques…) | ce que vous y mettez | toujours | vous |
+| Liens de partage (X, Facebook, LinkedIn) | — | rien n'est chargé : ce sont de simples liens | thème |
+
+Avec *Embed consent* désactivé, YouTube (`youtube.com`, avec ses cookies `YSC`, `VISITOR_INFO1_LIVE`…,
+`doubleclick.net`, `google.com`) et X se chargent dès l'ouverture de l'article.
 
 ### Page 404
 
@@ -1023,6 +1089,72 @@ section (« Lien copié ») ; sur téléphone il est après le titre. Chaque blo
 (« Copié » pendant 2 s) et affiche sa langue si elle est choisie dans la carte Code de Ghost (`bash`,
 `javascript`…).
 
+### Vidéos et contenus intégrés (YouTube, X…)
+
+**Pour vous, rien ne change** : collez l'adresse d'une vidéo YouTube, d'une publication X, d'un morceau
+Spotify… dans l'éditeur (ou tapez `/youtube`, `/twitter`, `/embed`), comme d'habitude. Ghost enregistre le
+lecteur dans l'article ; le thème s'occupe du reste.
+
+**Ce que voit le lecteur.** Tant qu'il ne l'a pas demandé, **rien n'est chargé depuis YouTube, X ou un autre
+service** : à la place du lecteur, un encadré aux couleurs du site, à la taille de la vidéo (16:9 en général) :
+
+- le nom du service (« YouTube ») et le titre de la vidéo quand Ghost l'a enregistré ;
+- un bouton **« Afficher la vidéo YouTube »** (« Afficher la publication X », « Afficher le contenu de … » pour
+  les autres) ;
+- une ligne : « L'afficher contacte YouTube, qui peut déposer des cookies. » ;
+- une case **« Toujours afficher les contenus de YouTube »** : cochée avant de cliquer, le choix est gardé dans
+  le navigateur du lecteur (clé `attibling-embeds`, une par service) et les contenus de ce service
+  s'afficheront ensuite d'eux-mêmes, avec sous chacun un lien « Ne plus afficher automatiquement… » pour
+  revenir en arrière ;
+- un lien **« Voir sur YouTube »** (ou « Voir sur X »…) qui ouvre le contenu chez le service, dans un nouvel
+  onglet.
+
+Pour une publication X (ou Instagram, Threads…), le texte de la publication, que Ghost garde dans l'article,
+reste lisible dans l'encadré, avec le bouton dessous. Pas de miniature YouTube : l'image vient elle aussi des
+serveurs de Google (`i.ytimg.com`), donc elle n'apparaît qu'après le clic.
+
+**Après le clic**, le lecteur se charge à la place de l'encadré et le focus clavier va dedans. YouTube est
+chargé en « mode confidentialité renforcée » (`youtube-nocookie.com`) et démarre tout seul. Lors de nos essais,
+ce mode n'a déposé aucun cookie (le lecteur `youtube.com` d'origine en dépose quatre dès l'ouverture de
+l'article : `YSC`, `VISITOR_INFO1_LIVE`, `__Secure-YNID`, `__Secure-ROLLOUT_TOKEN`). Google indique toutefois
+que ce mode peut garder des informations une fois la vidéo lancée. Surtout, **YouTube reste contacté** : le lecteur
+vient des serveurs de Google (youtube-nocookie.com, googlevideo.com, i.ytimg.com, www.google.com,
+gstatic.com…), qui reçoivent l'adresse IP du lecteur, et il garde des informations dans le stockage du
+navigateur (localStorage, IndexedDB) au nom de youtube-nocookie.com. Les autres services (X, Vimeo…) se
+chargent tels que Ghost les a enregistrés (Vimeo avec `dnt=1`, X sans personnalisation, `data-dnt`) et peuvent
+déposer leurs cookies (X : `__cf_bm`, constaté en local).
+
+**Comment c'est fait (et pourquoi c'est sûr).** Sur les articles et les pages, le thème ajoute dans l'en-tête de
+la page une règle de sécurité du navigateur (*Content-Security-Policy*) qui interdit les cadres et les scripts
+venant d'autres sites. Le navigateur refuse donc de contacter YouTube ou X, avant même que la page ait fini de
+s'afficher, **même si JavaScript est désactivé**. Le script du thème remplace ensuite chaque contenu bloqué par
+l'encadré ; le clic charge le lecteur dans une petite page du site (`assets/html/embed.html`) qui n'a pas
+cette règle. Sans JavaScript, l'encadré est remplacé par une phrase (« Ce contenu externe ne se charge qu'à
+votre demande : activez JavaScript pour l'afficher. ») ; la publication X garde son texte et son lien.
+
+La règle laisse passer ce dont Ghost a besoin : ses propres scripts (Portal, la recherche, les commentaires,
+depuis `cdn.jsdelivr.net`), Stripe, hCaptcha et Cloudflare Turnstile (que Portal peut charger), et tout ce qui
+vient du site lui-même. Les cartes vidéo, audio, galeries, signets et formulaires d'inscription de Ghost ne sont
+pas concernés (vérifié sur un vrai Ghost 6).
+
+**Le réglage.** Design & branding → Customize → onglet *Post* → **Embed consent** (activé par défaut).
+Désactivé : pas de règle de sécurité ni d'encadré, les contenus se chargent avec la page comme Ghost les écrit
+(pour un site qui n'a pas besoin du consentement préalable, hors Union européenne par exemple).
+
+**À savoir.**
+
+- Un **script externe** ajouté dans Settings → Code injection → *Site footer*, ou dans le *Code injection* →
+  *Post footer* d'un article, est bloqué lui aussi sur les articles et les pages (il est placé après la règle).
+  Mettez-le dans *Site header* / *Post header*, qui passent avant la règle, ou désactivez *Embed consent*.
+  Sur GEEKLY, le footer d'injection est vide : rien à faire.
+- Un cadre de **votre propre site** (même adresse) n'est pas bloqué.
+- Les **images** collées par adresse dans un article (hébergées ailleurs) et les images choisies dans la
+  bibliothèque **Unsplash** de Ghost sont chargées depuis leur site d'origine : la règle ne concerne que les
+  cadres et les scripts.
+- Les pages d'auteur et de tag n'ont pas cette règle (elles n'affichent pas le contenu des articles).
+- Seul Chrome / Chromium a pu être testé ici ; Firefox et Safari appliquent la même règle (norme CSP), mais
+  sans vérification sur ce thème.
+
 ---
 
 ## 7. Animations, transitions et préchargement
@@ -1080,7 +1212,7 @@ navigateur télécharge déjà la page : le clic l'affiche presque sans attente.
 
 ## 8. Référence : les réglages du thème
 
-Ghost Admin → Settings → Design & branding → **Customize** (15 réglages ; le nom affiché par Ghost vient de la clé).
+Ghost Admin → Settings → Design & branding → **Customize** (16 réglages ; le nom affiché par Ghost vient de la clé).
 
 | Réglage (Ghost Admin) | Onglet | Par défaut | Effet | Section |
 |---|---|---|---|---|
@@ -1094,6 +1226,7 @@ Ghost Admin → Settings → Design & branding → **Customize** (15 réglages ;
 | Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») | [6](#les-deux-styles--carte-et-immersif) |
 | Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles | [6](#réglages-daffichage-abonnés) |
 | Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs | [6](#en-bref--le-résumé-en-points-numérotés) |
+| Embed consent | Post | oui | Vidéos YouTube, publications X et autres contenus intégrés chargés seulement au clic du lecteur (rien n'est demandé au service avant) | [6](#vidéos-et-contenus-intégrés-youtube-x) |
 | About page | Post | vide (`a-propos` ou `about`) | Page liée par « À propos » dans la boîte auteur | [6](#boîte-auteur) |
 
 Réglage du fichier `package.json` (pas dans Ghost Admin) : 7 articles par page (`posts_per_page`), le nombre
@@ -1176,4 +1309,7 @@ navigateur du lecteur.
 | Pas de transition entre les pages | Navigateur sans « View Transitions » entre pages (aujourd'hui Chrome, Edge et Safari récents ; pas Firefox), « réduire les animations » activé, ou réglage **Page transitions** désactivé. La navigation reste normale. |
 | Les mentions légales n'ont pas de sommaire | Il faut au moins deux intertitres **Heading 2 / Heading 3** (pas du texte en gras), et le modèle Document (slug `mentions-legales` ou Template → Document). Les intertitres placés dans une carte HTML comptent aussi ; pas ceux des cartes Ghost (toggle, header…). |
 | « Dernière mise à jour » change après une simple correction | C'est la date du dernier enregistrement de la page dans Ghost : voulu pour une page de référence. |
+| Une vidéo YouTube s'affiche comme un encadré avec un bouton | Voulu : elle ne se charge qu'au clic du lecteur (réglage **Embed consent**, voir [Vidéos et contenus intégrés](#vidéos-et-contenus-intégrés-youtube-x)). |
+| Un script ajouté dans l'injection de code ne marche pas sur les articles | Il est dans *Site footer* ou *Post footer* et vient d'un autre site : la règle qui bloque YouTube et X le bloque aussi. Déplacez-le dans *Site header* / *Post header*, ou désactivez **Embed consent**. |
+| Une vidéo démarre sans clic | Le lecteur a coché « Toujours afficher les contenus de YouTube » : le lien « Ne plus afficher automatiquement… » sous la vidéo annule ce choix. |
 | Le préchargement ne se voit pas | C'est normal : il n'y a rien à voir, la page suivante s'ouvre juste plus vite. Il est coupé en mode « économie de données » et sur connexion 2G. |

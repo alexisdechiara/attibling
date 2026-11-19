@@ -33,6 +33,9 @@ about, subscription and 404 templates
 ✅ Page transitions between pages (cross-document View Transitions, `page_transitions`) and prefetch on
 hover / focus (Speculation Rules with a `<link rel="prefetch">` fallback, off with Save-Data)
 ✅ Ghost 6: native search, Portal, members, comments, custom fonts, announcement bar, every editor card
+✅ Privacy: fonts served by the theme itself (no font service), YouTube / X / other embeds load only on the
+reader's click, blocked by a Content-Security-Policy until then (`embed_consent`; YouTube in privacy-enhanced
+mode) — see « Ce que le navigateur charge, et d'où » in the author guide
 ✅ Accessibility: AA contrast, visible focus, 44 px targets, skip link, `prefers-reduced-motion` respected
 ✅ RTL languages and 33 translations
 
