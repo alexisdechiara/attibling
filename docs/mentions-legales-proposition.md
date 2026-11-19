@@ -166,6 +166,7 @@ Le site enregistre aussi quelques préférences dans le stockage de votre naviga
 | `theme` | tous | Le mode clair, sombre ou automatique que vous avez choisi | Jusqu'à ce que vous changiez de mode ou effaciez les données du site |
 | `attibling-promo-closed` | visiteurs | Ne plus afficher l'encart d'abonnement de l'accueil après l'avoir fermé | Jusqu'à l'effacement des données du site |
 | `attibling-intro` | tous | Ne jouer l'animation d'arrivée de l'accueil qu'une fois | Fin de la session (fermeture de l'onglet) |
+| `attibling-hero-cue` | tous | Ne faire onduler qu'une fois les points du bandeau de l'accueil | Fin de la session (fermeture de l'onglet) |
 | `ghost-history` | tous | Ghost note les pages vues pendant la visite, pour savoir depuis quelle page on s'abonne | Fin de la session |
 | `attibling-reading` | abonnés | Vos réglages d'affichage des articles (thème, polices, taille, largeur…) | Jusqu'à « Réinitialiser » ou l'effacement des données du site |
 | `attibling-saved` | abonnés | Votre liste « À lire plus tard » (adresse, titre, image, rubrique et durée de lecture des articles ; 100 au plus) | Jusqu'à ce que vous retiriez les articles ou effaciez les données du site |
