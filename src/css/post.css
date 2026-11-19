@@ -3,6 +3,8 @@
 @import "./article/layout.css";
 @import "./article/content.css";
 @import "./article/features.css";
+@import "./components/heading-link.css";
+@import "./components/toc.css";
 @import "./article/toc.css";
 @import "./article/progress.css";
 @import "./article/immersive.css";
