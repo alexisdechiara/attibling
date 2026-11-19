@@ -1,0 +1,226 @@
+/* « À propos » (partials/pages/about.hbs), on top of app.css: one column of 800px */
+@import "./pages/content.css";
+@import "./pages/people.css";
+
+.about__column {
+  width: min(50rem, calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+  padding-block: var(--space-8) var(--space-9);
+
+  @media (width >= 48rem) {
+    padding-block-start: var(--space-11);
+  }
+}
+
+.about__title {
+  font-size: clamp(2.25rem, 1.6rem + 2vw, 3rem);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.about__lead {
+  margin-block-start: var(--space-6);
+  color: var(--color-text);
+  font-family: var(--font-reading);
+  font-size: var(--text-xl);
+  line-height: 1.6;
+
+  @media (width >= 48rem) {
+    font-size: 1.375rem;
+  }
+}
+
+.about__section {
+  margin-block-start: var(--space-10);
+}
+
+.about__heading {
+  margin-block-end: var(--space-5);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+
+  @media (width >= 48rem) {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* Sections: a pill per tag (icon in a badge + name), then its description */
+.about-rubrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-rubric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  @media (width >= 48rem) {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+  }
+}
+
+.about-rubric__pill {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 148px;
+  min-height: var(--target);
+  padding-inline: 6px var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-bold);
+
+  &:hover .about-rubric__name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.about-rubric__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 1.125rem;
+}
+
+.about-rubric__text {
+  color: var(--color-text-secondary);
+  font-size: var(--text-nav);
+  line-height: 1.55;
+}
+
+/* The page's own text after the sections: same column as the rest */
+.about__content {
+  --column: 100%;
+  --wide: 100%;
+  --gutter: 0px;
+  margin-block-start: var(--space-6);
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.65;
+}
+
+/* Who writes */
+.about-author {
+  display: flex;
+  gap: var(--space-5);
+
+  & + & {
+    margin-block-start: var(--space-8);
+  }
+}
+
+.about-author__avatar {
+  --avatar-size: 64px;
+
+  @media (width >= 48rem) {
+    --avatar-size: 88px;
+  }
+}
+
+.about-author__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.about-author__name {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+
+  a {
+    color: var(--color-accent);
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+}
+
+.about-author__bio {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.about-author__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--target);
+  color: var(--color-accent);
+  font-size: var(--text-m);
+  font-weight: var(--weight-bold);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* Follow the blog: icon buttons, the RSS feed, the author's extra links (about-links card) */
+.about-follow,
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-follow__icon {
+  background: var(--color-surface-muted);
+  font-size: 1.125rem;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+/* Extra links typed in the page (HTML card <ul class="about-links">): text pills */
+.about-links a,
+.about-follow > li > a:not([class]) {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+.about-follow .about-links {
+  display: contents;
+}

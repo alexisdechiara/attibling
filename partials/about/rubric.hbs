@@ -1,0 +1,8 @@
+{{!--
+One section of the « À propos » page: a pill (icon in a badge + the tag's name, linking to the tag page)
+and the tag's description when it has one. Inside a tag context, in a <ul>.
+--}}
+<li class="about-rubric">
+  <a class="about-rubric__pill" href="{{url}}"><span class="about-rubric__icon" aria-hidden="true">{{> "about/tag-icon"}}</span><span class="about-rubric__name">{{name}}</span></a>
+  {{#if description}}<p class="about-rubric__text">{{description}}</p>{{/if}}
+</li>

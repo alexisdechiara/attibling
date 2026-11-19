@@ -91,6 +91,11 @@
 				"default": "",
 				"group": "homepage",
 				"description": "Tag slug for row 5 (one large post and four). Empty: 5th most used tag. none: hide the row."
+			},
+			"about_tags": {
+				"type": "text",
+				"default": "",
+				"description": "About page sections: tag slugs separated by commas. Empty: the 6 most used tags."
 			}
 		}
 	},
