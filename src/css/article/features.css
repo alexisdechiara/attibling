@@ -125,10 +125,12 @@
   .series__title {
     color: var(--color-accent);
     font-weight: var(--weight-semibold);
-    text-decoration: underline;
     text-decoration-thickness: 1.5px;
     text-underline-offset: 3px;
-    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  }
+
+  &:is(:hover, :focus-visible) .series__title {
+    text-decoration-line: underline;
   }
 }
 
@@ -254,8 +256,11 @@
   font: inherit;
   font-size: var(--text-m);
   font-weight: var(--weight-semibold);
-  text-decoration: underline;
   text-underline-offset: 3px;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
 }
 
 /* Previous / next part: only the part right before / after the current one shows */
@@ -465,8 +470,11 @@
   color: var(--color-accent);
   font-size: var(--text-nav);
   font-weight: var(--weight-semibold);
-  text-decoration: underline;
   text-underline-offset: 3px;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
 }
 
 /* Fiche de test ------------------------------------------------------------------------------ */

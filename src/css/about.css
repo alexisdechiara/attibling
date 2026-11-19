@@ -1,5 +1,6 @@
 /* « À propos » (partials/pages/about.hbs), on top of app.css: one column of 800px */
 @import "./pages/content.css";
+@import "./article/links.css";
 @import "./pages/people.css";
 
 .about__column {

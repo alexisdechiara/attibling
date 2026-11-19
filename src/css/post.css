@@ -2,6 +2,7 @@
    scoped to .gh-content) can be reused by other templates showing post content. */
 @import "./article/layout.css";
 @import "./article/content.css";
+@import "./article/links.css";
 @import "./article/features.css";
 @import "./article/toc.css";
 @import "./article/progress.css";
