@@ -1,14 +1,15 @@
-{{!-- Home row « banner »: a full-width card on the tag's feature image (or a dark surface) with the tag's name, number of posts and « Tout voir », and its latest 3 posts. Tag context (rows.hbs). --}}
-{{#get "posts" filter="tag:{{slug}}" include="tags" limit="3" as |rowposts|}}
+{{!-- Home row « banner »: a full-width card on the tag's feature image (Ghost Admin > Tags > the tag >
+Tag image; darkened for contrast) or, without one, a dark designed surface; « Rubrique · N articles » on
+one line above the tag's name, « Tout voir », and the tag's latest 3 posts. Tag context (rows.hbs). --}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="3" as |rowposts|}}{{#if rowposts}}
   <section class="home-section row row--banner container" aria-labelledby="row-{{../slug}}">
-    <div class="banner">
+    <div class="banner{{#if ../feature_image}} banner--image{{else}} banner--no-image{{/if}}">
       {{#if ../feature_image}}
         <img class="banner__image" srcset="{{img_url ../feature_image size="m"}} 600w, {{img_url ../feature_image size="l"}} 1000w, {{img_url ../feature_image size="xl"}} 2000w" sizes="100vw" src="{{img_url ../feature_image size="l"}}" alt="" loading="lazy" decoding="async">
       {{/if}}
       <div class="banner__intro">
-        <p class="banner__kicker">{{t "Section"}}</p>
+        <p class="banner__kicker"><span>{{t "Section"}}</span><span class="banner__dot" aria-hidden="true">·</span><span class="banner__count">{{plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</span></p>
         <h2 class="banner__title" id="row-{{../slug}}">{{../name}}</h2>
-        <p class="banner__count">{{plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</p>
         <a class="button button--glass banner__more" href="{{../url}}">{{t "See all"}}<span class="sr-only"> ({{../name}})</span>{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
       </div>
       <ul class="banner__posts" role="list">
@@ -23,4 +24,4 @@
       </ul>
     </div>
   </section>
-{{/get}}
+{{/if}}{{/get}}

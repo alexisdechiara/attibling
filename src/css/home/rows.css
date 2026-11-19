@@ -88,9 +88,29 @@
   padding-block: 18px;
   color: var(--color-text);
 
-  &:hover .text-list__title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  > * {
+    transition: transform var(--lift-duration) var(--lift-ease);
+  }
+
+  .text-list__title {
+    transition: color var(--duration-s) ease;
+  }
+
+  /* No card here: the line rises a little and its title takes the accent colour */
+  &:is(:hover, :focus-visible) {
+    > * {
+      transform: translateY(var(--lift-s));
+    }
+
+    .text-list__title {
+      color: var(--color-accent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:is(:hover, :focus-visible) > * {
+      transform: none;
+    }
   }
 }
 
@@ -142,13 +162,25 @@
     background: linear-gradient(
       90deg,
       rgb(from var(--color-media) r g b / 0.9) 0%,
-      rgb(from var(--color-media) r g b / 0.8) 40%,
-      rgb(from var(--color-media) r g b / 0.55) 100%
+      rgb(from var(--color-media) r g b / 0.78) 32%,
+      rgb(from var(--color-media) r g b / 0.38) 100%
     );
   }
 
   &:dir(rtl)::before {
     transform: scaleX(-1);
+  }
+
+  /* One column: the name above the posts, the shade from the top */
+  @media (width < 64rem) {
+    &::before {
+      background: linear-gradient(
+        180deg,
+        rgb(from var(--color-media) r g b / 0.88) 0%,
+        rgb(from var(--color-media) r g b / 0.72) 45%,
+        rgb(from var(--color-media) r g b / 0.6) 100%
+      );
+    }
   }
 
   @media (width >= 64rem) {
@@ -160,6 +192,14 @@
   }
 }
 
+/* Without a tag image: the dark surface with two soft glows of the wordmark's colours */
+.banner--no-image {
+  background:
+    radial-gradient(60% 90% at 100% 0%, rgb(from var(--wordmark-g) r g b / 0.28) 0%, transparent 70%),
+    radial-gradient(50% 80% at 70% 100%, rgb(from var(--wordmark-e1) r g b / 0.16) 0%, transparent 70%),
+    var(--color-media);
+}
+
 .banner__image {
   position: absolute;
   inset: 0;
@@ -169,10 +209,19 @@
   object-fit: cover;
 }
 
+/* « Rubrique · 9 articles »: one line above the name */
 .banner__kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
   color: var(--color-on-media-subtle);
   font-size: var(--text-m);
   font-weight: var(--weight-semibold);
+}
+
+.banner__dot {
+  color: var(--color-on-media-subtle);
 }
 
 .banner__title {
@@ -188,9 +237,7 @@
 }
 
 .banner__count {
-  margin-block-start: 10px;
   color: var(--color-on-media-muted);
-  font-size: var(--text-nav);
   font-weight: var(--weight-medium);
 }
 
@@ -231,9 +278,20 @@
     }
   }
 
-  &:hover .banner__post-title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  transition:
+    transform var(--lift-duration) var(--lift-ease),
+    box-shadow var(--lift-duration) var(--lift-ease);
+}
+
+/* The banner's posts lift as the tiles; the list item is the hover target and stays in place */
+:is(li:hover > .banner__post, .banner__post:focus-visible) {
+  box-shadow: 0 12px 28px rgb(from var(--color-media) r g b / 0.5);
+  transform: translateY(var(--lift));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(li:hover > .banner__post, .banner__post:focus-visible) {
+    transform: none;
   }
 }
 
