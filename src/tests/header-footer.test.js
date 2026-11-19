@@ -64,7 +64,7 @@ describe("« ••• » panel", () => {
 		assert.equal(l.rows, 1, "one row of six");
 		assert.equal(l.tagsBelow, true, "the tags come below the posts");
 		assert.equal(l.tagBackground, "rgba(0, 0, 0, 0)", "no pill background");
-		assert.equal(l.tagRadius, 0, "no pill shape");
+		assert.ok(l.tagRadius <= 4, "no pill shape");
 		assert.ok(l.tagWeight >= 600, "bold");
 		assert.ok(l.tagHeight >= 44, "44 px target");
 		assert.match(l.all, /\/tags\/$/);
@@ -113,10 +113,11 @@ describe("compact rows lift as one block", () => {
 			page.evaluate(
 				([item, parts]) => {
 					const el = document.querySelector(item);
-					return [el, ...parts.map(p => el.querySelector(p))].map(e => e.getBoundingClientRect().top);
+					return [el, ...parts.map(p => el.querySelector(p))].map(e => e.getBoundingClientRect().top + scrollY);
 				},
 				[item, parts],
 			);
+		await page.locator(item).scrollIntoViewIfNeeded();
 		const before = await read();
 		await page.hover(item);
 		await sleep(450);

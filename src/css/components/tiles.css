@@ -227,21 +227,35 @@ li:nth-child(4n + 4) > * {
   color: var(--color-text);
 }
 
-/* Compact rows: the thumbnail lifts (3 px) and its shadow shows; the row itself stays in place */
-.row-item__media {
-  transition:
-    transform var(--lift-duration) var(--lift-ease),
-    box-shadow var(--lift-duration) var(--lift-ease);
+/* Compact rows lift as one block, as the other tiles do: thumbnail, title and meta rise 3 px together
+   and the thumbnail's shadow shows. The hover target is the list item, which stays in place, so the
+   lift never flickers at the row's edge and shifts no layout. Reduced motion: no lift, the shadow
+   shows and the thumbnail brightens slightly. */
+.row-item {
+  transition: transform var(--lift-duration) var(--lift-ease);
 }
 
-.row-item:is(:hover, :focus-visible) .row-item__media {
-  box-shadow: var(--shadow-2);
+.row-item__media {
+  transition:
+    box-shadow var(--lift-duration) var(--lift-ease),
+    filter var(--lift-duration) var(--lift-ease);
+}
+
+:is(li:hover > .row-item, .row-item:focus-visible) {
   transform: translateY(var(--lift-s));
+
+  .row-item__media {
+    box-shadow: var(--shadow-2);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .row-item:is(:hover, :focus-visible) .row-item__media {
+  :is(li:hover > .row-item, .row-item:focus-visible) {
     transform: none;
+
+    .row-item__media {
+      filter: brightness(1.06);
+    }
   }
 }
 

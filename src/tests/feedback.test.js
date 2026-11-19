@@ -44,7 +44,7 @@ describe("tiles lift on hover", () => {
 		const cases = [
 			["main .row--shelf [data-post-tile]", ":scope > a", -5],
 			["main .lead", ":scope > a", -5],
-			["main .row-item", ".row-item__media", -3],
+			["main .latest__list li", ":scope > .row-item", -3],
 			["main .tag-grid li", ".tag-tile", -5],
 		];
 		for (const [selector, moved, expected] of cases) {
@@ -557,8 +557,8 @@ describe("« ••• » menu", () => {
 			top: Math.round(el.getBoundingClientRect().top),
 			bar: Math.round(document.querySelector(".site-header__bar").getBoundingClientRect().bottom),
 		}));
-		assert.equal(content.posts, 4);
-		assert.equal(content.dates, 4);
+		assert.equal(content.posts, 6);
+		assert.equal(content.dates, 6);
 		assert.ok(content.tags > 3);
 		assert.match(content.all, /\/tags\/$/);
 		assert.ok(content.top >= content.bar && content.top - content.bar < 20, "right under the bar");
