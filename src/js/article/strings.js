@@ -1,9 +1,11 @@
 // Small helpers shared by the article modules: the strings the template puts in data-* attributes,
 // the polite live region, the clipboard.
 
-export const article = () => document.querySelector("[data-article]");
+// The element carrying the strings: the article (post.hbs) or a reference document (pages/document.hbs)
+export const article = () => document.querySelector("[data-article], [data-document]");
 
-// The string in data-<name> of the article (post.hbs translates them), with {key} placeholders filled
+// The string in data-<name> of the article (post.hbs and pages/document.hbs translate them), with {key}
+// placeholders filled
 export const text = (name, values = {}) => {
 	let value = article()?.dataset[name] || "";
 	for (const [key, replacement] of Object.entries(values)) value = value.replaceAll(`{${key}}`, replacement);

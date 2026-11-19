@@ -3,6 +3,9 @@ Generic page (« Mentions légales », any static page): a calm reading column. 
 the feature image show unless the page's « Show title and feature image » setting is off
 (@page.show_title_and_feature_image); the text uses the reading font and Ghost's cards keep their
 widths (wide, full). An empty page body shows nothing more than its heading.
+Printed (css/print.css): the title and the text only, in black on white, with the address of each link.
+Long reference pages (legal notice, privacy…) can use the « Document » template instead
+(custom-document.hbs, partials/pages/document.hbs): last-updated date, table of contents, print button.
 --}}
 
 {{#contentFor "preload"}}
@@ -12,6 +15,7 @@ widths (wide, full). An empty page body shows nothing more than its heading.
 
 {{#contentFor "styles"}}
   <link rel="stylesheet" type="text/css" href="{{asset "css/page.css"}}" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{asset "css/print.css"}}" media="print" />
 {{/contentFor}}
 
 {{!< default}}

@@ -11,7 +11,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
-5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, 404
+5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, 404
 6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
@@ -317,6 +317,7 @@ souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix 
 | Abonnement | `newsletter` | Subscribe | extrait (accroche) et une ligne légale (voir plus bas) |
 | Tous les tags | `tags` | Tags | titre, extrait facultatif |
 | Tous les auteurs | `authors` | Authors | titre, extrait facultatif |
+| Mentions légales (ou toute page de référence) | `mentions-legales` | Document | titre, extrait facultatif, texte avec intertitres (voir plus bas) |
 
 Pas à pas :
 
@@ -497,11 +498,96 @@ Ghost s'affiche sous le champ. **Abonné connecté** : à la même adresse, « V
 adresse e-mail, les boutons **Compte** (Portal : e-mails et profil), **Retour à l'accueil**, **Se
 déconnecter**, et ses outils (avec « Voir ma liste » → `/favoris/`).
 
-### Pages ordinaires (mentions légales…)
+### Pages ordinaires
 
-Toute autre page utilise une colonne de lecture calme (police de lecture, cartes Ghost à leur largeur :
-large, pleine largeur). Le titre, l'extrait et l'image s'affichent, sauf si vous décochez **Show title and
-feature image** dans les réglages de la page (le titre reste lisible par les lecteurs d'écran).
+Toute autre page utilise une colonne de lecture calme (police de lecture, 66 à 72 caractères par ligne
+environ, cartes Ghost à leur largeur : large, pleine largeur). Le titre, l'extrait et l'image s'affichent,
+sauf si vous décochez **Show title and feature image** dans les réglages de la page (le titre reste lisible
+par les lecteurs d'écran). Ce que le thème soigne pour toutes les pages :
+
+- **Listes** et **listes de définitions** (`<dl>` : un terme et sa valeur côte à côte, l'un sous l'autre sur
+  téléphone) ;
+- **Tableaux** : ligne d'en-tête marquée, cellules alignées en haut ; un tableau trop large pour un téléphone
+  défile dans son propre cadre (une ombre indique qu'il reste à voir), jamais la page entière ;
+- **Impression** : seuls le titre, l'extrait et le texte sont imprimés, en noir sur blanc, l'adresse de
+  chaque lien externe entre parenthèses ; ni en-tête, ni pied de page, ni boutons.
+
+### Mentions légales et pages de référence
+
+Pour une page longue que l'on consulte pour y trouver une réponse (mentions légales, politique de
+confidentialité, conditions d'utilisation), le thème a un modèle **Document** :
+
+- le titre, l'extrait, puis **« Dernière mise à jour le … »** et un bouton **Imprimer** (caché sur téléphone,
+  où le menu du navigateur suffit) ;
+- un **sommaire** construit tout seul à partir des intertitres : sur grand écran (à partir de 1152 px) il
+  reste visible à droite du texte et suit la lecture (les sous-titres de la section en cours s'ouvrent) ;
+  sur tablette et téléphone c'est un bouton « Sommaire » qui se déplie au-dessus du texte ;
+- un bouton « copier le lien » sur chaque intertitre, comme dans les articles ;
+- un trait fin entre les grandes sections, et les **listes de définitions** (`<dl>` : éditeur, hébergeur,
+  contact…) présentées comme un bloc d'identité encadré.
+
+**Comment l'appliquer.** Par le slug : une page dont l'adresse est `mentions-legales` prend ce modèle toute
+seule (fichier `page-mentions-legales.hbs`). Pour toute autre adresse (`confidentialite`, `legal`…) :
+réglages de la page → **Template** → **Document**.
+
+**Écrire le texte.** Le sommaire ne connaît que les intertitres : utilisez **Heading 2** (`##`) pour les
+grandes sections et **Heading 3** (`###`) pour leurs sous-parties ; il apparaît dès qu'il y a deux
+intertitres. Le plus simple pour un texte préparé à l'avance :
+
+1. Ouvrez la page dans Ghost, effacez l'ancien contenu (ancienne carte HTML comprise).
+2. Tapez `/markdown` puis Entrée : une carte Markdown s'ouvre.
+3. Collez le texte (pour GEEKLY : tout ce qui se trouve entre les deux commentaires « Texte à coller » et
+   « Fin du texte à coller » de `docs/mentions-legales-proposition.md`, après avoir rempli les crochets).
+4. Réglages de la page : **Excerpt** = la phrase d'accroche (facultatif) ; vérifiez **Page URL** =
+   `mentions-legales` ou **Template** = Document.
+5. **Update**. La date « Dernière mise à jour » se met à jour toute seule.
+
+Un bloc d'identité s'écrit en HTML dans la carte Markdown (Ghost l'accepte tel quel) :
+
+```html
+<dl>
+<dt>Éditeur et directeur de la publication</dt>
+<dd>Prénom Nom</dd>
+<dt>Contact</dt>
+<dd><a href="mailto:contact@exemple.fr">contact@exemple.fr</a></dd>
+</dl>
+```
+
+Les tableaux s'écrivent en Markdown (`| Nom | Durée |` puis `|---|---|`).
+
+**La date.** C'est la date du dernier enregistrement de la page dans Ghost (`updated_at`) : corriger une
+faute la change aussi. Pour une page de mentions légales, c'est ce qu'on attend (la page a été revue ce
+jour-là).
+
+**Sans JavaScript** : pas de sommaire ni de bouton Imprimer (le texte, les intertitres et leurs ancres
+restent). Un abonné qui a choisi un autre thème de lecture garde le mode clair / sombre du site sur cette
+page (les thèmes de lecture ne s'appliquent qu'aux articles).
+
+### Ce que le thème garde dans le navigateur
+
+Pour vos mentions légales (rubrique cookies), voici **tout** ce que le thème enregistre dans le navigateur du
+lecteur. Rien de cela n'est envoyé au site : ce sont des préférences de fonctionnement, effacées avec les
+données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
+
+| Nom | Stockage | Déposé par | Pour qui | À quoi il sert | Durée |
+|---|---|---|---|---|---|
+| `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement |
+| `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement |
+| `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session |
+| `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement |
+| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement |
+| `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture) | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement |
+| `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune |
+| `ghost-history` | sessionStorage | Ghost | tous | Pages vues pendant la visite, pour savoir d'où vient un nouvel abonné (réglage Ghost « Member sources ») | Fin de la session |
+
+Et du côté de Ghost : les cookies `ghost-members-ssr` et `ghost-members-ssr.sig` (connexion d'un abonné,
+environ 6 mois). Services externes que le thème appelle : Google Fonts (`fonts.googleapis.com`,
+`fonts.gstatic.com`, polices Onest et Literata), `fonts.bunny.net` (seulement la police choisie par un abonné
+dans ses réglages d'affichage) ; Ghost ajoute `cdn.jsdelivr.net` (Portal, recherche, commentaires).
+Les intégrations que vous mettez dans vos articles (YouTube, X…) chargent leurs propres services.
+
+> Ce tableau suit le code : le test `src/tests/document.test.js` échoue si le thème se met à utiliser une clé
+> qui n'y figure pas (ou cesse d'en utiliser une), et si `docs/mentions-legales-proposition.md` ne la cite pas.
 
 ### Page 404
 
@@ -825,7 +911,8 @@ d'articles de « Derniers articles ».
 
 **Pages** (slug par défaut → modèle automatique, ou menu *Template*) : `newsletter` (Subscribe), `archives`
 (Archives ; `/archives/?tag=<slug>` filtre sur un tag, internes compris), `favoris` (Saved Posts), `a-propos`
-(About), `tags` (Tags), `authors` (Authors). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
+(About), `tags` (Tags), `authors` (Authors), `mentions-legales` (Document : sommaire, date de mise à jour,
+impression). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
 
 **Ghost** : *Feature this post* (bandeau de l'accueil, article en tête d'une rubrique), *Excerpt* (extraits,
 accroches des pages), *Tag image* et *Description* (rubriques, À propos, bannière de l'accueil), *Site
@@ -865,4 +952,6 @@ navigateur du lecteur.
 | L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une fois par session de navigation (fermez l'onglet ou ouvrez une fenêtre privée pour la revoir), seulement sur la page 1 de l'accueil, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
 | Au lieu des lettres dessinées, le logo apparaît en fondu | Le réglage **Use geekly logo** est désactivé : avec un logo image ou le titre du site, l'animation est un simple fondu. |
 | Pas de transition entre les pages | Navigateur sans « View Transitions » entre pages (aujourd'hui Chrome, Edge et Safari récents ; pas Firefox), « réduire les animations » activé, ou réglage **Page transitions** désactivé. La navigation reste normale. |
+| Les mentions légales n'ont pas de sommaire | Il faut au moins deux intertitres **Heading 2 / Heading 3** (pas du texte en gras), et le modèle Document (slug `mentions-legales` ou Template → Document). Les intertitres placés dans une carte HTML comptent aussi ; pas ceux des cartes Ghost (toggle, header…). |
+| « Dernière mise à jour » change après une simple correction | C'est la date du dernier enregistrement de la page dans Ghost : voulu pour une page de référence. |
 | Le préchargement ne se voit pas | C'est normal : il n'y a rien à voir, la page suivante s'ouvre juste plus vite. Il est coupé en mode « économie de données » et sur connexion 2G. |
