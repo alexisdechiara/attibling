@@ -120,7 +120,8 @@ Settings → **Navigation** :
 - **Primary navigation** : les liens de l'en-tête (pastilles). Le lien de la page en cours est mis en avant.
   Les intitulés sont les vôtres (« Dossier », « News »… rien n'est écrit en dur dans le thème).
 - **Secondary navigation** : les liens du menu **« Plus »** de l'en-tête et du pied de page (Tags,
-  Rédacteur, À propos, Mentions légales…).
+  À propos, Mentions légales…). Site à un seul auteur : retirez le lien « Rédacteur » (voir
+  [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; le thème n'en ajoute aucun de lui-même.
 
 Si les liens principaux ne tiennent pas dans la barre (écran étroit, intitulés longs), ceux de la fin
 passent automatiquement dans le menu « Plus », et reviennent quand il y a de la place. Sans navigation
@@ -360,6 +361,42 @@ l'en-tête), **Bio** (250 caractères au plus, limite de Ghost), **Location**, *
 sociaux (X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram). Chaque élément vide
 disparaît.
 
+### Un seul auteur : pas de page d’auteur
+
+Sur un blog écrit par une seule personne, la page d'auteur répète l'accueil. La règle du thème, automatique :
+**quand un seul auteur a des articles publiés**, le thème ne fait jamais de lien vers une page d'auteur ni vers
+la page « Auteurs » :
+
+- en-tête d'article : le nom et la photo de l'auteur sont du texte, pas des liens ;
+- boîte auteur en fin d'article : nom et photo sans lien, et **pas** de bouton « Tous ses articles » (il
+  reste « À propos ») ;
+- page « À propos » : le nom de l'auteur n'est pas un lien ;
+- tuiles, 404, pied de page : le thème n'y met aucun lien d'auteur (il n'y en a pas sur les tuiles).
+
+Le thème compte les auteurs qui ont **au moins un article (ou une page) publié** — un membre de l'équipe qui
+n'a rien publié ne compte pas. Dès qu'un deuxième auteur publie, les liens reviennent partout, sans rien
+régler. Le calcul est une requête Ghost d'une ligne (`{{#get "authors" limit="1"}}` et son total) faite
+dans `post.hbs` pour l'en-tête et pour la boîte auteur, et une fois sur « À propos » ; jamais dans une boucle.
+
+Ghost garde l'adresse `/author/<slug>/` (un thème ne peut pas supprimer une route). Sur un site à un seul
+auteur, elle affiche toujours la liste de ses articles, mais demande aux moteurs de recherche de ne pas
+l'indexer (`<meta name="robots" content="noindex, follow">`). Deux choses à faire de votre côté :
+
+1. **Retirez « Rédacteur » de la navigation** : Ghost Admin → **Settings** → **Navigation** → la ligne
+   « Rédacteur » (`/author/alexis/`) dans **Secondary navigation** → la corbeille → **Save**. Ce lien vous
+   appartient, le thème ne le cache pas.
+2. **(Facultatif) Redirigez la page d'auteur**, par exemple vers « À propos » : créez un fichier
+   `redirects.yaml` (remplacez `alexis` par votre slug, visible dans Settings → Staff → votre profil) :
+
+   ```yaml
+   301:
+     ^\/author\/alexis\/(page\/\d+\/)?$: /a-propos/
+   ```
+
+   puis Ghost Admin → **Settings** → **Labs** → **Redirects** → **Upload redirects file**. La page d'auteur
+   et ses pages 2, 3… mènent alors à « À propos » (testé sur Ghost 6) ; le flux `/author/alexis/rss/` reste
+   en place. Ghost liste encore l'adresse dans `sitemap-authors.xml` : sans gravité, la redirection suffit.
+
 ### Pages « Tags » et « Auteurs »
 
 Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques qui ont des articles, en tuiles
@@ -367,7 +404,9 @@ Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques
 tags par requête ; le modèle en fait deux, soit 200 tags.
 
 Créez une page `authors` (ou le modèle **Authors**) : une carte par auteur (photo, nom, nombre d'articles,
-bio, liens), du plus prolifique au moins prolifique.
+bio, liens), du plus prolifique au moins prolifique. Elle sert aux sites à plusieurs auteurs ; sur un site à un
+seul auteur elle fonctionne encore (une seule carte) mais le thème n'y fait aucun lien, et vous n'avez pas
+besoin de la créer.
 
 ### Archives
 
@@ -406,17 +445,31 @@ titre. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent.
 ### À propos
 
 Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personnel. Créez une page `a-propos`
-(ou le modèle **About**). Voici où va chaque texte, avec les brouillons de la maquette à coller :
+(ou le modèle **About**). La page tient en peu de titres : le titre, l'accroche, puis **un seul bloc en
+mosaïque** (« bento ») qui porte tout le reste, dans cet ordre de lecture (le même sur téléphone, où les
+cases s'empilent en une colonne ; 2 colonnes sur tablette, 4 sur ordinateur) :
+
+1. les **rubriques**, une case chacune ;
+2. **votre texte** (l'éditeur de la page) ;
+3. **l'auteur** ;
+4. **un chiffre** : le nombre d'articles publiés et l'année du premier ;
+5. **« Suivre le blog »**.
+
+Voici où va chaque texte et chaque image, avec les brouillons de la maquette à coller :
 
 1. **Titre** de la page : `À propos`.
 2. **Excerpt** (réglages de la page) = l'accroche, en grand sous le titre :
    > Mon blog personnel : j'y publie ce qui me fait envie, autour de l'informatique, de la culture pop, des
    > jeux vidéo et des animés.
-3. **« Ce que vous trouverez ici »** = vos rubriques, tirées des **tags** :
-   - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, par exemple
-     `actualites,jeux-video,anime,dossiers,ia,test` (affichés du plus fourni au moins fourni). Vide : les
-     6 tags publics les plus utilisés ;
-   - la phrase de chaque rubrique = la **Description** du tag (Ghost Admin → Tags → le tag). Les textes de la
+3. **Les rubriques** = vos **tags**. Chaque case mène à la page du tag et montre son nom, sa description,
+   son nombre d'articles, et son image :
+   - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, jusqu'à 12,
+     par exemple `actualites,jeux-video,anime,dossiers,ia,test`. Vide : les 6 tags publics les plus utilisés ;
+   - **ordre et tailles** : du tag le plus fourni au moins fourni (l'ordre de la liste du réglage ne compte
+     pas). La première case est la plus grande (2 × 2 sur ordinateur, toute la largeur sur tablette, plus
+     haute sur téléphone), la deuxième est large, les suivantes vont par quatre ; une dernière rangée
+     incomplète élargit ses cases pour ne laisser aucun trou. Cela marche de 1 à 12 rubriques ;
+   - la **phrase** de chaque case = la **Description** du tag (Ghost Admin → Tags → le tag). Les textes de la
      maquette :
 
      | Tag | Description à coller |
@@ -428,25 +481,36 @@ Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personn
      | IA | Les outils et les débats autour de l'intelligence artificielle. |
      | Test | Logiciels, services et jeux essayés pour de bon. |
 
-     (Ces descriptions s'affichent aussi en tête des pages de rubrique.) Sans description, la pastille reste
-     seule ;
-   - l'**icône** de chaque pastille vient de mots du **slug** du tag : `actu`, `news` → journal ; `jeu`,
+     (Ces descriptions s'affichent aussi en tête des pages de rubrique.) Sans description, la case garde le
+     nom et le nombre d'articles ;
+   - l'**image** de la case = l'image du tag (Ghost Admin → Tags → le tag → **Tag image**), assombrie sous le
+     texte pour qu'il reste lisible quelle que soit la photo. Sans image : une surface teintée (quatre teintes
+     qui alternent) ;
+   - l'**icône** de chaque case vient de mots du **slug** du tag : `actu`, `news` → journal ; `jeu`,
      `game`, `esport` → manette ; `anime`, `manga`, `serie`, `film`, `cinema`, `video`, `tv` → écran ;
      `dossier`, `guide`, `long` → dossier ; `ia` (seul, ou `ia-…`/`…-ia`), `ai`, `intelligence` → étincelle ;
      `test`, `review`, `avis` → coche ; `informatique`, `tech`, `code`, `dev`, `program`, `web` → chevrons ;
      tout autre slug → `#`. La liste est dans `partials/about/tag-icon.hbs` (une ligne à ajouter pour un
      nouveau mot).
-4. **Le texte de la page** (l'éditeur) s'affiche **après les rubriques** :
+4. **Le texte de la page** (l'éditeur) s'affiche **juste après les rubriques**, en grand, dans la police de
+   lecture, sans cadre : c'est la place de la phrase sur la liberté des sujets.
    > Et comme c'est mon blog, j'y fais ce que je veux : vous tomberez parfois sur un article qui sort de ces
    > rubriques, simplement parce que j'avais envie d'en parler.
-5. **« Qui écrit »** = les auteurs du site qui ont publié : photo, nom, **Bio** et liens de leur fiche
-   (Settings → Staff), puis « Tous ses articles ». Ghost limite la bio à **250 caractères** : le texte de la
-   maquette (environ 600) est trop long ; une version courte possible :
-   > Développeur front-end et designer UX/UI en freelance (Nuxt, Tailwind, Figma). GEEKLY, c'est mon terrain
-   > de jeu : j'y écris seul, à mon rythme, sur ce qui m'occupe en dehors du travail.
+
+   Un texte plus long (plusieurs paragraphes, une image) y tient aussi. Sans texte, la case disparaît.
+5. **L'auteur** = les auteurs du site qui ont publié : photo, nom, **Bio**, **Location** et **Website** de
+   leur fiche (Settings → Staff ; chaque élément vide disparaît). Un seul auteur : une grande case, le nom
+   n'est pas un lien (voir [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)). Plusieurs : une case
+   sur toute la largeur, les auteurs côte à côte, chaque nom menant à sa page (12 au plus). Ghost limite la
+   bio à **250 caractères** : le texte de la maquette (environ 600) est trop long ; une version courte :
+   > Développeur front-end et designer UX/UI en freelance. GEEKLY, c'est mon terrain de jeu : j'y écris seul,
+   > à mon rythme, sur ce qui m'occupe en dehors du travail.
 
    Pour garder le texte complet, mettez-le dans le texte de la page (point 4).
-6. **« Suivre le blog »** = les comptes sociaux du **site** (Settings → General → **Social accounts** :
+6. **Le chiffre** : « 102 articles publiés depuis 2023 », calculé par Ghost (tous les articles publiés,
+   réservés aux abonnés compris, et l'année du plus ancien). Rien à régler ; sans article publié, la case
+   disparaît.
+7. **« Suivre le blog »** = les comptes sociaux du **site** (Settings → General → **Social accounts** :
    X, Facebook, LinkedIn, Bluesky, Threads, Mastodon, TikTok, YouTube, Instagram), le flux RSS, et
    « S'abonner » pour les visiteurs. Pour des liens que Ghost ne connaît pas (portfolio, GitHub…), ajoutez
    dans le texte de la page une carte **HTML** (bouton `+` → HTML) :
@@ -458,8 +522,8 @@ Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personn
    </ul>
    ```
 
-   Le thème déplace ces liens en tête de « Suivre le blog », en pastilles. Sans JavaScript ils restent où vous
-   les avez mis, avec le même style.
+   Le thème déplace ces liens dans « Suivre le blog », en pastilles, sous les icônes. Sans JavaScript ils
+   restent où vous les avez mis, avec le même style.
 
 ### Page d'abonnement
 
@@ -681,7 +745,9 @@ Remplie depuis la fiche de l'auteur principal : Ghost Admin → Settings → **S
 **Bio**. Elle affiche « Écrit par », le nom, la bio, puis deux boutons :
 - **À propos** : la page dont le slug est le réglage **About page** (onglet **Post**) ; s'il est vide, la
   page `a-propos` ou, à défaut, `about`. Pas de page trouvée : pas de bouton.
-- **Tous ses articles** : la page de l'auteur.
+- **Tous ses articles** : la page de l'auteur — seulement si plusieurs auteurs ont publié (sur un site à un
+  seul auteur, ni ce bouton ni le nom ne mènent à la page d'auteur : voir
+  [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)).
 Sans photo : une icône ; sans bio : la ligne disparaît.
 
 ### Réglages d'affichage (abonnés)
@@ -860,6 +926,8 @@ navigateur du lecteur.
 | La fiche de test n'a pas de style | Vérifiez la classe `fiche-test` et que c'est une carte HTML. |
 | « Mis à jour le » n'apparaît pas | Il manque le tag interne `#mis-a-jour`. |
 | Pas de bouton « À propos » dans la boîte auteur | Aucune page `a-propos` / `about`, ou le réglage About page ne correspond à aucune page publiée. |
+| Pas de « Tous ses articles », le nom de l'auteur n'est pas un lien | Normal sur un site où un seul auteur a publié ([Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; les liens reviennent dès qu'un deuxième auteur publie. |
+| « Rédacteur » reste dans le menu | C'est un lien de votre navigation : Settings → Navigation, supprimez-le. |
 | Pas de roue crantée | Réservée aux abonnés connectés, sur les articles, réglage Reading settings activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte). |
 | Le style Immersif ne s'applique pas | Un abonné qui a choisi « Carte » dans ses réglages garde son choix sur tous les articles. |
 | L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une fois par session de navigation (fermez l'onglet ou ouvrez une fenêtre privée pour la revoir), seulement sur la page 1 de l'accueil, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
