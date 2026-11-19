@@ -42,7 +42,7 @@ const close = async () => {
  *  - initScript: function run in the page before any of its scripts
  *  - lang: value of the lang attribute of <html> (default "en")
  *  - bodyStart: HTML inserted at the start of <body>, where {{ghost_head}} scripts add theirs
- *  - colorScheme, reducedMotion, viewport, hasTouch: browser context options
+ *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, javaScriptEnabled: browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
  */
@@ -58,11 +58,20 @@ const open = async (options = {}) => {
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
 		hasTouch = false,
+		isMobile = false,
+		javaScriptEnabled = true,
 		pages = {},
 	} = options;
 	const render = options.render || (fixture ? null : home());
 
-	const context = await browser.newContext({ colorScheme, reducedMotion, viewport, hasTouch });
+	const context = await browser.newContext({
+		colorScheme,
+		reducedMotion,
+		viewport,
+		hasTouch,
+		isMobile,
+		javaScriptEnabled,
+	});
 	const page = await context.newPage();
 	const requests = [];
 	const errors = [];
