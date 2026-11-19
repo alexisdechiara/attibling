@@ -10,6 +10,8 @@
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark">
+    {{!-- Single-author site: the author page repeats the home's list, keep it out of search results --}}
+    {{#is "author"}}{{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}{{#match authorPages.total 1}}<meta name="robots" content="noindex, follow" />{{/match}}{{/get}}{{/is}}
 
     {{!-- Preload assets --}}
     <link rel="preload" href="{{asset "css/app.css"}}" as="style" />

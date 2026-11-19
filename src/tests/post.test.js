@@ -328,7 +328,11 @@ describe("article page: header, dates, author", () => {
 		const full = await open({ render: article() });
 		const box = full.page.locator(".author-box");
 		assert.match(await box.locator(".author-box__bio").textContent(), /Développeur front-end/);
-		assert.deepEqual(await box.locator(".author-box__links a").allTextContents(), ["À propos", "Tous ses articles"]);
+		assert.deepEqual(
+			await box.locator(".author-box__links a").allTextContents(),
+			["À propos"],
+			"single author: no author page",
+		);
 		assert.equal(await box.locator("a", { hasText: "À propos" }).getAttribute("href"), "/a-propos/");
 		await full.dispose();
 
@@ -337,7 +341,7 @@ describe("article page: header, dates, author", () => {
 		bare.context.post.primary_author = bare.site.posts[1].primary_author;
 		const empty = await open({ render: bare });
 		assert.equal(await empty.page.locator(".author-box__bio").count(), 0);
-		assert.deepEqual(await empty.page.locator(".author-box__links a").allTextContents(), ["Tous ses articles"]);
+		assert.deepEqual(await empty.page.locator(".author-box__links a").allTextContents(), []);
 		await empty.dispose();
 
 		const custom = await open({

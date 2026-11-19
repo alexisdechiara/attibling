@@ -10,6 +10,8 @@
 //  - extra: number of generated posts appended after the real ones (older, one every 9 days), to test
 //    lists of more than 100 posts
 //  - series: true to put the internal tag #serie-test on 3 posts (indexes 3, 6 and 9)
+//  - authors: number of authors with published posts (default 1, a single-author site); the others
+//    (up to 4 more) each write two posts (indexes 2n and 2n + 1 from the 3rd post), Alexis the rest
 
 const TAGS = [
 	["Actualité", "actualites", true],
@@ -162,6 +164,7 @@ export const createSite = (options = {}) => {
 		count = POSTS.length,
 		extra = 0,
 		series = false,
+		authors: authorCount = 1,
 	} = options;
 
 	const author = {
@@ -173,6 +176,25 @@ export const createSite = (options = {}) => {
 		bio: "Développeur front-end et designer UX/UI, il écrit sur la culture geek.",
 		twitter: "@geeklyFR",
 	};
+
+	const OTHERS = [
+		{ name: "Camille Martin", slug: "camille", bio: "Elle teste les jeux indépendants.", location: "Lyon" },
+		{
+			name: "Jean-Baptiste de La Rochefoucauld-Montmorency",
+			slug: "jean-baptiste",
+			bio: null,
+			website: "https://example.com",
+		},
+		{ name: "Inès", slug: "ines", bio: "Anime et doublage." },
+		{ name: "Noé", slug: "noe", bio: null },
+	];
+	const others = OTHERS.slice(0, Math.max(0, authorCount - 1)).map((a, n) => ({
+		id: `author-${n + 2}`,
+		url: `/author/${a.slug}/`,
+		profile_image: null,
+		...a,
+	}));
+	const authorOf = i => (i >= 2 && others[Math.floor((i - 2) / 2)]) || author;
 
 	const start = Date.UTC(2026, 2, 25, 9, 0, 0);
 	const generated = Array.from({ length: extra }, (_, n) => [
@@ -202,8 +224,8 @@ export const createSite = (options = {}) => {
 					"L’année démarre très fort. On retrouve, dès cette première saison, pas mal de grosses licences qui reviennent, quelques suites très attendues, et aussi une ou deux nouveautés qui pourraient bien créer la surprise.",
 				tags,
 				primary_tag: tags.find(t => t.visibility === "public") || null,
-				authors: [author],
-				primary_author: author,
+				authors: [authorOf(i)],
+				primary_author: authorOf(i),
 			};
 			post.feature_image = image(post, i);
 			return post;
@@ -229,7 +251,10 @@ export const createSite = (options = {}) => {
 		now: new Date(start).toISOString(),
 		posts,
 		tags,
-		authors: [{ ...author, count: { posts: posts.length } }],
+		authors: [author, ...others].map(a => ({
+			...a,
+			count: { posts: posts.filter(p => p.primary_author.id === a.id).length },
+		})),
 		settings: {
 			title: "Geekly",
 			description: "L’actu geek, tech et pop",
