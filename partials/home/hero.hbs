@@ -1,50 +1,56 @@
 {{!--
 Home hero « E2 »: a rounded card whose background is the feature image of the most recent featured
-post. Left: the wordmark (the page's h1), the site description and, for visitors, « S'abonner ».
-Right: that post's « À la une » pill, title and tag • reading time; the whole card is the post's link.
+post. Left: the wordmark (the page's h1), the site description tucked under it (to the left of the
+"y" of the GEEKly wordmark) and, for visitors, « S'abonner ». Right: that post's « À la une » pill,
+title, excerpt (desktop, when the post has a custom excerpt) and tag • reading time: only this group
+is the post's link; the picture, the left block and the empty background are not.
 With several featured posts (up to 6), a pager (vertical on the right edge on desktop, horizontal at
 the bottom on phones) switches the post shown (home.js; without JavaScript the first post stays).
+The hero does not advance on its own: the dots say they are clickable (a one-time cue, a preview of
+the post's title on hover, a fill on change) instead.
 Without any featured post: the site cover image (Settings > Design), or a plain dark card.
 Hooks: #hero-wordmark (the wordmark: docking into the header, page transitions, arrival animation),
-[data-hero-slide], [data-hero-dot].
+[data-hero-slide], [data-hero-dot], [data-hero-post] (the link of a slide).
 --}}
 <section class="hero container" aria-labelledby="hero-title" data-hero>
   <div class="hero__card">
+    {{!-- Ghost renders the block of {{#get}} even when nothing matches: the result is tested --}}
     {{#get "posts" filter="featured:true" include="tags" limit="6" as |featured|}}
-      {{#foreach featured}}
-        <a class="hero__slide" href="{{url}}" id="hero-slide-{{@number}}" data-hero-slide{{#unless @first}} hidden{{/unless}}>
-          {{#if feature_image}}
-            <img class="hero__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 1440px) 100vw, 1440px" src="{{img_url feature_image size="l"}}" alt=""{{#if @first}} fetchpriority="high"{{else}} loading="lazy"{{/if}} decoding="async">
-          {{/if}}
-          <span class="hero__scrim" aria-hidden="true"></span>
-          <span class="hero__post">
-            <span class="pill pill--on-media">{{t "Featured"}}</span>
-            <span class="hero__post-title">{{title}}</span>
-            <span class="hero__post-meta">{{#if primary_tag}}{{primary_tag.name}} • {{/if}}{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
-          </span>
-        </a>
-      {{/foreach}}
-      {{#if featured.[1]}}
-        <div class="hero__pager" role="group" aria-label="{{t "Choose the featured post"}}" data-hero-pager hidden>
-          {{#foreach featured}}
-            <button type="button" class="hero__dot" aria-controls="hero-slide-{{@number}}"{{#if @first}} aria-current="true"{{/if}} data-hero-dot>
-              <span class="sr-only">{{@number}} {{t "of"}} {{featured.length}}: {{title}}</span>
-            </button>
-          {{/foreach}}
-        </div>
-      {{/if}}
-    {{else}}
-      <span class="hero__slide hero__slide--static">
-        {{#if @site.cover_image}}
-          <img class="hero__image" srcset="{{img_url @site.cover_image size="m"}} 600w, {{img_url @site.cover_image size="l"}} 1000w, {{img_url @site.cover_image size="xl"}} 2000w" sizes="(max-width: 1440px) 100vw, 1440px" src="{{img_url @site.cover_image size="l"}}" alt="" fetchpriority="high" decoding="async">
+      {{#if featured}}
+        {{#foreach featured}}
+          <div class="hero__slide" id="hero-slide-{{@number}}" data-hero-slide{{#unless @first}} hidden{{/unless}}>
+            {{#if feature_image}}
+              <img class="hero__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 1440px) 100vw, 1440px" src="{{img_url feature_image size="l"}}" alt=""{{#if @first}} fetchpriority="high"{{else}} loading="lazy"{{/if}} decoding="async">
+            {{/if}}
+            <span class="hero__scrim" aria-hidden="true"></span>
+            <a class="hero__post" href="{{url}}" data-hero-post>
+              <span class="pill pill--on-media">{{t "Featured"}}</span>
+              <span class="hero__post-title">{{title}}</span>
+              {{#if custom_excerpt}}<span class="hero__post-excerpt">{{custom_excerpt}}</span>{{/if}}
+              <span class="hero__post-meta">{{#if primary_tag}}{{primary_tag.name}} • {{/if}}{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
+            </a>
+          </div>
+        {{/foreach}}
+        {{#if featured.[1]}}
+          <div class="hero__pager" role="group" aria-label="{{t "Choose the featured post"}}" data-hero-pager hidden>
+            {{#foreach featured}}
+              <button type="button" class="hero__dot" aria-controls="hero-slide-{{@number}}"{{#if @first}} aria-current="true"{{/if}} data-hero-dot>
+                <span class="sr-only">{{@number}} {{t "of"}} {{featured.length}}: {{title}}</span>
+                <span class="hero__dot-preview" aria-hidden="true">{{title}}</span>
+              </button>
+            {{/foreach}}
+          </div>
         {{/if}}
-        <span class="hero__scrim" aria-hidden="true"></span>
-      </span>
+      {{else}}
+        {{> "home/hero-static"}}
+      {{/if}}
     {{/get}}
 
-    <div class="hero__brand">
-      <h1 class="hero__title" id="hero-title">{{> wordmark size="hero" onMedia=true id="hero-wordmark"}}</h1>
-      {{#if @site.description}}<p class="hero__tagline">{{@site.description}}</p>{{/if}}
+    <div class="hero__brand{{#if @custom.use_geekly_logo}} hero__brand--geekly{{/if}}">
+      <div class="hero__lockup">
+        <h1 class="hero__title" id="hero-title">{{> wordmark size="hero" onMedia=true id="hero-wordmark"}}</h1>
+        {{#if @site.description}}<p class="hero__tagline">{{@site.description}}</p>{{/if}}
+      </div>
       {{#unless @member}}{{> subscribe-link class="button button--light hero__subscribe"}}{{/unless}}
     </div>
   </div>

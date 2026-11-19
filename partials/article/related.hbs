@@ -3,12 +3,12 @@
 as the shared post tiles. Nothing when there is none.
 --}}
 {{#if tags}}
-  {{#get "posts" limit="3" filter="tags:[{{tags[*].slug}}]+id:-{{id}}" include="tags,authors" order="published_at desc" as |related|}}
+  {{#get "posts" limit="3" filter="tags:[{{tags[*].slug}}]+id:-{{id}}" include="tags,authors" order="published_at desc" as |related|}}{{#if related}}
     <section class="article-related container" aria-labelledby="related-title">
       {{> section-header title=(t "Recommended for you") id="related-title"}}
       <ul class="post-grid" role="list">
         {{#foreach related}}<li>{{> post-tile size="s" sizes="(max-width: 767px) 92vw, 33vw"}}</li>{{/foreach}}
       </ul>
     </section>
-  {{/get}}
+  {{/if}}{{/get}}
 {{/if}}

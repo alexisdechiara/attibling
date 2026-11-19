@@ -88,8 +88,10 @@
 .shelf__track {
   display: flex;
   gap: var(--space-4);
-  margin: 0;
-  padding-block: var(--space-2) var(--space-7);
+  /* Room above the tiles for their hover lift and shadow (the scroll container clips); the negative
+     margin keeps the row where it was */
+  margin: calc(var(--space-2) - var(--space-5)) 0 0;
+  padding-block: var(--space-5) var(--space-7);
   padding-inline: max(var(--gutter), calc((100vw - var(--page-max)) / 2));
   list-style: none;
   overflow-x: auto;

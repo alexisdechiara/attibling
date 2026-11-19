@@ -39,12 +39,15 @@ No post → « Aucun article récent trouvé ».
 
   <section class="container error-page__recent" aria-labelledby="error-recent-title">
     {{> section-header title=(t "Recent posts") id="error-recent-title" url=@site.url divider=true}}
-    {{#get "posts" limit="4" include="tags"}}
-      <ul class="post-grid error-page__grid" role="list">
-        {{#foreach posts}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
-      </ul>
-    {{else}}
-      <p class="error-page__empty">{{t "No recent posts found"}}</p>
+    {{!-- Ghost renders the block of {{#get}} even when nothing matches: the result is tested --}}
+    {{#get "posts" limit="4" include="tags" as |recent|}}
+      {{#if recent}}
+        <ul class="post-grid error-page__grid" role="list">
+          {{#foreach recent}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
+        </ul>
+      {{else}}
+        <p class="error-page__empty">{{t "No recent posts found"}}</p>
+      {{/if}}
     {{/get}}
   </section>
 </main>

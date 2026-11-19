@@ -23,8 +23,8 @@ export const setUpToc = (toc, content) => {
 		collapseDepth: 6,
 	});
 
-	const nav = toc.querySelector(".article-toc__nav");
-	const inMargin = () => getComputedStyle(nav).position === "sticky";
+	// In the margin the CSS makes the disclosure itself sticky (src/css/article/toc.css)
+	const inMargin = () => getComputedStyle(toc).position === "sticky";
 	let wasInMargin = null;
 	const layout = () => {
 		const now = inMargin();

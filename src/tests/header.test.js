@@ -50,7 +50,13 @@ describe("header", () => {
 				return { top: Math.round(header.getBoundingClientRect().top), scrolled: header.hasAttribute("data-scrolled") };
 			});
 		assert.deepEqual(await state(), { top: 0, scrolled: false });
-		await page.evaluate(() => window.scrollTo(0, 1200));
+		// A slow scroll (a fast one hides the header: feedback.test.js)
+		await page.evaluate(async () => {
+			for (let y = 30; y <= 1200; y += 30) {
+				window.scrollTo(0, y);
+				await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+			}
+		});
 		assert.equal(await waitFor(async () => (await state()).scrolled), true);
 		assert.equal((await state()).top, 0, "still at the top of the viewport");
 		await dispose();

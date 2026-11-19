@@ -168,57 +168,7 @@ describe("arrival animation", () => {
 	});
 });
 
-describe("wordmark docking travel", () => {
-	before(launch);
-	after(close);
-
-	const travel = page =>
-		page.evaluate(() => {
-			const header = document.getElementById("site-header");
-			const mark = header.querySelector("[data-header-logo] .wordmark");
-			const style = getComputedStyle(mark);
-			return {
-				travel: header.hasAttribute("data-dock-travel"),
-				dock: header.dataset.dock,
-				scale: new DOMMatrix(style.transform).a,
-				opacity: Number(style.opacity),
-				hero: Number(getComputedStyle(document.getElementById("hero-wordmark")).opacity),
-			};
-		});
-
-	it("starts as the hero wordmark and ends in the header's place", async () => {
-		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
-		await page.evaluate(() => document.fonts.ready);
-		let state = await travel(page);
-		assert.equal(state.travel, true);
-		const ratio = await page.evaluate(
-			() =>
-				document.getElementById("hero-wordmark").getBoundingClientRect().width /
-				document.querySelector("[data-header-logo] .wordmark").getBoundingClientRect().width,
-		);
-		assert.ok(state.scale > 3, "at the top it has the hero's size");
-		assert.ok(Math.abs(ratio - 1) < 0.05, `and the hero's width (${ratio})`);
-		assert.equal(state.dock, "undocked");
-
-		await page.evaluate(() => window.scrollTo(0, 700));
-		state = await waitFor(async () => {
-			const s = await travel(page);
-			return s.dock === "docked" && s;
-		});
-		assert.deepEqual(
-			{ ...state, scale: Math.round(state.scale * 100) / 100 },
-			{ travel: true, dock: "docked", scale: 1, opacity: 1, hero: 0 },
-			"docked: the logo at rest in the header, the hero wordmark faded out",
-		);
-		await dispose();
-	});
-
-	it("keeps the plain fade with reduced motion", async () => {
-		const { page, dispose } = await open({ reducedMotion: "reduce" });
-		assert.equal((await travel(page)).travel, false);
-		await dispose();
-	});
-});
+// The docking itself (a triggered flight, not a scroll-driven travel): feedback.test.js
 
 describe("page transitions", () => {
 	before(launch);
@@ -391,12 +341,12 @@ describe("prefetch", () => {
 		});
 		assert.equal(await rules(page), null);
 		const hints = () => page.evaluate(() => [...document.querySelectorAll('link[rel="prefetch"]')].map(l => l.href));
-		await page.locator(".row-item").first().focus();
+		await page.locator("main .row-item").first().focus();
 		await page.locator("[data-promo] a[data-portal]").first().focus();
-		await page.locator(".tag-tile").first().hover();
+		await page.locator("main .tag-tile").first().hover();
 		await sleep(150);
-		const href = await page.locator(".row-item").first().getAttribute("href");
-		const tag = await page.locator(".tag-tile").first().getAttribute("href");
+		const href = await page.locator("main .row-item").first().getAttribute("href");
+		const tag = await page.locator("main .tag-tile").first().getAttribute("href");
 		assert.deepEqual(
 			(await hints()).map(h => new URL(h).pathname),
 			[href, tag],

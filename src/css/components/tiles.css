@@ -26,7 +26,7 @@
   border-radius: var(--radius-m);
   background: var(--color-surface-muted);
   box-shadow: var(--shadow-1);
-  transition: box-shadow var(--duration-m) ease;
+  transition: box-shadow var(--lift-duration) var(--lift-ease);
 }
 
 .tile__image {
@@ -57,15 +57,35 @@
   line-clamp: 2;
 }
 
-.tile__link:hover {
-  .tile__media {
-    box-shadow: var(--shadow-2);
+/* Hover and keyboard focus: the tile lifts a little, as the cards of the earlier theme did (5 px,
+   250 ms), and its picture's shadow deepens; no underline. The hover target is the tile, which stays in
+   place (only its link and bookmark move; also the lead cards of the home and tag pages), so the lift never flickers at the tile's bottom edge and
+   shifts no layout. Reduced motion: no lift, the shadow deepens and the picture brightens slightly. */
+[data-post-tile] > :is(a, .bookmark, .tile__remove) {
+  transition: transform var(--lift-duration) var(--lift-ease);
+}
+
+[data-post-tile]:is(:hover, :has(> a:focus-visible)) {
+  > a,
+  > :is(.bookmark, .tile__remove) {
+    transform: translateY(var(--lift));
   }
 
-  .tile__title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
+  :is(.tile__media, .lead__media, .listing-lead__media) {
+    box-shadow: var(--shadow-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-post-tile]:is(:hover, :has(> a:focus-visible)) {
+    > a,
+    > :is(.bookmark, .tile__remove) {
+      transform: none;
+    }
+
+    :is(.tile__image, .lead__image, .listing-lead__image) {
+      filter: brightness(1.06);
+    }
   }
 }
 
@@ -205,11 +225,23 @@ li:nth-child(4n + 4) > * {
   padding-block: var(--space-3);
   border-radius: var(--radius-s);
   color: var(--color-text);
+}
 
-  &:hover .row-item__title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
+/* Compact rows: the thumbnail lifts (3 px) and its shadow shows; the row itself stays in place */
+.row-item__media {
+  transition:
+    transform var(--lift-duration) var(--lift-ease),
+    box-shadow var(--lift-duration) var(--lift-ease);
+}
+
+.row-item:is(:hover, :focus-visible) .row-item__media {
+  box-shadow: var(--shadow-2);
+  transform: translateY(var(--lift-s));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-item:is(:hover, :focus-visible) .row-item__media {
+    transform: none;
   }
 }
 
@@ -285,9 +317,20 @@ li:nth-child(4n + 4) > * {
     );
   }
 
-  &:hover .tag-tile__name {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  transition:
+    transform var(--lift-duration) var(--lift-ease),
+    box-shadow var(--lift-duration) var(--lift-ease);
+}
+
+/* Tag tiles lift as the post tiles; the hover target is their list item (which stays in place) */
+:is(li:hover > .tag-tile, .tag-tile:focus-visible) {
+  box-shadow: var(--shadow-2);
+  transform: translateY(var(--lift));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(li:hover > .tag-tile, .tag-tile:focus-visible) {
+    transform: none;
   }
 }
 

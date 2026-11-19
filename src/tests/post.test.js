@@ -109,7 +109,8 @@ describe("article page: content", () => {
 			const text = document.querySelector("[data-article-content] > p").getBoundingClientRect();
 			return {
 				open: toc.open,
-				sticky: getComputedStyle(nav).position,
+				// The disclosure sticks (a sticky list inside it would scroll away with it)
+				sticky: getComputedStyle(toc).position,
 				right: nav.getBoundingClientRect().left >= text.right,
 			};
 		});

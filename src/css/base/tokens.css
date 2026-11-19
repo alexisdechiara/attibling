@@ -155,6 +155,11 @@
   --duration-s: 150ms;
   --duration-m: 250ms;
   --duration-l: 400ms;
+  /* Hover lift of cards and tiles (the earlier theme's: 5 px in 250 ms) */
+  --lift: -5px;
+  --lift-s: -3px;
+  --lift-duration: 250ms;
+  --lift-ease: cubic-bezier(0.02, 0.01, 0.47, 1);
 }
 
 /* Theme mode: data-theme is always light or dark once the pre-paint script has run;

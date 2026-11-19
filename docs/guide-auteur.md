@@ -8,7 +8,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 
 0. [Mise en route en 10 minutes](#0-mise-en-route-en-10-minutes)
 1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés
-2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, « S'abonner », clair / sombre, polices
+2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
 5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, 404
@@ -108,10 +108,23 @@ Le logo (en-tête, page d'accueil, menu mobile, pied de page) suit cet ordre :
    l'image du bandeau d'accueil. Conseil : un logo PNG/SVG à fond transparent.
 3. Sinon, le **titre du site** en texte.
 
-Sur la page d'accueil, l'en-tête n'a pas de logo tant que le grand logo du bandeau est visible : il
-« s'amarre » dans l'en-tête dès que vous faites défiler la page (il part du grand logo et rapetisse jusqu'à sa
-place ; un simple fondu dans les navigateurs qui ne savent pas animer au défilement et avec « réduire les
-animations »). Les autres pages montrent toujours le logo.
+Sur la page d'accueil, le logo est **soit dans le bandeau, soit dans l'en-tête**, jamais entre les deux : tant
+que le grand logo du bandeau est visible, l'en-tête n'a pas de logo ; dès que le grand logo va passer sous la
+barre, il **s'envole d'un seul coup** jusqu'à sa place dans l'en-tête (environ 0,4 s, en rapetissant), même si
+vous arrêtez de faire défiler ; en remontant, il repart de la même façon dans le bandeau. Il faut remonter un peu
+plus bas que le point de départ pour qu'il reparte (pas de clignotement à la limite). Son « ly » passe du blanc
+(sur l'image) à la couleur de l'en-tête : noir en mode clair, blanc en mode sombre. Avec « réduire les
+animations » : un simple fondu. Page rechargée déjà défilée : le logo est directement dans l'en-tête. Sans
+JavaScript : le logo de l'en-tête apparaît une fois la page défilée de quelques centaines de pixels (ou est
+toujours visible dans les navigateurs plus anciens). Les autres pages montrent toujours le logo.
+
+### L'en-tête qui se range au défilement
+
+Comme dans l'ancien thème, l'en-tête **se range** quand vous descendez vite (plus de 40 px d'un coup) et
+**revient** dès que vous remontez (plus de 20 px) ou près du haut de la page (15 px). Il ne se range jamais
+quand un menu (« Plus », « ••• », réglages d'affichage, menu du téléphone) est ouvert, ni quand le focus du
+clavier est dans l'en-tête : passer sur l'un de ses boutons avec Tab le fait revenir. Le sommaire collant des
+articles remonte avec lui. Avec « réduire les animations », il disparaît sans glisser. Rien à régler.
 
 ### Navigation et menu « Plus »
 
@@ -126,6 +139,11 @@ Settings → **Navigation** :
 Si les liens principaux ne tiennent pas dans la barre (écran étroit, intitulés longs), ceux de la fin
 passent automatiquement dans le menu « Plus », et reviennent quand il y a de la place. Sans navigation
 secondaire ni lien en trop, le bouton « Plus » n'apparaît pas.
+
+À côté de « Plus », le bouton **« ••• »** (celui de l'ancien thème) ouvre un panneau sous la barre : les
+**4 derniers articles** (vignette, titre, rubrique et date) et les **tags** les plus utilisés en pastilles, avec
+« Tous les tags » (page `/tags/`). Il se remplit tout seul : rien à régler. Échap ou un clic à côté le ferme.
+Sur téléphone, le même contenu est en bas du menu (bouton trois traits).
 
 Sur téléphone : la navigation principale devient une rangée de pastilles qui défile sous la barre, et le
 bouton menu (trois traits) ouvre un panneau avec toute la navigation, le changement de thème et
@@ -184,16 +202,21 @@ lecture / À lire plus tard » (abonnés) → « Les plus lus » → rangées pa
 ### Le grand bandeau (hero) et les articles « à la une »
 
 Le bandeau montre, sur l'image de l'article, le logo, la description du site (Settings → General → *Site
-description*, par exemple « L'actu geek, tech et pop ») et, pour un visiteur, le bouton « S'abonner ». À
-droite : la pastille « À la une », le titre de l'article, sa rubrique et son temps de lecture ; tout le
-bandeau est un lien vers l'article.
+description*, par exemple « L'actu geek, tech et pop ») et, pour un visiteur, le bouton « S'abonner ». Avec le
+logo GEEKLY coloré, la description se glisse **sous « GEEK », à gauche de la boucle du « y »** : gardez-la
+courte (une ligne ; plus longue, elle passe sur trois lignes au plus dans la largeur de « GEEK »). À droite : la
+pastille « À la une », le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article
+est rempli), sa rubrique et son temps de lecture. **Seul ce groupe à droite est un lien** vers l'article (il
+s'éclaire au survol) : le logo, la description et le fond de l'image ne mènent nulle part.
 
 **Pour choisir l'article affiché** : dans l'éditeur de l'article → panneau des réglages → cochez
 **Feature this post**, et donnez-lui une **image à la une** (*Post feature image*) large (2000 px conseillé),
 de préférence avec le sujet au centre (le bandeau assombrit les côtés pour la lisibilité du logo et du
 titre). Le bandeau prend l'article mis en avant **le plus récent** ; avec plusieurs articles mis en avant
 (jusqu'à 6), des points permettent de passer de l'un à l'autre (verticalement à droite sur ordinateur, en
-bas sur téléphone ; flèches du clavier). Pas de défilement automatique.
+bas sur téléphone ; flèches du clavier). Pas de défilement automatique : pour montrer qu'on peut cliquer, les
+points ondulent une fois par visite quand le bandeau apparaît, grossissent au survol (sur ordinateur, le titre
+de l'article s'affiche à côté du point), et le point choisi se remplit pendant que le nouvel article apparaît.
 
 Sans aucun article mis en avant : le bandeau garde le logo et la description sur l'image de couverture du
 site (Settings → Design & branding → Brand → *Publication cover*), ou sur un fond sombre uni.
@@ -226,7 +249,9 @@ commenter les articles).
   données du site ou change d'appareil). Les autres boutons « S'abonner » restent.
 - Il n'apparaît pas si les abonnements sont désactivés ou sur invitation seulement.
 
-Les textes viennent des fichiers de traduction du thème (`locales/fr.json`) : pas de réglage.
+Les textes viennent des fichiers de traduction du thème (`locales/fr.json`) : pas de réglage Chaque avantage
+garde son nom sur une ligne et son explication sur deux lignes au plus, quelle que soit la largeur ou la langue
+(au-delà, le texte est coupé par « … » : gardez vos traductions courtes).
 
 ### « Reprendre la lecture » et « À lire plus tard » (abonnés)
 
@@ -257,7 +282,8 @@ Un thème Ghost ne connaît pas le nombre de vues : c'est vous qui choisissez le
 
 Les gros chiffres derrière les tuiles se numérotent tout seuls (1, 2, 3…), même s'il manque un rang. Aucun
 nombre de vues n'est affiché. Sans aucun article `#top`, la rangée n'apparaît pas. Pour retirer un
-article, enlevez-lui `#top` (et son tag de rang). Astuce : regardez vos statistiques Ghost (Analytics) pour
+article, enlevez-lui `#top` (et son tag de rang). Sans aucun article `#top`, rien ne s'affiche : ni titre,
+ni espace vide. Astuce : regardez vos statistiques Ghost (Analytics) pour
 choisir.
 
 ### Les rangées par rubrique
@@ -271,7 +297,7 @@ rangées voisines n'ont jamais la même forme) :
 | 2 | Tuiles des rubriques (6 tags les plus utilisés, image du tag ou teinte) | — | toujours |
 | 3 | Affiches 2:3 qui défilent, puis « Tous les articles » | **Home row 2** | le 2ᵉ tag le plus utilisé |
 | 4 | Liste numérotée de 6 titres, du plus récent au plus ancien | **Home row 3** | le 3ᵉ |
-| 5 | Bannière de collection (image du tag, 3 articles) | **Home row 4** | le 4ᵉ |
+| 5 | Bannière de collection (image du tag en fond, « Rubrique · N articles », 3 articles) | **Home row 4** | le 4ᵉ |
 | 6 | Un grand article et quatre petits | **Home row 5** | le 5ᵉ |
 
 **Pour choisir le tag d'une rangée** : tapez son **slug** dans le réglage (le slug est visible dans Ghost
@@ -292,7 +318,11 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
   n'importe quel site. Si vous fixez certaines rangées et pas d'autres, un même tag peut apparaître deux fois :
   fixez alors les cinq.
 - Pour de belles rangées : donnez une **image** à vos tags (Tags → le tag → *Tag image*) pour les tuiles de
-  rubriques et la bannière, et des images à la une à vos articles. Sans image, les tuiles et les affiches ont
+  rubriques et la bannière, et des images à la une à vos articles. **Bannière** : l'image du tag de *Home row 4*
+  remplit le fond, assombrie à gauche pour que le nom reste lisible (une image large, 2000 px, sujet à droite) ;
+  sans image, un fond sombre avec deux lueurs aux couleurs du logo.
+- Au survol (ou au focus du clavier), les vignettes et les cartes **se soulèvent** légèrement, comme dans
+  l'ancien thème, sans soulignement. Sans image, les tuiles et les affiches ont
   un fond teinté avec le titre en grand.
 - Les pastilles « Format long » s'affichent seules sur les articles de 10 minutes de lecture ou plus.
 
@@ -743,6 +773,7 @@ données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
 | `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement |
 | `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement |
 | `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session |
+| `attibling-hero-cue` | sessionStorage | thème | tous | Petite ondulation des points du bandeau d'accueil déjà jouée dans cette session | Fin de la session |
 | `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement |
 | `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement |
 | `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture) | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement |
@@ -1003,7 +1034,9 @@ rien casser dans un navigateur qui ne les connaît pas.
 
 À la première visite de l'accueil, sur un écran sombre, les lettres **G E E K** se peignent l'une après
 l'autre d'un coup de pinceau, « ly » s'écrit comme au stylo, puis le logo glisse et rapetisse jusqu'à sa place
-dans le bandeau pendant que la page apparaît (moins de 2 secondes en tout).
+dans le bandeau pendant que la page apparaît (moins de 2 secondes en tout). L'écran n'est pas un aplat noir :
+une nuit profonde légèrement bleutée, une lumière douce derrière le logo, un léger grain, la page devinée floue
+dessous ; à la fin, il s'ouvre depuis le logo comme un diaphragme et se dissout dans la page.
 
 - **Réglage** : **Arrival animation** (onglet *Homepage*), activé par défaut. Désactivé : jamais d'animation.
 - **Avec le logo GEEKLY coloré** (réglage *Use geekly logo*) : l'animation complète. **Avec un logo image ou le

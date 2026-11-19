@@ -13,11 +13,16 @@ const setUpHero = hero => {
 	const dots = [...hero.querySelectorAll("[data-hero-dot]")];
 	if (slides.length < 2 || !pager || dots.length !== slides.length) return;
 
+	let current = -1;
 	const show = index => {
+		const changed = current !== -1 && current !== index;
+		current = index;
 		slides.forEach((slide, i) => {
 			slide.hidden = false;
 			slide.inert = i !== index;
 			slide.toggleAttribute("data-current", i === index);
+			// The post's text rises in when the reader changes the slide (not on load)
+			slide.toggleAttribute("data-entering", changed && i === index);
 		});
 		dots.forEach((dot, i) => {
 			if (i === index) dot.setAttribute("aria-current", "true");
@@ -42,6 +47,42 @@ const setUpHero = hero => {
 	});
 	pager.hidden = false;
 	show(0);
+	setUpPagerCue(pager, dots);
+};
+
+// The pager's one-time cue: once per browser session, when the hero first shows (after the arrival
+// animation), the other dots ripple one after the other (data-cue, src/css/home/hero.css). Never with
+// reduced motion; the CSS has the timing.
+const CUE_KEY = "attibling-hero-cue";
+const setUpPagerCue = (pager, dots) => {
+	dots.forEach((dot, i) => dot.style.setProperty("--dot-index", String(i)));
+	if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+	try {
+		if (sessionStorage.getItem(CUE_KEY)) return;
+	} catch {
+		return;
+	}
+	const root = document.documentElement;
+	const play = () => {
+		try {
+			sessionStorage.setItem(CUE_KEY, "1");
+		} catch {
+			// Played on this page only
+		}
+		pager.setAttribute("data-cue", "");
+		setTimeout(() => pager.removeAttribute("data-cue"), 640 + dots.length * 110 + 100);
+	};
+	const observer = new IntersectionObserver(
+		([entry]) => {
+			if (!entry.isIntersecting) return;
+			observer.disconnect();
+			// After the arrival animation when it plays, else a moment after the page shows
+			const wait = () => (root.hasAttribute("data-intro") ? setTimeout(wait, 200) : setTimeout(play, 900));
+			wait();
+		},
+		{ threshold: 0.6 },
+	);
+	observer.observe(pager);
 };
 
 // Subscription block: the close button hides it for good on this browser

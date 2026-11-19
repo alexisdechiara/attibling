@@ -86,8 +86,13 @@
     min-height: var(--target);
     color: var(--color-accent);
     font-weight: var(--weight-semibold);
-    text-decoration: underline;
+    text-decoration: none;
     text-underline-offset: 3px;
+
+    /* Blue is enough at rest; underlined on hover and keyboard focus */
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
+    }
   }
 
   @media (width < 64rem) {
@@ -116,13 +121,31 @@
     font-size: var(--text-nav);
     line-height: 1.6;
   }
+}
 
-  b {
-    display: block;
-    color: var(--color-text);
-    font-size: var(--text-base);
-    font-weight: var(--weight-strong);
-  }
+/* A benefit: its name on one line (cut with an ellipsis if need be), its explanation on two lines at
+   most, at every width and in every language */
+.promo__benefit {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.promo__benefit-title {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: var(--weight-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.promo__benefit-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 /* Phones: the button and the sign-in link go under the benefits */
