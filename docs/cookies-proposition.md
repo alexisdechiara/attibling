@@ -7,7 +7,8 @@
 > - **Préalables**, sans quoi le texte dirait faux : dans Ghost Admin → Settings → **Analytics**, désactivez
 >   *Newsletter opens*, *Newsletter clicks* et *Member sources* ; dans Settings → **Code injection**, ne
 >   gardez que Plausible (retirez les polices Google) ; laissez le réglage du thème *Consent notice* sur
->   `None`. Si vous gardez l'un de ces suivis, voir « Si vous gardez… » à la fin.
+>   `Notice` (défaut : la carte ne paraît que sur les articles qui ont une vidéo ou une publication d'un
+>   autre site). Si vous gardez l'un de ces suivis, voir « Si vous gardez… » à la fin.
 > - Créez la page : Pages → New page, titre « Cookies et confidentialité », **Page URL** = `cookies`
 >   (détail dans `docs/guide-auteur.md`). Collez tout ce qui se trouve entre « Texte à coller » et « Fin du
 >   texte à coller » dans une carte Markdown (`/markdown`).
@@ -24,7 +25,7 @@ Extrait de la page (réglages de la page → **Excerpt**), proposé :
 
 <!-- Texte à coller : tout ce qui suit cette ligne, dans une carte Markdown (/markdown) de la page. -->
 
-GEEKLY n'affiche pas de bandeau de cookies, parce qu'il n'en a pas besoin : rien de ce que le site garde dans votre navigateur ne sert à vous suivre ou à vous montrer de la publicité. Cette page dit ce qui est gardé, pourquoi, et comment le régler. Vous retrouvez les mêmes réglages à tout moment avec le lien « Cookies et confidentialité », en bas de chaque page.
+GEEKLY n'affiche pas de bandeau de cookies à l'arrivée : rien de ce que le site garde dans votre navigateur ne sert à vous suivre ou à vous montrer de la publicité. Une seule chose demande votre accord : les vidéos et publications d'autres sites (YouTube, X…) intégrées à certains articles. Sur ces articles seulement, une petite carte vous le demande, une fois. Cette page dit ce qui est gardé, pourquoi, et comment le régler. Vous retrouvez les mêmes réglages à tout moment avec le lien « Cookies et confidentialité », en bas de chaque page.
 
 ## En bref
 
@@ -51,13 +52,13 @@ Tout cela reste sur votre appareil. Rien n'est envoyé au site, et vous pouvez t
 - Il n'affiche pas de publicité et n'utilise aucun service publicitaire.
 - Il ne vous suit pas d'un site à l'autre et ne partage rien avec des réseaux sociaux.
 - Il ne mesure pas l'ouverture des newsletters et ne suit pas les clics dans les e-mails.
-- Il ne charge rien depuis YouTube, X ou un autre service tant que vous ne l'avez pas demandé.
+- Il ne charge rien depuis YouTube, X ou un autre service tant que vous ne l'avez pas accepté.
 
 ## Les contenus d'autres sites
 
-Certains articles intègrent une vidéo YouTube, une publication X ou un autre contenu venant d'un autre site. À sa place, un encadré indique d'où il vient. Rien n'est demandé à ce service tant que vous ne cliquez pas sur « Afficher » ; à ce moment-là, le contenu se charge depuis le service, qui reçoit votre adresse IP et peut déposer ses propres cookies, selon ses règles ([Google](https://policies.google.com/privacy?hl=fr), [X](https://x.com/fr/privacy)). Les vidéos YouTube sont chargées en « mode confidentialité renforcée ».
+Certains articles intègrent une vidéo YouTube, une publication X ou un autre contenu venant d'un autre site. Tant que vous n'avez pas accepté, rien n'est demandé à ce service : à sa place, un encadré dit d'où vient le contenu et pourquoi il est masqué. Afficher ces contenus les charge depuis le service, qui reçoit votre adresse IP et peut déposer ses propres cookies, selon ses règles ([Google](https://policies.google.com/privacy?hl=fr), [X](https://x.com/fr/privacy)). Les vidéos YouTube sont chargées en « mode confidentialité renforcée ».
 
-Si vous cochez « Toujours afficher les contenus de… », les contenus de ce service s'afficheront ensuite sans clic. Vous pouvez revenir sur ce choix sous chaque contenu affiché ainsi, ou ci-dessous.
+Sur ces articles, une petite carte en bas de l'écran vous demande, une fois, si vous acceptez les contenus intégrés. « Tout accepter » : ils s'affichent sans clic, sur cette page et les suivantes, pendant 6 mois (la question revient ensuite). « Tout refuser » : rien ne change, chaque contenu reste masqué et « Afficher seulement celui-ci » le montre à la demande, sans rien garder. Le bouton « Accepter et afficher » de l'encadré revient à « Tout accepter ». Vous pouvez revenir sur votre choix ci-dessous, service par service, ou sous chaque contenu affiché sans clic. Si votre navigateur envoie le signal Global Privacy Control, la carte ne s'affiche pas et les contenus restent masqués.
 
 ## Les statistiques de visite
 
@@ -81,7 +82,7 @@ Pour toute question : [pro@alexisdechiara.fr](mailto:pro@alexisdechiara.fr). Vos
 
 - **Ouvertures et clics des newsletters gardés** (Settings → Analytics) : retirez la ligne « Il ne mesure pas l'ouverture des newsletters… » ; depuis la recommandation de la CNIL publiée le 14 avril 2026, il faut l'accord de l'abonné pour le pixel d'ouverture (et, par prudence, pour les liens de suivi), par exemple une case non cochée au moment de l'inscription — ce que Portal ne propose pas aujourd'hui. Le plus simple reste de les désactiver.
 - **Member sources gardé** : Ghost note les pages vues pendant la visite (`ghost-history`) et les associe à votre compte si vous vous abonnez ; il faudrait l'accord préalable du lecteur, que le thème ne peut pas recueillir pour un script de Ghost. Désactivez-le.
-- **Un outil de mesure ou de publicité qui demande l'accord** (Google Analytics, AdSense, pixel Meta…) : la première phrase de la page devient fausse. Passez le réglage du thème *Consent notice* à *Banner* ou *Notice*, marquez ses scripts `data-consent` (guide, « Brancher un outil… ») et décrivez l'outil ici (qui, quoi, combien de temps).
+- **Un outil de mesure ou de publicité qui demande l'accord** (Google Analytics, AdSense, pixel Meta…) : la première phrase de la page devient fausse. Gardez le réglage du thème *Consent notice* sur *Notice* (ou *Banner* pour un outil qui doit compter dès la première page), marquez ses scripts `data-consent` (guide, « Brancher un outil… ») et décrivez l'outil ici (qui, quoi, combien de temps).
 
 ## D'où viennent les affirmations
 

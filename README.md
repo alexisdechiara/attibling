@@ -33,12 +33,14 @@ about, subscription and 404 templates
 ✅ Page transitions between pages (cross-document View Transitions, `page_transitions`) and prefetch on
 hover / focus (Speculation Rules with a `<link rel="prefetch">` fallback, off with Save-Data)
 ✅ Ghost 6: native search, Portal, members, comments, custom fonts, announcement bar, every editor card
-✅ Privacy: fonts served by the theme itself (no font service), YouTube / X / other embeds load only on the
-reader's click, blocked by a Content-Security-Policy until then (`embed_consent`; YouTube in privacy-enhanced
-mode) — see « Ce que le navigateur charge, et d'où » in the author guide
-✅ No cookie banner needed as shipped: the theme sets no cookie, a « Cookies et confidentialité » footer panel and
-page (slug `cookies`) show and clear what the browser holds, Plausible opt-out; an optional consent notice
-(`consent_notice`) gates trackers you add with `data-consent` — see « Cookies et confidentialité » in the guide
+✅ Privacy: fonts served by the theme itself (no font service); YouTube / X / other embeds blocked by a
+Content-Security-Policy until the reader agrees (`embed_consent`; YouTube in privacy-enhanced mode) — see
+« Ce que le navigateur charge, et d'où » in the author guide
+✅ Consent without a banner on arrival: the theme sets no cookie; only pages with an embed ask, once, with a
+small corner card (`consent_notice`: Notice by default, Banner, None) and on the embed itself; a « Cookies et
+confidentialité » footer panel and page (slug `cookies`) show and clear what the browser holds; Plausible
+opt-out; scripts you gate with `data-consent`; Google Consent Mode v2 when a Google tag is present — see
+« Cookies et confidentialité » in the guide
 ✅ Accessibility: AA contrast, visible focus, 44 px targets, skip link, `prefers-reduced-motion` respected
 ✅ RTL languages and 33 translations
 

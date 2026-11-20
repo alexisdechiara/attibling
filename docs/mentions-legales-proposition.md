@@ -166,7 +166,7 @@ Les polices, les images et les scripts du site viennent du site lui-même, à ce
 - **Images d'autres sites** : quelques articles affichent une image (capture, logo) directement depuis le site qui la publie.
 - **Plausible** (`analytics.geekly.blog`) : les statistiques décrites plus haut, sur le serveur du site.
 
-**Vidéos YouTube et publications X.** Certains articles intègrent des vidéos YouTube, des publications X (Twitter) ou d'autres contenus venant d'un autre site. Rien n'est demandé à ces services tant que vous ne cliquez pas sur le bouton « Afficher… » de leur encadré ; ce choix se règle sur la page [Cookies et confidentialité](https://geekly.blog/cookies/).
+**Vidéos YouTube et publications X.** Certains articles intègrent des vidéos YouTube, des publications X (Twitter) ou d'autres contenus venant d'un autre site. Rien n’est demandé à ces services tant que vous n’avez pas accepté (une petite carte le propose sur ces articles, l’encadré de chaque contenu aussi) ; ce choix se règle sur la page [Cookies et confidentialité](https://geekly.blog/cookies/).
 
 Une fois affichés, ces contenus sont fournis par leur service, qui reçoit votre adresse IP et applique ses propres règles :
 
