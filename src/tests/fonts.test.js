@@ -80,6 +80,21 @@ describe("fonts", () => {
 		await dispose();
 	});
 
+	it("preload Literata on wide screens only: on phones the article's picture is asked for first", async () => {
+		for (const [viewport, pictureFirst] of [
+			[{ width: 390, height: 844 }, true],
+			[{ width: 1280, height: 800 }, false],
+		]) {
+			const { page, requests, dispose } = await open({ render: article(), viewport });
+			await page.evaluate(() => document.fonts.ready);
+			const font = requests.findIndex(url => url.includes("/literata/literata-latin.woff2"));
+			const picture = requests.findIndex(url => url.includes("photo.svg"));
+			assert.ok(font >= 0 && picture >= 0, requests.join("\n"));
+			assert.equal(picture < font, pictureFirst, `at ${viewport.width}px: ${requests.join("\n")}`);
+			await dispose();
+		}
+	});
+
 	it("load Literata from the theme on posts, roman preloaded, italic only when the text has some", async () => {
 		const { page, requests, dispose } = await open({ render: article() });
 		await page.evaluate(() => document.fonts.ready);
