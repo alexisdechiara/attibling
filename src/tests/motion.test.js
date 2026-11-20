@@ -107,28 +107,54 @@ describe("arrival animation", () => {
 		await dispose();
 	});
 
-	for (const [name, act] of [
-		["a key", page => page.keyboard.press("Tab")],
-		["a click", page => page.mouse.click(600, 400)],
-		["the wheel", page => page.mouse.wheel(0, 200)],
+	// What the reader does reaches the page some time after Playwright sends it: under load, a wheel sent at
+	// the mouse's starting point (0, 0) was seen arriving 0.6 to 1.2 s later, once the animation had ended
+	// by itself, so a 300 ms window measured from the test's side failed now and then. Here the 2.1 s timer
+	// that ends the animation on its own is held, and the timing is read in the page: the animation switches
+	// to « skip » in the same task as the reader's event, then is gone within a few frames.
+	const HOLD_NATURAL_END = () => {
+		const timeout = window.setTimeout;
+		window.setTimeout = (fn, delay, ...rest) => timeout(fn, delay === 2100 ? 600000 : delay, ...rest);
+		window.__intro = [];
+		for (const type of ["keydown", "pointerdown", "wheel"])
+			addEventListener(type, () => window.__intro.push([type, performance.now()]), true);
+		new MutationObserver(() =>
+			window.__intro.push([document.documentElement.getAttribute("data-intro"), performance.now()]),
+		).observe(document, { attributes: true, subtree: true, attributeFilter: ["data-intro"] });
+	};
+	for (const [name, type, act] of [
+		["a key", "keydown", page => page.keyboard.press("Tab")],
+		["a click", "pointerdown", page => page.mouse.click(600, 400)],
+		[
+			"the wheel",
+			"wheel",
+			async page => {
+				// Over the page, as a reader's wheel is
+				await page.mouse.move(600, 400);
+				await page.mouse.wheel(0, 200);
+			},
+		],
 	]) {
 		it(`ends at once on ${name}`, async () => {
-			const { page, dispose } = await open({ render: home({ custom: INTRO }) });
+			const { page, dispose } = await open({ render: home({ custom: INTRO }), initScript: HOLD_NATURAL_END });
 			await sleep(200);
+			assert.equal((await introState(page)).attribute, "play", "still playing before the reader acts");
 			await act(page);
-			assert.ok(
-				await waitFor(async () => (await introState(page)).title === "1", { timeout: 300 }),
-				"the hero shows straight away",
-			);
 			const state = await waitFor(
 				async () => {
 					const s = await introState(page);
 					return s.attribute === null && s;
 				},
-				{ timeout: 600 },
+				{ timeout: 5000 },
 			);
-			assert.ok(state, "gone within a few frames");
-			assert.equal(state.layer, "none");
+			assert.ok(state, "the animation ends");
+			assert.deepEqual([state.layer, state.title], ["none", "1"]);
+			const log = await page.evaluate(() => window.__intro);
+			const at = what => log.find(([w]) => w === what)?.[1];
+			const trace = JSON.stringify(log);
+			assert.ok(at(type) !== undefined && at("skip") !== undefined, `the ${type} ends it: ${trace}`);
+			assert.ok(at("skip") - at(type) < 50, `« skip » with the event: ${trace}`);
+			assert.ok(log.findLast(([w]) => w === null)[1] - at("skip") < 400, `gone within a few frames: ${trace}`);
 			await dispose();
 		});
 	}
