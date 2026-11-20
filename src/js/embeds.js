@@ -15,6 +15,13 @@
 // says so in the live region.
 import { embeds as choices, consent, consentMode } from "./privacy/choices";
 
+// The tallest a frame may make itself (its height comes from the provider's page, which could say
+// anything): taller than a long post or thread on any provider (about 1,500 px), short enough that an
+// embed cannot push the rest of the article out of reach. Taller content scrolls inside its frame.
+const MAX_EMBED_HEIGHT = 4000;
+const boundedHeight = value =>
+	typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.min(Math.ceil(value), MAX_EMBED_HEIGHT) : 0;
+
 // Known providers: host, kind of embed (the button says « video », « post » or « content »), the link
 // to the content on the provider's site, and how the frame's address changes when it loads
 export const PROVIDERS = [
@@ -243,8 +250,8 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		const fits = !ratio && !original;
 		const onMessage = event => {
 			if (event.source !== frame.contentWindow || !frame.isConnected) return;
-			const height = event.data?.attiblingEmbed?.height;
-			if (fits && height > 0) frame.style.height = `${Math.ceil(height)}px`;
+			const height = boundedHeight(event.data?.attiblingEmbed?.height);
+			if (fits && height) frame.style.height = `${height}px`;
 		};
 		window.addEventListener("message", onMessage);
 		frame.addEventListener(

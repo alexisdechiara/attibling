@@ -150,6 +150,44 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
+	it("never let an embed push the article down: only a finite height, at most 4000 px", async () => {
+		// A scripted embed (its script runs in the frame page, next to the relay) and an X frame, each
+		// claiming a huge height, as a number and as a string
+		const SCRIPTED =
+			'<figure class="kg-card kg-embed-card"><blockquote class="other-post">A post</blockquote><script async src="https://embed.example.org/embed.js"></script></figure>';
+		const { page, dispose } = await open({ render: facadeOnly({ html: SCRIPTED + X_CARD }) });
+		await page.route("https://embed.example.org/**", route =>
+			route.fulfill({
+				contentType: "text/javascript",
+				body: `parent.postMessage({ attiblingEmbed: { height: "1e6" } }, "*");
+					document.body.append(Object.assign(document.createElement("div"), { style: "height:10000000px" }));
+					parent.postMessage({ attiblingEmbed: { height: 1e7 } }, "*");
+					parent.postMessage({ attiblingEmbed: { height: Infinity } }, "*");`,
+			}),
+		);
+		await page.route("https://platform.twitter.com/**", route =>
+			route.fulfill({
+				contentType: "text/html",
+				body: `<body style="margin:0"><script>
+					const say = h => parent.postMessage(JSON.stringify({ "twttr.embed": { method: "twttr.private.resize", params: [{ width: 550, height: h }] } }), "*");
+					say("1e6"); say(1e7);
+				</script></body>`,
+			}),
+		);
+		await page.locator('[data-embed-facade]:not([data-provider="x"]) [data-embed-load]').first().click();
+		await page.locator('[data-provider="x"] [data-embed-load]').click();
+		const frames = page.locator("iframe[data-embed-frame]");
+		await waitFor(() => frames.count().then(n => n === 2));
+		await page.waitForTimeout(800);
+		const heights = await frames.evaluateAll(list => list.map(f => f.offsetHeight));
+		for (const height of heights) assert.ok(height > 0 && height <= 4000, `frame height ${height}`);
+		// The X player in the frame page is bounded too (its own message, "1e6" refused)
+		const inner = await frames.nth(1).evaluate(f => f.contentDocument?.querySelector("iframe")?.style.height);
+		assert.equal(inner, "4000px");
+		assert.ok((await page.evaluate(() => document.documentElement.scrollHeight)) < 20000, "the page keeps its length");
+		await dispose();
+	});
+
 	it("run any other scripted embed in a sandbox, cut off from the site, its markup and script kept", async () => {
 		const SCRIPTED =
 			'<figure class="kg-card kg-embed-card"><blockquote class="other-post">A post</blockquote><script async src="https://embed.example.org/embed.js"></script></figure>';
