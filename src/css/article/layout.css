@@ -121,10 +121,15 @@
   --color-focus: var(--color-focus-on-media);
 }
 
+/* The second tag: white text on a translucent dark pill, so it stays readable where the image is light
+   (the scrim is weakest at the top of the card, where the tags are) */
 .article-header__tag-link {
   display: inline-flex;
   align-items: center;
   min-height: 32px;
+  padding-inline: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-scrim);
   color: var(--color-on-media);
   font-size: var(--text-nav);
   font-weight: var(--weight-bold);
@@ -241,6 +246,11 @@
   .article-header__updated {
     color: var(--color-text);
     --color-focus: var(--color-accent);
+  }
+
+  .article-header__tag-link {
+    padding-inline: 0;
+    background: none;
   }
 
   .article-header__meta {

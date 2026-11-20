@@ -12,7 +12,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées, vignette d'un article (image des cartes)
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
 5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
-6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, vidéos et contenus intégrés
+6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, article réservé aux abonnés, vidéos et contenus intégrés
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
 9. [Référence : les conventions](#9-référence--les-conventions)
@@ -1447,6 +1447,19 @@ grises (pied de page, mentions sous un formulaire) sont eux aussi en couleur, ja
 
 Si vous avez choisi des polices personnalisées dans Ghost (Brand → Typography), elles remplacent Onest et
 Literata par défaut ; la liste garde les noms « Onest » et « Literata » pour l'option par défaut.
+
+### Article réservé aux abonnés
+
+**Ghost** : dans l'article, panneau de réglages (icône en haut à droite) → **Post access** : *Members only*
+(abonnés), *Paid-members only* (abonnés payants) ou *Specific tier(s)*. Pour laisser un début lisible par
+tous, insérez la carte **Public preview** (`/public` dans l'éditeur) : ce qui est au-dessus reste public.
+
+Le lecteur sans accès voit ce début, puis l'encart du thème « Cet article est réservé aux abonnés » (ou « aux
+abonnés payants », « aux abonnés de ces offres : … ») avec « S'abonner » et « Déjà abonné ? Se connecter ».
+Pour un article *Members only*, « S'abonner » mène à la page d'abonnement du thème (comme le bouton de
+l'en-tête) ; pour un article payant, à la fenêtre Portal de Ghost, qui présente les offres. Un abonné gratuit
+devant un article payant voit « Changer d'abonnement ». Les textes viennent du thème (traduits), les
+couleurs du thème clair ou sombre : la couleur d'accent de Ghost n'y est pas utilisée.
 
 ### Copier un lien, copier du code
 

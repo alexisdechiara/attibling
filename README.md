@@ -68,6 +68,29 @@ class="fiche-test">`, Review structured data), `#mis-a-jour`, the author box and
 the arrival animation, page transitions and prefetch; and it ends with a reference of every setting and
 convention and a troubleshooting table.
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and every push to a branch other than `master`/`main`.
+Two jobs, in parallel, on Ubuntu with Node 22:
+
+- **Check, build, assets, gscan**: `npm ci`, `npm run check` (format and lint), `npm run build`, then a check
+  that the committed built files (`assets/` and `partials/tags/prepaint.hbs`) are exactly what the build
+  produces, then `npm run zip` and gscan (pinned version, Ghost 6 rules) on the zip.
+- **Browser tests**: `npm ci`, Chromium's headless shell through Playwright (cached per Playwright version),
+  `npm test`.
+
+A push to `master`/`main` runs `.github/workflows/deploy-theme.yml`: it calls the same CI workflow first and
+uploads the theme to the site only if every check passes.
+
+**When « Built assets are out of date » fails**: the theme is deployed as committed (Ghost does not build
+it), so `assets/` must be rebuilt with every change to `src/`. Run `npm ci` (once) and `npm run build`, then
+commit the changed files under `assets/` (and `partials/tags/prepaint.hbs` if it changed), usually as a last
+commit « Rebuild theme assets », and push again. The job log lists the files that differ.
+
+To run the same checks locally before pushing: `npm ci && npm run check && npm run build && git status
+--short assets partials/tags` (must print nothing) `&& npm test && npm run zip && npx gscan@6.7.0 -z
+attibling.zip --v6`, then delete `attibling.zip`.
+
 
 ## Localization
 

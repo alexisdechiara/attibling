@@ -33,8 +33,17 @@ const setUpHero = hero => {
 	};
 
 	dots.forEach((dot, i) => dot.addEventListener("click", () => show(i)));
+	// Escape hides the title preview of the hovered or focused dot, which covers the post's title
+	// (WCAG 1.4.13), until the pointer leaves the pager or the focus moves to another dot
+	const showPreview = () => pager.removeAttribute("data-preview-hidden");
+	pager.addEventListener("focusin", showPreview);
+	pager.addEventListener("pointerleave", showPreview);
 	// Arrow keys move between the dots
 	pager.addEventListener("keydown", event => {
+		if (event.key === "Escape") {
+			pager.setAttribute("data-preview-hidden", "");
+			return;
+		}
 		const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
 		let step = keys[event.key];
 		const from = dots.indexOf(document.activeElement);

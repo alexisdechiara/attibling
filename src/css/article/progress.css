@@ -3,6 +3,13 @@
    full as its end does (the "entry-crossing" range of a view timeline). Where scroll-driven animations
    or timeline-scope are missing, post.js sets the dash offset instead. */
 
+/* A control reached with Tab near the bottom of the screen is scrolled above the button, which would
+   otherwise cover its focus ring (52 px + its offset + a margin). A scroll margin on the controls, not
+   a scroll padding on the page, which would also shrink the view timeline of the ring. */
+.site-main :is(a, button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-block-end: calc(52px + 2 * var(--space-5));
+}
+
 .progress-button {
   position: fixed;
   inset-block-end: max(var(--space-5), env(safe-area-inset-bottom));

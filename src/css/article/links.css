@@ -6,8 +6,9 @@
                  underline, as Wikiwand; thicker and in the accent colour on hover and focus.
    The accent differs from the body text by its hue and lightness (about 1.8:1 to 3:1 depending on the
    reading theme, see docs/guide-auteur.md): « Soulignés » is the choice for readers who need more.
-   Ghost's own button-like cards (kg-… classes) and the theme's copy buttons are left alone. */
-.gh-content a:not([class*="kg-"]),
+   Ghost's own button-like cards (kg-… classes), the theme's copy buttons and the « réservé aux abonnés »
+   box (partials/content-cta.hbs) are left alone. */
+.gh-content a:not([class*="kg-"], [data-members-cta] a),
 .page-content a:not([class]) {
   color: var(--color-accent);
   text-decoration-line: none;
@@ -19,7 +20,8 @@
   }
 }
 
-:root[data-reading-links="underline"] :is(.gh-content a:not([class*="kg-"]), .page-content a:not([class])) {
+:root[data-reading-links="underline"]
+  :is(.gh-content a:not([class*="kg-"], [data-members-cta] a), .page-content a:not([class])) {
   color: inherit;
   text-decoration-line: underline;
   text-decoration-color: color-mix(in srgb, currentColor 70%, transparent);

@@ -201,8 +201,23 @@ export const renderTemplate = (name, options = {}) => {
 			const words = opts?.hash?.words;
 			return words ? text.split(/\s+/).slice(0, Number(words)).join(" ") : text;
 		},
-		content() {
+		// Like Ghost (core/frontend/helpers/content.js): a post the reader may not read in full
+		// (access === false) renders the theme's content-cta partial, the post as its context
+		content(opts) {
+			if (this.access !== undefined && !this.access) {
+				if (!H.partials["content-cta"]) throw new Error("Ghost's default content-cta is not stubbed");
+				return safe(H.partials["content-cta"]({ ...this, html: this.html ?? "" }, { data: opts.data }));
+			}
 			return safe(this.html || "<p>Body</p>");
+		},
+		// Like Ghost (helpers/tiers.js): the names of the post's tiers, "a, b and c tiers"
+		tiers(opts) {
+			const names = (this.tiers || []).map(tier => H.escapeExpression(tier.name));
+			if (!names.length) return "";
+			const { separator = ", ", lastSeparator = " and ", prefix = "" } = opts.hash;
+			const suffix = opts.hash.suffix ?? (names.length === 1 ? " tier" : " tiers");
+			const list = names.length === 1 ? names[0] : names.slice(0, -1).join(separator) + lastSeparator + names.at(-1);
+			return safe(prefix + list + suffix);
 		},
 		comments: () => "",
 		authors(opts) {
@@ -319,9 +334,15 @@ export const renderTemplate = (name, options = {}) => {
 			return wanted.some(n => contexts.includes(n)) ? opts.fn(this) : opts.inverse(this);
 		},
 		has(opts) {
-			const { tag, any, author, number, index } = opts.hash;
+			const { tag, any, author, number, index, visibility } = opts.hash;
 			let ok = false;
-			if (tag) {
+			if (visibility) {
+				// Like Ghost: the post's visibility is one of the given ones
+				ok = visibility
+					.split(",")
+					.map(v => v.trim())
+					.includes(this.visibility);
+			} else if (tag) {
 				const names = tag.split(",").map(n => n.trim().toLowerCase());
 				ok = (this.tags || []).some(t => names.includes(t.name.toLowerCase()));
 			} else if (any) {

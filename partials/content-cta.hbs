@@ -1,0 +1,45 @@
+{{!--
+Replaces Ghost's own call to action under a post or page the reader may not read in full (members-only,
+paid or tiers visibility). Ghost's {{content}} helper renders this partial instead of the text, with the
+post as its context: {{{html}}} is the public preview (the part above the « public preview » divider of
+the editor), then this box. Texts come from the theme's locales; colours and buttons from the design
+system (src/css/article/features.css). « S'abonner » leads to the theme's subscription page
+(subscribe-link.hbs) for a members-only post; for a paid one, to Ghost's Portal, which shows the plans.
+« Se connecter » leads to the sign-in form of that page (signin-link.hbs). A member without access (paid
+content) gets « Changer d'abonnement » (Portal).
+--}}
+{{{html}}}
+<aside class="members-cta" aria-labelledby="members-cta-title" data-members-cta>
+  <h2 class="members-cta__title js-toc-ignore" id="members-cta-title">
+    {{> "icons/lock"}}
+    <span>
+    {{#has visibility="paid"}}
+      {{#is "page"}}{{t "This page is for paying subscribers only"}}{{else}}{{t "This post is for paying subscribers only"}}{{/is}}
+    {{/has}}
+    {{#has visibility="members"}}
+      {{#is "page"}}{{t "This page is for subscribers only"}}{{else}}{{t "This post is for subscribers only"}}{{/is}}
+    {{/has}}
+    {{#has visibility="tiers"}}
+      {{#is "page"}}
+        {{t "This page is reserved for these plans: {tiers}" tiers=(tiers separator=", " lastSeparator=(t " and ") suffix="")}}
+      {{else}}
+        {{t "This post is reserved for these plans: {tiers}" tiers=(tiers separator=", " lastSeparator=(t " and ") suffix="")}}
+      {{/is}}
+    {{/has}}
+    </span>
+  </h2>
+  <p class="members-cta__actions">
+    {{#if @member}}
+      <a class="button button--primary" href="#/portal/account/plans" data-portal="account/plans">{{t "Upgrade your account"}}</a>
+    {{else}}
+      {{#has visibility="members"}}
+        {{> subscribe-link class="button button--primary" label=(t "Subscribe")}}
+      {{else}}
+        <a class="button button--primary" href="#/portal/signup" data-portal="signup">{{t "Subscribe"}}</a>
+      {{/has}}
+      {{#if @site.members_enabled}}
+        <span class="members-cta__signin">{{t "Already a member?"}} {{> signin-link class="members-cta__login"}}</span>
+      {{/if}}
+    {{/if}}
+  </p>
+</aside>

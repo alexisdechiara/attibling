@@ -5,6 +5,9 @@ arrival), the home link and the first sections of the main navigation, then the 
 No post → « Aucun article récent trouvé ».
 --}}
 
+{{!-- Ghost's meta_title gives only the site title here: « Page non trouvée - GEEKLY » --}}
+{{#contentFor "title"}}{{t "Page not found"}} - {{/contentFor}}
+
 {{#contentFor "preload"}}
   <link rel="preload" href="{{asset "css/404.css"}}" as="style" />
 {{/contentFor}}
