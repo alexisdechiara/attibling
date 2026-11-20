@@ -3,6 +3,8 @@
 // { settings, posts, tags, authors, now }; every option can switch a part of the data off to test
 // the fallbacks of the templates.
 //  - image(post, index): feature image URL of a post, or null (default: a local SVG)
+//  - ogImage(post, index) / twitterImage(post, index): the post's images set for sharing (Ghost
+//    Admin > Post settings > Social preview), null by default as in Ghost when none is set
 //  - tagImage(tag): feature image URL of a tag, or null
 //  - featured: false to remove the "featured" flag from every post
 //  - top: false to remove the #top / #top-N internal tags
@@ -157,6 +159,8 @@ const slugToTag = slug => {
 export const createSite = (options = {}) => {
 	const {
 		image = (post, i) => `/src/tests/fixtures/photo.svg?${i}`,
+		ogImage = () => null,
+		twitterImage = () => null,
 		tagImage = tag => (tag.withImage ? `/src/tests/fixtures/photo.svg?tag-${tag.slug}` : null),
 		featured = true,
 		top = true,
@@ -228,6 +232,11 @@ export const createSite = (options = {}) => {
 				primary_author: authorOf(i),
 			};
 			post.feature_image = image(post, i);
+			// Like Ghost 6 (posts_meta flattened onto the post by the Content API): always present, null
+			// when the author set no image for sharing; Ghost's ghost_head falls back to the feature
+			// image at render time only, never in these fields
+			post.og_image = ogImage(post, i);
+			post.twitter_image = twitterImage(post, i);
 			return post;
 		},
 	);

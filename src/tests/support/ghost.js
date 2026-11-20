@@ -187,7 +187,9 @@ export const renderTemplate = (name, options = {}) => {
 		img_url(image, opts) {
 			if (!image) return "";
 			const size = opts?.hash?.size;
-			return size ? `${image}${image.includes("?") ? "&" : "?"}size=${size}` : image;
+			// format="webp" (Ghost: /size/wN/format/webp/…), written after the size
+			const format = opts?.hash?.format ? `&format=${opts.hash.format}` : "";
+			return size ? `${image}${image.includes("?") ? "&" : "?"}size=${size}${format}` : image;
 		},
 		page_url: page => (page === 1 ? "/" : `/page/${page}/`),
 		encode: value => encodeURIComponent(String(value)),
@@ -297,6 +299,14 @@ export const renderTemplate = (name, options = {}) => {
 			const total = items.length;
 			const size = limit === "all" ? 100 : Math.min(Number(limit), 100);
 			items = items.slice((page - 1) * size, page * size);
+			// Like Ghost's Content API: fields="a,b" returns only those columns (posts_meta fields such as
+			// og_image / twitter_image included, which are otherwise always present, null when unset)
+			if (opts.hash.fields) {
+				const keep = String(opts.hash.fields)
+					.split(",")
+					.map(f => f.trim());
+				items = items.map(item => Object.fromEntries(Object.entries(item).filter(([k]) => keep.includes(k))));
+			}
 			const meta = { pagination: { page: Number(page), limit: size, pages: Math.ceil(total / size), total } };
 			const result = { [resource]: items, meta };
 			// Like Ghost (core/frontend/helpers/get.js, renderResponse): the block is rendered even when
