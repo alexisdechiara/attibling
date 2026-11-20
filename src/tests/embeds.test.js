@@ -152,6 +152,27 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
+	it("print a line with what the embed is and its address, before it, shown or not", async () => {
+		const { page, dispose } = await open({ render: facadeOnly({ html: HTML }) });
+		const lines = () =>
+			page.$$eval(".embed-print", list =>
+				list.map(p => (p.getClientRects().length ? p.textContent.replace(/\s+/g, " ").trim() : null)),
+			);
+		await page.locator('[data-provider="youtube"] [data-embed-load]').click();
+		await page.locator("iframe[data-embed-frame]").waitFor();
+		assert.deepEqual(await lines(), [null, null, null], "nothing on screen");
+		await page.emulateMedia({ media: "print" });
+		assert.deepEqual(await lines(), [
+			"Contenu de YouTube — Un revenu inconditionnel ? (https://www.youtube.com/watch?v=_jGbRsxHi7Q&t=12)",
+			"Contenu de X (https://twitter.com/quelqu_un/status/2021734851636797553?ref_src=twsrc%5Etfw)",
+			"Contenu de embed.example.org (https://embed.example.org/widget?id=1)",
+		]);
+		// No address printed twice (the print sheet adds it after other external links)
+		const after = await page.$eval(".embed-print a", a => getComputedStyle(a, "::after").content);
+		assert.equal(after, "none");
+		await dispose();
+	});
+
 	it("never let an embed push the article down: only a finite height, at most 4000 px", async () => {
 		// A scripted embed (its script runs in the frame page, next to the relay) and an X frame, each
 		// claiming a huge height, as a number and as a string

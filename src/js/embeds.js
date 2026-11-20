@@ -329,6 +329,15 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			fill(strings.frameTitle, provider) + (frame?.getAttribute("title") ? ` — ${frame.getAttribute("title")}` : "");
 		facade.setAttribute("role", "group");
 		facade.setAttribute("aria-label", name);
+		// On paper (print.css), where neither the facade nor a frame can show: one line, before the embed,
+		// with what it is and its address (« Contenu de YouTube — title (https://…) »), whichever is shown
+		const printed = document.createElement("p");
+		printed.className = "embed-print";
+		printed.hidden = true;
+		const address = document.createElement("a");
+		address.href = address.textContent = linkOf(embed);
+		printed.append(`${name} (`, address, ")");
+		(embed.container || nodes[0]).before(printed);
 		const note = facade.querySelector("[data-embed-note]");
 		note.id = `embed-note-${++notes}`;
 		facade
