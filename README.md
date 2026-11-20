@@ -36,6 +36,9 @@ hover / focus (Speculation Rules with a `<link rel="prefetch">` fallback, off wi
 ✅ Privacy: fonts served by the theme itself (no font service), YouTube / X / other embeds load only on the
 reader's click, blocked by a Content-Security-Policy until then (`embed_consent`; YouTube in privacy-enhanced
 mode) — see « Ce que le navigateur charge, et d'où » in the author guide
+✅ No cookie banner needed as shipped: the theme sets no cookie, a « Cookies et confidentialité » footer panel and
+page (slug `cookies`) show and clear what the browser holds, Plausible opt-out; an optional consent notice
+(`consent_notice`) gates trackers you add with `data-consent` — see « Cookies et confidentialité » in the guide
 ✅ Accessibility: AA contrast, visible focus, 44 px targets, skip link, `prefers-reduced-motion` respected
 ✅ RTL languages and 33 translations
 
