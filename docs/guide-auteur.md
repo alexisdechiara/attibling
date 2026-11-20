@@ -538,7 +538,7 @@ la grille des autres articles (7 par page) et la pagination.
   unie.
 - **Description** : même écran, champ **Description**. Elle s'affiche sous le nom (et sur la page
   « À propos »). Vide : la ligne disparaît.
-- **Nombre d'articles** : automatique (« 24 articles avec ce mot clé »).
+- **Nombre d'articles** : automatique (« 24 articles avec ce tag »).
 - **Article en tête** : le plus récent des articles du tag marqués **Feature this post** (réglages de
   l'article). S'il n'y en a aucun, l'article le plus récent du tag. Il n'est pas répété dans la grille de la
   page 1 ; les pages 2 et suivantes n'ont que la grille.
@@ -794,10 +794,10 @@ courte).
 
 **Deux états, une seule page** :
 
-- **S'abonner** (par défaut, `#inscription`) : « Votre nom (facultatif) » puis « Votre adresse email »,
+- **S'abonner** (par défaut, `#inscription`) : « Votre nom (facultatif) » puis « Votre adresse e-mail »,
   bouton « S'abonner ». Le nom est enregistré dans la fiche de l'abonné (Members). Une adresse vide ou mal
-  écrite est signalée poliment sous le champ (« Veuillez saisir votre adresse email », « Veuillez entrer une
-  adresse email valide ») sans rien envoyer. Pendant l'envoi le bouton montre une roue, puis « Super ! Vous
+  écrite est signalée poliment sous le champ (« Veuillez saisir votre adresse e-mail », « Veuillez entrer une
+  adresse e-mail valide ») sans rien envoyer. Pendant l'envoi le bouton montre une roue, puis « Super ! Vous
   vous êtes inscrit avec succès. Regardez votre boîte mail… » : l'abonné confirme en cliquant le lien reçu.
   En cas d'erreur (envoi d'e-mail impossible…), le message de Ghost s'affiche sous le champ.
 - **Se connecter** (`#connexion`, ou « Déjà abonné ? Se connecter ») : l'adresse e-mail, bouton « Recevoir un

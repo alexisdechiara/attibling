@@ -152,6 +152,31 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
+	it("give a generic title (« YouTube video ») a title in the page's language", async () => {
+		const card = title =>
+			`<figure class="kg-card kg-embed-card"><iframe width="200" height="113" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" title="${title}"></iframe></figure>`;
+		const vimeo =
+			'<figure class="kg-card kg-embed-card"><iframe width="640" height="360" src="https://player.vimeo.com/video/1" title="vimeo video player"></iframe></figure>';
+		const { page, dispose } = await open({
+			render: facadeOnly({ html: card("YouTube video") + card("YouTube") + vimeo + card("Une vraie vidéo") }),
+		});
+		const shown = await page.$$eval("[data-embed-facade]", list =>
+			list.map(f => [f.querySelector("[data-embed-title]")?.textContent, f.getAttribute("aria-label")]),
+		);
+		assert.deepEqual(shown, [
+			["Vidéo YouTube", "Contenu de YouTube — Vidéo YouTube"],
+			["Vidéo YouTube", "Contenu de YouTube — Vidéo YouTube"],
+			["Vidéo Vimeo", "Contenu de Vimeo — Vidéo Vimeo"],
+			["Une vraie vidéo", "Contenu de YouTube — Une vraie vidéo"],
+		]);
+		await page.locator("[data-embed-load]").first().click();
+		assert.equal(
+			await page.locator("iframe[data-embed-frame]").getAttribute("title"),
+			"Contenu de YouTube — Vidéo YouTube",
+		);
+		await dispose();
+	});
+
 	it("print a line with what the embed is and its address, before it, shown or not", async () => {
 		const { page, dispose } = await open({ render: facadeOnly({ html: HTML }) });
 		const lines = () =>

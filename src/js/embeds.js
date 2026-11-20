@@ -184,6 +184,19 @@ const tweetOf = embed => {
 
 const fill = (text, provider) => text.replaceAll("{provider}", provider.name);
 
+// The embed's title, as the provider gave it to Ghost (the frame's title). A generic one (« YouTube
+// video », « vimeo video player », just the provider's name) says nothing and is in English: « Vidéo
+// YouTube » / « Publication X » in the page's language instead, nothing for other content.
+const titleOf = (embed, strings) => {
+	const { provider, frame } = embed;
+	const title = frame?.getAttribute("title")?.trim() || "";
+	const name = provider.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const generic = new RegExp(`^(${name})?\\s*(video|vidéo|post|tweet)?\\s*(player|embed)?$`, "i");
+	if (!generic.test(title)) return title;
+	const fallback = { video: strings.titleVideo, post: strings.titlePost }[provider.kind];
+	return fallback ? fill(fallback, provider) : "";
+};
+
 let notes = 0;
 
 export const setUpEmbeds = (root = document.querySelector("main")) => {
@@ -204,7 +217,7 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		const frame = document.createElement("iframe");
 		frame.src = strings.embedFrame;
 		frame.dataset.embedFrame = provider.id;
-		const title = original?.getAttribute("title");
+		const title = titleOf(embed, strings);
 		frame.title = fill(strings.frameTitle, provider) + (title ? ` — ${title}` : "");
 		frame.setAttribute("allow", ALLOW);
 		frame.setAttribute("allowfullscreen", "");
@@ -234,7 +247,7 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			const url = new URL(embed.source.href);
 			const src = provider.load ? provider.load(url) : url;
 			if (clicked && provider.kind === "video") src.searchParams.set("autoplay", "1");
-			message = { player: { src: src.href, title, allow: ALLOW, focus: clicked } };
+			message = { player: { src: src.href, title: title || undefined, allow: ALLOW, focus: clicked } };
 		} else if (tweet) {
 			const src = new URL("https://platform.twitter.com/embed/Tweet.html");
 			src.searchParams.set("id", tweet);
@@ -309,9 +322,10 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			{ video: strings.labelVideo, post: strings.labelPost }[provider.kind] || strings.labelContent,
 			provider,
 		);
+		const titleText = titleOf(embed, strings);
 		const title = facade.querySelector("[data-embed-title]");
 		const quote = !frame && nodes.find(node => node.nodeType === 1 && node.matches("blockquote"));
-		if (frame?.getAttribute("title")) title.textContent = frame.getAttribute("title");
+		if (frame && titleText) title.textContent = titleText;
 		else title.remove();
 		const poster = facade.querySelector("[data-embed-poster]");
 		if (quote) {
@@ -325,8 +339,7 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		const checkbox = facade.querySelector("[data-embed-always]");
 		// A named group (« Contenu de YouTube — title »), its buttons described by the note: read in that
 		// order, and « Afficher seulement celui-ci » says which content it shows, even out of context
-		const name =
-			fill(strings.frameTitle, provider) + (frame?.getAttribute("title") ? ` — ${frame.getAttribute("title")}` : "");
+		const name = fill(strings.frameTitle, provider) + (frame && titleText ? ` — ${titleText}` : "");
 		facade.setAttribute("role", "group");
 		facade.setAttribute("aria-label", name);
 		// On paper (print.css), where neither the facade nor a frame can show: one line, before the embed,

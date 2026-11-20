@@ -180,7 +180,7 @@ describe("subscription page", () => {
 				autocomplete: "email",
 				required: true,
 				hook: "email",
-				label: "Votre adresse email",
+				label: "Votre adresse e-mail",
 			},
 		]);
 		await dispose();
@@ -211,7 +211,7 @@ describe("subscription page", () => {
 		await page.locator("[data-subscribe-form] button[type=submit]").click();
 		assert.deepEqual(await state(), {
 			sent: 0,
-			error: "Veuillez saisir votre adresse email",
+			error: "Veuillez saisir votre adresse e-mail",
 			invalid: "true",
 			focus: "subscribe-email",
 		});
@@ -219,7 +219,7 @@ describe("subscription page", () => {
 		await page.keyboard.press("Enter");
 		assert.deepEqual(await state(), {
 			sent: 0,
-			error: "Veuillez entrer une adresse email valide",
+			error: "Veuillez entrer une adresse e-mail valide",
 			invalid: "true",
 			focus: "subscribe-email",
 		});
