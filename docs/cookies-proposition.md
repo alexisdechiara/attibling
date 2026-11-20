@@ -32,7 +32,7 @@ GEEKLY n'affiche pas de bandeau de cookies à l'arrivée : rien de ce que le sit
 - Pas de publicité, pas de suivi d'un site à l'autre, pas de revente de données.
 - Le site ne dépose **aucun cookie** si vous n'êtes pas abonné. Abonné connecté, un seul cookie vous garde connecté.
 - Vos préférences (mode sombre, réglages de lecture) et vos listes d'abonné restent **dans votre navigateur** : elles ne sont pas envoyées au site.
-- Les vidéos YouTube, les publications X et les autres contenus d'autres sites ne se chargent **que si vous cliquez** dessus.
+- Les vidéos YouTube, les publications X et les autres contenus d'autres sites ne se chargent **que si vous les acceptez** : d'un clic sur chacun, ou une fois pour toutes (vous pouvez revenir sur ce choix).
 - Les statistiques de visite sont anonymes, sans cookie, et vous pouvez demander à ne pas être compté.
 
 ## Ce que le site garde, et pourquoi
@@ -45,7 +45,7 @@ GEEKLY n'affiche pas de bandeau de cookies à l'arrivée : rien de ce que le sit
 
 **Vos choix.** Les services que vous avez choisi d'afficher sans clic, ou votre refus d'être compté dans les statistiques : le site garde ces choix pour les respecter.
 
-Tout cela reste sur votre appareil. Rien n'est envoyé au site, et vous pouvez tout effacer ici même. Attention : vos listes d'abonné sont gardées par ce navigateur, pas par votre compte. Sur un ordinateur partagé, la personne qui se connecte après vous les verrait : déconnectez-vous avec le lien « Se déconnecter » du site, qui les efface, ou effacez-les ci-dessous.
+Tout cela reste sur votre appareil. Rien n'est envoyé au site, et vous pouvez tout effacer ici même. Vos listes d'abonné et vos réglages d'affichage sont gardés par ce navigateur, pas par votre compte : ils sont effacés quand vous vous déconnectez, ou quand une autre personne se connecte sur ce navigateur.
 
 ## Ce que le site ne fait pas
 
@@ -58,7 +58,7 @@ Tout cela reste sur votre appareil. Rien n'est envoyé au site, et vous pouvez t
 
 Certains articles intègrent une vidéo YouTube, une publication X ou un autre contenu venant d'un autre site. Tant que vous n'avez pas accepté, rien n'est demandé à ce service : à sa place, un encadré dit d'où vient le contenu et pourquoi il est masqué. Afficher ces contenus les charge depuis le service, qui reçoit votre adresse IP et peut déposer ses propres cookies, selon ses règles ([Google](https://policies.google.com/privacy?hl=fr), [X](https://x.com/fr/privacy)). Les vidéos YouTube sont chargées en « mode confidentialité renforcée ».
 
-Sur ces articles, une petite carte en bas de l'écran vous demande, une fois, si vous acceptez les contenus intégrés. « Tout accepter » : ils s'affichent sans clic, sur cette page et les suivantes, pendant 6 mois (la question revient ensuite). « Tout refuser » : rien ne change, chaque contenu reste masqué et « Afficher seulement celui-ci » le montre à la demande, sans rien garder. Le bouton « Accepter et afficher » de l'encadré revient à « Tout accepter ». Vous pouvez revenir sur votre choix ci-dessous, service par service, ou sous chaque contenu affiché sans clic. Si votre navigateur envoie le signal Global Privacy Control, la carte ne s'affiche pas et les contenus restent masqués.
+Sur ces articles, une petite carte en bas de l'écran vous demande, une fois, si vous acceptez les contenus intégrés. « Tout accepter » : ils s'affichent sans clic, sur cette page et les suivantes, pendant 6 mois (la question revient ensuite). « Tout refuser » : rien ne change, chaque contenu reste masqué et « Afficher seulement celui-ci » le montre à la demande, sans rien garder. Le bouton « Accepter et afficher » de l'encadré accepte les contenus intégrés seulement (comme « Tout accepter » pour eux, sans répondre pour le reste). Vous pouvez revenir sur votre choix ci-dessous, service par service, ou sous chaque contenu affiché sans clic. Si votre navigateur envoie le signal Global Privacy Control, la carte ne s'affiche pas et les contenus restent masqués.
 
 ## Les statistiques de visite
 

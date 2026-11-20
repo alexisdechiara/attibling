@@ -99,6 +99,14 @@ export const STORAGE = [
 		category: "feature",
 		lifetime: "until-cleared",
 	},
+	{
+		key: "attibling-member",
+		storage: "local",
+		by: "theme",
+		audience: "members",
+		category: "feature",
+		lifetime: "until-cleared",
+	},
 	{ key: "attibling-probe", storage: "local", by: "theme", audience: "members", category: "feature", lifetime: "none" },
 	{
 		key: "ghost-history",

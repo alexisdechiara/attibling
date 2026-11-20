@@ -10,8 +10,16 @@
 import { activateGated, consent, consentMode, gatedCategories, setUpGoogleConsent } from "./choices";
 
 export const NOTICE_DELAY = 12000;
-// Cleared on sign-out: the member's lists and their « Reprendre la lecture » choice
-const MEMBER_KEYS = ["attibling-saved", "attibling-progress", "attibling-privacy"];
+// Cleared on sign-out: the member's lists, their « Reprendre la lecture » choice, display settings and the
+// fingerprint that ties them to the member (default.hbs clears the same keys when another member, or
+// nobody, is signed in on the next page: Portal's sign-out, an expired session)
+const MEMBER_KEYS = [
+	"attibling-saved",
+	"attibling-progress",
+	"attibling-privacy",
+	"attibling-reading",
+	"attibling-member",
+];
 
 const openPanel = () => import("./panel").then(({ openPanel: open }) => open());
 
@@ -40,8 +48,9 @@ export const setUpPrivacy = () => {
 	});
 
 	// The members' lists live in this browser, not in the account: signing out with the site's own
-	// links (data-members-signout, handled by Ghost) clears them, so the next person to sign in on this
-	// browser does not see them. (Portal's own « Sign out » button, inside its frame, cannot be heard.)
+	// links (data-members-signout, handled by Ghost) clears them at once, so the next person to sign in on
+	// this browser does not see them. Portal's own « Sign out » button, inside its frame, cannot be heard:
+	// the first page without that member clears them (default.hbs).
 	document.addEventListener(
 		"click",
 		event => {

@@ -29,7 +29,7 @@ Without JavaScript: sections 1 and 2 say that they need it; section 3 is complet
     {{#if @member}}
       <p class="privacy-page__cookie">{{t "You are signed in: Ghost keeps the ghost-members-ssr cookie (and its signature, .sig) to keep you signed in, for 6 months at most. Scripts cannot read it; it goes away when you sign out."}}</p>
       <p class="privacy-page__links"><a href="#/portal/account" data-portal="account">{{t "Your account"}}</a> · <a href="#" data-members-signout>{{t "Sign out"}}</a></p>
-      <p class="privacy-page__cookie">{{t "Your “Read later” and “Continue reading” lists are kept in this browser, not in your account: whoever signs in on this browser sees them. Signing out with the site’s “Sign out” link clears them."}}</p>
+      <p class="privacy-page__cookie">{{t "Your “Read later” and “Continue reading” lists and your display settings are kept in this browser, not in your account. They are cleared when you sign out, or when someone else signs in on this browser."}}</p>
     {{else}}
       <p class="privacy-page__cookie">{{t "You are not signed in: Ghost has set no sign-in cookie in this browser."}}</p>
     {{/if}}

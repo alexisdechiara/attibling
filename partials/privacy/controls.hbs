@@ -62,7 +62,7 @@ Switches are checkboxes with role="switch", wrapped in their label. Parameter: p
   <div class="privacy-group privacy-group--data" data-privacy-group="data">
     <h3 class="privacy-group__title">{{t "Data in this browser"}}</h3>
     <p class="privacy-group__note" data-privacy-count data-none="{{t "This site keeps nothing in this browser."}}" data-one="{{t "This site keeps 1 item in this browser."}}" data-many="{{t "This site keeps % items in this browser."}}"></p>
-    {{#if @member}}<p class="privacy-group__note">{{t "Your “Read later” and “Continue reading” lists are kept in this browser, not in your account: whoever signs in on this browser sees them. Signing out with the site’s “Sign out” link clears them."}}</p>{{/if}}
+    {{#if @member}}<p class="privacy-group__note">{{t "Your “Read later” and “Continue reading” lists and your display settings are kept in this browser, not in your account. They are cleared when you sign out, or when someone else signs in on this browser."}}</p>{{/if}}
     <button type="button" class="button button--s privacy-clear" data-privacy-clear>{{> "icons/reset"}}<span>{{t "Clear this site's data"}}</span></button>
   </div>
   {{/unless}}

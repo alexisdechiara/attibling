@@ -3,7 +3,7 @@
 // « Reprendre la lecture » off, and the fallback consent mode (setting consent_notice: Notice, Banner).
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
-import { launch, close, open, waitFor } from "./support/harness.js";
+import { launch, close, open, waitFor, SITE } from "./support/harness.js";
 import { article, ARTICLE_CUSTOM } from "./support/article.js";
 import { home, template, DEFAULT_CUSTOM } from "./support/pages.js";
 import { STORAGE } from "../js/privacy/registry.js";
@@ -235,6 +235,40 @@ describe("privacy: the preferences panel", () => {
 			await page.evaluate(() => [localStorage.getItem("attibling-saved"), localStorage.getItem("theme")]),
 			[null, "dark"],
 		);
+		await dispose();
+	});
+
+	it("ties the member's lists to that member: another member, or nobody (Portal's sign-out), clears them first", async () => {
+		const saved = JSON.stringify([{ url: "/a/", title: "A", savedAt: 1 }]);
+		const reading = JSON.stringify({ size: "l" });
+		const other = home({ member: true });
+		other.member = { ...other.member, uuid: "member-2" };
+		const { page, dispose } = await open({
+			render: home({ member: true }),
+			storage: { "attibling-saved": saved, "attibling-reading": reading, theme: "dark" },
+			pages: { "/other/": other, "/visitor/": home() },
+		});
+		const keys = () =>
+			page.evaluate(() =>
+				["attibling-saved", "attibling-reading", "attibling-member", "theme"].map(k => localStorage.getItem(k)),
+			);
+		const [keptSaved, keptReading, mark, theme] = await keys();
+		assert.deepEqual([keptSaved, keptReading, theme], [saved, reading, "dark"], "lists kept before go to this member");
+		assert.match(mark, /^[0-9a-z]+$/);
+		assert.ok(!mark.includes("member-1"), "a fingerprint, not the member's id");
+		// The same member again: nothing changes
+		await page.reload();
+		assert.deepEqual(await keys(), [saved, reading, mark, "dark"]);
+		// Another member signs in on this browser: the first member's lists and settings are gone
+		await page.goto(`${SITE}/other/`);
+		const [s2, r2, mark2] = await keys();
+		assert.deepEqual([s2, r2], [null, null]);
+		assert.ok(mark2 && mark2 !== mark);
+		assert.equal(await page.locator("[data-member-lists]:not([hidden]) a[href='/a/']").count(), 0);
+		// Signed out elsewhere (Portal, expired session): the next page clears them too
+		await page.evaluate(s => localStorage.setItem("attibling-saved", s), saved);
+		await page.goto(`${SITE}/visitor/`);
+		assert.deepEqual(await keys(), [null, null, null, "dark"]);
 		await dispose();
 	});
 

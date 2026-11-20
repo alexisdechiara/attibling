@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-{{!-- data-member: a signed-in member (members-only features in the scripts, src/js/store.js);
+{{!-- data-member: a signed-in member, with their uuid (members-only features in the scripts, src/js/store.js;
+the script below ties the members' lists to that member);
 data-consent: the fallback consent mode of the theme setting consent_notice (src/js/privacy/choices.js) --}}
-<html lang="{{@site.locale}}"{{#if @member}} data-member{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
+<html lang="{{@site.locale}}"{{#if @member}} data-member="{{@member.uuid}}"{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
   <head>
     {{!-- Document Settings --}}
     <meta charset="utf-8" />
@@ -31,6 +32,25 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
         var root = document.documentElement
         // Scripts run: the CSS may hide what they will show (e.g. the home header logo until it docks)
         root.setAttribute('data-js', '')
+        // The members' lists and settings stay in this browser, tied to one member by a fingerprint of
+        // their id ("attibling-member", never the id itself): another member, or nobody (signed out from
+        // Portal, session expired), clears them before anything reads them. Lists kept before this rule
+        // go to the first member who signs in.
+        try {
+          var who = root.getAttribute('data-member') || ''
+          var mark = ''
+          if (who) {
+            var h = 2166136261
+            for (var c = 0; c < who.length; c++) h = Math.imul(h ^ who.charCodeAt(c), 16777619) >>> 0
+            mark = h.toString(36)
+          }
+          var owner = localStorage.getItem('attibling-member')
+          if (owner !== null && owner !== mark) {
+            var keys = ['attibling-saved', 'attibling-progress', 'attibling-privacy', 'attibling-reading', 'attibling-member']
+            for (var k = 0; k < keys.length; k++) localStorage.removeItem(keys[k])
+          }
+          if (mark && owner !== mark) localStorage.setItem('attibling-member', mark)
+        } catch (e) {}
         var theme = null
         var promo = null
         try {
@@ -169,9 +189,9 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     {{!-- Third-party embeds on click: the facade and its strings (setting embed_consent) --}}
     {{#is "post, page"}}{{#if @custom.embed_consent}}{{> embed-consent}}{{/if}}{{/is}}
 
-    {{!-- Fallback consent mode (setting consent_notice: Notice or Banner): the notice's template, shown
-    only when a script gated with data-consent waits for an answer (src/js/privacy/). Default None:
-    nothing. The preferences panel is in the footer. --}}
+    {{!-- Consent notice (setting consent_notice: Notice, the default, or Banner): the notice's template,
+    shown only when an embed behind its facade or a script gated with data-consent waits for an answer
+    (src/js/privacy/). None: nothing. The preferences panel is in the footer. --}}
     {{#match @custom.consent_notice "Notice"}}{{> "privacy/notice"}}{{/match}}
     {{#match @custom.consent_notice "Banner"}}{{> "privacy/notice"}}{{/match}}
 
