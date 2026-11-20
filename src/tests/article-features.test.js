@@ -49,6 +49,35 @@ describe("series", () => {
 		await dispose();
 	});
 
+	it("fits the series box at 320 px, « Précédent » and « Suivant » whole (WCAG 1.4.10)", async () => {
+		const { page, dispose } = await open({
+			render: article({ series: { published: 4, current: 2, description: "Construire son homelab" } }),
+			viewport: { width: 320, height: 700 },
+		});
+		const fit = await page.evaluate(() => {
+			const box = document.querySelector("[data-series]").getBoundingClientRect();
+			const inside = el => {
+				const r = el.getBoundingClientRect();
+				return r.left >= box.left - 0.5 && r.right <= box.right + 0.5 && r.width > 0;
+			};
+			const links = [...document.querySelectorAll(".series__nav .series-step__link, [data-series-all]")].filter(
+				el => getComputedStyle(el).display !== "none",
+			);
+			return {
+				page: document.documentElement.scrollWidth,
+				inside: links.map(inside),
+				lines: Math.round(
+					document.querySelector("[data-series-all]").getBoundingClientRect().height /
+						parseFloat(getComputedStyle(document.querySelector("[data-series-all]")).lineHeight),
+				),
+			};
+		});
+		assert.equal(fit.page, 320, "no horizontal scroll");
+		assert.deepEqual(fit.inside, [true, true, true]);
+		assert.ok(fit.lines <= 2, `« Voir toute la série » on ${fit.lines} lines`);
+		await dispose();
+	});
+
 	it("has no previous part on the first part and no next part on the last", async () => {
 		const first = await open({ render: article({ series: { published: 4, current: 1 } }) });
 		const a = await series(first.page);

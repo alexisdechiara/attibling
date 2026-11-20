@@ -239,6 +239,32 @@
   justify-self: end;
 }
 
+/* A narrow box (a 320px screen): « Voir toute la série » on its own line, the two buttons under it */
+.series {
+  container: series / inline-size;
+}
+
+@container series (width < 22rem) {
+  .series__nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .series__all {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .series__prev,
+  .series__next {
+    grid-row: 2;
+  }
+
+  .series__next {
+    grid-column: 2;
+  }
+}
+
 /* No part before the first one, none after the last one */
 .series-step--prev:has(> .series-step__current:first-child),
 .series-step--next:has(> .series-step__current:last-child) {
