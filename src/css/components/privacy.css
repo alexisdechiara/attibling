@@ -217,9 +217,11 @@
 }
 
 /* While the notice shows (notice.js measures the room it takes at the bottom of the window): an element
-   reached with the keyboard scrolls into view above it, never under it */
-:root[data-consent-shown] {
-  scroll-padding-block-end: calc(var(--consent-notice-space, 0px) + var(--space-3));
+   reached with the keyboard scrolls into view above it (and above « back to the top »), never under it.
+   A scroll margin on the controls, as article/progress.css does, not a scroll padding on the page,
+   which would shrink the view timeline of the reading ring. */
+:root[data-consent-shown] :is(a, button, input, select, textarea, summary, [tabindex]):not([data-consent-notice] *) {
+  scroll-margin-block-end: calc(var(--consent-notice-space, 0px) + 52px + 2 * var(--space-5));
 }
 
 /* The article's « back to the top » button: above the banner on wide screens; on phones, where it would
