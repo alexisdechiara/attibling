@@ -381,6 +381,49 @@ describe("article page: header, dates, author", () => {
 		assert.deepEqual(tiles, [posts[2].title]);
 		await dispose();
 	});
+
+	it("prints the title, the meta and the text only, with the address of external links", async () => {
+		const html = `<p>Voir <a href="https://ghost.org/?ref=geekly.blog">Ghost</a>.</p>${LONG_HTML}`;
+		const { page, dispose } = await open({ render: article({ member: true, html }) });
+		assert.equal(await page.locator('link[rel="stylesheet"][media="print"][href*="css/print.css"]').count(), 1);
+		await page.waitForSelector(".gh-content a[data-print-href]");
+		await page.emulateMedia({ media: "print" });
+		const printed = await page.evaluate(() => {
+			const shown = sel => [...document.querySelectorAll(sel)].some(el => el.getClientRects().length > 0);
+			const hidden = [
+				".site-header",
+				".site-footer",
+				".skip-link",
+				".article-header__media",
+				".article-header__bookmark",
+				".article-toc",
+				".article-share",
+				".author-box",
+				".article-related",
+				".progress-button",
+				".heading-link",
+				".code-block__bar",
+				".reading-settings",
+			].filter(shown);
+			return {
+				hidden,
+				title: shown("main h1"),
+				date: shown(".article-header__meta time"),
+				text: shown(".gh-content > p"),
+				background: getComputedStyle(document.body).backgroundColor,
+				after: getComputedStyle(document.querySelector('.gh-content a[href^="https://ghost.org"]'), "::after").content,
+			};
+		});
+		assert.deepEqual(printed, {
+			hidden: [],
+			title: true,
+			date: true,
+			text: true,
+			background: "rgb(255, 255, 255)",
+			after: '" (https://ghost.org/)"',
+		});
+		await dispose();
+	});
 });
 
 describe("article page: reading progress for « Reprendre la lecture »", () => {

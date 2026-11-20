@@ -1,8 +1,9 @@
-/** Print (generic page and reference document: page.hbs, pages/document.hbs, loaded with media="print").
-   The screen stylesheets are media="screen", so on paper the page starts from the browser's defaults:
-   this sheet keeps only the title, the date and the text, in black on white, in the site's font (Onest), and
-   prints the address of each external link after it. The header, the footer, the table of contents
-   (no page numbers on paper) and the buttons are left out. */
+/** Print (generic page, reference document and post: page.hbs, pages/document.hbs, post.hbs, loaded with
+   media="print"). The screen stylesheets are media="screen", so on paper the page starts from the browser's
+   defaults: this sheet keeps only the title, the date and the text, in black on white, in the site's font
+   (Onest), and prints the address of each external link after it. The header, the footer, the table of
+   contents (no page numbers on paper), the buttons and, on a post, the feature image, the share links, the
+   author box, comments and recommendations are left out. */
 
 @page {
   margin: 18mm 16mm 20mm;
@@ -48,8 +49,41 @@ audio,
 .kg-video-card,
 .kg-audio-card,
 .kg-signup-card,
-.kg-button-card {
+.kg-button-card,
+.article-header__media,
+.article-header__avatar,
+.article-header__bookmark,
+.article-toc,
+.summary-teaser,
+.series__list,
+.series-line,
+.article-share,
+.author-box,
+.article-comments,
+.article-related,
+.progress-button,
+.reading-settings,
+.code-block__bar,
+.embed-facade,
+.embed-remembered {
   display: none !important;
+}
+
+/* Post: title, tag, author and date, then the text; « Publié le · Mis à jour le » at the end */
+.article-header {
+  margin-block-end: 14pt;
+  padding-block-end: 8pt;
+  border-block-end: 0.75pt solid #000;
+}
+
+.article-header__tags,
+.article-header__meta,
+.article-dates {
+  font-size: 9pt;
+}
+
+.article-header__tag {
+  text-decoration: none;
 }
 
 main {

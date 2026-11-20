@@ -191,3 +191,21 @@ export const wrapLooseText = content => {
 	});
 	flush();
 };
+
+// On paper, print.css writes the address of each external link after it (data-print-href: the address
+// without the ?ref= Ghost adds to outbound links), except when the link already reads as its address
+// (« https://geekly.blog ») or is an e-mail address
+export const markPrintLinks = content => {
+	const bare = value => value.replace(/^https?:\/\//, "").replace(/\/$/, "");
+	content.querySelectorAll('a[href^="http"]').forEach(link => {
+		let href = link.href;
+		try {
+			const url = new URL(link.href);
+			url.searchParams.delete("ref");
+			href = url.href;
+		} catch {
+			return;
+		}
+		if (bare(link.textContent.trim()) !== bare(href)) link.dataset.printHref = href;
+	});
+};

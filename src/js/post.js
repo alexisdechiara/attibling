@@ -7,6 +7,7 @@ import {
 	adjustImageGallery,
 	managePostImages,
 	makeImagesZoomable,
+	markPrintLinks,
 	onReady,
 	wrapLooseText,
 } from "./helpers";
@@ -24,6 +25,7 @@ onReady(() => {
 	if (!article || !content) return;
 
 	wrapLooseText(content);
+	markPrintLinks(content);
 	setEmbedRatios();
 	adjustImageGallery();
 	managePostImages();
