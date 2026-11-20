@@ -3,7 +3,7 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open, waitFor } from "./support/harness.js";
-import { home, template } from "./support/pages.js";
+import { template } from "./support/pages.js";
 import { article, LONG_HTML } from "./support/article.js";
 
 const PHONE = { width: 390, height: 844 };
@@ -49,7 +49,10 @@ describe("theme scripts and Ghost's deferred scripts", () => {
 		});
 		const { ran, ghost } = await page.evaluate(() => ({ ran: window.__ran, ghost: window.__ghostDeferRan }));
 		assert.ok(ghost > 1500, "Ghost's deferred script ran last");
-		assert.ok(ran.app < ghost, `app.js ran at ${Math.round(ran.app)} ms, before Ghost's script (${Math.round(ghost)} ms)`);
+		assert.ok(
+			ran.app < ghost,
+			`app.js ran at ${Math.round(ran.app)} ms, before Ghost's script (${Math.round(ghost)} ms)`,
+		);
 		assert.ok(ran.home < ghost, `home.js ran at ${Math.round(ran.home)} ms, before Ghost's script`);
 		await dispose();
 	});
@@ -130,7 +133,12 @@ describe("nothing moves when the scripts reveal their parts", () => {
 				slow: { [script]: 1200 },
 				initScript: recordShifts,
 			});
-			await waitFor(() => page.locator("[data-toc], [data-document-toc]").first().evaluate(el => !el.hidden));
+			await waitFor(() =>
+				page
+					.locator("[data-toc], [data-document-toc]")
+					.first()
+					.evaluate(el => !el.hidden),
+			);
 			// The headings' copy-link buttons may nudge a line by a pixel; the table of contents moved the
 			// whole text (0.03 to 0.05 on a phone)
 			const shift = await page.evaluate(() => window.__shifts.reduce((sum, s) => sum + s.value, 0));
@@ -170,7 +178,10 @@ describe("pictures of the first screen", () => {
 			render: template("page-a-propos", { site: { tagImage: tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}` } }),
 		});
 		const images = await page.evaluate(() =>
-			[...document.querySelectorAll(".about-rubric__image")].map(img => [img.getAttribute("loading"), img.fetchPriority]),
+			[...document.querySelectorAll(".about-rubric__image")].map(img => [
+				img.getAttribute("loading"),
+				img.fetchPriority,
+			]),
 		);
 		assert.ok(images.length >= 4);
 		assert.deepEqual(images.slice(0, 4), [
@@ -199,7 +210,10 @@ describe("pictures of the first screen", () => {
 				})),
 			);
 			const onScreen = images.filter(i => i.top < viewport.height);
-			assert.ok(onScreen.length > 0 && onScreen.length < images.length, `some cells below the screen: ${JSON.stringify(images)}`);
+			assert.ok(
+				onScreen.length > 0 && onScreen.length < images.length,
+				`some cells below the screen: ${JSON.stringify(images)}`,
+			);
 			assert.ok(
 				onScreen.every(i => i.loading === "eager"),
 				`first screen eager at ${viewport.width}px`,
@@ -208,11 +222,7 @@ describe("pictures of the first screen", () => {
 				images.filter(i => i.top >= viewport.height).every(i => i.loading === "lazy"),
 				"the others lazy",
 			);
-			assert.deepEqual(
-				images.map(i => i.priority).filter(p => p === "high").length,
-				1,
-				"one picture first",
-			);
+			assert.deepEqual(images.map(i => i.priority).filter(p => p === "high").length, 1, "one picture first");
 			assert.equal(images[0].priority, "high");
 			await dispose();
 		}

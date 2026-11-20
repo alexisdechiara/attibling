@@ -116,7 +116,9 @@ const open = async (options = {}) => {
 	});
 
 	const withGhostDefer = html =>
-		ghostDefer ? html.replace(/<meta name="generator"[^>]*>/, tag => `${tag}<script defer src="/__ghost/deferred.js"></script>`) : html;
+		ghostDefer
+			? html.replace(/<meta name="generator"[^>]*>/, tag => `${tag}<script defer src="/__ghost/deferred.js"></script>`)
+			: html;
 
 	await context.route("**/*", async route => {
 		const url = new URL(route.request().url());
