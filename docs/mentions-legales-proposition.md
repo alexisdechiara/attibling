@@ -18,9 +18,12 @@
 > - Comment coller ce texte dans Ghost et quel modèle choisir : `docs/guide-auteur.md`, section
 >   « Mentions légales et pages de référence ».
 > - La date « Dernière mise à jour » s'affiche toute seule en haut de la page : ne l'écrivez pas dans le texte.
-> - La liste « Ce que le site garde dans votre navigateur » suit le code du thème : si le thème ajoute une clé
->   de stockage, le test `src/tests/document.test.js` échoue tant que le tableau du guide n'est pas mis à
->   jour ; reportez alors la même ligne ici.
+> - **Mise à jour du 20 novembre 2026** : les cookies et le stockage du navigateur ont maintenant leur propre
+>   page, « Cookies et confidentialité » (`https://geekly.blog/cookies/`, texte dans
+>   `docs/cookies-proposition.md`) ; le thème y affiche lui-même la liste à jour. Ces mentions y renvoient au
+>   lieu de recopier les tableaux. Créez cette page avant de publier ce texte.
+> - **Préalables, comme pour la page Cookies** : dans Settings → **Analytics**, désactivez *Newsletter opens*,
+>   *Newsletter clicks* et *Member sources* (le texte ci-dessous le suppose ; sinon voir le point 4 à la fin).
 
 Extrait de la page (réglages de la page → **Excerpt**), proposé :
 
@@ -36,7 +39,7 @@ GEEKLY est une publication indépendante consacrée à la culture geek, à la te
 
 - Le site n'affiche pas de publicité et ne vend aucune donnée.
 - Si vous vous abonnez, je garde votre adresse e-mail et, si vous l'indiquez, votre nom. Rien d'autre ne vous est demandé.
-- Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Son seul cookie sert à rester connecté quand vous êtes abonné.
+- Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Son seul cookie sert à rester connecté quand vous êtes abonné ([Cookies et confidentialité](https://geekly.blog/cookies/)).
 - Les polices de caractères sont servies par le site lui-même. Les vidéos YouTube, les publications X et les autres contenus intégrés aux articles ne se chargent que si vous cliquez pour les afficher.
 - Vos préférences d'affichage et vos listes de lecture restent dans votre navigateur : elles ne sont pas envoyées au site.
 - Pour toute question ou demande : [pro@alexisdechiara.fr](mailto:pro@alexisdechiara.fr).
@@ -91,7 +94,7 @@ Le responsable du traitement de vos données est l'éditeur, Alexis De Chiara. P
 
 ### Abonnement, compte et newsletter
 
-- **Données** : votre adresse e-mail, et votre nom si vous le donnez (facultatif). Ghost y ajoute la date d'inscription et de dernière visite, le pays et la ville approximatifs déduits de votre adresse IP à l'inscription, et la page depuis laquelle vous vous êtes abonné.
+- **Données** : votre adresse e-mail, et votre nom si vous le donnez (facultatif). Ghost y ajoute la date d'inscription et de dernière visite, et le pays et la ville approximatifs déduits de votre adresse IP à l'inscription.
 - **Pourquoi** : vous permettre de vous connecter, de commenter et d'utiliser les outils de lecture réservés aux abonnés ; vous envoyer la newsletter « GEEKLY » si vous y restez inscrit.
 - **Base légale** : l'exécution du service que vous demandez pour le compte ; votre consentement pour la newsletter, que vous pouvez retirer à tout moment.
 - **Durée** : tant que vous restez abonné. Si vous demandez la suppression de votre compte, je le supprime dans le mois qui suit votre demande, et vos données sont alors effacées de Ghost.
@@ -102,11 +105,7 @@ Les e-mails du site (lien de connexion, confirmation d'inscription, newsletter) 
 
 ### Ouvertures et clics dans les e-mails
 
-Quand la newsletter vous est envoyée, Ghost peut enregistrer si vous l'avez ouverte (par une petite image invisible) et sur quels liens vous avez cliqué, pour savoir quels articles intéressent les lecteurs.
-
-- **Base légale** : l'intérêt légitime de l'éditeur à connaître l'audience de sa newsletter.
-- **Durée** : tant que vous restez abonné.
-- **Pour vous y opposer** : bloquez le chargement des images dans votre messagerie (l'ouverture n'est alors pas comptée), ou écrivez-moi.
+Les e-mails du site ne contiennent ni image de suivi ni lien de suivi : je ne sais pas si vous les ouvrez ni sur quels liens vous cliquez.
 
 ### Commentaires
 
@@ -155,33 +154,7 @@ Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une 
 
 ## Cookies et stockage dans le navigateur
 
-### Cookies
-
-Le site lui-même ne dépose aucun cookie publicitaire ni de mesure d'audience.
-
-| Cookie | Déposé par | À quoi il sert | Durée |
-|---|---|---|---|
-| `ghost-members-ssr` et `ghost-members-ssr.sig` | Ghost, quand vous vous connectez | Vous garder connecté à votre compte d'abonné | 6 mois environ, ou jusqu'à la déconnexion |
-
-Ce cookie est nécessaire au service que vous demandez en vous connectant : la loi le dispense de consentement.
-
-Les contenus intégrés (vidéos YouTube, publications X…) ne sont chargés que si vous le demandez ; ces services peuvent alors déposer leurs propres cookies ou garder des informations dans votre navigateur (voir « Services externes »).
-
-### Ce que le site garde dans votre navigateur
-
-Le site enregistre aussi quelques préférences dans le stockage de votre navigateur (« localStorage » et « sessionStorage »). Elles servent seulement au fonctionnement des pages, restent sur votre appareil et ne sont jamais envoyées au site. Vous pouvez les effacer à tout moment en effaçant les données du site dans votre navigateur.
-
-| Nom | Pour qui | À quoi il sert | Durée |
-|---|---|---|---|
-| `theme` | tous | Le mode clair, sombre ou automatique que vous avez choisi | Jusqu'à ce que vous changiez de mode ou effaciez les données du site |
-| `attibling-promo-closed` | visiteurs | Ne plus afficher l'encart d'abonnement de l'accueil après l'avoir fermé | Jusqu'à l'effacement des données du site |
-| `attibling-intro` | tous | Ne jouer l'animation d'arrivée de l'accueil qu'une fois | Fin de la session (fermeture de l'onglet) |
-| `attibling-hero-cue` | tous | Ne faire onduler qu'une fois les points du bandeau de l'accueil | Fin de la session (fermeture de l'onglet) |
-| `attibling-embeds` | tous | Les services dont vous avez choisi « Toujours afficher les contenus » (par exemple YouTube) : seulement leur nom | Jusqu'à « Ne plus afficher automatiquement » (sous chaque contenu affiché ainsi) ou l'effacement des données du site |
-| `ghost-history` | tous | Ghost note les pages vues pendant la visite, pour savoir depuis quelle page on s'abonne | Fin de la session |
-| `attibling-reading` | abonnés | Vos réglages d'affichage des articles (thème, polices, taille, largeur…) | Jusqu'à « Réinitialiser » ou l'effacement des données du site |
-| `attibling-saved` | abonnés | Votre liste « À lire plus tard » (adresse, titre, image, rubrique et durée de lecture des articles ; 100 au plus) | Jusqu'à ce que vous retiriez les articles ou effaciez les données du site |
-| `attibling-progress` | abonnés | « Reprendre la lecture » : où vous en êtes dans les 6 derniers articles commencés | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement des données du site |
+Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Le seul cookie, `ghost-members-ssr`, vous garde connecté quand vous êtes abonné ; vos préférences et vos listes de lecture restent dans votre navigateur. Le détail, toujours à jour, et les réglages sont sur la page [Cookies et confidentialité](https://geekly.blog/cookies/), ouverte aussi par le lien « Cookies et confidentialité » en bas de chaque page.
 
 ## Services externes
 
@@ -193,7 +166,7 @@ Les polices, les images et les scripts du site viennent du site lui-même, à ce
 - **Images d'autres sites** : quelques articles affichent une image (capture, logo) directement depuis le site qui la publie.
 - **Plausible** (`analytics.geekly.blog`) : les statistiques décrites plus haut, sur le serveur du site.
 
-**Vidéos YouTube et publications X.** Certains articles intègrent des vidéos YouTube, des publications X (Twitter) ou d'autres contenus venant d'un autre site. Rien n'est demandé à ces services tant que vous ne cliquez pas sur le bouton « Afficher la vidéo YouTube » (ou « Afficher la publication X »…) ; à la place, un encadré indique d'où vient le contenu et propose un lien pour l'ouvrir directement chez le service. Si vous cochez « Toujours afficher les contenus de… », ce choix est gardé dans votre navigateur (`attibling-embeds`, ci-dessus) et les contenus de ce service s'afficheront ensuite d'eux-mêmes ; un lien sous chacun permet de revenir sur ce choix.
+**Vidéos YouTube et publications X.** Certains articles intègrent des vidéos YouTube, des publications X (Twitter) ou d'autres contenus venant d'un autre site. Rien n'est demandé à ces services tant que vous ne cliquez pas sur le bouton « Afficher… » de leur encadré ; ce choix se règle sur la page [Cookies et confidentialité](https://geekly.blog/cookies/).
 
 Une fois affichés, ces contenus sont fournis par leur service, qui reçoit votre adresse IP et applique ses propres règles :
 
@@ -222,7 +195,7 @@ Cette page peut évoluer, par exemple quand le site change de prestataire. La da
 | Hébergeur | Page actuelle : « Hostinger – Rue Švitrigailos 34 03230 Vilnius, Lituanie +37064503378 », « hébergé chez un prestataire sur le territoire de l'Union Européenne » ; l'adresse IP du site (62.72.18.119, 2a02:4780:…) appartient au réseau « HOSTINGER-HOSTING » (base RIPE) ; DNS chez Hostinger | Hostinger, à l'adresse publiée, Union européenne |
 | Ghost installé par l'éditeur | Le site répond depuis un serveur Hostinger (`x-powered-by: Express`, Ghost 6 auto-hébergé), pas depuis Ghost(Pro) | « installé sur un serveur loué chez Hostinger » |
 | Plausible | `analytics.geekly.blog` pointe vers la même adresse IP que le site ; le serveur répond `server: Cowboy` (Plausible Community Edition, auto-hébergé) | « sur le même serveur que le site » |
-| Origine des inscriptions (`ghost-history`) | Le site charge `/public/member-attribution.min.js` : le réglage Ghost « Member sources » est activé | Ligne gardée, ainsi que « la page depuis laquelle vous vous êtes abonné » |
+| Origine des inscriptions (`ghost-history`) | Le site charge `/public/member-attribution.min.js` : le réglage Ghost « Member sources » est activé (19 novembre) | Mise à jour du 20 novembre : à désactiver (préalable) ; « la page depuis laquelle vous vous êtes abonné » retiré |
 | Newsletter | Une newsletter « GEEKLY », inscription automatique à l'abonnement (`subscribe_on_signup`) ; adresse d'envoi `noreply@geekly.blog` ; envoi des articles par e-mail désactivé par défaut dans l'éditeur (`editor_default_email_recipients: disabled`) ; aucun enregistrement MX ou SPF public ne désigne un prestataire | Service d'envoi non nommé ; suivi des ouvertures décrit « quand la newsletter vous est envoyée » |
 | Commentaires | `comments_enabled: all` (tous les abonnés) | Section gardée |
 | Liens sortants | `outbound_link_tagging: true` (Ghost ajoute `?ref=geekly.blog`) | Phrase ajoutée |
@@ -242,9 +215,11 @@ Le texte ci-dessus est publiable tel quel ; chaque point dit ce qui a été écr
 3. **Service d'envoi des e-mails.** Par défaut, il n'est pas nommé. S'il traite des données hors de l'Union
    européenne, ajoutez son nom, le pays et la garantie utilisée (clauses contractuelles types, décision
    d'adéquation).
-4. **Suivi des ouvertures et des clics.** Par défaut, décrit comme possible « quand la newsletter vous est
-   envoyée ». Si vous n'envoyez jamais la newsletter par e-mail, ou si le suivi est désactivé
-   (Settings → Analytics), vous pouvez retirer la section.
+4. **Suivi des ouvertures et des clics.** Le texte suppose *Newsletter opens* et *Newsletter clicks*
+   désactivés (Settings → Analytics) : la CNIL demande désormais l'accord de l'abonné pour les pixels de
+   suivi dans les e-mails (recommandation publiée le 14 avril 2026, transition terminée le 14 juillet 2026).
+   Si vous les gardez, il faut recueillir cet accord (ce que Portal ne sait pas faire aujourd'hui) et
+   remettre une section qui le décrit.
 5. **Suppression d'un compte.** Par défaut « dans le mois qui suit votre demande » (le délai maximal du RGPD).
 6. **Journaux du serveur.** Par défaut « le temps nécessaire à ces usages ». Si vous connaissez la durée réelle
    (configuration du serveur), indiquez-la.

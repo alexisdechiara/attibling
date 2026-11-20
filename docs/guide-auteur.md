@@ -11,7 +11,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
-5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
+5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
 6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, vidéos et contenus intégrés
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
@@ -63,7 +63,11 @@ Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section q
 8. **Code injection** : retirez de Settings → **Code injection** → *Site header* les lignes qui chargent des
    polices depuis Google (le thème sert ses polices lui-même) — détail dans
    [Polices du thème](#polices-du-thème-et-polices-personnalisées).
-9. **Vérifier** : ouvrez l'accueil dans une fenêtre privée (visiteur) puis connecté (abonné) ; en cas de
+9. **Confidentialité** (aucun bandeau à afficher) : créez la page `cookies` avec le texte de
+   `docs/cookies-proposition.md` ; dans Settings → **Analytics**, désactivez *Newsletter opens*,
+   *Newsletter clicks* et *Member sources* ; laissez *Consent notice* sur `None` — détail dans
+   [Cookies et confidentialité](#cookies-et-confidentialité--la-page-le-panneau-le-consentement).
+10. **Vérifier** : ouvrez l'accueil dans une fenêtre privée (visiteur) puis connecté (abonné) ; en cas de
    surprise, voir le [dépannage](#10-dépannage).
 
 Aucun fichier `routes.yaml` n'est nécessaire.
@@ -842,30 +846,224 @@ jour-là).
 restent). Un abonné qui a choisi un autre thème de lecture garde le mode clair / sombre du site sur cette
 page (les thèmes de lecture ne s'appliquent qu'aux articles).
 
+### Cookies et confidentialité : la page, le panneau, le consentement
+
+> Ce qui suit est une aide à la rédaction et à la conception, **pas un conseil juridique**. Les sources et
+> les points incertains sont listés à la fin de cette section.
+
+**Le principe du thème : ne rien demander au lecteur tant que rien ne l'exige.** Réglé comme il est livré
+(et comme décrit dans la liste « Pour un site sans consentement » plus bas), le site ne lit ni n'écrit rien
+dans le navigateur qui demande un accord préalable : le thème ne dépose aucun cookie ; ce qu'il garde dans le
+stockage du navigateur est soit un choix d'interface fait par le lecteur (mode sombre, réglages d'affichage,
+encart fermé), soit nécessaire à un service que le lecteur utilise (ses listes d'abonné), soit ses propres
+choix de confidentialité ; les polices sont servies par le site ; les contenus d'autres sites (YouTube, X…)
+ne se chargent qu'au clic sur leur encadré, et ce clic est l'accord, donné à ce moment-là, pour ce
+service-là. La mesure d'audience Plausible, sans cookie, entre dans l'exemption de la CNIL pour la mesure
+d'audience (voir plus bas). Donc **aucun bandeau ni fenêtre n'apparaît à l'arrivée**, ni plus tard.
+
+Ce que le thème offre à la place :
+
+- **un lien « Cookies et confidentialité »** dans la barre du pied de page, sur toutes les pages : il ouvre
+  un petit panneau de réglages (une fenêtre au centre sur ordinateur, un volet par le bas sur téléphone) ;
+- **une page « Cookies et confidentialité »** (à créer, voir ci-dessous) : votre texte, puis ce que le thème
+  y ajoute tout seul, toujours à jour ;
+- **l'accord au moment et à l'endroit où il sert** : l'encadré de chaque contenu intégré (voir
+  [Vidéos et contenus intégrés](#vidéos-et-contenus-intégrés-youtube-x)), avec un lien « Gérer mes choix ».
+
+**Le panneau** (rien ne s'affiche tant que le lecteur ne l'ouvre pas) :
+
+| Partie | Quand elle apparaît | Ce qu'elle fait |
+|---|---|---|
+| Services facultatifs | seulement en mode de consentement (réglage *Consent notice* ≠ None) | « Tout refuser » / « Tout accepter » de même taille et même aspect, puis un interrupteur par catégorie : Mesure d'audience, Contenus intégrés, Autres services |
+| Contenus intégrés | toujours | Un interrupteur « Afficher les contenus de YouTube sans clic » par service présent sur la page ou déjà choisi (tous les services sur la page Cookies) ; le retirer = retrait du « Toujours afficher » |
+| Statistiques de visite | quand la page charge Plausible | « Compter mes visites » : désactivé, le thème écrit `plausible_ignore` = `true`, le drapeau que le script de Plausible lit pour ignorer ce navigateur ([documentation Plausible](https://plausible.io/docs/excluding-localstorage)) |
+| Votre lecture | abonné connecté | « Retenir où je m'arrête dans les articles » (« Reprendre la lecture ») : activé par défaut ; désactivé, la liste est effacée et plus rien n'est noté. Le même choix est dans les **Réglages d'affichage** (« Retenir où je m'arrête ») |
+| Données dans ce navigateur | toujours | Combien d'éléments le site garde, et « Effacer les données du site » (tout, choix compris) |
+
+En bas : « Tout ce que le site garde, en détail », vers la page. Le panneau se ferme avec Échap, le bouton ×
+ou un clic à côté ; le focus revient sur ce qui l'a ouvert.
+
+#### Créer la page « Cookies et confidentialité »
+
+1. Pages → **New page**, titre « Cookies et confidentialité ».
+2. Réglages de la page → **Page URL** : `cookies` (le modèle s'applique seul ; `confidentialite` marche
+   aussi). Pour une autre adresse : **Template** → **Privacy**.
+3. Collez le texte proposé dans `docs/cookies-proposition.md` (entre « Texte à coller » et « Fin du texte à
+   coller ») dans une carte Markdown (`/markdown`), **Excerpt** = la phrase proposée, puis **Publish**.
+4. Ajoutez-la à la navigation secondaire si vous voulez (Settings → Navigation) ; ce n'est pas nécessaire :
+   le lien du pied de page la trouve tout seul (il mène au panneau, et à la page sans JavaScript).
+5. Dans les mentions légales, la section « Cookies » renvoie à cette page (texte déjà prêt dans
+   `docs/mentions-legales-proposition.md`).
+
+La page prend le modèle **Document** (titre, date de mise à jour, sommaire, impression) et le thème ajoute
+après votre texte trois sections, qui entrent dans le sommaire :
+
+- **Dans ce navigateur, en ce moment** : ce que le navigateur du lecteur garde pour le site (nom, à quoi il
+  sert, contenu résumé), un bouton « Effacer » par ligne et « Tout effacer » ; une phrase sur le cookie de
+  connexion de Ghost (illisible par les scripts) avec « Votre compte » et « Se déconnecter » pour un abonné ;
+- **Vos choix** : les mêmes interrupteurs que le panneau, avec tous les services de contenus intégrés ;
+- **Tout ce que le site peut garder dans votre navigateur** : la liste complète, tirée du code du thème.
+
+Votre texte n'a donc pas à lister les clés de stockage : la page le fait, et reste juste quand le thème
+change.
+
+#### Pour un site sans consentement : la liste du propriétaire
+
+Ce que le thème ne peut pas régler pour vous, dans Ghost Admin :
+
+| Réglage | Où | Recommandé | Pourquoi |
+|---|---|---|---|
+| **Newsletter opens** | Settings → **Analytics** | désactivé | Le suivi des ouvertures passe par un pixel invisible dans chaque e-mail. Depuis sa recommandation du 12 mars 2026 (publiée le 14 avril 2026), la CNIL demande le consentement pour ces pixels, sauf exceptions étroites (mesure individuelle de la délivrabilité, sécurité) ; la période de transition pour les adresses déjà collectées s'est terminée le 14 juillet 2026. |
+| **Newsletter clicks** | Settings → **Analytics** | désactivé | Ghost réécrit chaque lien de l'e-mail avec l'identifiant de l'abonné : un lien de suivi, que la CNIL rattache aussi à l'article 82 (même s'il n'est pas l'objet direct de la recommandation) et que l'EDPB range avec les pixels (lignes directrices 2/2023, § 49–51). |
+| **Member sources** | Settings → **Analytics** | désactivé | Ghost note dans `sessionStorage` (`ghost-history`) les pages vues par chaque visiteur et le site d'origine, et les rattache à l'abonné quand il s'inscrit. Ce n'est ni nécessaire au service demandé ni une mesure d'audience anonyme : sans consentement, mieux vaut l'éteindre. Désactivé, Ghost ne charge plus son script `member-attribution`. |
+| Outbound link tagging | Settings → Analytics | au choix | Ajoute `?ref=geekly.blog` aux liens sortants : le nom du site, rien sur le lecteur. Pas un traceur du lecteur. |
+| Web analytics (Ghost) | Settings → Analytics | éteint si vous gardez Plausible | Non configuré sur un Ghost auto-hébergé sans Tinybird. |
+| Code injection | Settings → Code injection | rien d'autre que Plausible | Tout script ajouté là s'exécute sans demander : voir « Brancher un outil… » plus bas. |
+
+#### Plausible (mesure d'audience sans cookie)
+
+Plausible ne dépose aucun cookie et n'écrit rien dans le navigateur ; il **lit** seulement
+`plausible_ignore` ([politique de données](https://plausible.io/data-policy)). Pour l'EDPB, faire envoyer
+par un script l'adresse de la page, le site d'origine ou la taille de l'écran reste un « accès » au terminal
+(lignes directrices 2/2023, § 33) : ce n'est donc pas « hors cookies » qui le dispense, c'est l'**exemption
+de la CNIL pour la mesure d'audience** (lignes directrices du 17 septembre 2020, § 50–51) : statistiques
+anonymes, pour le seul éditeur, pas de suivi d'un site à l'autre, pas de recoupement ni de transmission.
+Plausible auto-hébergé sur votre serveur s'y prête (empreinte quotidienne à sel renouvelé toutes les 24 h,
+adresse IP jamais gardée). La CNIL recommande en plus : informer (la page Cookies le fait), garder les
+données 25 mois au plus (pensez-y si vous gardez les statistiques brutes plus longtemps) ; le thème offre
+l'opposition (« Compter mes visites »). Le RGPD s'applique toujours : base légale = intérêt légitime, à dire
+dans les mentions légales (c'est déjà le cas).
+
+#### Le réglage « Consent notice » (seulement si vous ajoutez un traceur qui demande l'accord)
+
+Design & branding → Customize → *Site wide* → **Consent notice** :
+
+- **None** (défaut) : rien ne s'affiche, jamais. Tout script marqué `data-consent` reste éteint (un
+  avertissement apparaît dans la console du navigateur).
+- **Notice** : une petite carte en bas, dans le coin, qui n'arrive qu'**après un peu de défilement (un quart
+  d'écran) ou au bout de 12 secondes**, jamais sur une page sans script en attente.
+- **Banner** : une barre en bas de la fenêtre, dès l'arrivée, sur les pages qui ont un script en attente.
+
+Dans les deux modes : rien n'est bloquant (pas de fond grisé, pas de mur, la page reste utilisable),
+« Tout refuser » et « Tout accepter » ont la même taille et le même aspect, « Personnaliser » ouvre le
+panneau, le × ferme **en refusant** (il le dit), Échap aussi ; la réponse est gardée **6 mois** puis la
+question revient (`attibling-consent`) ; aucune case n'est pré-cochée ; le choix se retire aussi simplement
+dans le panneau. Un navigateur qui envoie **Global Privacy Control** ou **Do Not Track** est traité comme un
+refus : la carte ne s'affiche pas, les scripts restent éteints, le lecteur peut tout de même accepter dans
+le panneau. La carte se place juste après le lien d'évitement (premier élément atteint au clavier), sans
+prendre le focus ; position fixe, donc aucun décalage de la page.
+
+**« Ne pas l'afficher dès le début » n'est possible que tant que rien ne doit se charger au début.** Un outil
+de mesure d'audience qui demande l'accord (Google Analytics…) ne compte que si le lecteur accepte : avec
+*Notice*, les premières pages vues avant la réponse ne sont simplement pas comptées. Avec la configuration
+par défaut, rien n'attend : rien ne s'affiche.
+
+#### Brancher un outil qui demande l'accord (Analytics, publicité, pixel…)
+
+Dans Settings → Code injection → *Site header*, écrivez le script **inerte**, avec sa catégorie :
+
+```html
+<!-- Exemple : Google Analytics 4 ne se charge qu'après « Tout accepter » ou « Mesure d'audience » -->
+<script type="text/plain" data-consent="analytics" src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+<script type="text/plain" data-consent="analytics">
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXX');
+</script>
+```
+
+- `data-consent` : `analytics` (mesure d'audience), `embeds` (contenus intégrés), `other` (tout le reste :
+  publicité, pixel d'un réseau social…). Une autre valeur compte comme `other`.
+- `type="text/plain"` empêche le navigateur de l'exécuter ; le thème le recrée en vrai script, dans l'ordre de
+  la page, dès que la catégorie est acceptée (même page, sans rechargement). Pour un module :
+  `data-type="module"`. Pour du HTML (pixel `<img>`, `<iframe>`) : `<template data-consent="other">…</template>`.
+- Passez **Consent notice** à *Notice* ou *Banner*.
+- Sur les articles et les pages, la règle de sécurité des contenus intégrés (*Embed consent*) bloque les
+  scripts d'autres sites ; en mode de consentement, elle laisse passer les services courants (Google Tag
+  Manager, Google Analytics, AdSense / DoubleClick, Meta, Hotjar, Clarity, Plausible Cloud, Matomo Cloud,
+  Fathom, Umami Cloud, Cloudflare Web Analytics, LinkedIn, TikTok : liste dans
+  `partials/privacy/consent-hosts.hbs`). Un autre service : ajoutez son adresse à cette liste dans le thème,
+  ou désactivez *Embed consent*.
+
+Pour votre propre code, `window.attiblingConsent` :
+
+```js
+attiblingConsent.get("analytics");      // true (accepté), false (refusé), null (pas encore répondu)
+attiblingConsent.onChange(choices => { /* { analytics, embeds, other } */ });
+attiblingConsent.open();                // ouvre le panneau
+attiblingConsent.set({ analytics: true, embeds: false, other: false });
+// et l'évènement window « attibling:consent » (detail = les choix)
+```
+
+**Le jour où vous ajoutez Google Analytics, AdSense ou un pixel Meta**, le consentement **avant** tout
+chargement devient obligatoire : passez à *Banner* (le plus sûr pour un outil qui doit compter dès la
+première page) ou *Notice*, marquez chaque script `data-consent`, et complétez la page Cookies (qui, quoi,
+combien de temps).
+
+#### Sources (lues le 20 novembre 2026)
+
+- CNIL, lignes directrices « cookies et autres traceurs », délibération 2020-091 du 17 septembre 2020 :
+  champ (local storage, empreinte… § 13), refus aussi simple que l'acceptation (§ 30–31), traceurs exemptés
+  (§ 49), mesure d'audience (§ 50–52) —
+  https://www.cnil.fr/sites/cnil/files/atoms/files/lignes_directrices_de_la_cnil_sur_les_cookies_et_autres_traceurs.pdf
+- CNIL, recommandation, délibération 2020-092 : boutons « tout accepter / tout refuser » au même niveau et au
+  même format (§ 27–34), conservation des choix 6 mois (§ 39), retrait (§ 40–45), informer même pour les
+  traceurs exemptés (§ 49–50) —
+  https://www.cnil.fr/sites/cnil/files/atoms/files/recommandation-cookies-et-autres-traceurs.pdf
+- CNIL, « Cookies : solutions pour les outils de mesure d'audience » (4 juillet 2025) —
+  https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies-solutions-pour-les-outils-de-mesure-daudience
+- CNIL, recommandation sur les pixels de suivi dans les courriels (adoptée le 12 mars 2026, publiée le
+  14 avril 2026) et sa FAQ (22 juillet 2026) — https://cnil.fr/fr/recommandation-pixel-suivi-courriels,
+  https://cnil.fr/fr/faq-recommandation-pixels-courriers-electroniques
+- EDPB, lignes directrices 2/2023 sur le champ technique de l'article 5(3) ePrivacy, version 2.0 du
+  16 octobre 2024 (§ 33 JavaScript, § 44 traitement local, § 47–51 pixels et liens de suivi, § 54–55 IP) —
+  https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-22023-technical-scope-art-53-eprivacy-directive_en
+- Plausible, politique de données (novembre 2026) et exclusion par `localStorage` —
+  https://plausible.io/data-policy, https://plausible.io/docs/excluding-localstorage
+- Ghost 6.78 (code) : cookie `ghost-members-ssr`, 184 jours ; `member-attribution.min.js` (`ghost-history`,
+  15 pages, 24 h) ; Portal 2.72 (`ghost-portal-gift-form-state`, `ghost-recommendations-clicked`).
+
+**Incertain** : l'avis de la CNIL sur un outil précis (sa liste de solutions évaluées a laissé place à un
+outil d'auto-évaluation : c'est à l'éditeur de vérifier les conditions) ; la qualification du suivi de
+progression de lecture (automatique, local, désactivable : traité comme partie du service abonné) ; les
+deux clés de session de l'accueil (animation déjà jouée), qui ne quittent jamais l'appareil (EDPB § 44) mais
+ne sont pas strictement « demandées » ; la valeur juridique de Global Privacy Control en France (le thème
+l'applique comme un refus, par prudence).
+
 ### Ce que le thème garde dans le navigateur
 
-Pour vos mentions légales (rubrique cookies), voici **tout** ce que le thème enregistre dans le navigateur du
-lecteur. Rien de cela n'est envoyé au site : ce sont des préférences de fonctionnement, effacées avec les
-données du site dans le navigateur. Le thème ne dépose **aucun cookie**.
+Voici **tout** ce que le site peut enregistrer dans le navigateur du lecteur (le thème et les scripts de
+Ghost). Rien de cela n'est envoyé au site, sauf `ghost-history` à l'inscription. Le thème ne dépose **aucun
+cookie**. C'est aussi la liste que la page « Cookies et confidentialité » affiche (rendue par le thème).
 
-| Nom | Stockage | Déposé par | Pour qui | À quoi il sert | Durée |
-|---|---|---|---|---|---|
-| `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement |
-| `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement |
-| `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session |
-| `attibling-hero-cue` | sessionStorage | thème | tous | Petite ondulation des points du bandeau d'accueil déjà jouée dans cette session | Fin de la session |
-| `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement |
-| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement |
-| `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture) | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement |
-| `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune |
-| `attibling-embeds` | localStorage | thème | tous | Services dont le lecteur a choisi « Toujours afficher les contenus » (vidéos YouTube, publications X…) : seulement leur nom (`youtube`, `x`…) | Jusqu'à « Ne plus afficher automatiquement » ou l'effacement |
-| `ghost-history` | sessionStorage | Ghost | tous | Pages vues pendant la visite, pour savoir d'où vient un nouvel abonné (réglage Ghost « Member sources ») | Fin de la session |
+| Nom | Stockage | Déposé par | Pour qui | À quoi il sert | Durée | Accord préalable ? |
+|---|---|---|---|---|---|---|
+| `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement | non : personnalisation de l'interface choisie par le lecteur |
+| `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement | non : choix d'interface du lecteur |
+| `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session | non selon notre lecture (interface, ne quitte pas l'appareil) — incertain |
+| `attibling-hero-cue` | sessionStorage | thème | tous | Petite ondulation des points du bandeau d'accueil déjà jouée dans cette session | Fin de la session | idem |
+| `attibling-embeds` | localStorage | thème | tous | Services dont le lecteur a choisi « Toujours afficher » / « sans clic » (YouTube, X…) : leur nom seulement | Jusqu'au retrait (sous le contenu ou dans le panneau) ou à l'effacement | non : conserve le choix du lecteur |
+| `attibling-privacy` | localStorage | thème | abonnés | « Reprendre la lecture » désactivé (`{"progress":false}`) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
+| `attibling-consent` | localStorage | thème | tous | Mode de consentement : la réponse par catégorie et sa date | 6 mois, puis la question revient | non : conserve le choix du lecteur |
+| `plausible_ignore` | localStorage | thème | tous | Le lecteur a désactivé « Compter mes visites » (`true`, lu par Plausible) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
+| `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement | non : personnalisation choisie |
+| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement | non : service demandé (le lecteur enregistre) |
+| `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture), noté automatiquement, désactivable | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement | non selon notre lecture : fonction du compte abonné, locale, désactivable — incertain |
+| `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune | non |
+| `ghost-history` | sessionStorage | Ghost | tous | Pages vues pendant la visite et site d'origine, envoyés à Ghost à l'inscription (réglage « Member sources ») | Fin de la session | **oui**, ou désactiver *Member sources* |
+| `ghost-portal-gift-form-state` | sessionStorage | Ghost | tous | Portal : état du formulaire d'abonnement cadeau, pendant qu'on le remplit (sites payants) | Fin de la session | non : service demandé |
+| `ghost-recommendations-clicked` | localStorage | Ghost | tous | Portal : recommandations déjà ouvertes (si les recommandations sont activées) | Jusqu'à l'effacement | à vérifier si vous activez les recommandations |
 
 Et du côté de Ghost : les cookies `ghost-members-ssr` et `ghost-members-ssr.sig` (connexion d'un abonné,
-environ 6 mois). Les services externes contactés (polices, contenus intégrés…) sont dans le tableau suivant.
+184 jours au plus, `HttpOnly`) : nécessaires à l'authentification demandée, sans accord. L'historique de
+navigation de l'onglet garde aussi deux états du thème (le tirage de la mosaïque « Tags » pour le bouton
+Retour, les filtres des archives dans l'adresse) : rien n'est écrit dans le stockage. Les services externes
+contactés (polices, contenus intégrés…) sont dans le tableau suivant.
 
-> Ce tableau suit le code : le test `src/tests/document.test.js` échoue si le thème se met à utiliser une clé
-> qui n'y figure pas (ou cesse d'en utiliser une), et si `docs/mentions-legales-proposition.md` ne la cite pas.
+> Une seule source : `src/js/privacy/registry.js`. Le test `src/tests/document.test.js` échoue si le code
+> utilise une clé qui n'y est pas déclarée (ou cesse d'en utiliser une), si ce tableau ou la liste de la page
+> (`partials/privacy/stored.hbs`) ne la reprend pas dans le même ordre.
 
 ### Ce que le navigateur charge, et d'où (confidentialité)
 
@@ -883,11 +1081,20 @@ en visiteur et en abonné.
 | Vidéos YouTube | `youtube-nocookie.com`, puis `googlevideo.com`, `i.ytimg.com`, `google.com`, `gstatic.com`… | **après le clic** du lecteur (ou s'il a choisi « Toujours afficher ») | thème (réglage *Embed consent*) |
 | Publications X, autres contenus intégrés | le service (`platform.twitter.com`, `twimg.com`…) | **après le clic** du lecteur (ou « Toujours afficher ») | thème (réglage *Embed consent*) |
 | Images collées par adresse, images Unsplash | leur site (`images.unsplash.com`…) | quand elles s'affichent | vous (contenu) |
-| Ce que vous ajoutez dans Code injection (statistiques…) | ce que vous y mettez | toujours | vous |
+| Plausible (statistiques, GEEKLY) | `analytics.geekly.blog` (votre serveur) | toujours, sauf si le lecteur a désactivé « Compter mes visites » | vous (Code injection) |
+| Ce que vous ajoutez dans Code injection (statistiques…) | ce que vous y mettez | toujours (ou après accord, si marqué `data-consent`) | vous |
 | Liens de partage (X, Facebook, LinkedIn) | — | rien n'est chargé : ce sont de simples liens | thème |
 
 Avec *Embed consent* désactivé, YouTube (`youtube.com`, avec ses cookies `YSC`, `VISITOR_INFO1_LIVE`…,
 `doubleclick.net`, `google.com`) et X se chargent dès l'ouverture de l'article.
+
+Aucun de ces services ne dépose de cookie ni n'écrit dans le navigateur au nom du site avant le clic d'un
+lecteur ; ceux de la liste « toujours » reçoivent l'adresse IP du lecteur (une requête ordinaire) : c'est à
+dire dans les mentions légales (c'est fait), pas à demander. Pour ne plus rien demander à jsDelivr, un Ghost
+auto-hébergé peut servir Portal, la recherche et les commentaires lui-même (clés `portal.url`,
+`sodoSearch.url`, `comments.url` du fichier `config.production.json`, à vérifier dans la documentation de
+Ghost) ; les images Unsplash et les images collées par adresse peuvent être téléchargées puis importées dans
+Ghost.
 
 ### Page 404
 
@@ -1134,13 +1341,21 @@ service** : à la place du lecteur, un encadré aux couleurs du site, à la tail
 - le nom du service (« YouTube ») et le titre de la vidéo quand Ghost l'a enregistré ;
 - un bouton **« Afficher la vidéo YouTube »** (« Afficher la publication X », « Afficher le contenu de … » pour
   les autres) ;
-- une ligne : « L'afficher contacte YouTube, qui peut déposer des cookies. » ;
+- une ligne : « L'afficher charge ce contenu depuis YouTube, qui reçoit alors votre adresse IP et peut déposer
+  des cookies ou d'autres traceurs. » : qui (le service, nommé), quoi, pour ce service seulement ;
 - une case **« Toujours afficher les contenus de YouTube »** : cochée avant de cliquer, le choix est gardé dans
   le navigateur du lecteur (clé `attibling-embeds`, une par service) et les contenus de ce service
   s'afficheront ensuite d'eux-mêmes, avec sous chacun un lien « Ne plus afficher automatiquement… » pour
   revenir en arrière ;
 - un lien **« Voir sur YouTube »** (ou « Voir sur X »…) qui ouvre le contenu chez le service, dans un nouvel
-  onglet.
+  onglet ;
+- **« Gérer mes choix »**, qui ouvre le panneau « Cookies et confidentialité » : chaque service « sans clic »
+  s'y retire d'un geste (voir [Cookies et confidentialité](#cookies-et-confidentialité--la-page-le-panneau-le-consentement)).
+
+C'est le consentement contextuel : rien n'est demandé au service avant le clic, la case « Toujours afficher »
+n'est jamais cochée d'avance, l'accord vaut pour ce service seulement et se retire aussi simplement qu'il se
+donne. En mode de consentement (réglage *Consent notice*), accepter la catégorie « Contenus intégrés » affiche
+tous les services sans clic ; sous chacun, « Gérer mes choix » permet de revenir dessus.
 
 Pour une publication X (ou Instagram, Threads…), le texte de la publication, que Ghost garde dans l'article,
 reste lisible dans l'encadré, avec le bouton dessous. Pas de miniature YouTube : l'image vient elle aussi des
@@ -1245,13 +1460,14 @@ navigateur télécharge déjà la page : le clic l'affiche presque sans attente.
 
 ## 8. Référence : les réglages du thème
 
-Ghost Admin → Settings → Design & branding → **Customize** (16 réglages ; le nom affiché par Ghost vient de la clé).
+Ghost Admin → Settings → Design & branding → **Customize** (17 réglages ; le nom affiché par Ghost vient de la clé).
 
 | Réglage (Ghost Admin) | Onglet | Par défaut | Effet | Section |
 |---|---|---|---|---|
 | Dark mode logo | Site wide | vide | Logo clair pour le mode sombre et le bandeau d'accueil (avec un logo image) | [2](#2-identité-et-en-tête) |
 | Page transitions | Site wide | oui | Transitions animées entre les pages (navigateurs compatibles) | [7](#transitions-entre-les-pages) |
 | Subscribe url | Site wide | vide (la page `newsletter`, `abonnement` ou `subscribe`, sinon Portal) | Destination forcée des boutons « S'abonner » / « Se connecter », par exemple `/newsletter/` | [2](#bouton-sabonner-et-se-connecter) |
+| Consent notice | Site wide | None | Mode de consentement de secours, seulement si vous ajoutez un traceur qui demande l'accord (scripts marqués `data-consent`) : *Notice* (petite carte après un peu de défilement) ou *Banner* (barre dès l'arrivée) ; None : rien ne s'affiche | [5](#le-réglage--consent-notice--seulement-si-vous-ajoutez-un-traceur-qui-demande-laccord) |
 | About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
 | Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |
