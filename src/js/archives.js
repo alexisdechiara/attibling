@@ -214,5 +214,12 @@ const setUpArchives = root => {
 
 onReady(() => {
 	const root = document.querySelector("[data-archives]");
-	if (root) setUpArchives(root);
+	if (!root) return;
+	try {
+		setUpArchives(root);
+	} catch (error) {
+		// The list as the server wrote it, at once (archives.css), rather than nothing for a while
+		document.documentElement.setAttribute("data-archives-failed", "");
+		throw error;
+	}
 });

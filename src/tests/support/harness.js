@@ -48,6 +48,7 @@ const close = async () => {
  *    `delay` ms with the JavaScript `script`; it sets window.__ghostDeferRan (performance.now()) first
  *  - slow: { "/assets/js/archives.js": 1500 } files of the repository served that many ms late (a slow
  *    network for one script, e.g. to see the page before it runs); "/__slow.js" is an empty script
+ *  - fail: ["/assets/js/archives.js"] files of the repository answered with a 404 (a script that fails)
  *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, javaScriptEnabled: browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
@@ -69,6 +70,7 @@ const open = async (options = {}) => {
 		pages = {},
 		ghostDefer = null,
 		slow = {},
+		fail = [],
 	} = options;
 	const render = options.render || (fixture ? null : home());
 
@@ -146,6 +148,7 @@ const open = async (options = {}) => {
 
 		if (url.origin === SITE) {
 			if (slow[url.pathname]) await sleep(slow[url.pathname]);
+			if (fail.includes(url.pathname)) return route.fulfill({ status: 404, body: "not found" });
 			if (url.pathname === "/__slow.js") {
 				return route.fulfill({ status: 200, contentType: "application/javascript", body: "" });
 			}

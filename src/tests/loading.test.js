@@ -115,10 +115,51 @@ describe("nothing moves when the scripts reveal their parts", () => {
 		});
 		assert.deepEqual(await page.evaluate(() => window.__early), {
 			visibility: "hidden",
-			animation: "archives-reveal 4s",
+			animation: "archives-reveal 1.5s",
 		});
 		assert.equal(await page.locator(".archives__body").evaluate(el => getComputedStyle(el).visibility), "visible");
 		await dispose();
+	});
+
+	it("archives: a script that fails to load, or breaks, shows the list at once", async () => {
+		// When the list becomes visible, in ms from the start of the navigation
+		const watch = () => {
+			const check = () => {
+				const body = document.querySelector(".archives__body");
+				if (body && getComputedStyle(body).visibility === "visible") window.__visibleAt = performance.now();
+				else requestAnimationFrame(check);
+			};
+			requestAnimationFrame(check);
+		};
+		const failed = await open({
+			render: template("page-archives"),
+			slow: { "/assets/js/archives.js": 300 },
+			fail: ["/assets/js/archives.js"],
+			initScript: watch,
+		});
+		const loadFailed = await waitFor(() => failed.page.evaluate(() => window.__visibleAt));
+		assert.ok(loadFailed < 1000, `shown at ${Math.round(loadFailed)} ms when the script cannot load`);
+		await failed.dispose();
+
+		const broken = await open({
+			render: template("page-archives"),
+			slow: { "/assets/js/archives.js": 300 },
+			// The page the script expects is not quite there: it throws
+			initScript: () => {
+				const check = () => {
+					const body = document.querySelector(".archives__body");
+					if (body && getComputedStyle(body).visibility === "visible") window.__visibleAt = performance.now();
+					else requestAnimationFrame(check);
+				};
+				requestAnimationFrame(check);
+				document.addEventListener("DOMContentLoaded", () => document.querySelector("[data-archives-years]")?.remove());
+			},
+		});
+		const threw = await waitFor(() => broken.page.evaluate(() => window.__visibleAt));
+		assert.ok(threw < 1000, `shown at ${Math.round(threw)} ms when the script throws`);
+		assert.equal(broken.errors.length, 1, "the error still reaches the console");
+		broken.errors.length = 0;
+		await broken.dispose();
 	});
 
 	it("table of contents: its place is kept from the first paint, in articles and documents", async () => {
