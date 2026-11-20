@@ -154,9 +154,9 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     Stripe, hCaptcha and Turnstile, which Portal may load). The reader's choice loads the embed in the
     site's own page assets/html/embed.html, which has no such policy (src/js/embeds.js,
     partials/embed-consent.hbs). Until the script replaces them, the blocked frames are hidden; without
-    JavaScript a sentence takes their place. In the fallback consent mode (setting consent_notice), the
-    common analytics / tag / ads services are added (partials/privacy/consent-hosts.hbs): they still only
-    run when the owner gated them with data-consent and the reader accepted. --}}
+    JavaScript a sentence takes their place. Only when the owner turns on « Consent tools » (setting
+    consent_tools, off by default) in the fallback consent mode, the common analytics / tag / ads services
+    are added (partials/privacy/consent-hosts.hbs), for the scripts gated with data-consent. --}}
     {{#is "post, page"}}{{#if @custom.embed_consent}}
       <meta http-equiv="Content-Security-Policy" content="frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://*.hcaptcha.com https://challenges.cloudflare.com{{> "privacy/consent-hosts" kind="frame"}}; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://js.stripe.com https://*.hcaptcha.com https://challenges.cloudflare.com{{> "privacy/consent-hosts" kind="script"}}">
       <style>main iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"], [data-embed-frame]) { visibility: hidden; }</style>
@@ -189,9 +189,9 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     {{!-- Third-party embeds on click: the facade and its strings (setting embed_consent) --}}
     {{#is "post, page"}}{{#if @custom.embed_consent}}{{> embed-consent}}{{/if}}{{/is}}
 
-    {{!-- Consent notice (setting consent_notice: Notice, the default, or Banner): the notice's template,
-    shown only when an embed behind its facade or a script gated with data-consent waits for an answer
-    (src/js/privacy/). None: nothing. The preferences panel is in the footer. --}}
+    {{!-- Fallback consent mode (setting consent_notice: Notice or Banner): the notice's template, shown
+    only when a script gated with data-consent waits for an answer (src/js/privacy/); embeds ask in their
+    own facade. None: never. The preferences panel is in the footer. --}}
     {{#match @custom.consent_notice "Notice"}}{{> "privacy/notice"}}{{/match}}
     {{#match @custom.consent_notice "Banner"}}{{> "privacy/notice"}}{{/match}}
 

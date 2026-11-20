@@ -73,7 +73,7 @@ describe("theme scripts and Ghost's deferred scripts", () => {
 			}),
 			slow: { "/__slow.js": 1200 },
 			storage: {
-				"attibling-consent": JSON.stringify({ analytics: true, embeds: true, other: true, v: 2, at: Date.now() }),
+				"attibling-consent": JSON.stringify({ analytics: true, embeds: true, other: true, v: 1, at: Date.now() }),
 			},
 		});
 		assert.equal(await waitFor(() => page.evaluate(() => window.__gatedRan)), true, "the gated script ran");

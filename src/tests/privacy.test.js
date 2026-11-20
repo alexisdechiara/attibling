@@ -26,6 +26,19 @@ const openPanel = async page => {
 	await panel(page).waitFor({ state: "visible" });
 };
 const stored = (page, key) => page.evaluate(k => localStorage.getItem(k), key);
+// Waits for a condition, and fails when it does not come
+const until = async (fn, message) => assert.ok(await waitFor(fn), message);
+// What has the focus (a short description)
+const focused = page =>
+	page.evaluate(() => {
+		const el = document.activeElement;
+		return el === document.body
+			? "BODY"
+			: `${el.tagName}${el.id ? `#${el.id}` : ""} ${el.textContent.trim().slice(0, 40)}`;
+	});
+// A second gated script, of the kind « other »
+const GATED_OTHER =
+	'<template data-consent="other"><script>window.__otherRuns = (window.__otherRuns || 0) + 1;</script></template>';
 
 describe("privacy: nothing without something to ask", () => {
 	before(launch);
@@ -100,16 +113,60 @@ describe("privacy: the preferences panel", () => {
 			switches: [...dialog.querySelectorAll('input[role="switch"]')]
 				.filter(i => i.checkVisibility())
 				.map(i => i.closest("label").querySelector(".privacy-switch__label").textContent.trim()),
+			groups: [...dialog.querySelectorAll("fieldset")]
+				.filter(f => f.checkVisibility())
+				.map(f => f.querySelector("legend").textContent.trim()),
 		}));
+		// One « Contenus intégrés » group: the switch for all of them, then the services one by one
 		assert.deepEqual(info, {
 			modal: true,
 			label: "Cookies et confidentialité",
 			focusInside: true,
-			switches: ["Contenus intégrés", "Afficher les contenus de YouTube sans clic"],
+			switches: ["Tous les contenus intégrés", "YouTube"],
+			groups: ["Contenus intégrés", "Service par service"],
 		});
+		// Each switch is named by its label alone, its help is its description
+		const all = panel(page).getByRole("switch", { name: "Tous les contenus intégrés", exact: true });
+		assert.equal(await all.count(), 1);
+		assert.match(await all.getAttribute("aria-describedby"), /^privacy-hint-/);
+		assert.equal(
+			await page.evaluate(id => document.getElementById(id).textContent, await all.getAttribute("aria-describedby")),
+			"Les vidéos et publications d’autres sites, affichées sans clic.",
+		);
+		assert.equal(await panel(page).getByRole("switch", { name: "YouTube", exact: true }).count(), 1);
 		await page.keyboard.press("Escape");
 		await panel(page).waitFor({ state: "hidden" });
-		assert.equal(await button.evaluate(el => el === document.activeElement), true);
+		await until(() => button.evaluate(el => el === document.activeElement), "focus back on the footer's button");
+		await dispose();
+	});
+
+	it("turning « Tous les contenus intégrés » on or off sets every service the same way, and says what appeared", async () => {
+		const { page, dispose } = await open({ render: article({ html: LONG }) });
+		await page.locator("[data-embed-facade]").waitFor();
+		await openPanel(page);
+		const all = panel(page).locator('[data-consent-category="embeds"]');
+		const youtube = panel(page).locator('[data-provider="youtube"]');
+		await youtube.check();
+		assert.deepEqual([await all.isChecked(), await youtube.isChecked()], [false, true], "an exception, before");
+		await all.check();
+		await all.uncheck();
+		// Off: no service left on, the switches cannot disagree
+		assert.equal(await stored(page, "attibling-embeds"), null);
+		assert.equal(await youtube.isChecked(), false);
+		await page.reload({ waitUntil: "load" });
+		await page.locator("[data-embed-facade]").waitFor();
+		await openPanel(page);
+		await panel(page).locator('[data-consent-category="embeds"]').check();
+		await page.locator("iframe[data-embed-frame]").waitFor({ state: "attached" });
+		// (Polite region of the open panel: « Choix enregistré », then what appeared behind it)
+		await until(
+			() =>
+				panel(page)
+					.locator("[data-privacy-live]")
+					.textContent()
+					.then(t => t.includes("Affichés sur cette page : les contenus de YouTube.")),
+			"the embed that appeared is announced",
+		);
 		await dispose();
 	});
 
@@ -286,12 +343,64 @@ describe("privacy: the preferences panel", () => {
 			await page.evaluate(() => [localStorage.getItem("theme"), localStorage.getItem("attibling-embeds")]),
 			[null, null],
 		);
-		await waitFor(() =>
-			panel(page)
-				.locator("[data-privacy-live]")
-				.textContent()
-				.then(t => t.length > 0),
+		await until(
+			() =>
+				panel(page)
+					.locator("[data-privacy-live]")
+					.textContent()
+					.then(t => t.length > 0),
+			"announced",
 		);
+		await dispose();
+	});
+
+	it("asks before clearing a member's lists, saying what would be lost (panel and page), and only then", async () => {
+		const saved = JSON.stringify([
+			{ url: "/a/", title: "A", savedAt: 1 },
+			{ url: "/b/", title: "B", savedAt: 2 },
+		]);
+		const progress = JSON.stringify([{ url: "/c/", title: "C", progress: 0.4, updatedAt: 1 }]);
+		for (const [where, render, button] of [
+			["panel", () => home({ member: true }), "[data-privacy-clear]"],
+			["page", () => template("page-cookies", { member: true, locale: "fr" }), "[data-stored-clear]"],
+		]) {
+			const { page, dispose } = await open({
+				render: render(),
+				storage: { "attibling-saved": saved, "attibling-progress": progress, theme: "dark" },
+				lang: where === "page" ? "fr" : "en",
+			});
+			if (where === "panel") await openPanel(page);
+			const messages = [];
+			let accept = false;
+			page.on("dialog", dialog => {
+				messages.push(dialog.message());
+				return accept ? dialog.accept() : dialog.dismiss();
+			});
+			const clear = page.locator(button).first();
+			await clear.click();
+			assert.equal(messages.length, 1, where);
+			assert.match(
+				messages[0],
+				where === "panel"
+					? /your “Read later” list \(2 posts\) and your “Continue reading” list \(1 post\)/
+					: /votre liste « À lire plus tard » \(2 articles\) et votre liste « Reprendre la lecture » \(un article\)/,
+			);
+			assert.equal(await stored(page, "attibling-saved"), saved, `${where}: kept when cancelled`);
+			accept = true;
+			await clear.click();
+			assert.deepEqual(
+				await page.evaluate(() => [localStorage.getItem("attibling-saved"), localStorage.getItem("theme")]),
+				[null, null],
+			);
+			await dispose();
+		}
+		// Nothing of value: no question
+		const { page, dispose } = await open({ render: home(), storage: { theme: "dark" } });
+		let asked = 0;
+		page.on("dialog", dialog => (asked++, dialog.accept()));
+		await openPanel(page);
+		await panel(page).locator("[data-privacy-clear]").click();
+		assert.deepEqual([asked, await stored(page, "theme")], [0, null]);
 		await dispose();
 	});
 });
@@ -329,9 +438,11 @@ describe("privacy: the « Cookies et confidentialité » page", () => {
 		await held.locator('tr[data-held-key="theme"] button').click();
 		assert.equal(await stored(page, "theme"), null);
 		assert.equal(await held.locator("tbody tr").count(), 2);
-		assert.equal(await page.evaluate(() => document.activeElement.className), "privacy-stored__clear");
+		// The focus moves with the click itself (the list is drawn again at once): the next row's button
+		assert.equal(await page.evaluate(() => document.activeElement.closest("tr")?.dataset.heldKey), "attibling-embeds");
 		await page.locator("[data-stored-clear]").click();
 		await page.locator("[data-stored-empty]").waitFor({ state: "visible" });
+		assert.equal(await page.evaluate(() => document.activeElement.matches("[data-stored-empty]")), true);
 		assert.equal(await held.isVisible(), false);
 		assert.equal(await page.evaluate(() => localStorage.length), 0);
 		// The switches of the page list every embed service
@@ -358,6 +469,54 @@ describe("privacy: the « Cookies et confidentialité » page", () => {
 		await member.dispose();
 	});
 
+	it("says for whom and how long, as the registry does (src/js/privacy/registry.js audience, lifetime)", async () => {
+		const { page, dispose } = await open({
+			render: template("page-cookies", { post: { html: "<p>Texte.</p>" } }),
+		});
+		const rows = await page.$$eval("[data-storage-key]", trs =>
+			trs.map(tr => [tr.dataset.storageKey, tr.cells[2].textContent.trim(), tr.cells[4].textContent.trim()]),
+		);
+		const FOR = { all: "everyone", visitors: "visitors", members: "members" };
+		const LIFETIME = {
+			session: /^Until the tab is closed$/,
+			"six-months": /^6 months, then asked again$/,
+			none: /^None$/,
+			"until-cleared": /^Until (?!the tab is closed).*(clear|take it back)/,
+		};
+		for (const entry of STORAGE) {
+			const [, audience, lifetime] = rows.find(([key]) => key === entry.key);
+			assert.equal(audience, FOR[entry.audience], `${entry.key}: for whom`);
+			assert.match(lifetime, LIFETIME[entry.lifetime], `${entry.key}: how long`);
+		}
+		await dispose();
+	});
+
+	for (const viewport of [WIDE, { width: 768, height: 1024 }, PHONE]) {
+		it(`fits its tables in the reading column, as stacked rows: nothing to scroll (${viewport.width} px)`, async () => {
+			const { page, dispose } = await open({
+				render: cookies(),
+				storage: { theme: "dark", "attibling-embeds": '{"youtube":true}' },
+				viewport,
+			});
+			await page.locator("[data-privacy-held]").waitFor();
+			const boxes = await page.$$eval("[data-privacy-page] .table-scroll", els =>
+				els.map(el => ({
+					over: el.scrollWidth - el.clientWidth,
+					head: getComputedStyle(el.querySelector("thead")).position,
+					// « Durée » (or « Contenu ») read next to its name, inside the column
+					inside: [...el.querySelectorAll("td")].every(
+						td => td.getBoundingClientRect().right <= el.getBoundingClientRect().right + 1,
+					),
+				})),
+			);
+			assert.deepEqual(boxes, [
+				{ over: 0, head: "absolute", inside: true },
+				{ over: 0, head: "absolute", inside: true },
+			]);
+			await dispose();
+		});
+	}
+
 	it("is also the « Privacy » template and the slug confidentialite", async () => {
 		for (const name of ["custom-privacy", "page-confidentialite"]) {
 			const { page, dispose } = await open({ render: { ...cookies(), template: name } });
@@ -374,16 +533,24 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	const custom = mode => ({ ...ARTICLE_CUSTOM, consent_notice: mode });
 	const notice = page => page.locator("[data-consent-notice]");
 
-	it("lets the common analytics services through the embeds' policy only in that mode", async () => {
-		for (const [mode, expected] of [
-			["None", false],
-			["Banner", true],
-		]) {
-			const { page, dispose } = await open({ render: article({ custom: custom(mode) }) });
-			const csp = await page.getAttribute('meta[http-equiv="Content-Security-Policy"]', "content");
-			assert.equal(/googletagmanager/.test(csp), expected, mode);
-			assert.doesNotMatch(csp, /youtube|twitter/);
-			await dispose();
+	const csp = async settings => {
+		const { page, dispose } = await open({ render: article({ custom: { ...ARTICLE_CUSTOM, ...settings } }) });
+		const policy = await page.getAttribute('meta[http-equiv="Content-Security-Policy"]', "content");
+		await dispose();
+		return policy;
+	};
+
+	it("keeps the embeds' policy of None by default: the analytics / ads hosts only with « Consent tools » on", async () => {
+		const none = await csp({ consent_notice: "None" });
+		assert.equal(await csp({ consent_notice: "Notice" }), none, "default Notice = None");
+		assert.equal(await csp({ consent_notice: "Banner" }), none, "Banner = None");
+		assert.equal(await csp({ consent_notice: "None", consent_tools: true }), none, "the setting needs a consent mode");
+		assert.doesNotMatch(none, /googletagmanager|facebook|hotjar/);
+		for (const mode of ["Notice", "Banner"]) {
+			const open = await csp({ consent_notice: mode, consent_tools: true });
+			assert.match(open, /script-src [^;]*https:\/\/www\.googletagmanager\.com/, mode);
+			assert.match(open, /frame-src [^;]*https:\/\/\*\.doubleclick\.net/, mode);
+			assert.doesNotMatch(open, /youtube|twitter/);
 		}
 	});
 
@@ -423,23 +590,177 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 			text: true,
 			height,
 		});
-		// « Tout refuser » and « Tout accepter »: same size, same look
-		const [refuse, accept] = await notice(page)
-			.locator(".consent-notice__choice")
-			.evaluateAll(buttons =>
-				buttons.map(b => {
+		// « Tout refuser » and « Tout accepter »: same size, same row, same type, 44 px at least
+		const buttons = await notice(page)
+			.locator(".consent-refuse, .consent-accept")
+			.evaluateAll(list =>
+				list.map(b => {
 					const s = getComputedStyle(b);
 					const r = b.getBoundingClientRect();
-					return {
-						w: Math.round(r.width),
-						h: Math.round(r.height),
-						bg: s.backgroundColor,
-						fg: s.color,
-						size: s.fontSize,
-					};
+					return { w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top), size: s.fontSize };
 				}),
 			);
-		assert.deepEqual(refuse, accept);
+		assert.equal(buttons.length, 2);
+		assert.deepEqual(buttons[0], buttons[1]);
+		assert.ok(buttons[0].h >= 44, `${buttons[0].h} px high`);
+		await dispose();
+	});
+
+	it("asks only for the kinds waiting on the page, stores an answer for those only; a kind added later is asked", async () => {
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+		});
+		await notice(page).waitFor({ state: "visible" });
+		assert.match(await notice(page).locator("[data-consent-body]").textContent(), /: audience measurement\.$/);
+		await notice(page).getByRole("button", { name: "Accept all" }).click();
+		const record = JSON.parse(await stored(page, "attibling-consent"));
+		assert.deepEqual(Object.keys(record).sort(), ["analytics", "at", "v"], "nothing stored for what was not asked");
+		await dispose();
+
+		// A page with a tool of another kind: the card comes back, for that kind only
+		const next = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED + GATED_OTHER,
+			storage: { "attibling-consent": JSON.stringify(record) },
+		});
+		await notice(next.page).waitFor({ state: "visible" });
+		assert.match(await notice(next.page).locator("[data-consent-body]").textContent(), /: other services\.$/);
+		assert.deepEqual(
+			await next.page.evaluate(() => [window.__gatedRuns ?? 0, window.__otherRuns ?? 0]),
+			[1, 0],
+			"the analytics script runs, the other waits",
+		);
+		await notice(next.page).getByRole("button", { name: "Refuse all" }).click();
+		assert.deepEqual(
+			(({ analytics, other, embeds }) => ({ analytics, other, embeds }))(
+				JSON.parse(await stored(next.page, "attibling-consent")),
+			),
+			{ analytics: true, other: false, embeds: undefined },
+		);
+		await next.dispose();
+	});
+
+	it("keeps the answer for the page when the browser refuses to store it", async () => {
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+			initScript: () => {
+				Storage.prototype.setItem = () => {
+					throw new DOMException("blocked", "SecurityError");
+				};
+			},
+		});
+		await notice(page).waitFor({ state: "visible" });
+		await notice(page).getByRole("button", { name: "Accept all" }).click();
+		assert.equal(await notice(page).count(), 0);
+		assert.equal(await page.evaluate(() => window.__gatedRuns), 1, "it runs on this page");
+		await dispose();
+	});
+
+	for (const [name, record] of [
+		["another version", { analytics: true, v: 99, at: Date.now() }],
+		["no version", { analytics: true, at: Date.now() }],
+		["a date in the future", { analytics: true, v: 1, at: Date.now() + 7 * 864e5 }],
+	]) {
+		it(`asks again when the stored answer has ${name}`, async () => {
+			const { page, dispose } = await open({
+				render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+				bodyStart: GATED,
+				storage: { "attibling-consent": JSON.stringify(record) },
+			});
+			await notice(page).waitFor({ state: "visible" });
+			assert.equal(await page.evaluate(() => window.__gatedRuns ?? 0), 0);
+			await dispose();
+		});
+	}
+
+	it("takes Do Not Track as a refusal, as Global Privacy Control", async () => {
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+			initScript: () => Object.defineProperty(Navigator.prototype, "doNotTrack", { get: () => "1" }),
+		});
+		await page.waitForLoadState("load");
+		await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+		assert.deepEqual(
+			await page.evaluate(() => [
+				document.querySelectorAll("[data-consent-notice]").length,
+				window.__gatedRuns ?? 0,
+				window.attiblingConsent.get("analytics"),
+			]),
+			[0, 0, false],
+		);
+		await dispose();
+	});
+
+	for (const viewport of [WIDE, { width: 390, height: 844 }, { width: 320, height: 640 }]) {
+		for (const mode of ["Notice", "Banner"]) {
+			it(`never leaves the focused element under the ${mode.toLowerCase()} (${viewport.width} px)`, async () => {
+				const { page, dispose } = await open({
+					render: article({
+						custom: custom(mode),
+						html: `${"<p>Un paragraphe avec <a href='/x/'>un lien</a>.</p>".repeat(60)}`,
+					}),
+					bodyStart: GATED,
+					viewport,
+				});
+				await page.mouse.wheel(0, 600);
+				await notice(page).waitFor({ state: "visible" });
+				await notice(page).evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
+				const hidden = [];
+				for (let i = 0; i < 40; i++) {
+					await page.keyboard.press("Tab");
+					const state = await page.evaluate(() => {
+						const el = document.activeElement;
+						const card = document.querySelector("[data-consent-notice]");
+						if (!card || card.contains(el) || el === document.body) return null;
+						const box = el.getBoundingClientRect();
+						const top = card.getBoundingClientRect().top;
+						return box.bottom > top + 1 ? `${el.tagName} ${Math.round(box.bottom)} > ${Math.round(top)}` : null;
+					});
+					if (state) hidden.push(state);
+				}
+				assert.deepEqual(hidden, []);
+				await dispose();
+			});
+		}
+	}
+
+	it("gives the focus back after an answer: where it was, else the main content, never <body>", async () => {
+		// From the notice's own buttons (the keyboard user reaches it right after the skip link)
+		for (const answer of ["Accept all", "Refuse all", "Close and continue without accepting", "Escape"]) {
+			const { page, dispose } = await open({
+				render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+				bodyStart: GATED,
+			});
+			await notice(page).waitFor({ state: "visible" });
+			if (answer === "Escape") {
+				await notice(page).getByRole("button", { name: "Refuse all" }).focus();
+				await page.keyboard.press("Escape");
+			} else {
+				await notice(page).getByRole("button", { name: answer }).focus();
+				await page.keyboard.press("Enter");
+			}
+			assert.equal(await notice(page).count(), 0, answer);
+			assert.match(await focused(page), /^MAIN#main/, answer);
+			await page.keyboard.press("Tab");
+			assert.notEqual(await focused(page), "BODY", `${answer}: the next Tab goes on in the page`);
+			await dispose();
+		}
+		// From the panel opened by the notice's link: the link is gone when the panel closes
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+		});
+		await notice(page).waitFor({ state: "visible" });
+		await notice(page).getByRole("button", { name: "Cookies and privacy" }).click();
+		await panel(page).waitFor({ state: "visible" });
+		await panel(page).getByRole("button", { name: "Accept all" }).click();
+		assert.equal(await notice(page).count(), 0, "answered in the panel");
+		await page.keyboard.press("Escape");
+		await panel(page).waitFor({ state: "hidden" });
+		await until(() => focused(page).then(f => f.startsWith("MAIN#main")), "focus on the main content");
 		await dispose();
 	});
 
@@ -475,10 +796,8 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 		assert.equal(await notice(page).count(), 0);
 		assert.equal(await page.evaluate(() => window.__gatedRuns), 1, "runs at once, on this page");
 		const record = JSON.parse(await stored(page, "attibling-consent"));
-		assert.deepEqual(
-			{ ...record, at: typeof record.at },
-			{ analytics: true, embeds: true, other: true, v: 2, at: "number" },
-		);
+		// Only the kind it asked about (the page's gated script): « analytics »
+		assert.deepEqual({ ...record, at: typeof record.at }, { analytics: true, v: 1, at: "number" });
 		await page.reload({ waitUntil: "load" });
 		await page.waitForTimeout(300);
 		assert.equal(await notice(page).count(), 0, "not asked again");
@@ -543,7 +862,13 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 			"0,false",
 		);
 		await openPanel(page);
-		assert.equal(await panel(page).locator("[data-consent-signal]").isVisible(), true);
+		// Said once, in the first group (« Services facultatifs »)
+		assert.deepEqual(
+			await panel(page)
+				.locator("[data-consent-signal]")
+				.evaluateAll(notes => notes.map(n => n.checkVisibility())),
+			[true, false],
+		);
 		await panel(page).getByRole("button", { name: "Accept all" }).click();
 		assert.equal(await page.evaluate(() => window.__gatedRuns), 1, "the reader may still accept");
 		await dispose();
@@ -574,17 +899,27 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 });
 
-describe("privacy: one answer for embedded content (default consent_notice = Notice)", () => {
+describe("privacy: embedded content asks in place (default consent_notice = Notice)", () => {
 	before(launch);
 	after(close);
 
 	const notice = page => page.locator("[data-consent-notice]");
 	const youtube = /youtube/;
 	const settle = locator => locator.evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
+	const frames = page => page.locator("iframe[data-embed-frame]").count();
+	// No card, whatever the reader does: scrolls, waits past the notice's 12 seconds
+	const noCard = async page => {
+		await page.mouse.wheel(0, 900);
+		await page.clock.fastForward(13000);
+		await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+		return (await notice(page).count()) === 0;
+	};
 
-	it("the facade says why the video is hidden and carries the consent; nothing is loaded before", async () => {
-		const { page, dispose, requests } = await open({ render: article({ html: LONG }) });
-		const facade = page.locator("[data-embed-facade]");
+	it("the facade is the only request: it says what showing sends and what accepting does; nothing loads before", async () => {
+		const { page, dispose, requests } = await open({ render: article({ html: LONG + YOUTUBE_CARD }) });
+		await page.clock.install();
+		await page.reload({ waitUntil: "load" });
+		const facade = page.locator("[data-embed-facade]").first();
 		await facade.waitFor();
 		const info = await facade.evaluate(el => ({
 			ask: el.classList.contains("embed-facade--ask"),
@@ -600,77 +935,74 @@ describe("privacy: one answer for embedded content (default consent_notice = Not
 			ask: true,
 			accept: "Accepter et afficher",
 			only: "Afficher seulement celui-ci",
-			note: "Ce contenu vient de YouTube. Il est masqué parce que vous n’avez pas accepté les contenus intégrés : l’afficher envoie votre adresse IP à YouTube, qui peut déposer des cookies ou d’autres traceurs.",
+			note: "Ce contenu vient de YouTube : l’afficher envoie votre adresse IP à YouTube, qui peut déposer des cookies ou d’autres traceurs. « Accepter et afficher » affiche désormais tous les contenus intégrés du site sans clic.",
 			always: false,
 			manage: true,
 		});
+		// A named group; the buttons say which content, and are described by the note
+		assert.equal(await page.getByRole("group", { name: "Contenu de YouTube — Une vidéo" }).count(), 2);
+		const only = facade.getByRole("button", { name: "Afficher seulement celui-ci (Contenu de YouTube — Une vidéo)" });
+		assert.equal(await only.count(), 1);
+		assert.equal(
+			await only.evaluate(b =>
+				document.getElementById(b.getAttribute("aria-describedby")).matches("[data-embed-note]"),
+			),
+			true,
+		);
+		assert.equal(await noCard(page), true, "no consent card on a page with embeds");
+		assert.equal(
+			await page.evaluate(() => document.getElementById("consent-notice") !== null),
+			true,
+			"(the mode is on)",
+		);
 		assert.equal(requests.filter(u => youtube.test(new URL(u).host)).length, 0);
 		await dispose();
 	});
 
-	it("asks once on a page with an embed, naming the service; « Tout accepter » loads every embed, here and next time", async () => {
-		const { page, dispose } = await open({ render: article({ html: LONG + YOUTUBE_CARD }), viewport: WIDE });
-		await page.locator("[data-embed-facade]").first().waitFor();
-		assert.equal(await notice(page).count(), 0, "not on arrival");
-		await page.mouse.wheel(0, 700);
-		await notice(page).waitFor({ state: "visible" });
-		assert.equal(await notice(page).locator("h2").textContent(), "Contenus d’autres sites");
-		assert.match(
-			await notice(page).locator("[data-consent-body]").textContent(),
-			/^Cette page intègre des contenus d’autres sites \(YouTube\)\. Acceptez pour les afficher sans clic\.$/,
+	it("never brings the card or the banner for embeds, in both modes", async () => {
+		for (const mode of ["Notice", "Banner"]) {
+			const { page, dispose } = await open({
+				render: article({ html: LONG, custom: { ...ARTICLE_CUSTOM, consent_notice: mode } }),
+			});
+			await page.clock.install();
+			await page.reload({ waitUntil: "load" });
+			await page.locator("[data-embed-facade].embed-facade--ask").waitFor();
+			assert.equal(await noCard(page), true, mode);
+			await dispose();
+		}
+	});
+
+	it("« Accepter et afficher » answers for embedded content only: this one plays, the others follow, here and next time", async () => {
+		const { page, dispose } = await open({ render: article({ html: LONG + YOUTUBE_CARD }), bodyStart: GATED });
+		await page.locator("[data-embed-facade] [data-embed-accept]").first().click();
+		await until(() => frames(page).then(n => n === 2), "both embeds loaded");
+		const record = JSON.parse(await stored(page, "attibling-consent"));
+		assert.deepEqual({ ...record, at: typeof record.at }, { embeds: true, v: 1, at: "number" }, "embeds only");
+		assert.equal(await page.evaluate(() => window.__gatedRuns ?? 0), 0, "the gated script still waits");
+		// The other embed, which appeared without a click, is announced
+		await until(
+			() =>
+				page
+					.locator("[data-embed-live]")
+					.textContent()
+					.then(t => t === "Affichés sur cette page : les contenus de YouTube."),
+			"announced",
 		);
-		await notice(page).getByRole("button", { name: "Tout accepter" }).click();
-		await waitFor(() =>
-			page
-				.locator("iframe[data-embed-frame]")
-				.count()
-				.then(n => n === 2),
-		);
-		assert.equal(await page.locator("[data-embed-facade]").count(), 0);
-		assert.equal(await notice(page).count(), 0);
 		await page.reload({ waitUntil: "load" });
-		await waitFor(() =>
-			page
-				.locator("iframe[data-embed-frame]")
-				.count()
-				.then(n => n === 2),
-		);
-		await page.mouse.wheel(0, 700);
-		await page.waitForTimeout(300);
-		assert.equal(await notice(page).count(), 0, "answered");
+		await until(() => frames(page).then(n => n === 2), "shown without a click next time");
+		assert.equal(await page.locator("[data-embed-facade]").count(), 0);
 		await dispose();
 	});
 
-	it("« Tout refuser » leaves the facades as they are: one click shows only that embed, and nothing is kept", async () => {
+	it("« Afficher seulement celui-ci » shows only that embed, and keeps nothing", async () => {
 		const { page, dispose } = await open({ render: article({ html: LONG + YOUTUBE_CARD }) });
-		await page.mouse.wheel(0, 700);
-		await notice(page).getByRole("button", { name: "Tout refuser" }).click();
-		assert.equal(await page.locator("[data-embed-facade].embed-facade--ask").count(), 2);
 		await page.locator("[data-embed-facade] [data-embed-load]").first().click();
 		await page.locator("iframe[data-embed-frame]").waitFor();
 		assert.equal(await page.locator("[data-embed-facade]").count(), 1, "the other one still waits");
-		assert.equal(await stored(page, "attibling-embeds"), null);
+		assert.deepEqual([await stored(page, "attibling-embeds"), await stored(page, "attibling-consent")], [null, null]);
 		await page.reload({ waitUntil: "load" });
 		await page.locator("[data-embed-facade]").first().waitFor();
-		await page.mouse.wheel(0, 700);
-		await page.waitForTimeout(300);
-		assert.deepEqual([await page.locator("iframe[data-embed-frame]").count(), await notice(page).count()], [0, 0]);
-		await dispose();
-	});
-
-	it("« Accepter et afficher » on an embed accepts embedded content: this one plays, the others follow, the notice goes", async () => {
-		const { page, dispose } = await open({ render: article({ html: LONG + YOUTUBE_CARD }) });
-		await page.mouse.wheel(0, 700);
-		await notice(page).waitFor({ state: "visible" });
-		await page.locator("[data-embed-facade] [data-embed-accept]").first().click();
-		await waitFor(() =>
-			page
-				.locator("iframe[data-embed-frame]")
-				.count()
-				.then(n => n === 2),
-		);
-		assert.equal(JSON.parse(await stored(page, "attibling-consent")).embeds, true);
-		assert.equal(await notice(page).count(), 0);
+		assert.equal(await frames(page), 0);
 		await dispose();
 	});
 
@@ -687,22 +1019,43 @@ describe("privacy: one answer for embedded content (default consent_notice = Not
 		assert.equal(await category.isChecked(), true, "the category's answer is kept");
 		await page.reload({ waitUntil: "load" });
 		await page.locator("[data-embed-facade]").waitFor();
-		assert.equal(await page.locator("iframe[data-embed-frame]").count(), 0, "YouTube stays behind its facade");
-		// « Tout accepter » in the panel: every service on again
+		assert.equal(await frames(page), 0, "YouTube stays behind its facade");
+		// « Tous les contenus intégrés » turned on again: every service on again
 		await openPanel(page);
-		await panel(page).getByRole("button", { name: "Tout accepter" }).click();
+		await panel(page).locator('[data-consent-category="embeds"]').uncheck();
+		await panel(page).locator('[data-consent-category="embeds"]').check();
 		assert.equal(await stored(page, "attibling-embeds"), null);
 		assert.equal(await panel(page).locator('[data-provider="youtube"]').isChecked(), true);
 		await page.locator("iframe[data-embed-frame]").waitFor({ state: "attached" });
 		await dispose();
 	});
 
+	it("keeps the answer for the page when the browser refuses to store it", async () => {
+		const { page, dispose } = await open({
+			render: article({ html: LONG + YOUTUBE_CARD }),
+			initScript: () => {
+				Storage.prototype.setItem = () => {
+					throw new DOMException("blocked", "SecurityError");
+				};
+			},
+		});
+		await page.locator("[data-embed-facade] [data-embed-accept]").first().click();
+		await until(() => frames(page).then(n => n === 2), "both embeds loaded");
+		await dispose();
+	});
+
+	// The card, for a gated script on a post: same ink, same size; the « back to the top » button on phones
 	for (const [scheme, accept] of [
 		["light", { bg: "rgb(18, 20, 24)", fg: "rgb(255, 255, 255)" }],
 		["dark", { bg: "rgb(242, 243, 245)", fg: "rgb(11, 12, 15)" }],
 	]) {
 		it(`« Tout accepter » is solid ink, « Tout refuser » an outlined button of the same size (${scheme})`, async () => {
-			const { page, dispose } = await open({ render: article({ html: LONG }), colorScheme: scheme, viewport: PHONE });
+			const { page, dispose } = await open({
+				render: article({ html: LONG }),
+				bodyStart: GATED,
+				colorScheme: scheme,
+				viewport: PHONE,
+			});
 			await page.mouse.wheel(0, 700);
 			await notice(page).waitFor({ state: "visible" });
 			await settle(notice(page));
@@ -734,25 +1087,27 @@ describe("privacy: one answer for embedded content (default consent_notice = Not
 				[refuse.tag, refuse.h, refuse.w, refuse.top, refuse.size],
 				["BUTTON", yes.h, yes.w, yes.top, yes.size],
 			);
-			// The article's « back to the top » button moves above the notice across the bottom
-			const [button, card] = await page.evaluate(() => [
-				document.querySelector(".progress-button").getBoundingClientRect().bottom,
-				document.querySelector("[data-consent-notice]").getBoundingClientRect().top,
-			]);
-			assert.ok(button <= card, `back to the top (${button}) above the notice (${card})`);
+			assert.ok(yes.h >= 44, `${yes.h} px high`);
+			// The article's « back to the top » button does not land on the page above the card: it waits
+			assert.equal(
+				await page.evaluate(() => getComputedStyle(document.querySelector(".progress-button")).visibility),
+				"hidden",
+			);
+			await notice(page).getByRole("button", { name: "Tout refuser" }).click();
+			assert.equal(
+				await page.evaluate(() => getComputedStyle(document.querySelector(".progress-button")).visibility),
+				"visible",
+			);
 			await dispose();
 		});
 	}
 
-	it("respects Global Privacy Control: no notice, the facades still ask, one click still works", async () => {
+	it("respects Global Privacy Control: the facades still ask, one click still works", async () => {
 		const { page, dispose } = await open({
 			render: article({ html: LONG }),
 			initScript: () => Object.defineProperty(Navigator.prototype, "globalPrivacyControl", { get: () => true }),
 		});
 		await page.locator("[data-embed-facade].embed-facade--ask").waitFor();
-		await page.mouse.wheel(0, 700);
-		await page.waitForTimeout(400);
-		assert.equal(await notice(page).count(), 0);
 		await page.locator("[data-embed-facade] [data-embed-load]").click();
 		await page.locator("iframe[data-embed-frame]").waitFor();
 		await dispose();
@@ -771,10 +1126,6 @@ describe("privacy: Google Consent Mode v2", () => {
 
 	it("sets every Google consent type to denied before any Google tag, then updates it from the answer", async () => {
 		const { page, dispose } = await open({ render: home(), bodyStart: GOOGLE_TAG });
-		await page
-			.locator("[data-consent-notice]")
-			.waitFor({ state: "attached", timeout: 15000 })
-			.catch(() => {});
 		const before = await consentCalls(page);
 		assert.deepEqual(before, [
 			[

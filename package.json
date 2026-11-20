@@ -143,7 +143,12 @@
 					"Banner"
 				],
 				"default": "Notice",
-				"description": "Asks once before showing embeds (YouTube, X…) and gated trackers. None: one click per embed."
+				"description": "Notice/Banner: embeds ask in place, a card asks for data-consent tools. None: one click per embed."
+			},
+			"consent_tools": {
+				"type": "boolean",
+				"default": false,
+				"description": "Lets analytics and ad tools marked data-consent load after consent. On only if you add one."
 			},
 			"about_tags": {
 				"type": "text",

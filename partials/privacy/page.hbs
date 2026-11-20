@@ -25,7 +25,7 @@ Without JavaScript: sections 1 and 2 say that they need it; section 3 is complet
       </table>
     </div>
     <p class="privacy-page__empty" data-stored-empty tabindex="-1" hidden>{{t "Nothing: this site keeps nothing in this browser."}}</p>
-    <button type="button" class="button button--s privacy-clear" data-stored-clear hidden>{{> "icons/reset"}}<span>{{t "Clear all"}}</span></button>
+    <button type="button" class="button privacy-clear" data-stored-clear hidden>{{> "icons/reset"}}<span>{{t "Clear all"}}</span></button>
     {{#if @member}}
       <p class="privacy-page__cookie">{{t "You are signed in: Ghost keeps the ghost-members-ssr cookie (and its signature, .sig) to keep you signed in, for 6 months at most. Scripts cannot read it; it goes away when you sign out."}}</p>
       <p class="privacy-page__links"><a href="#/portal/account" data-portal="account">{{t "Your account"}}</a> · <a href="#" data-members-signout>{{t "Sign out"}}</a></p>

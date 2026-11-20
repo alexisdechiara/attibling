@@ -36,10 +36,11 @@ hover / focus (Speculation Rules with a `<link rel="prefetch">` fallback, off wi
 ✅ Privacy: fonts served by the theme itself (no font service); YouTube / X / other embeds blocked by a
 Content-Security-Policy until the reader agrees (`embed_consent`; YouTube in privacy-enhanced mode) — see
 « Ce que le navigateur charge, et d'où » in the author guide
-✅ Consent without a banner on arrival: the theme sets no cookie; only pages with an embed ask, once, with a
-small corner card (`consent_notice`: Notice by default, Banner, None) and on the embed itself; a « Cookies et
-confidentialité » footer panel and page (slug `cookies`) show and clear what the browser holds; Plausible
-opt-out; scripts you gate with `data-consent`; Google Consent Mode v2 when a Google tag is present — see
+✅ Consent without a banner on arrival: the theme sets no cookie; each embed asks in its own place, « Accept
+and show » covering all embeds (`consent_notice`: Notice by default, Banner, None); a small corner card or a
+bar only for scripts you gate with `data-consent` (their hosts allowed by `consent_tools`, off by default); a
+« Cookies et confidentialité » footer panel and page (slug `cookies`) show and clear what the browser holds;
+Plausible opt-out; Google Consent Mode v2 when a Google tag is present — see
 « Cookies et confidentialité » in the guide
 ✅ Accessibility: AA contrast, visible focus, 44 px targets, skip link, `prefers-reduced-motion` respected
 ✅ RTL languages and 33 translations
