@@ -26,6 +26,8 @@ export const EMBEDS_KEY = "attibling-embeds";
 export const CATEGORIES = ["analytics", "embeds", "other"];
 // Six months, then the question is asked again (the choice is then forgotten)
 export const CONSENT_MAX_AGE = 183 * 24 * 60 * 60 * 1000;
+// The version of the question: an answer given to another version (other kinds of services) is asked again
+export const CONSENT_VERSION = 2;
 
 const readJSON = key => {
 	try {
@@ -78,7 +80,13 @@ export const consent = {
 	record() {
 		const record = readJSON(CONSENT_KEY);
 		const now = Date.now();
-		if (!record || typeof record.at !== "number" || now - record.at > CONSENT_MAX_AGE || record.at > now + 864e5)
+		if (
+			!record ||
+			record.v !== CONSENT_VERSION ||
+			typeof record.at !== "number" ||
+			now - record.at > CONSENT_MAX_AGE ||
+			record.at > now + 864e5
+		)
 			return null;
 		return record;
 	},
@@ -93,13 +101,16 @@ export const consent = {
 	decided: () => consentMode() === "none" || Boolean(consent.record()) || privacySignal(),
 	set(choices) {
 		const record = Object.fromEntries(CATEGORIES.map(name => [name, choices[name] === true]));
-		writeJSON(CONSENT_KEY, { ...record, at: Date.now() });
+		writeJSON(CONSENT_KEY, { ...record, v: CONSENT_VERSION, at: Date.now() });
 		// « Contenus intégrés » accepted: every service on (a service turned off earlier follows)
 		if (record.embeds) embeds.drop(false);
 		emit("attibling:consent", record);
 		activateGated();
 	},
 	all: value => consent.set(Object.fromEntries(CATEGORIES.map(name => [name, value]))),
+	// Accepts one kind, keeps the answer for the others (« Accepter et afficher » under an embed)
+	grant: category =>
+		consent.set(Object.fromEntries(CATEGORIES.map(name => [name, name === category || consent.get(name) === true]))),
 	current: () => Object.fromEntries(CATEGORIES.map(name => [name, consent.get(name)])),
 };
 
@@ -182,6 +193,57 @@ export const activateGated = (root = document) => {
 		script.textContent = el.textContent;
 		el.after(script);
 	}
+};
+
+// --- Google Consent Mode v2 ------------------------------------------------------------------------
+// Only when the page holds a Google tag (gtag.js, Tag Manager, AdSense; gated with data-consent or not):
+// the default state, all denied except the storage that keeps the site working and secure, then an
+// update from the reader's answer — at once when it is known, and on every change. « Basic » consent
+// mode: the owner gates the tag itself (data-consent), so it only loads after the answer, and the
+// default + update come first (https://developers.google.com/tag-platform/security/guides/consent).
+// Categories: analytics → analytics_storage; other (advertising…) → ad_storage, ad_user_data,
+// ad_personalization, personalization_storage. Nothing Google-related without a Google tag.
+const GOOGLE = /googletagmanager\.com|google-analytics\.com|googlesyndication\.com|\bgtag\(/;
+
+export const googleTagOnPage = () =>
+	[...document.querySelectorAll("script")].some(
+		s => GOOGLE.test(s.getAttribute("src") || "") || (s.type === "text/plain" && GOOGLE.test(s.textContent)),
+	);
+
+const gtag = (...args) => {
+	window.dataLayer = window.dataLayer || [];
+	// gtag.js reads the arguments object as its own snippet pushes it
+	if (typeof window.gtag !== "function")
+		window.gtag = function () {
+			// eslint-disable-next-line prefer-rest-params
+			window.dataLayer.push(arguments);
+		};
+	window.gtag(...args);
+};
+
+const granted = on => (on ? "granted" : "denied");
+
+export const googleState = choices => ({
+	analytics_storage: granted(choices.analytics === true),
+	ad_storage: granted(choices.other === true),
+	ad_user_data: granted(choices.other === true),
+	ad_personalization: granted(choices.other === true),
+	personalization_storage: granted(choices.other === true),
+});
+
+export const setUpGoogleConsent = () => {
+	if (consentMode() === "none" || !googleTagOnPage()) return false;
+	gtag("consent", "default", {
+		...googleState({}),
+		functionality_storage: "granted",
+		security_storage: "granted",
+		wait_for_update: 500,
+	});
+	gtag("set", "ads_data_redaction", true);
+	const record = consent.record();
+	if (record) gtag("consent", "update", googleState(record));
+	window.addEventListener("attibling:consent", event => gtag("consent", "update", googleState(event.detail)));
+	return true;
 };
 
 // --- Plausible (cookie-free audience measurement): its own opt-out flag -----------------------------

@@ -178,7 +178,7 @@
    posts), « Tout refuser » outlined in the same ink — same size, same row, same type, a real button */
 .consent-accept,
 .consent-refuse {
-  border: 1.5px solid var(--color-inverse);
+  border: 2px solid var(--color-inverse);
   font-size: var(--text-nav);
   font-weight: var(--weight-semibold);
 }
@@ -190,7 +190,7 @@
 
 .consent-refuse {
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-inverse);
 }
 
 /* While the notice shows, the article's « back to the top » button moves up above it where they would
@@ -448,6 +448,50 @@
   position: absolute;
   inset-block-start: var(--space-2);
   inset-inline-end: var(--space-2);
+}
+
+/* --- An embed waiting for consent (src/js/embeds.js, consent_notice ≠ None) -------------------------------
+   « Accepter et afficher » solid (on the dark poster: light ink), « Afficher seulement celui-ci » outlined
+   in the poster's text colour; side by side, stacked when the embed is narrow */
+.embed-facade__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.embed-facade--ask {
+  .embed-facade__accept {
+    margin: 0;
+    white-space: normal;
+    text-align: start;
+    line-height: 1.2;
+    --color-focus: var(--color-focus-on-media);
+  }
+
+  .embed-facade__poster .embed-facade__load {
+    margin: 0;
+    border: 2px solid currentColor;
+    background: transparent;
+    color: inherit;
+  }
+
+  /* The quote card of a post (X…): the page's colours */
+  &.embed-facade--quote .embed-facade__accept {
+    --color-focus: var(--color-accent);
+  }
+
+  /* Narrow embeds: the title gives its room to the explanation and the buttons */
+  @container (width < 30rem) {
+    .embed-facade__title {
+      display: none;
+    }
+
+    .embed-facade__buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
 }
 
 /* --- Under an embed: « Gérer mes choix » -------------------------------------------------------------- */

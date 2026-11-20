@@ -167,7 +167,8 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 			const input = event.target.closest("[data-provider]");
 			if (!input) return;
 			embeds.set(input.dataset.provider, input.checked);
-			announce("next");
+			// On: shown at once on this page; off: from the next page (a loaded embed stays)
+			announce(input.checked ? "saved" : "next");
 		});
 	}
 
@@ -215,7 +216,9 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 			if (signal) signal.hidden = !(privacySignal() && !consent.record());
 		}
 		// Each service as it really behaves: its own choice, else the « Contenus intégrés » answer
-		list?.querySelectorAll("[data-provider]").forEach(input => (input.checked = embeds.allowed(input.dataset.provider)));
+		list
+			?.querySelectorAll("[data-provider]")
+			.forEach(input => (input.checked = embeds.allowed(input.dataset.provider)));
 		if (plausibleToggle) plausibleToggle.checked = plausible.counted();
 		if (progressToggle) progressToggle.checked = preferences.get().progress;
 		if (count) {

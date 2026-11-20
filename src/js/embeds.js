@@ -12,7 +12,7 @@
 // notice's « Contenus intégrés » (setting consent_notice). A page that still holds an embed behind its
 // facade tells the notice ("attibling:gated"); an answer or a choice made meanwhile loads the embeds it
 // allows at once, without autoplay.
-import { embeds as choices } from "./privacy/choices";
+import { embeds as choices, consent, consentMode } from "./privacy/choices";
 
 // Known providers: host, kind of embed (the button says « video », « post » or « content »), the link
 // to the content on the provider's site, and how the frame's address changes when it loads
@@ -304,6 +304,23 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		}
 		facade.querySelector("[data-embed-open]").href = linkOf(embed);
 		const checkbox = facade.querySelector("[data-embed-always]");
+		// With the consent notice (setting consent_notice ≠ None) and no « Contenus intégrés » accepted:
+		// the facade says why the content is hidden and carries the consent itself — « Accepter et
+		// afficher » (embedded content, every service: the same question as the notice, so one answer
+		// covers the site) and « Afficher seulement celui-ci » (this embed only, nothing kept)
+		if (consentMode() !== "none") {
+			facade.classList.add("embed-facade--ask");
+			const accept = facade.querySelector("[data-embed-accept]");
+			accept.hidden = false;
+			facade.querySelector("[data-embed-label]").textContent = strings.only;
+			facade.querySelector("[data-embed-load] .icon")?.remove();
+			facade.querySelector("[data-embed-note]").textContent = fill(strings.askNote, provider);
+			facade.querySelector(".embed-facade__always").hidden = true;
+			accept.addEventListener("click", () => {
+				load(embed, { clicked: true });
+				consent.grant("embeds");
+			});
+		}
 		facade.querySelector("[data-embed-load]").addEventListener("click", () => {
 			load(embed, { clicked: true });
 			// The other embeds of the same provider in the page follow the choice (sync, below)
@@ -318,8 +335,9 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 
 	// Every embed the reader's choices allow loads without a click: now, and after an answer or a choice
 	// made on this page (the notice, the panel, « always show » on another embed of the same service)
+	// (load() removes each embed from the map, which its iterator allows)
 	const sync = () => {
-		for (const embed of [...facades.keys()]) if (choices.allowed(embed.provider.id)) load(embed, { auto: true });
+		for (const embed of facades.keys()) if (choices.allowed(embed.provider.id)) load(embed, { auto: true });
 	};
 	sync();
 	window.addEventListener("attibling:consent", sync);

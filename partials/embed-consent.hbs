@@ -18,12 +18,20 @@ embed (video, post, other). See docs/guide-auteur.md, « Vidéos et contenus int
   data-label-content="{{t "Show the content from {provider}" provider="{provider}"}}"
   data-frame-title="{{t "Content from {provider}" provider="{provider}"}}"
   data-stop="{{t "Stop showing content from {provider} automatically" provider="{provider}"}}"
-  data-stopped="{{t "Content from {provider} will no longer be shown automatically." provider="{provider}"}}">
+  data-stopped="{{t "Content from {provider} will no longer be shown automatically." provider="{provider}"}}"
+  data-only="{{t "Show only this one"}}"
+  data-ask-note="{{t "This content comes from {provider}. It is hidden because you have not accepted embedded content: showing it sends your IP address to {provider}, which may set cookies or other trackers." provider="{provider}"}}">
   <div class="embed-facade" data-embed-facade>
     <div class="embed-facade__poster" data-embed-poster>
       <p class="embed-facade__provider pill" data-embed-provider></p>
       <p class="embed-facade__title" data-embed-title></p>
-      <button type="button" class="embed-facade__load button button--l" data-embed-load>{{> icons/play}}<span data-embed-label></span></button>
+      <div class="embed-facade__buttons">
+        {{!-- With the consent notice (setting consent_notice ≠ None): accept embedded content, for every
+        service, and show it (solid, as the notice's « Tout accepter »); the load button then reads
+        « Afficher seulement celui-ci » (outlined) --}}
+        <button type="button" class="embed-facade__accept button button--l consent-accept" data-embed-accept hidden>{{> icons/play}}<span>{{t "Accept and show"}}</span></button>
+        <button type="button" class="embed-facade__load button button--l" data-embed-load>{{> icons/play}}<span data-embed-label></span></button>
+      </div>
     </div>
     <div class="embed-facade__consent">
       <p class="embed-facade__note" data-embed-note>{{t "Showing it loads this content from {provider}, which then receives your IP address and may set cookies or other trackers." provider="{provider}"}}</p>

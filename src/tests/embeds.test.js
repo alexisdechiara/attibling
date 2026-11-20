@@ -15,6 +15,9 @@ const LOCAL_CARD =
 	'<figure class="kg-card kg-embed-card"><iframe class="local" width="640" height="480" src="about:blank"></iframe></figure>';
 const HTML = `<p>Intro.</p>${YOUTUBE_CARD}<p>Milieu.</p>${X_CARD}<p>Encore.</p>${OTHER_FRAME}${LOCAL_CARD}<p>Fin.</p>`;
 
+// The facade on its own, one click per embed (setting consent_notice = None); with the consent notice
+// (the default) the facade asks for consent itself: src/tests/privacy.test.js
+const facadeOnly = (options = {}) => article({ ...options, custom: { ...options.custom, consent_notice: "None" } });
 const THIRD_PARTY = /youtube|twitter|x\.com|example\.org|ytimg|doubleclick/;
 const thirdParty = requests => requests.filter(url => THIRD_PARTY.test(new URL(url).host));
 
@@ -39,7 +42,7 @@ describe("third-party embeds", () => {
 	after(close);
 
 	it("send no request to the provider before the reader asks: a CSP blocks them, a facade stands in", async () => {
-		const { page, requests, dispose } = await open({ render: article({ html: HTML }) });
+		const { page, requests, dispose } = await open({ render: facadeOnly({ html: HTML }) });
 		await waitFor(() =>
 			page
 				.locator("[data-embed-facade]")
@@ -81,7 +84,7 @@ describe("third-party embeds", () => {
 	});
 
 	it("load YouTube in privacy-enhanced mode on click, with autoplay, and move the focus into the player", async () => {
-		const { page, requests, dispose } = await open({ render: article({ html: HTML }) });
+		const { page, requests, dispose } = await open({ render: facadeOnly({ html: HTML }) });
 		const button = page.locator('[data-provider="youtube"] [data-embed-load]');
 		await button.click();
 		const frame = page.locator("iframe[data-embed-frame]");
@@ -110,7 +113,7 @@ describe("third-party embeds", () => {
 	});
 
 	it("load an X post with its script inside the site's own frame", async () => {
-		const { page, requests, dispose } = await open({ render: article({ html: HTML }) });
+		const { page, requests, dispose } = await open({ render: facadeOnly({ html: HTML }) });
 		await page.locator('[data-provider="x"] [data-embed-load]').click();
 		const frame = page.locator("iframe[data-embed-frame]");
 		await frame.waitFor();
@@ -133,12 +136,14 @@ describe("third-party embeds", () => {
 	});
 
 	it("remember « always show » per provider, load it at once next time, and let the reader take it back", async () => {
-		const { page, dispose } = await open({ render: article({ html: HTML }) });
+		const { page, dispose } = await open({ render: facadeOnly({ html: HTML }) });
 		const youtube = page.locator('[data-provider="youtube"]');
 		await youtube.locator("[data-embed-always]").check();
 		await youtube.locator("[data-embed-load]").click();
 		await page.locator("iframe[data-embed-frame]").waitFor();
-		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), { youtube: true });
+		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), {
+			youtube: true,
+		});
 
 		await page.reload({ waitUntil: "load" });
 		const frame = page.locator("iframe[data-embed-frame]");
@@ -150,12 +155,14 @@ describe("third-party embeds", () => {
 		assert.equal((await stop.textContent()).trim(), "Ne plus afficher automatiquement les contenus de YouTube");
 		await stop.click();
 		// Taken back: kept behind its facade, even if « Contenus intégrés » is accepted later
-		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), { youtube: false });
+		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), {
+			youtube: false,
+		});
 		await dispose();
 	});
 
 	it("keep the blocked frames out of sight without JavaScript, with a sentence instead", async () => {
-		const { page, requests, dispose } = await open({ render: article({ html: HTML }), javaScriptEnabled: false });
+		const { page, requests, dispose } = await open({ render: facadeOnly({ html: HTML }), javaScriptEnabled: false });
 		assert.deepEqual(thirdParty(requests), []);
 		const state = await page.evaluate(() => {
 			const frame = document.querySelector('iframe[src*="youtube"]');

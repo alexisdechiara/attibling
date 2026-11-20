@@ -7,7 +7,7 @@
 //    once; « Notice » after the reader scrolls a little or after 12 seconds. Accepting loads the embeds
 //    and runs the gated scripts (choices.js); refusing leaves each embed's facade as it is.
 //  - window.attiblingConsent: a small API for the owner's own code (see docs/guide-auteur.md).
-import { activateGated, consent, consentMode, gatedCategories } from "./choices";
+import { activateGated, consent, consentMode, gatedCategories, setUpGoogleConsent } from "./choices";
 
 export const NOTICE_DELAY = 12000;
 // Cleared on sign-out: the member's lists and their « Reprendre la lecture » choice
@@ -57,6 +57,8 @@ export const setUpPrivacy = () => {
 		true,
 	);
 
+	// Google Consent Mode v2 defaults (only with a Google tag), before any gated script runs
+	setUpGoogleConsent();
 	activateGated();
 
 	// The notice, only when something on this page waits for an answer: a gated script, or an embed held
