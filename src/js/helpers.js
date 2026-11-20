@@ -131,12 +131,20 @@ export const throttleToFrame = callback => {
 	};
 };
 
+// Runs callback once the whole document is parsed. Not DOMContentLoaded: it waits for the deferred
+// scripts too (Ghost's Portal, search, comments), which the theme's async modules must not wait for.
+// readyState leaves "loading" when parsing ends, before those scripts run.
 export const onReady = callback => {
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", callback, { once: true });
-	} else {
+	if (document.readyState !== "loading") {
 		callback();
+		return;
 	}
+	const parsed = () => {
+		if (document.readyState === "loading") return;
+		document.removeEventListener("readystatechange", parsed);
+		callback();
+	};
+	document.addEventListener("readystatechange", parsed);
 };
 
 export const managePostImages = () => {

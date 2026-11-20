@@ -166,7 +166,8 @@ export const renderTemplate = (name, options = {}) => {
 			return "";
 		},
 		ghost_head: () => safe('<meta name="generator" content="Ghost 6.0">'),
-		ghost_foot: () => "",
+		// The site's footer code injection (Settings > Code injection), as Ghost prints it
+		ghost_foot: () => safe(settings.codeinjection_foot || ""),
 		body_class: () => `${contexts.includes("home") ? "home-template" : `${contexts[0]}-template`}`,
 		meta_title: () => settings.title,
 		post_class() {

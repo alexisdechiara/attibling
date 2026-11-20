@@ -175,8 +175,13 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     {{#match @custom.consent_notice "Notice"}}{{> "privacy/notice"}}{{/match}}
     {{#match @custom.consent_notice "Banner"}}{{> "privacy/notice"}}{{/match}}
 
-    {{!-- Common scripts shared between pages --}}
-    <script type="module" src="{{asset "js/app.js"}}"></script>
+    {{!-- Common scripts shared between pages. Every theme script is an async module (here and in the
+    "scripts" blocks): a plain module waits in the deferred queue behind Ghost's own deferred scripts
+    from {{ghost_head}} (Portal, search, comments: ~800 KB on a phone), async runs it as soon as it has
+    arrived. They depend neither on each other's order nor on Ghost's scripts; each entry starts once the
+    page is parsed (onReady, src/js/helpers.js). What must happen before the first paint stays in the
+    inline scripts of <head> (theme mode, arrival animation, reading settings) and of the « Tags » grid. --}}
+    <script type="module" async src="{{asset "js/app.js"}}"></script>
 
     {{!-- The #block helper will pull in data from the #contentFor other template files --}}
     {{{block "scripts"}}}

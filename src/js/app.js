@@ -128,11 +128,16 @@ const setUpNavOverflow = header => {
 	layout();
 };
 
-// Ghost's announcement bar ({{ghost_head}} adds #announcement-bar-root at the start of <body>)
-// goes right before the header, after the skip link, and scrolls away with the page.
+// Ghost's announcement bar (a deferred script of {{ghost_head}} adds #announcement-bar-root at the start
+// of <body>) goes right before the header, after the skip link, and scrolls away with the page. This
+// async module usually runs before that script: once more at DOMContentLoaded, which follows it.
 const placeAnnouncementBar = header => {
-	const bar = document.getElementById("announcement-bar-root");
-	if (bar && header) header.before(bar);
+	const place = () => {
+		const bar = document.getElementById("announcement-bar-root");
+		if (bar && header.previousElementSibling !== bar) header.before(bar);
+	};
+	place();
+	if (document.readyState !== "complete") document.addEventListener("DOMContentLoaded", place, { once: true });
 };
 
 // Third-party embeds on click (setting embed_consent: default.hbs renders the policy and the facade's

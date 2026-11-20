@@ -43,6 +43,11 @@ const close = async () => {
  *  - initScript: function run in the page before any of its scripts
  *  - lang: value of the lang attribute of <html> (default "en")
  *  - bodyStart: HTML inserted at the start of <body>, where {{ghost_head}} scripts add theirs
+ *  - ghostDefer: { delay, script } a deferred script in <head>, as {{ghost_head}} outputs Ghost's own
+ *    (Portal, search, announcement bar: <script defer src="https://cdn.jsdelivr.net/…">), answered after
+ *    `delay` ms with the JavaScript `script`; it sets window.__ghostDeferRan (performance.now()) first
+ *  - slow: { "/assets/js/archives.js": 1500 } files of the repository served that many ms late (a slow
+ *    network for one script, e.g. to see the page before it runs); "/__slow.js" is an empty script
  *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, javaScriptEnabled: browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
@@ -62,6 +67,8 @@ const open = async (options = {}) => {
 		isMobile = false,
 		javaScriptEnabled = true,
 		pages = {},
+		ghostDefer = null,
+		slow = {},
 	} = options;
 	const render = options.render || (fixture ? null : home());
 
@@ -108,22 +115,38 @@ const open = async (options = {}) => {
 		};
 	});
 
+	const withGhostDefer = html =>
+		ghostDefer ? html.replace(/<meta name="generator"[^>]*>/, tag => `${tag}<script defer src="/__ghost/deferred.js"></script>`) : html;
+
 	await context.route("**/*", async route => {
 		const url = new URL(route.request().url());
 		requests.push(url.href);
+
+		if (ghostDefer && url.origin === SITE && url.pathname === "/__ghost/deferred.js") {
+			await sleep(ghostDefer.delay || 0);
+			return route.fulfill({
+				status: 200,
+				contentType: "application/javascript",
+				body: `window.__ghostDeferRan = performance.now();\n${ghostDefer.script || ""}`,
+			});
+		}
 
 		const repoFile = path.join(REPO_ROOT, decodeURIComponent(url.pathname));
 		const isFile = fs.existsSync(repoFile) && fs.statSync(repoFile).isFile();
 		const other = url.origin === SITE && !isFile && (pages[url.pathname] || pages["*"]);
 		if (url.origin === SITE && ((render && url.pathname === "/__render") || other)) {
 			const { template, ...renderOptions } = url.pathname === "/__render" ? render : other;
-			const html = renderTemplate(template, renderOptions)
+			const html = withGhostDefer(renderTemplate(template, renderOptions))
 				.replace(/<html lang="[^"]*"/, `<html lang="${lang}"`)
 				.replace(/<body[^>]*>/, tag => tag + bodyStart);
 			return route.fulfill({ status: 200, contentType: "text/html", body: html });
 		}
 
 		if (url.origin === SITE) {
+			if (slow[url.pathname]) await sleep(slow[url.pathname]);
+			if (url.pathname === "/__slow.js") {
+				return route.fulfill({ status: 200, contentType: "application/javascript", body: "" });
+			}
 			const file = path.join(REPO_ROOT, decodeURIComponent(url.pathname));
 			if (!file.startsWith(REPO_ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
 				return route.fulfill({ status: 404, body: "not found" });
