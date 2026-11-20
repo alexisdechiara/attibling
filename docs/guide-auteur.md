@@ -9,7 +9,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 0. [Mise en route en 10 minutes](#0-mise-en-route-en-10-minutes)
 1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
-3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées
+3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées, vignette d'un article (image des cartes)
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
 5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
 6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, vidéos et contenus intégrés
@@ -302,6 +302,11 @@ bas sur téléphone ; flèches du clavier). Pas de défilement automatique : pou
 points ondulent une fois par visite quand le bandeau apparaît, grossissent au survol (sur ordinateur, le titre
 de l'article s'affiche à côté du point), et le point choisi se remplit pendant que le nouvel article apparaît.
 
+Le fond du bandeau est toujours l'**image à la une** (la bannière) de l'article, comme l'en-tête de l'article,
+même quand l'article a une [vignette](#vignette-dun-article-image-des-cartes) différente : une image de partage
+porte souvent son propre texte, qui se heurterait au logo et au titre du bandeau (choix validé par le
+propriétaire du site).
+
 Sans aucun article mis en avant : le bandeau garde le logo et la description sur l'image de couverture du
 site (Settings → Design & branding → Brand → *Publication cover*), ou sur un fond sombre uni.
 
@@ -409,6 +414,46 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
   l'ancien thème, sans soulignement. Sans image, les tuiles et les affiches ont
   un fond teinté avec le titre en grand.
 - Les pastilles « Format long » s'affichent seules sur les articles de 10 minutes de lecture ou plus.
+
+### Vignette d'un article (image des cartes)
+
+Les **cartes** d'un article (accueil : « Derniers articles », « Les plus lus », toutes les rangées ; pages de
+rubrique et d'auteur ; articles liés en bas d'un article ; menu « ••• » ; page 404 ; « À lire plus tard »,
+« Reprendre la lecture » et « Mes favoris ») montrent sa **vignette** :
+
+1. l'**image de partage** de l'article, s'il en a une (Facebook d'abord, sinon X) ;
+2. sinon son **image à la une** (la bannière de l'en-tête de l'article) ;
+3. sinon le fond teinté avec le titre en grand.
+
+L'**en-tête de l'article** et le **grand bandeau de l'accueil** gardent toujours l'image à la une.
+
+**Pour donner à un article une vignette différente de sa bannière** : dans l'éditeur de l'article → panneau
+des réglages (icône en haut à droite) → **Facebook card** → **téléverser l’image** (cliquez sur la zone d’image de la carte). Si
+vous ne remplissez que la carte **X card**, c'est elle qui sert. C'est un champ natif de Ghost : Ghost n'a pas
+de champ « miniature » séparé, et l'image de partage est déjà, par nature, l'image qui représente l'article
+hors de sa page. Elle continue de servir aux réseaux sociaux exactement comme avant (le thème ne change rien à
+ce que Ghost met dans les balises de partage).
+
+C'est le cas typique d'une **bannière en aplat de couleur** (un fond uni derrière le titre de l'article) : sans
+image de partage, la carte serait un rectangle de couleur ; avec elle, la carte montre la vraie illustration.
+
+- **Taille conseillée** : 1200 × 675 px (16:9) ou plus, jusqu'à 1920 × 1080 ; les images de partage
+  classiques en 1200 × 630 (1,91:1) conviennent aussi (les tuiles 16:9 en rognent un peu les côtés). Gardez
+  l'essentiel loin des bords. Le thème la sert en WebP, à la bonne taille : un PNG lourd ne pénalise pas
+  l'accueil.
+- **Texte dans l'image** : il est permis (la carte affiche aussi le titre en dessous) ; écrivez-le assez
+  grand pour rester lisible sur une petite vignette (152 px de large dans les listes compactes).
+- **Affiches 2:3** (rangée *Home row 2*) : une image de partage y est montrée **en entier**, centrée, sur la
+  bannière de l'article floutée (ou l'image elle-même floutée, sans bannière) plutôt que rognée en hauteur, ce
+  qui couperait son texte. Avec une bannière en aplat de la même couleur que le fond de l'image de partage, le
+  raccord est invisible. Un article sans image de partage garde son image à la une rognée en hauteur.
+- **Transition entre les pages** : une carte qui montre une image de partage ne « glisse » pas jusqu'à
+  l'en-tête de l'article (ce n'est pas la même image) ; la page passe en fondu.
+- **Pas de texte alternatif** à remplir : sur les cartes, l'image est décorative (le titre suit).
+- Les listes « À lire plus tard » et « Reprendre la lecture » gardent l'image enregistrée au moment où
+  l'article a été gardé ou lu : un article gardé avant l'ajout d'une image de partage garde l'ancienne
+  vignette jusqu'à ce qu'il soit gardé ou lu de nouveau.
+- Rien à régler dans le thème : c'est toujours actif.
 
 ---
 
@@ -1440,7 +1485,8 @@ plus ; pas Firefox pour l'instant) :
 - l'en-tête reste en place ; tout le reste passe en fondu court.
 
 **Réglage** : **Page transitions** (onglet *Site wide*), activé par défaut. Rien d'autre à faire. Sans image à
-la une, l'article apparaît en fondu. Ailleurs (navigateur non compatible, « réduire les animations ») : la
+la une, ou depuis une carte qui montre une [image de partage](#vignette-dun-article-image-des-cartes) (une autre
+image que l'en-tête), l'article apparaît en fondu. Ailleurs (navigateur non compatible, « réduire les animations ») : la
 navigation est normale.
 
 ### Préchargement au survol
@@ -1514,7 +1560,8 @@ d'articles de « Derniers articles ».
 (About), `tags` (Tags), `authors` (Authors), `mentions-legales` (Document : sommaire, date de mise à jour,
 impression). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
 
-**Ghost** : *Feature this post* (bandeau de l'accueil, article en tête d'une rubrique), *Excerpt* (extraits,
+**Ghost** : *Facebook card* (ou *X card*) → image (vignette des cartes, [section 3](#vignette-dun-article-image-des-cartes)),
+*Feature this post* (bandeau de l'accueil, article en tête d'une rubrique), *Excerpt* (extraits,
 accroches des pages), *Tag image* et *Description* (rubriques, À propos, bannière de l'accueil), *Site
 description* (phrase du bandeau), Settings → Staff (boîte auteur, pages d'auteur), Settings → Navigation
 (en-tête, menu « Plus », pied de page).
@@ -1562,4 +1609,5 @@ navigateur du lecteur.
 | Une vidéo YouTube s'affiche comme un encadré avec un bouton | Voulu : elle ne se charge qu'au clic du lecteur (réglage **Embed consent**, voir [Vidéos et contenus intégrés](#vidéos-et-contenus-intégrés-youtube-x)). |
 | Un script ajouté dans l'injection de code ne marche pas sur les articles | Il est dans *Site footer* ou *Post footer* et vient d'un autre site : la règle qui bloque YouTube et X le bloque aussi. Déplacez-le dans *Site header* / *Post header*, ou désactivez **Embed consent**. |
 | Une vidéo démarre sans clic | Le lecteur a coché « Toujours afficher les contenus de YouTube » : le lien « Ne plus afficher automatiquement… » sous la vidéo annule ce choix. |
+| Une carte affiche un aplat de couleur (ou une autre image que celle voulue) | La carte montre l'image à la une parce que l'article n'a pas d'image de partage : ajoutez-en une (réglages de l’article → **Facebook card** → téléverser l’image, voir [Vignette d'un article](#vignette-dun-article-image-des-cartes)). Si l'image de partage est déjà là et qu'une liste « À lire plus tard » montre l'ancienne, gardez l'article de nouveau. |
 | Le préchargement ne se voit pas | C'est normal : il n'y a rien à voir, la page suivante s'ouvre juste plus vite. Il est coupé en mode « économie de données » et sur connexion 2G. |

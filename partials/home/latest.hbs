@@ -12,14 +12,10 @@ lead (phones: the lead, then the list). Uses the 7 posts of the home page (posts
   {{/if}}
   <div class="latest__grid">
     {{#foreach posts limit="1"}}
-      <article class="lead{{#unless feature_image}} lead--no-image{{/unless}}" data-post-tile>
+      <article class="lead{{> "vignette/missing" noImage=" lead--no-image"}}" data-post-tile>
         <a class="lead__link" href="{{url}}">
           <span class="lead__media">
-            {{#if feature_image}}
-              <img class="lead__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 767px) 100vw, 860px" src="{{img_url feature_image size="l"}}" alt="" decoding="async">
-            {{else}}
-              <span class="tile__placeholder" aria-hidden="true"><span>{{title}}</span></span>
-            {{/if}}
+            {{> "vignette/image" imgClass="lead__image" widths="m-l-xl" srcSize="l" sizes="(max-width: 767px) 100vw, 860px" priority="auto" placeholder="tile"}}
           </span>
           <h3 class="lead__title">{{title}}</h3>
           <span class="lead__kicker"><span class="pill">{{t "New"}}</span>{{#if primary_tag}}<span class="lead__tag">{{primary_tag.name}}</span>{{/if}}</span>

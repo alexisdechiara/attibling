@@ -1,0 +1,13 @@
+{{!-- The <img> of a vignette (used by vignette/image.hbs only; parameters documented there).
+vignetteSrc is the chosen image, vignetteSocial whether it is an image set for sharing that differs
+from the feature image, vignetteFormat "webp" for those (false otherwise: the original format). --}}
+{{~#if vignetteSocial}}{{#if backdrop~}}
+  <img class="vignette-backdrop" src="{{#if feature_image}}{{img_url feature_image size="s"}}{{else}}{{img_url vignetteSrc size="s" format=vignetteFormat}}{{/if}}" alt="" aria-hidden="true" loading="lazy" decoding="async">
+{{~/if}}{{/if~}}
+<img class="{{imgClass}}{{#if vignetteSocial}}{{#if backdrop}} vignette--whole{{/if}}{{/if}}"
+  {{~#match widths "m-l-xl"}} srcset="{{img_url vignetteSrc size="m" format=vignetteFormat}} 600w, {{img_url vignetteSrc size="l" format=vignetteFormat}} 1000w, {{img_url vignetteSrc size="xl" format=vignetteFormat}} 2000w"
+  {{~else match widths "s-m"}} srcset="{{img_url vignetteSrc size="s" format=vignetteFormat}} 300w, {{img_url vignetteSrc size="m" format=vignetteFormat}} 600w"
+  {{~else}} srcset="{{img_url vignetteSrc size="s" format=vignetteFormat}} 300w, {{img_url vignetteSrc size="m" format=vignetteFormat}} 600w, {{img_url vignetteSrc size="l" format=vignetteFormat}} 1000w"{{/match}}
+  {{~#if sizes}} sizes="{{sizes}}"{{else if defaultSizes}} sizes="{{defaultSizes}}"{{/if}} src="{{#if srcSize}}{{img_url vignetteSrc size=srcSize format=vignetteFormat}}{{else}}{{img_url vignetteSrc size="m" format=vignetteFormat}}{{/if}}" alt=""
+  {{~#if eager}} fetchpriority="high"{{else match priority "auto"}}{{else}} loading="lazy"{{/if}} decoding="async"
+  {{~#if vignetteSocial}} data-vignette="social"{{/if}}>

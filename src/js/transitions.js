@@ -10,11 +10,15 @@ export const NAMES = { media: "vt-media", tag: "vt-tag" };
 // The elements named by the CSS (transitions.css)
 const STATIC = "[data-article-image], [data-tag-header]";
 
-// The element to name for a followed link: the tag tile itself, or the picture inside the link
+// The element to name for a followed link: the tag tile itself, or the picture inside the link.
+// A card showing the image set for sharing (data-vignette="social", partials/vignette/image.hbs) is
+// not paired: the article header shows the feature image, a different picture, and the morph would
+// jump from one to the other; the page cross-fades instead.
 const target = link => {
 	if (link.matches(".tag-tile")) return { element: link, name: NAMES.tag };
-	const image = link.querySelector("img");
-	return image ? { element: image, name: NAMES.media } : null;
+	const image = link.querySelector("img:not(.vignette-backdrop)");
+	if (!image || image.dataset.vignette === "social") return null;
+	return { element: image, name: NAMES.media };
 };
 
 export const setUpTransitions = () => {
