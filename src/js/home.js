@@ -13,12 +13,27 @@ const setUpHero = hero => {
 	const dots = [...hero.querySelectorAll("[data-hero-dot]")];
 	if (slides.length < 2 || !pager || dots.length !== slides.length) return;
 
+	// The other slides stay hidden (display: none) until the reader shows interest in them: their
+	// pictures (loading="lazy") are not downloaded with the page. Pointing at, touching or focusing a dot
+	// readies its slide: laid out, faded out and inert, its picture asked for.
+	const ready = slide => {
+		if (!slide.hidden) return;
+		slide.inert = true;
+		slide.hidden = false;
+		slide.querySelector("img")?.setAttribute("loading", "eager");
+	};
+
 	let current = -1;
 	const show = index => {
 		const changed = current !== -1 && current !== index;
+		if (slides[index].hidden) {
+			ready(slides[index]);
+			// Laid out faded out first, so the change below fades it in
+			slides[index].getBoundingClientRect();
+		}
 		current = index;
 		slides.forEach((slide, i) => {
-			slide.hidden = false;
+			if (slide.hidden) return;
 			slide.inert = i !== index;
 			slide.toggleAttribute("data-current", i === index);
 			// The post's text rises in when the reader changes the slide (not on load)
@@ -28,11 +43,14 @@ const setUpHero = hero => {
 			if (i === index) dot.setAttribute("aria-current", "true");
 			else dot.removeAttribute("aria-current");
 		});
-		// Images of the other slides load lazily: ask for the one shown now
-		slides[index].querySelector("img")?.setAttribute("loading", "eager");
 	};
 
-	dots.forEach((dot, i) => dot.addEventListener("click", () => show(i)));
+	dots.forEach((dot, i) => {
+		dot.addEventListener("click", () => show(i));
+		for (const type of ["pointerenter", "touchstart", "focus"]) {
+			dot.addEventListener(type, () => ready(slides[i]), { once: true, passive: true });
+		}
+	});
 	// Arrow keys move between the dots
 	pager.addEventListener("keydown", event => {
 		const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
