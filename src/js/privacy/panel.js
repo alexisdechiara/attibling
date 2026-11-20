@@ -28,7 +28,16 @@ const create = () => {
 	});
 	dialog.addEventListener("close", () => {
 		document.documentElement.removeAttribute("data-privacy-panel-open");
-		if (opener?.isConnected) opener.focus();
+		// What opened it, or, when that is gone (the notice's link, once answered), the main content: the
+		// focus never falls on <body>
+		if (opener?.isConnected && opener !== document.body) {
+			opener.focus();
+			if (document.activeElement === opener) return;
+		}
+		const main = document.querySelector("main");
+		if (!main) return;
+		if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+		main.focus({ preventScroll: true });
 	});
 	return dialog;
 };

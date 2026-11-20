@@ -8,10 +8,10 @@
 // youtube-nocookie.com (privacy-enhanced mode) with autoplay, the others as Ghost wrote them (an X post
 // with its widgets.js). Shown without a click: what privacy/choices.js `embeds.allowed(id)` says — the
 // service's own choice (« Toujours afficher », kept in localStorage "attibling-embeds", taken back under
-// each embed it loaded or in the « Cookies et confidentialité » panel), else the answer to the consent
-// notice's « Contenus intégrés » (setting consent_notice). A page that still holds an embed behind its
-// facade tells the notice ("attibling:gated"); an answer or a choice made meanwhile loads the embeds it
-// allows at once, without autoplay.
+// each embed it loaded or in the « Cookies et confidentialité » panel), else the answer for « Contenus
+// intégrés » (setting consent_notice ≠ None), which each facade asks for itself: no consent notice for
+// embeds. An answer or a choice made meanwhile loads the embeds it allows at once, without autoplay, and
+// says so in the live region.
 import { embeds as choices, consent, consentMode } from "./privacy/choices";
 
 // Known providers: host, kind of embed (the button says « video », « post » or « content »), the link
@@ -109,14 +109,6 @@ const providerFor = url => {
 	return { id: host, name: host, kind: "content" };
 };
 
-// The services shown without a click, as a list (the panel, older callers)
-export const remembered = () =>
-	Object.entries(choices.choices())
-		.filter(([, on]) => on)
-		.map(([id]) => id);
-
-export const remember = (id, on) => choices.set(id, on);
-
 // The width / height ratio of a frame, from its attributes (as helpers.js setEmbedRatios)
 const ratioOf = frame => {
 	const size = /^\d+(\.\d+)?(px)?$/;
@@ -162,6 +154,8 @@ const linkOf = embed => {
 };
 
 const fill = (text, provider) => text.replaceAll("{provider}", provider.name);
+
+let notes = 0;
 
 export const setUpEmbeds = (root = document.querySelector("main")) => {
 	const template = document.getElementById("embed-facade");
@@ -304,15 +298,27 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		}
 		facade.querySelector("[data-embed-open]").href = linkOf(embed);
 		const checkbox = facade.querySelector("[data-embed-always]");
-		// With the consent notice (setting consent_notice ≠ None) and no « Contenus intégrés » accepted:
-		// the facade says why the content is hidden and carries the consent itself — « Accepter et
-		// afficher » (embedded content, every service: the same question as the notice, so one answer
-		// covers the site) and « Afficher seulement celui-ci » (this embed only, nothing kept)
+		// A named group (« Contenu de YouTube — title »), its buttons described by the note: read in that
+		// order, and « Afficher seulement celui-ci » says which content it shows, even out of context
+		const name =
+			fill(strings.frameTitle, provider) + (frame?.getAttribute("title") ? ` — ${frame.getAttribute("title")}` : "");
+		facade.setAttribute("role", "group");
+		facade.setAttribute("aria-label", name);
+		const note = facade.querySelector("[data-embed-note]");
+		note.id = `embed-note-${++notes}`;
+		facade
+			.querySelectorAll("[data-embed-accept], [data-embed-load]")
+			.forEach(b => b.setAttribute("aria-describedby", note.id));
+		// The fallback consent mode (setting consent_notice ≠ None) and no « Contenus intégrés » accepted:
+		// the facade is the only request for embedded content (no notice for them) — « Accepter et
+		// afficher » (embedded content, every service, from now on) and « Afficher seulement celui-ci »
+		// (this embed only, nothing kept)
 		if (consentMode() !== "none") {
 			facade.classList.add("embed-facade--ask");
 			const accept = facade.querySelector("[data-embed-accept]");
 			accept.hidden = false;
 			facade.querySelector("[data-embed-label]").textContent = strings.only;
+			facade.querySelector("[data-embed-load]").setAttribute("aria-label", `${strings.only} (${name})`);
 			facade.querySelector("[data-embed-load] .icon")?.remove();
 			facade.querySelector("[data-embed-note]").textContent = fill(strings.askNote, provider);
 			facade.querySelector(".embed-facade__always").hidden = true;
@@ -336,11 +342,26 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 	// Every embed the reader's choices allow loads without a click: now, and after an answer or a choice
 	// made on this page (the notice, the panel, « always show » on another embed of the same service)
 	// (load() removes each embed from the map, which its iterator allows)
-	const sync = () => {
-		for (const embed of facades.keys()) if (choices.allowed(embed.provider.id)) load(embed, { auto: true });
+	const sync = event => {
+		const shown = new Set();
+		for (const embed of facades.keys()) {
+			if (!choices.allowed(embed.provider.id)) continue;
+			load(embed, { auto: true });
+			shown.add(embed.provider.name);
+		}
+		// After an answer given on this page (the panel, « Accepter et afficher »): the content that appears
+		// elsewhere in the page is announced. In the open panel, after its own « Choix enregistré ».
+		if (!event || !shown.size) return;
+		const message = fill(strings.shown, { name: [...shown].join(", ") });
+		requestAnimationFrame(() =>
+			requestAnimationFrame(() => {
+				const panel = document.querySelector("dialog[open] [data-privacy-live]");
+				if (!panel) return announce(message);
+				panel.textContent = `${panel.textContent} ${message}`.trim();
+			}),
+		);
 	};
 	sync();
 	window.addEventListener("attibling:consent", sync);
 	window.addEventListener("attibling:embeds", sync);
-	if (facades.size) window.dispatchEvent(new CustomEvent("attibling:gated"));
 };

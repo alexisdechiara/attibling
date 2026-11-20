@@ -1,29 +1,27 @@
 {{!--
 Consent notice (theme setting consent_notice: Notice by default, Banner; default.hbs renders this unless
-the setting is None). Inert in a <template>: src/js/privacy/notice.js shows it only when the page holds an
-embed behind its facade (YouTube, X…) or a script the owner gated with data-consent, and the reader has not
-answered yet (nor sent Global Privacy Control / Do Not Track). Not modal, it takes no focus and covers
-nothing essential: « Banner », a bar across the bottom shown on arrival; « Notice », a small card in the
-bottom corner shown after a little scrolling or 12 seconds.
-The wording: with embeds only, it names the services of the page ({providers}) and what showing them
-sends; otherwise the kinds of services ({categories}). « Tout accepter » is a solid button (ink on light,
-light on dark), « Tout refuser » an outlined button of the same size on the same row (the owner's choice:
-see docs/guide-auteur.md on equal prominence); the « Cookies et confidentialité » link in the text opens the preferences panel; the close
-button refuses (it says so).
+the setting is None). Inert in a <template>: src/js/privacy/notice.js shows it only when the page holds a
+script the owner gated with data-consent whose kind the reader has not answered yet (nor sent Global
+Privacy Control / Do Not Track). Embeds never bring it: each embed's facade asks for itself. Not modal, it
+takes no focus and covers nothing essential: « Banner », a bar across the bottom shown on arrival;
+« Notice », a small card in the bottom corner shown after a little scrolling or 12 seconds.
+The wording names the kinds of services waiting ({categories}); its answers apply to those kinds only.
+« Tout accepter » is a solid button (ink on light, light on dark), « Tout refuser » an outlined button of
+the same size on the same row (the owner's choice: see docs/guide-auteur.md on equal prominence); the
+« Cookies et confidentialité » link in the text opens the preferences panel; the close button refuses (it
+says so).
 --}}
 <template id="consent-notice">
   <section class="consent-notice" aria-labelledby="consent-notice-title" data-consent-notice
-    data-analytics="{{t "audience measurement"}}" data-embeds="{{t "embedded content"}}" data-other="{{t "other services"}}"
-    data-title-embeds="{{t "Content from other sites"}}"
-    data-template-embeds="{{t "This page embeds content from other sites ({providers}). Accept to show it without a click." providers="{providers}"}}">
+    data-analytics="{{t "audience measurement"}}" data-embeds="{{t "embedded content"}}" data-other="{{t "other services"}}">
     <div class="consent-notice__text">
-      <h2 class="consent-notice__title" id="consent-notice-title" data-consent-title>{{t "Your agreement, if you wish"}}</h2>
+      <h2 class="consent-notice__title" id="consent-notice-title">{{t "Your agreement, if you wish"}}</h2>
       <p class="consent-notice__body" data-consent-body data-template="{{t "With your agreement, this site uses services that may set cookies: {categories}." categories="{categories}"}}"></p>
-      <p class="consent-notice__more" data-consent-more data-template="{{t "Customise your choices or change your mind in {link}." link="{link}"}}"><button type="button" class="consent-notice__link" data-consent-customise>{{t "Cookies and privacy"}}</button></p>
+      <p class="consent-notice__more" data-consent-more data-template="{{t "Customise your choices or change your mind in {link}." link="{link}"}}"><button type="button" class="consent-notice__link" data-consent-panel>{{t "Cookies and privacy"}}</button></p>
     </div>
     <div class="consent-notice__actions">
-      <button type="button" class="button button--s consent-refuse" data-consent-answer="false">{{t "Refuse all"}}</button>
-      <button type="button" class="button button--s consent-accept" data-consent-answer="true">{{t "Accept all"}}</button>
+      <button type="button" class="button consent-refuse" data-consent-answer="false">{{t "Refuse all"}}</button>
+      <button type="button" class="button consent-accept" data-consent-answer="true">{{t "Accept all"}}</button>
     </div>
     <button type="button" class="icon-button consent-notice__close" data-consent-answer="false" aria-label="{{t "Close and continue without accepting"}}" title="{{t "Close and continue without accepting"}}">{{> "icons/close"}}</button>
   </section>
