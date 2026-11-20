@@ -7,7 +7,7 @@ const GhostAdminApi = require("@tryghost/admin-api");
 		const api = new GhostAdminApi({
 			url: process.env.GHOST_ADMIN_API_URL,
 			key: process.env.GHOST_ADMIN_API_KEY,
-			version: "canary",
+			version: "v6.0",
 		});
 
 		// Deploy it to the configured site

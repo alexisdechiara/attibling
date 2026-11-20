@@ -1,4 +1,4 @@
-# Editor configuration, see https://editorconfig.org
+# Editor configuration, see https://editorconfig.org (the same rules as the formatter, vite.config.mjs fmt)
 root = true
 
 [*]
@@ -8,9 +8,13 @@ indent_size = 2
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.js]
-quote_type = single
+[*.{js,mjs}]
+indent_style = tab
+quote_type = double
 
 [*.md]
 max_line_length = off
 trim_trailing_whitespace = false
+
+[package.json]
+indent_style = tab
