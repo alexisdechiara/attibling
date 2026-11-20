@@ -20,6 +20,12 @@ import { createSite } from "./site.js";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
 const read = file => fs.readFileSync(path.join(ROOT, file), "utf8");
+const IMAGE_SIZES = JSON.parse(read("package.json")).config.image_sizes;
+
+// Ghost 6.78, core/frontend/helpers/tpl/content-cta.hbs (MIT), rendered by {{content}} for a post the reader
+// may not read; its strings come from the theme's locales
+const CONTENT_CTA =
+	'{{{html}}}\n<aside class="gh-post-upgrade-cta">\n    <div class="gh-post-upgrade-cta-content" style="background-color: {{@site.accent_color}}">\n        {{#has visibility="paid"}}\n            {{#is "page"}}\n                <h2>{{t "This page is for paying subscribers only"}}</h2>\n            {{else}}\n                <h2>{{t "This post is for paying subscribers only"}}</h2>\n            {{/is}}\n        {{/has}}\n        {{#has visibility="members"}}\n            {{#is "page"}}\n                <h2>{{t "This page is for subscribers only"}}</h2>\n            {{else}}\n                <h2>{{t "This post is for subscribers only"}}</h2>\n            {{/is}}\n        {{/has}}\n        {{#has visibility="tiers"}}\n            {{#is "page"}}\n                <h2>{{{t "This page is for subscribers on the {tiers} only" tiers=(tiers separator=", " lastSeparator=(t " and "))}}}</h2>\n            {{else}}\n                <h2>{{{t "This post is for subscribers on the {tiers} only" tiers=(tiers separator=", " lastSeparator=(t " and "))}}}</h2>\n            {{/is}}\n        {{/has}}\n        {{#if @member}}\n            <a class="gh-btn" data-portal="account/plans" href="#/portal/account/plans" style="color:{{@site.accent_color}}">{{t "Upgrade your account"}}</a>\n        {{else}}\n            <a class="gh-btn" data-portal="signup" href="#/portal/signup" style="color:{{@site.accent_color}}">{{t "Subscribe now"}}</a>\n            <p><small>{{t "Already have an account?"}} <a data-portal="signin" href="#/portal/signin">{{t "Sign in"}}</a></small></p>\n        {{/if}}\n    </div>\n</aside>\n';
 
 const listTemplates = dir =>
 	fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap(entry => {
@@ -107,6 +113,23 @@ const matches = (item, filter) => {
 	});
 };
 
+// The malformed filters @tryghost/nql-lang rejects that a theme can produce from settings or data
+const validFilter = filter =>
+	!filter ||
+	splitTop(filter, ",").every(group =>
+		splitTop(group, "+").every(cond => {
+			const m = cond.match(/^([\w.]+):(-?)(.*)$/);
+			if (!m) return false;
+			const value = m[3];
+			if (value.startsWith("[")) {
+				if (!value.endsWith("]")) return false;
+				const items = value.slice(1, -1).split(",");
+				return items.every(item => /^\s*('[^']*'|[^\s']+)\s*$/.test(item));
+			}
+			return /^[<>]?=?('[^']*'|[^\s']+)$/.test(value);
+		}),
+	);
+
 const sortBy = (items, order) => {
 	if (!order) return items;
 	const [key, dir = "asc"] = order.trim().split(/\s+/);
@@ -120,24 +143,49 @@ const sortBy = (items, order) => {
 };
 
 // --- Dates ------------------------------------------------------------------------------------
-const formatDate = (value, format, locale) => {
+// Ghost serialises dates with the site's time zone (@site.timezone, "Etc/UTC" by default) and its date
+// helper formats them in that zone (moment.parseZone): a post published at 23:30 UTC on 12 December is
+// dated 13 December on a Paris site. Moment's long formats differ by language (en: « December 13, 2025 »).
+const formatDate = (value, format, locale, timeZone = "Etc/UTC") => {
 	const date = new Date(value);
-	const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
+	const part = options =>
+		Object.fromEntries(
+			new Intl.DateTimeFormat(locale, { timeZone, ...options }).formatToParts(date).map(p => [p.type, p.value]),
+		);
+	const num = part({
+		year: "numeric",
+		month: "numeric",
+		day: "numeric",
+		hour: "numeric",
+		minute: "numeric",
+		second: "numeric",
+		hourCycle: "h23",
+	});
 	const pad = n => String(n).padStart(2, "0");
+	const offset = (() => {
+		const local = Date.UTC(+num.year, +num.month - 1, +num.day, +num.hour, +num.minute, +num.second);
+		const minutes = Math.round((local - Math.floor(date.getTime() / 1000) * 1000) / 60000);
+		const sign = minutes < 0 ? "-" : "+";
+		return `${sign}${pad(Math.floor(Math.abs(minutes) / 60))}:${pad(Math.abs(minutes) % 60)}`;
+	})();
 	const tokens = {
-		YYYY: String(date.getUTCFullYear()),
-		MMMM: new Intl.DateTimeFormat(locale, { month: "long" }).format(date),
-		MMM: month,
-		MM: pad(date.getUTCMonth() + 1),
-		DD: pad(date.getUTCDate()),
-		D: String(date.getUTCDate()),
-		HH: pad(date.getUTCHours()),
-		mm: pad(date.getUTCMinutes()),
-		ss: pad(date.getUTCSeconds()),
+		YYYY: num.year,
+		MMMM: part({ month: "long" }).month,
+		MMM: part({ month: "short" }).month,
+		MM: pad(num.month),
+		DD: pad(num.day),
+		D: String(+num.day),
+		dddd: part({ weekday: "long" }).weekday,
+		ddd: part({ weekday: "short" }).weekday,
+		HH: pad(num.hour),
+		mm: pad(num.minute),
+		ss: pad(num.second),
+		Z: offset,
 	};
-	if (format === "ll") format = "D MMM YYYY";
-	if (format === "LL") format = "D MMMM YYYY";
-	return format.replace(/YYYY|MMMM|MMM|MM|DD|D|HH|mm|ss|Z/g, t => (t === "Z" ? "+00:00" : tokens[t]));
+	const english = /^en\b/.test(locale);
+	if (format === "ll") format = english ? "MMM D, YYYY" : "D MMM YYYY";
+	if (format === "LL") format = english ? "MMMM D, YYYY" : "D MMMM YYYY";
+	return format.replace(/YYYY|MMMM|MMM|MM|DD|dddd|ddd|D|HH|mm|ss|Z/g, t => tokens[t]);
 };
 
 export const renderTemplate = (name, options = {}) => {
@@ -192,33 +240,70 @@ export const renderTemplate = (name, options = {}) => {
 			const opts = args.pop();
 			const value = args[0] ?? this.published_at ?? site.now;
 			if (opts.hash.timeago) return "2 days ago";
-			return formatDate(value, opts.hash.format || "ll", locale);
+			return formatDate(value, opts.hash.format || "ll", locale, opts.hash.timezone || settings.timezone);
 		},
+		// As Ghost 6: only for a post (own html, title and slug), and nothing without html nor reading_time
 		reading_time(opts) {
-			const minutes = this.reading_time ?? 1;
-			const one = opts.hash.minute ?? "1 min read";
-			const many = opts.hash.minutes ?? "% min read";
-			return minutes <= 1 ? one.replace("%", minutes) : many.replace("%", minutes);
+			const isPost = ["html", "title", "slug"].every(k => Object.hasOwn(this, k));
+			if (!isPost || (!this.html && !this.reading_time)) return "";
+			const minutes = this.reading_time || 1;
+			const one = typeof opts.hash.minute === "string" ? opts.hash.minute : "1 min read";
+			const many = typeof opts.hash.minutes === "string" ? opts.hash.minutes : "% min read";
+			return minutes <= 1 ? one : many.replace("%", minutes);
 		},
 		img_url(image, opts) {
 			if (!image) return "";
-			const size = opts?.hash?.size;
+			// A size missing from package.json's image_sizes gives the original image in Ghost: the same
+			// here (no ?size= mark), so a misspelt size shows in the tests
+			const size = IMAGE_SIZES[opts?.hash?.size] ? opts.hash.size : undefined;
 			// format="webp" (Ghost: /size/wN/format/webp/…), written after the size
 			const format = opts?.hash?.format ? `&format=${opts.hash.format}` : "";
 			return size ? `${image}${image.includes("?") ? "&" : "?"}size=${size}${format}` : image;
 		},
-		page_url: page => (page === 1 ? "/" : `/page/${page}/`),
+		// As Ghost 6 (getPaginatedUrl): relative to the listing being shown (/tag/actualites/page/2/)
+		// (nothing without pagination in the page's data, nor for a page that is not a number)
+		page_url(page, opts) {
+			if (!opts) page = 1;
+			const pagination = context.pagination;
+			if (!pagination) return "";
+			if (page === "next") page = pagination.next;
+			else if (page === "prev") page = pagination.prev;
+			if (typeof page !== "number" || !page) return "";
+			const base = (context.tag?.url || context.author?.url || options.currentUrl || "/").replace(/page\/\d+\/$/, "");
+			return page > 1 ? `${base}page/${page}/` : base;
+		},
 		encode: value => encodeURIComponent(String(value)),
-		url() {
-			return this.url || "/";
+		// absolute="true": the site's address in front, as Ghost does (navigation, share links)
+		url(opts) {
+			const url = this.url || "/";
+			const absolute = String(opts?.hash?.absolute) === "true";
+			return absolute && url.startsWith("/") ? settings.url.replace(/\/$/, "") + url : url;
 		},
+		// As Ghost 6 (excerpt.js): a custom excerpt is never cut (words= / characters= only cut the
+		// automatic excerpt)
 		excerpt(opts) {
-			const text = this.custom_excerpt || this.excerpt || "";
-			const words = opts?.hash?.words;
-			return words ? text.split(/\s+/).slice(0, Number(words)).join(" ") : text;
+			if (this.custom_excerpt) return String(this.custom_excerpt);
+			const text = String(this.excerpt || "");
+			const words = parseInt(opts?.hash?.words, 10);
+			const characters = parseInt(opts?.hash?.characters, 10);
+			if (words) return text.split(/\s+/).slice(0, words).join(" ");
+			if (characters) return text.slice(0, characters);
+			return text;
 		},
-		content() {
+		// A post the reader may not read (access: false): Ghost renders its own call to subscribe after the
+		// public preview, with the theme's translations (ghost/core/frontend/helpers/tpl/content-cta.hbs)
+		content(opts) {
+			if (this.access === false) {
+				return safe(H.compile(CONTENT_CTA)(this, { data: opts.data }));
+			}
 			return safe(this.html || "<p>Body</p>");
+		},
+		tiers(opts) {
+			const names = (this.tiers || []).map(t => t.name);
+			const last = names.pop();
+			return names.length
+				? names.join(opts.hash.separator ?? ", ") + (opts.hash.lastSeparator ?? " and ") + last
+				: (last ?? "");
 		},
 		comments: () => "",
 		authors(opts) {
@@ -230,10 +315,15 @@ export const renderTemplate = (name, options = {}) => {
 			const list = (this.tags || []).filter(t => t.visibility !== "internal").slice(from, opts.hash.to || undefined);
 			return safe(list.map(t => `<a href="${t.url}">${t.name}</a>`).join(opts.hash.separator ?? ", "));
 		},
+		// As Ghost 6 (plural.js): the three forms are required; a missing or non-numeric count renders
+		// nothing (a forgotten include="count.posts" shows up as an empty label, not « No posts »)
 		plural(count, opts) {
-			const n = Number(count) || 0;
-			if (n === 0) return opts.hash.empty.replace("%", n);
-			return (n === 1 ? opts.hash.singular : opts.hash.plural).replace("%", n);
+			const { empty, singular, plural } = opts.hash;
+			if ([empty, singular, plural].includes(undefined)) throw new Error("plural: empty, singular and plural");
+			if (count === 0) return safe(empty.replace("%", count));
+			if (count === 1) return safe(singular.replace("%", count));
+			if (count >= 2) return safe(plural.replace("%", count));
+			return "";
 		},
 		social_url(opts) {
 			const type = opts.hash.type;
@@ -268,30 +358,38 @@ export const renderTemplate = (name, options = {}) => {
 			// unless visibility="internal" | "all" is given
 			const isPost = item => item && typeof item === "object" && "title" in item && "published_at" in item;
 			const visibility = opts.hash.visibility || (list.length && isPost(list[0]) ? "all" : "public");
-			if (visibility !== "all") {
-				const wanted = visibility.split(",").map(v => v.trim());
-				list = list.filter(item => !item || item.visibility === undefined || wanted.includes(item.visibility));
+			// (@tryghost/helpers visibility.filter: an item without visibility counts as "public")
+			const wanted = visibility.split(",").map(v => v.trim());
+			if (!wanted.includes("all")) {
+				list = list.filter(item => (item?.visibility ? wanted.includes(item.visibility) : wanted.includes("public")));
 			}
-			const from = (opts.hash.from || 1) - 1;
-			const to = opts.hash.to || (opts.hash.limit ? from + Number(opts.hash.limit) : list.length);
-			const slice = list.slice(from, to);
-			if (!slice.length) return opts.inverse(this);
-			return slice
-				.map((item, i) =>
-					opts.fn(item, {
-						data: {
-							...opts.data,
-							index: i,
-							number: i + 1,
-							first: i === 0,
-							last: i === slice.length - 1,
-							odd: i % 2 === 1,
-							even: i % 2 === 0,
-						},
-						blockParams: [item, i],
-					}),
-				)
-				.join("");
+			// As Ghost 6 (foreach.js): from/to are 1-based positions in the whole list, and @index /
+			// @number keep that position (from="2": @number starts at 2); @even is Ghost's (index % 2 === 1);
+			// {{else}} only for an empty list, not for a from past its end
+			const length = list.length;
+			const limit = parseInt(opts.hash.limit, 10) || length;
+			const from = parseInt(opts.hash.from, 10) || 1;
+			let to = parseInt(opts.hash.to, 10) || length;
+			if (limit < length && from + limit <= length) to = from - 1 + limit;
+			if (!length) return opts.inverse(this);
+			let output = "";
+			list.forEach((item, index) => {
+				const position = index + 1;
+				if (position < from || position > to) return;
+				output += opts.fn(item, {
+					data: {
+						...opts.data,
+						index,
+						number: index + 1,
+						first: index === from - 1,
+						last: position === to,
+						even: index % 2 === 1,
+						odd: index % 2 !== 1,
+					},
+					blockParams: [item, index],
+				});
+			});
+			return output;
 		},
 		get(resource, opts) {
 			const { order, limit = 15, page = 1 } = opts.hash;
@@ -309,7 +407,11 @@ export const renderTemplate = (name, options = {}) => {
 				const value = field ? (get(source, list) || []).map(item => get(item, field)) : get(source, list);
 				return Array.isArray(value) ? value.map(v => v.slug ?? v).join(",") : (value ?? "");
 			});
-			const defaults = { posts: "published_at desc", tags: null, authors: null };
+			// A filter Ghost's NQL parser refuses (an empty list or a trailing comma, from a theme setting
+			// such as about_tags = "jeux-video,"; a space in a value) makes Ghost render {{else}} and log a
+			// « Query Error »: the same here, so such a case shows in the tests instead of passing
+			if (!validFilter(filter)) return opts.inverse(this);
+			const defaults = { posts: "published_at desc", pages: "published_at desc", tags: null, authors: null };
 			let items = (site[resource] || []).filter(item => matches(item, filter));
 			items = sortBy(items, order || defaults[resource]);
 			const total = items.length;
@@ -335,9 +437,14 @@ export const renderTemplate = (name, options = {}) => {
 			return wanted.some(n => contexts.includes(n)) ? opts.fn(this) : opts.inverse(this);
 		},
 		has(opts) {
-			const { tag, any, author, number, index } = opts.hash;
+			const { tag, any, author, number, index, visibility } = opts.hash;
 			let ok = false;
-			if (tag) {
+			if (visibility) {
+				ok = visibility
+					.split(",")
+					.map(v => v.trim())
+					.includes(this.visibility);
+			} else if (tag) {
 				const names = tag.split(",").map(n => n.trim().toLowerCase());
 				ok = (this.tags || []).some(t => names.includes(t.name.toLowerCase()));
 			} else if (any) {
@@ -358,27 +465,33 @@ export const renderTemplate = (name, options = {}) => {
 			}
 			return ok ? opts.fn(this) : opts.inverse(this);
 		},
+		// As Ghost 6 (core/frontend/helpers/match.js): strict comparisons, no type conversion (a number
+		// never equals its string: {{#match pagination.total "1"}} is false); ~ only on strings; one
+		// argument: truthy and not an empty list
 		match(...args) {
 			const opts = args.pop();
+			const [left, op, right] = args.map(a =>
+				a instanceof H.SafeString || a instanceof Handlebars.SafeString ? a.string : a,
+			);
 			let result;
-			if (args.length === 1) result = Boolean(args[0]);
-			else if (args.length === 2) result = args[0] == args[1];
+			if (args.length === 1) result = !!left && !(Array.isArray(left) && !left.length);
+			else if (args.length === 2) result = left === op;
 			else {
-				const [left, op, right] = args;
+				const str = v => typeof v === "string";
 				const ops = {
-					"=": () => left == right,
-					"!=": () => left != right,
-					"<": () => Number(left) < Number(right),
-					">": () => Number(left) > Number(right),
-					"<=": () => Number(left) <= Number(right),
-					">=": () => Number(left) >= Number(right),
-					"~": () => String(left).includes(right),
-					"~^": () => String(left).startsWith(right),
-					"~$": () => String(left).endsWith(right),
+					"!=": () => left !== right,
+					"<": () => left < right,
+					">": () => left > right,
+					"<=": () => left <= right,
+					">=": () => left >= right,
+					"~": () => str(left) && str(right) && left.includes(right),
+					"~^": () => str(left) && str(right) && left.startsWith(right),
+					"~$": () => str(left) && str(right) && left.endsWith(right),
 				};
-				result = ops[op]();
+				result = (ops[op] || (() => left === right))();
 			}
-			if (!opts.fn) return result;
+			// Inline, Ghost returns a SafeString: an object, truthy for {{#if}} even when false
+			if (!opts.fn) return new H.SafeString(result);
 			return result ? opts.fn(this) : opts.inverse(this);
 		},
 		// Ghost's concat returns a SafeString, which {{#get}} cannot take as a filter (see get below)

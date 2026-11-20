@@ -312,6 +312,29 @@ describe("article page: header, dates, author", () => {
 		await dispose();
 	});
 
+	it("speaks French in Ghost's own call to subscribe on a members-only post", async () => {
+		const render = article({ html: "<p>Le début, public.</p>" });
+		Object.assign(render.context.post, { access: false, visibility: "members" });
+		const { page, dispose } = await open({ render });
+		const cta = page.locator(".gh-post-upgrade-cta");
+		assert.equal(await cta.locator("h2").textContent(), "Cet article est réservé aux abonnés");
+		assert.deepEqual(
+			(await cta.locator("a").allTextContents()).map(t => t.trim()),
+			["S’abonner", "Se connecter"],
+		);
+		assert.match(await cta.textContent(), /Déjà abonné \?/);
+		await dispose();
+	});
+
+	it("shares the post's full address, encoded, with each service", async () => {
+		const { page, dispose } = await open({ render: article() });
+		const links = await page.$$eval(".article-share__link", els => els.map(a => a.getAttribute("href")));
+		const address = encodeURIComponent("http://theme.test/overwatch-renaissance/");
+		assert.equal(links.length, 4);
+		for (const link of links) assert.ok(link.includes(address), link);
+		await dispose();
+	});
+
 	it("gives members the « À lire plus tard » button in the header, never visitors", async () => {
 		const visitor = await open({ render: article() });
 		assert.equal(await visitor.page.locator(".article-header [data-bookmark]").count(), 0);

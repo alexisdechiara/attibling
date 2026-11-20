@@ -223,6 +223,8 @@ export const createSite = (options = {}) => {
 				featured: featured && isFeatured,
 				published_at: new Date(start - i * 9 * 86400000).toISOString(),
 				reading_time: minutes,
+				// Ghost's {{#get "posts"}} returns the html too (Content API, formats=html by default)
+				html: "<p>Texte de l’article.</p>",
 				custom_excerpt: null,
 				excerpt:
 					"L’année démarre très fort. On retrouve, dès cette première saison, pas mal de grosses licences qui reviennent, quelques suites très attendues, et aussi une ou deux nouveautés qui pourraient bien créer la surprise.",
