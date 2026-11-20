@@ -20,7 +20,10 @@ const create = () => {
 		if (event.target !== dialog) return;
 		const box = dialog.getBoundingClientRect();
 		const inside =
-			event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
+			event.clientX >= box.left &&
+			event.clientX <= box.right &&
+			event.clientY >= box.top &&
+			event.clientY <= box.bottom;
 		if (!inside) dialog.close();
 	});
 	dialog.addEventListener("close", () => {

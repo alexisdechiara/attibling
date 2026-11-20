@@ -93,7 +93,13 @@ const switchFor = (label, attributes) => {
 // embed on this page and those already shown without a click
 const providersToList = all => {
 	const byId = new Map(PROVIDERS.map(p => [p.id, p]));
-	if (all) return [...PROVIDERS, ...remembered().filter(id => !byId.has(id)).map(id => ({ id, name: id }))];
+	if (all)
+		return [
+			...PROVIDERS,
+			...remembered()
+				.filter(id => !byId.has(id))
+				.map(id => ({ id, name: id })),
+		];
 	const ids = new Set([
 		...[...document.querySelectorAll("[data-embed-facade][data-provider]")].map(el => el.dataset.provider),
 		...[...document.querySelectorAll("iframe[data-embed-frame]")].map(el => el.dataset.embedFrame),
@@ -192,12 +198,15 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 			if (signal) signal.hidden = !(privacySignal() && !consent.record());
 		}
 		const always = remembered();
-		list?.querySelectorAll("[data-provider]").forEach(input => (input.checked = always.includes(input.dataset.provider)));
+		list
+			?.querySelectorAll("[data-provider]")
+			.forEach(input => (input.checked = always.includes(input.dataset.provider)));
 		if (plausibleToggle) plausibleToggle.checked = plausible.counted();
 		if (progressToggle) progressToggle.checked = preferences.get().progress;
 		if (count) {
 			const n = heldItems().length;
-			count.textContent = n === 0 ? count.dataset.none : n === 1 ? count.dataset.one : count.dataset.many.replace("%", n);
+			count.textContent =
+				n === 0 ? count.dataset.none : n === 1 ? count.dataset.one : count.dataset.many.replace("%", n);
 		}
 		root.dispatchEvent(new CustomEvent("privacy:refresh"));
 	};

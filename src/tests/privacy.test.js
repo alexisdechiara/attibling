@@ -187,7 +187,11 @@ describe("privacy: the preferences panel", () => {
 			if (!inside) outside.push(await page.evaluate(() => document.activeElement.outerHTML.slice(0, 80)));
 		}
 		// (Past its last control, the browser's own toolbar may take the focus: <body>, never the page)
-		assert.deepEqual(outside.filter(html => !html.startsWith("<body")), [], "focus never reaches the page");
+		assert.deepEqual(
+			outside.filter(html => !html.startsWith("<body")),
+			[],
+			"focus never reaches the page",
+		);
 		await panel(page).evaluate(d => Promise.all(d.getAnimations().map(a => a.finished)));
 		const sheet = await panel(page).boundingBox();
 		assert.equal(Math.round(sheet.y + sheet.height), PHONE.height, "a bottom sheet on phones");
@@ -224,7 +228,12 @@ describe("privacy: the preferences panel", () => {
 			await page.evaluate(() => [localStorage.getItem("theme"), localStorage.getItem("attibling-embeds")]),
 			[null, null],
 		);
-		await waitFor(() => panel(page).locator("[data-privacy-live]").textContent().then(t => t.length > 0));
+		await waitFor(() =>
+			panel(page)
+				.locator("[data-privacy-live]")
+				.textContent()
+				.then(t => t.length > 0),
+		);
 		await dispose();
 	});
 });
@@ -321,7 +330,10 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 
 	it("« Notice »: nothing on arrival, a card after a little scrolling, out of the way; the gated script waits", async () => {
-		const { page, dispose } = await open({ render: article({ custom: custom("Notice"), html: LONG }), bodyStart: GATED });
+		const { page, dispose } = await open({
+			render: article({ custom: custom("Notice"), html: LONG }),
+			bodyStart: GATED,
+		});
 		await page.waitForTimeout(400);
 		assert.equal(await notice(page).count(), 0, "not on arrival");
 		assert.equal(await page.evaluate(() => window.__gatedRuns ?? 0), 0);
@@ -360,7 +372,13 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 				buttons.map(b => {
 					const s = getComputedStyle(b);
 					const r = b.getBoundingClientRect();
-					return { w: Math.round(r.width), h: Math.round(r.height), bg: s.backgroundColor, fg: s.color, size: s.fontSize };
+					return {
+						w: Math.round(r.width),
+						h: Math.round(r.height),
+						bg: s.backgroundColor,
+						fg: s.color,
+						size: s.fontSize,
+					};
 				}),
 			);
 		assert.deepEqual(refuse, accept);
@@ -368,7 +386,10 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 
 	it("« Notice » also comes after 12 seconds without scrolling", async () => {
-		const { page, dispose } = await open({ render: article({ custom: custom("Notice"), html: LONG }), bodyStart: GATED });
+		const { page, dispose } = await open({
+			render: article({ custom: custom("Notice"), html: LONG }),
+			bodyStart: GATED,
+		});
 		await page.clock.install();
 		await page.reload({ waitUntil: "load" });
 		await page.clock.fastForward(11000);
@@ -379,11 +400,18 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 
 	it("« Banner »: at once, across the bottom; accept runs the gated script, and the answer is kept", async () => {
-		const { page, dispose } = await open({ render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }), bodyStart: GATED, viewport: WIDE });
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+			viewport: WIDE,
+		});
 		await notice(page).waitFor({ state: "visible" });
 		await notice(page).evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
 		const box = await notice(page).boundingBox();
-		assert.equal(Math.round(box.width), 1440 - (await page.evaluate(() => 1440 - document.documentElement.clientWidth)));
+		assert.equal(
+			Math.round(box.width),
+			1440 - (await page.evaluate(() => 1440 - document.documentElement.clientWidth)),
+		);
 		assert.equal(Math.round(box.y + box.height), 900);
 		await notice(page).getByRole("button", { name: "Accept all" }).click();
 		assert.equal(await notice(page).count(), 0);
@@ -398,7 +426,10 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 
 	it("refusing (or closing) keeps the script off, on this page and the next; withdrawing in the panel", async () => {
-		const { page, dispose } = await open({ render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }), bodyStart: GATED });
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+		});
 		await notice(page).waitFor({ state: "visible" });
 		await notice(page).getByRole("button", { name: "Close and continue without accepting" }).click();
 		assert.equal(await page.evaluate(() => window.__gatedRuns ?? 0), 0);
@@ -420,7 +451,10 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 
 	it("asks again after six months", async () => {
-		const { page, dispose } = await open({ render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }), bodyStart: GATED });
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+		});
 		const start = Date.now();
 		await page.clock.install({ time: start });
 		await page.reload({ waitUntil: "load" });
@@ -443,7 +477,10 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 		});
 		await page.waitForTimeout(400);
 		assert.equal(await notice(page).count(), 0);
-		assert.equal(await page.evaluate(() => [window.__gatedRuns ?? 0, window.attiblingConsent.get("analytics")]).then(String), "0,false");
+		assert.equal(
+			await page.evaluate(() => [window.__gatedRuns ?? 0, window.attiblingConsent.get("analytics")]).then(String),
+			"0,false",
+		);
 		await openPanel(page);
 		assert.equal(await panel(page).locator("[data-consent-signal]").isVisible(), true);
 		await panel(page).getByRole("button", { name: "Accept all" }).click();
@@ -459,7 +496,10 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 	});
 
 	it("is reachable from the keyboard right after the skip link, and Escape refuses", async () => {
-		const { page, dispose } = await open({ render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }), bodyStart: GATED });
+		const { page, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, consent_notice: "Banner" } }),
+			bodyStart: GATED,
+		});
 		await notice(page).waitFor({ state: "visible" });
 		await page.keyboard.press("Tab"); // skip link
 		await page.keyboard.press("Tab");

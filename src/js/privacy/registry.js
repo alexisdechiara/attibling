@@ -27,7 +27,14 @@ export const STORAGE = [
 		category: "preference",
 		lifetime: "until-cleared",
 	},
-	{ key: "attibling-intro", storage: "session", by: "theme", audience: "all", category: "feature", lifetime: "session" },
+	{
+		key: "attibling-intro",
+		storage: "session",
+		by: "theme",
+		audience: "all",
+		category: "feature",
+		lifetime: "session",
+	},
 	{
 		key: "attibling-hero-cue",
 		storage: "session",
