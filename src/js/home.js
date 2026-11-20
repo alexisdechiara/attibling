@@ -33,7 +33,6 @@ const setUpHero = hero => {
 		}
 		current = index;
 		slides.forEach((slide, i) => {
-			if (slide.hidden) return;
 			slide.inert = i !== index;
 			slide.toggleAttribute("data-current", i === index);
 			// The post's text rises in when the reader changes the slide (not on load)
