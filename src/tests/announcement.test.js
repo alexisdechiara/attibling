@@ -38,6 +38,17 @@ describe("announcement bar", () => {
 		await dispose();
 	});
 
+	it("is placed too when Ghost's deferred script adds it after the theme's scripts ran", async () => {
+		// As Ghost's announcement-bar.min.js: it creates the root at the start of <body> when it runs
+		const script = `const root = document.createElement("div");
+			root.id = "announcement-bar-root";
+			root.innerHTML = '<div class="gh-announcement-bar" style="height: 48px">Announcement</div>';
+			document.body.prepend(root);`;
+		const { page, dispose } = await open({ render: template("tag"), ghostDefer: { delay: 600, script } });
+		assert.deepEqual(await layout(page), { beforeHeader: true, afterSkipLink: true, headerTop: 48 });
+		await dispose();
+	});
+
 	it("leaves the page alone when there is no announcement bar", async () => {
 		const { page, dispose } = await open({ render: template("tag") });
 		assert.equal((await layout(page)).headerTop, 0);
