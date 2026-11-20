@@ -336,6 +336,9 @@ li:nth-child(4n + 4) > * {
   border-radius: var(--radius-m);
   background: var(--color-media);
   color: var(--color-on-media);
+  transition:
+    transform var(--lift-duration) var(--lift-ease),
+    box-shadow var(--lift-duration) var(--lift-ease);
 
   &::after {
     content: "";
@@ -349,10 +352,6 @@ li:nth-child(4n + 4) > * {
       var(--color-scrim-faint) 100%
     );
   }
-
-  transition:
-    transform var(--lift-duration) var(--lift-ease),
-    box-shadow var(--lift-duration) var(--lift-ease);
 }
 
 /* Tag tiles lift as the post tiles; the hover target is their list item (which stays in place) */

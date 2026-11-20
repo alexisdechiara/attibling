@@ -46,10 +46,10 @@
     :dir(rtl) & .article-header__media::after {
       background: linear-gradient(
         0deg,
-        rgb(from var(--color-media) r g b / 0.94) 0%,
-        rgb(from var(--color-media) r g b / 0.8) 55%,
-        rgb(from var(--color-media) r g b / 0.3) 85%,
-        rgb(from var(--color-media) r g b / 0.15) 100%
+        color-mix(in srgb, var(--color-media) 94%, transparent) 0%,
+        color-mix(in srgb, var(--color-media) 80%, transparent) 55%,
+        color-mix(in srgb, var(--color-media) 30%, transparent) 85%,
+        color-mix(in srgb, var(--color-media) 15%, transparent) 100%
       );
     }
   }

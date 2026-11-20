@@ -89,48 +89,48 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(from var(--color-media) r g b / 0.88) 0%,
-    rgb(from var(--color-media) r g b / 0.86) 36%,
-    rgb(from var(--color-media) r g b / 0.3) 45%,
-    rgb(from var(--color-media) r g b / 0.3) 52%,
-    rgb(from var(--color-media) r g b / 0.8) 58%,
-    rgb(from var(--color-media) r g b / 0.82) 100%
+    color-mix(in srgb, var(--color-media) 88%, transparent) 0%,
+    color-mix(in srgb, var(--color-media) 86%, transparent) 36%,
+    color-mix(in srgb, var(--color-media) 30%, transparent) 45%,
+    color-mix(in srgb, var(--color-media) 30%, transparent) 52%,
+    color-mix(in srgb, var(--color-media) 80%, transparent) 58%,
+    color-mix(in srgb, var(--color-media) 82%, transparent) 100%
   );
 
   @media (width >= 64rem) {
     background:
       radial-gradient(
         46% 30% at 24% 38%,
-        rgb(from var(--color-media) r g b / 0.85) 0%,
-        rgb(from var(--color-media) r g b / 0.8) 72%,
-        rgb(from var(--color-media) r g b / 0) 100%
+        color-mix(in srgb, var(--color-media) 85%, transparent) 0%,
+        color-mix(in srgb, var(--color-media) 80%, transparent) 72%,
+        color-mix(in srgb, var(--color-media) 0%, transparent) 100%
       ),
       linear-gradient(
         90deg,
-        rgb(from var(--color-media) r g b / 0.78) 0%,
-        rgb(from var(--color-media) r g b / 0.74) 38%,
-        rgb(from var(--color-media) r g b / 0.3) 50%,
-        rgb(from var(--color-media) r g b / 0.3) 56%,
-        rgb(from var(--color-media) r g b / 0.74) 64%,
-        rgb(from var(--color-media) r g b / 0.78) 100%
+        color-mix(in srgb, var(--color-media) 78%, transparent) 0%,
+        color-mix(in srgb, var(--color-media) 74%, transparent) 38%,
+        color-mix(in srgb, var(--color-media) 30%, transparent) 50%,
+        color-mix(in srgb, var(--color-media) 30%, transparent) 56%,
+        color-mix(in srgb, var(--color-media) 74%, transparent) 64%,
+        color-mix(in srgb, var(--color-media) 78%, transparent) 100%
       );
 
     &:dir(rtl) {
       background:
         radial-gradient(
           46% 30% at 76% 38%,
-          rgb(from var(--color-media) r g b / 0.85) 0%,
-          rgb(from var(--color-media) r g b / 0.8) 72%,
-          rgb(from var(--color-media) r g b / 0) 100%
+          color-mix(in srgb, var(--color-media) 85%, transparent) 0%,
+          color-mix(in srgb, var(--color-media) 80%, transparent) 72%,
+          color-mix(in srgb, var(--color-media) 0%, transparent) 100%
         ),
         linear-gradient(
           270deg,
-          rgb(from var(--color-media) r g b / 0.78) 0%,
-          rgb(from var(--color-media) r g b / 0.74) 38%,
-          rgb(from var(--color-media) r g b / 0.3) 50%,
-          rgb(from var(--color-media) r g b / 0.3) 56%,
-          rgb(from var(--color-media) r g b / 0.74) 64%,
-          rgb(from var(--color-media) r g b / 0.78) 100%
+          color-mix(in srgb, var(--color-media) 78%, transparent) 0%,
+          color-mix(in srgb, var(--color-media) 74%, transparent) 38%,
+          color-mix(in srgb, var(--color-media) 30%, transparent) 50%,
+          color-mix(in srgb, var(--color-media) 30%, transparent) 56%,
+          color-mix(in srgb, var(--color-media) 74%, transparent) 64%,
+          color-mix(in srgb, var(--color-media) 78%, transparent) 100%
         );
     }
   }
@@ -163,9 +163,9 @@
 
   &:hover,
   &:focus-visible {
-    background: rgb(from var(--color-media) r g b / 0.42);
+    background: color-mix(in srgb, var(--color-media) 42%, transparent);
     box-shadow:
-      inset 0 0 0 1px rgb(from var(--color-on-media) r g b / 0.14),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-on-media) 14%, transparent),
       0 12px 32px rgb(0 0 0 / 0.28);
     transform: translateY(-3px);
   }
@@ -445,8 +445,8 @@
   &:focus-visible::before {
     background: var(--color-on-media);
     box-shadow:
-      0 0 0 4px rgb(from var(--color-on-media) r g b / 0.16),
-      0 0 12px rgb(from var(--color-on-media) r g b / 0.45);
+      0 0 0 4px color-mix(in srgb, var(--color-on-media) 16%, transparent),
+      0 0 12px color-mix(in srgb, var(--color-on-media) 45%, transparent);
     scale: 1.5;
   }
 
@@ -459,7 +459,7 @@
 
     &::before {
       width: 22px;
-      background: rgb(from var(--color-on-media) r g b / 0.38);
+      background: color-mix(in srgb, var(--color-on-media) 38%, transparent);
       box-shadow: none;
       scale: 1;
     }
@@ -529,9 +529,9 @@
     padding: 7px 12px;
     overflow: hidden;
     border-radius: var(--radius-pill);
-    background: rgb(from var(--color-media) r g b / 0.78);
+    background: color-mix(in srgb, var(--color-media) 78%, transparent);
     box-shadow:
-      inset 0 0 0 1px rgb(from var(--color-on-media) r g b / 0.12),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-on-media) 12%, transparent),
       0 8px 24px rgb(0 0 0 / 0.3);
     color: var(--color-on-media);
     font-size: var(--text-s);
@@ -589,7 +589,7 @@
 @keyframes hero-dot-cue {
   40% {
     background: var(--color-on-media);
-    box-shadow: 0 0 10px rgb(from var(--color-on-media) r g b / 0.55);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-on-media) 55%, transparent);
     scale: 1.7;
   }
 }

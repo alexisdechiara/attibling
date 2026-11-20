@@ -161,9 +161,9 @@
     z-index: -1;
     background: linear-gradient(
       90deg,
-      rgb(from var(--color-media) r g b / 0.9) 0%,
-      rgb(from var(--color-media) r g b / 0.78) 32%,
-      rgb(from var(--color-media) r g b / 0.38) 100%
+      color-mix(in srgb, var(--color-media) 90%, transparent) 0%,
+      color-mix(in srgb, var(--color-media) 78%, transparent) 32%,
+      color-mix(in srgb, var(--color-media) 38%, transparent) 100%
     );
   }
 
@@ -176,9 +176,9 @@
     &::before {
       background: linear-gradient(
         180deg,
-        rgb(from var(--color-media) r g b / 0.88) 0%,
-        rgb(from var(--color-media) r g b / 0.72) 45%,
-        rgb(from var(--color-media) r g b / 0.6) 100%
+        color-mix(in srgb, var(--color-media) 88%, transparent) 0%,
+        color-mix(in srgb, var(--color-media) 72%, transparent) 45%,
+        color-mix(in srgb, var(--color-media) 60%, transparent) 100%
       );
     }
   }
@@ -195,8 +195,8 @@
 /* Without a tag image: the dark surface with two soft glows of the wordmark's colours */
 .banner--no-image {
   background:
-    radial-gradient(60% 90% at 100% 0%, rgb(from var(--wordmark-g) r g b / 0.28) 0%, transparent 70%),
-    radial-gradient(50% 80% at 70% 100%, rgb(from var(--wordmark-e1) r g b / 0.16) 0%, transparent 70%),
+    radial-gradient(60% 90% at 100% 0%, color-mix(in srgb, var(--wordmark-g) 28%, transparent) 0%, transparent 70%),
+    radial-gradient(50% 80% at 70% 100%, color-mix(in srgb, var(--wordmark-e1) 16%, transparent) 0%, transparent 70%),
     var(--color-media);
 }
 
@@ -266,6 +266,9 @@
   border-radius: var(--radius-m);
   background: var(--color-scrim-strong);
   color: var(--color-on-media);
+  transition:
+    transform var(--lift-duration) var(--lift-ease),
+    box-shadow var(--lift-duration) var(--lift-ease);
 
   img {
     display: none;
@@ -277,15 +280,11 @@
       display: block;
     }
   }
-
-  transition:
-    transform var(--lift-duration) var(--lift-ease),
-    box-shadow var(--lift-duration) var(--lift-ease);
 }
 
 /* The banner's posts lift as the tiles; the list item is the hover target and stays in place */
 :is(li:hover > .banner__post, .banner__post:focus-visible) {
-  box-shadow: 0 12px 28px rgb(from var(--color-media) r g b / 0.5);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-media) 50%, transparent);
   transform: translateY(var(--lift));
 }
 
