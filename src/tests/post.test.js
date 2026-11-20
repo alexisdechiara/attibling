@@ -423,6 +423,16 @@ describe("article page: header, dates, author", () => {
 		await dispose();
 	});
 
+	it("prints a series box as its name and « Partie N sur T » only", async () => {
+		const { page, dispose } = await open({
+			render: article({ series: { published: 4, current: 2, description: "Construire son homelab" } }),
+		});
+		await page.emulateMedia({ media: "print" });
+		const printed = await page.$eval("[data-series]", box => box.innerText.replace(/\s+/g, " ").trim());
+		assert.equal(printed, "Série Construire son homelab Partie 2 sur 4");
+		await dispose();
+	});
+
 	it("prints the title, the meta and the text only, with the address of external links", async () => {
 		const html = `<p>Voir <a href="https://ghost.org/?ref=geekly.blog">Ghost</a>.</p>${LONG_HTML}`;
 		const { page, dispose } = await open({ render: article({ member: true, html }) });
