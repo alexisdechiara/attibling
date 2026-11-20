@@ -172,7 +172,8 @@ describe("privacy: the preferences panel", () => {
 		// The display settings show the same choice
 		await page.locator("[data-reading-button]").click();
 		assert.equal(await page.locator('[data-reading-settings] input[name="progress"][value="off"]').isChecked(), true);
-		await page.locator('[data-reading-settings] input[name="progress"][value="on"]').check({ force: true });
+		// (The panel may still be sliding in: the radio is clicked from the page)
+		await page.locator('[data-reading-settings] input[name="progress"][value="on"]').evaluate(input => input.click());
 		assert.equal(await stored(page, "attibling-privacy"), null);
 		await dispose();
 	});

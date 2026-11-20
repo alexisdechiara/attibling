@@ -132,13 +132,17 @@
     display: none;
   }
 
-  & + & {
+  /* A rule between the groups shown (a hidden group in between does not count) */
+  &:not([hidden]) ~ &:not([hidden]) {
     padding-block-start: var(--space-5);
     border-block-start: 1px solid var(--color-border);
   }
 }
 
+/* A legend floated out of the fieldset's border, so it lays out as an ordinary heading */
 .privacy-group__title {
+  float: inline-start;
+  width: 100%;
   margin: 0 0 var(--space-1);
   padding: 0;
   color: var(--color-text);
@@ -487,6 +491,8 @@
 }
 
 .privacy-stored__clear {
+  justify-self: start;
+  grid-column: 2;
   min-height: var(--target);
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border-strong);
