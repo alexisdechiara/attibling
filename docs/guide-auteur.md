@@ -65,8 +65,9 @@ Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section q
    [Polices du thème](#polices-du-thème-et-polices-personnalisées).
 9. **Confidentialité** (aucun bandeau à afficher) : créez la page `cookies` avec le texte de
    `docs/cookies-proposition.md` ; dans Settings → **Analytics**, désactivez *Newsletter opens*,
-   *Newsletter clicks* et *Member sources* ; laissez *Consent notice* sur `Notice` (la carte ne paraît
-   que sur les articles qui ont une vidéo ou une publication d'un autre site) — détail dans
+   *Newsletter clicks* et *Member sources* ; laissez *Consent notice* sur `Notice` (aucune carte : chaque
+   vidéo ou publication d'un autre site demande l'accord à sa place, dans son encadré) et *Consent tools*
+   éteint — détail dans
    [Cookies et confidentialité](#cookies-et-confidentialité--la-page-le-panneau-le-consentement).
 10. **Vérifier** : ouvrez l'accueil dans une fenêtre privée (visiteur) puis connecté (abonné) ; en cas de
    surprise, voir le [dépannage](#10-dépannage).
@@ -909,15 +910,16 @@ les **contenus d'autres sites** (vidéos YouTube, publications X…) : ils ne se
 D'où ce qui s'affiche, et seulement là :
 
 - **sur une page sans contenu intégré** (accueil, rubriques, la plupart des articles) : **rien**, jamais ;
-- **sur un article qui en contient** : une petite carte « Contenus d'autres sites » dans le coin bas, après
-  un peu de défilement ou 12 secondes (réglage *Consent notice*, plus bas). Elle nomme les services de la page
-  (« YouTube, X ») et dit ce que les afficher envoie. **« Tout accepter »** : tous les contenus de la page
-  s'affichent d'un coup, et ceux des pages suivantes aussi, sans clic (pendant 6 mois, ou jusqu'au retrait).
-  **« Tout refuser »** ou × : rien ne change, chaque contenu reste masqué ;
-- **à la place de chaque contenu, tant que le lecteur n'a pas accepté** : un encadré qui dit d'où il vient
-  et pourquoi il est masqué, avec **« Accepter et afficher »** (tous les contenus intégrés, la même réponse
-  que la carte) et **« Afficher seulement celui-ci »** (ce contenu, rien n'est gardé), plus « Gérer mes
-  choix » et « Voir sur YouTube ».
+- **sur un article qui en contient** : pas de carte ni de bandeau. La demande est faite **à la place de
+  chaque contenu, tant que le lecteur n'a pas accepté** : un encadré qui dit d'où il vient et ce que
+  l'afficher envoie (son adresse IP au service, qui peut déposer des cookies), avec **« Accepter et
+  afficher »** (ce contenu, et désormais tous les contenus intégrés du site sans clic, pendant 6 mois ou
+  jusqu'au retrait ; l'encadré le dit) et **« Afficher seulement celui-ci »** (ce contenu, rien n'est
+  gardé), plus « Gérer mes choix » et « Voir sur YouTube ». Le lecteur qui n'y touche pas ne voit rien
+  d'autre : chaque contenu reste masqué.
+- **la carte « Votre accord, si vous le souhaitez »** ne sert qu'aux outils que vous ajoutez vous-même et
+  marquez `data-consent` (mesure d'audience, publicité… : voir « Brancher un outil » plus bas), sur les
+  pages où ils sont, et ne demande que pour eux.
 
 Toujours disponibles :
 
@@ -930,11 +932,11 @@ Toujours disponibles :
 
 | Partie | Quand elle apparaît | Ce qu'elle fait |
 |---|---|---|
-| Services facultatifs | sauf avec *Consent notice* = None | « Tout refuser » / « Tout accepter », puis « Contenus intégrés » ; « Mesure d'audience » et « Autres services » seulement si le site a ajouté un script de ce type (ou si le lecteur les a déjà acceptés) |
-| Contenus intégrés | toujours | Un interrupteur « Afficher les contenus de YouTube sans clic » par service présent sur la page ou déjà réglé (tous les services sur la page Cookies). Il montre ce qui se passe vraiment : le choix du service s'il y en a un, sinon la réponse « Contenus intégrés ». Accepter la catégorie remet tous les services en marche ; éteindre ensuite un service le garde éteint |
+| Services facultatifs | sauf avec *Consent notice* = None, et seulement si le site a ajouté un script marqué `data-consent` sur la page (ou si le lecteur l'a déjà accepté) | « Mesure d'audience » et/ou « Autres services », avec « Tout refuser » / « Tout accepter », qui ne valent que pour ces interrupteurs |
+| Contenus intégrés | toujours | Un seul groupe. Sauf avec *Consent notice* = None, d'abord l'interrupteur « Tous les contenus intégrés » (la réponse donnée par « Accepter et afficher ») ; puis « Service par service », un interrupteur par service (« YouTube », « X »…) présent sur la page ou déjà réglé (tous les services sur la page Cookies). Chaque service montre ce qui se passe vraiment : son propre choix s'il y en a un, sinon celui de « Tous les contenus intégrés ». Allumer ou éteindre « Tous les contenus intégrés » règle tous les services de la même façon ; un service réglé ensuite garde son réglage |
 | Statistiques de visite | quand la page charge Plausible | « Compter mes visites » : désactivé, le thème écrit `plausible_ignore` = `true`, le drapeau que le script de Plausible lit pour ignorer ce navigateur ([documentation Plausible](https://plausible.io/docs/excluding-localstorage)) |
 | Votre lecture | abonné connecté | « Retenir où je m'arrête dans les articles » (« Reprendre la lecture ») : activé par défaut ; désactivé, la liste est effacée et plus rien n'est noté. Le même choix est dans les **Réglages d'affichage** (« Retenir où je m'arrête ») |
-| Données dans ce navigateur | toujours | Combien d'éléments le site garde, et « Effacer les données du site » (tout, choix compris) |
+| Données dans ce navigateur | toujours | Combien d'éléments le site garde, et « Effacer les données du site » (tout, choix compris). Si cela efface une liste d'abonné (« À lire plus tard », « Reprendre la lecture »), le site demande d'abord, en disant combien d'articles seraient perdus ; de même pour « Tout effacer » et « Effacer » sur la page Cookies |
 
 En bas : « Tout ce que le site garde, en détail », vers la page. Le panneau se ferme avec Échap, le bouton ×
 ou un clic à côté ; le focus revient sur ce qui l'a ouvert.
@@ -994,13 +996,20 @@ dans les mentions légales (c'est déjà le cas).
 
 Design & branding → Customize → *Site wide* → **Consent notice** :
 
-- **Notice** (défaut) : une petite carte en bas, dans le coin (en travers du bas sur téléphone), qui
-  n'arrive qu'**après un peu de défilement (un quart d'écran) ou au bout de 12 secondes**, et seulement sur
-  une page qui a quelque chose à demander : un contenu intégré masqué, ou un script marqué `data-consent`.
-- **Banner** : une barre en bas de la fenêtre, dès l'arrivée, sur ces mêmes pages seulement.
+- **Notice** (défaut) : chaque contenu intégré demande l'accord dans son encadré (« Accepter et afficher »,
+  « Afficher seulement celui-ci ») ; aucune carte pour eux. Une petite carte en bas, dans le coin (en
+  travers du bas sur téléphone), ne vient que sur une page où un script marqué `data-consent` attend une
+  réponse, **après un peu de défilement (un quart d'écran) ou au bout de 12 secondes**.
+- **Banner** : pareil pour les contenus intégrés ; pour les scripts `data-consent`, une barre en bas de la
+  fenêtre, dès l'arrivée, sur ces mêmes pages seulement.
 - **None** : jamais de carte. Les contenus intégrés gardent l'encadré d'avant, un clic par contenu (avec
   « Toujours afficher les contenus de YouTube ») ; tout script marqué `data-consent` reste éteint (un
   avertissement apparaît dans la console du navigateur).
+
+La carte ne demande que pour les catégories des scripts présents sur la page (elle les nomme : « mesure
+d'audience », « autres services ») et sa réponse ne vaut que pour elles : une catégorie jamais demandée
+reste sans réponse, et la carte revient le jour où un script de cette catégorie apparaît. De même,
+« Accepter et afficher » ne répond que pour les contenus intégrés.
 
 Dans les deux modes : rien n'est bloquant (pas de fond grisé, pas de mur, la page reste utilisable),
 Le lien « Cookies et confidentialité » du texte ouvre le panneau, le × ferme **en refusant** (il le dit), Échap aussi ; la réponse est
@@ -1010,7 +1019,9 @@ simplement dans le panneau. Un navigateur qui envoie **Global Privacy Control** 
 traité comme un refus : la carte ne s'affiche pas, les contenus restent masqués (un clic chacun, ou
 « Accepter et afficher »), les scripts restent éteints. La carte se place juste après le lien d'évitement
 (premier élément atteint au clavier), sans prendre le focus ; position fixe, donc aucun décalage de la page ;
-le bouton « retour en haut » des articles remonte au-dessus d'elle quand elle est en travers du bas.
+un élément atteint au clavier défile toujours au-dessus d'elle, jamais dessous ; une fois la réponse donnée, le
+focus revient où il était (ou sur le contenu principal). Le bouton « retour en haut » des articles remonte
+au-dessus de la barre (*Banner*) sur ordinateur ; sur téléphone, il attend que la carte soit partie.
 
 **Les deux boutons.** « Tout accepter » est plein, à l'encre de la page (noir sur fond clair, blanc sur fond
 sombre, l'encre du thème de lecture sur les articles) ; « Tout refuser » est un vrai bouton de la même
@@ -1021,8 +1032,8 @@ au contour peut être lu comme une mise en avant de l'acceptation ; la variante 
 identiques (par exemple tous deux au contour, ou tous deux pleins) — une ligne de CSS (`.consent-refuse`)
 dans `src/css/components/privacy.css`.
 
-**« Ne pas l'afficher dès le début »** : la carte attend un peu de défilement parce qu'un contenu intégré
-n'a pas besoin d'être affiché à l'arrivée. Un outil de mesure qui demande l'accord (Google Analytics…) ne
+**« Ne pas l'afficher dès le début »** : avec *Notice*, la carte attend un peu de défilement pour ne pas
+couvrir la page à l'arrivée. Un outil de mesure qui demande l'accord (Google Analytics…) ne
 compte que si le lecteur accepte : avec *Notice*, les premières pages vues avant la réponse ne sont pas
 comptées ; s'il doit compter dès la première page, prenez *Banner*.
 
@@ -1047,12 +1058,16 @@ Dans Settings → Code injection → *Site header*, écrivez le script **inerte*
   la page, dès que la catégorie est acceptée (même page, sans rechargement). Pour un module :
   `data-type="module"`. Pour du HTML (pixel `<img>`, `<iframe>`) : `<template data-consent="other">…</template>`.
 - Laissez **Consent notice** sur *Notice* (ou *Banner*).
-- Sur les articles et les pages, la règle de sécurité des contenus intégrés (*Embed consent*) bloque les
-  scripts d'autres sites ; avec la carte (*Notice* / *Banner*), elle laisse passer les services courants
-  (Google Tag Manager, Google Analytics, AdSense / DoubleClick, Meta, Hotjar, Clarity, Plausible Cloud,
-  Matomo Cloud, Fathom, Umami Cloud, Cloudflare Web Analytics, LinkedIn, TikTok : liste dans
-  `partials/privacy/consent-hosts.hbs`) — ils ne tournent que si vous les avez ajoutés et que le lecteur a
-  accepté. Un autre service : ajoutez son adresse à cette liste dans le thème, ou désactivez *Embed consent*.
+- **Allumez *Consent tools*** (Design & branding → Customize → *Site wide*), seulement le jour où vous
+  ajoutez un tel outil. Sur les articles et les pages, la règle de sécurité des contenus intégrés
+  (*Embed consent*) bloque les scripts d'autres sites ; *Consent tools* allumé (avec *Notice* ou *Banner*),
+  elle laisse passer les services courants (Google Tag Manager, Google Analytics, AdSense / DoubleClick,
+  Meta, Hotjar, Clarity, Plausible Cloud, Matomo Cloud, Fathom, Umami Cloud, Cloudflare Web Analytics,
+  LinkedIn, TikTok : liste dans `partials/privacy/consent-hosts.hbs`). Éteint (le défaut), la règle reste
+  celle de *None* : un de ces scripts collé **sans** `data-consent` reste bloqué sur les articles et les
+  pages, ce qui évite qu'il parte avant l'accord. Allumé, seul le marquage `data-consent` le retient :
+  marquez donc chaque script. Un autre service : ajoutez son adresse à cette liste dans le thème, ou
+  désactivez *Embed consent*.
 
 **Google Consent Mode v2 (fait par le thème).** Dès qu'une balise Google est sur la page (gtag.js, Tag
 Manager, AdSense, marquée `data-consent` ou non), le thème pose avant elle l'état par défaut que demande la
@@ -1108,7 +1123,8 @@ attiblingConsent.set({ analytics: true, embeds: false, other: false });
 | Analyse automatique des cookies | non | demande un robot côté serveur ; sans objet ici (tout est déclaré) |
 
 **Le jour où vous ajoutez Google Analytics ou un pixel Meta**, marquez chaque script `data-consent`
-(Consent Mode v2 est alors géré), passez à *Banner* si l'outil doit compter dès la première page, et
+(Consent Mode v2 est alors géré), allumez *Consent tools*, passez à *Banner* si l'outil doit compter dès
+la première page, et
 complétez la page Cookies (qui, quoi, combien de temps). **Pour AdSense**, voir « Pas une CMP certifiée ».
 
 #### Sources (lues le 20 novembre 2026)
@@ -1155,7 +1171,7 @@ cookie**. C'est aussi la liste que la page « Cookies et confidentialité » aff
 | `attibling-hero-cue` | sessionStorage | thème | tous | Petite ondulation des points du bandeau d'accueil déjà jouée dans cette session | Fin de la session | idem |
 | `attibling-embeds` | localStorage | thème | tous | Services réglés un par un (YouTube, X…) : `{"youtube":true}` affiché sans clic, `false` gardé masqué même si « Contenus intégrés » est accepté | Jusqu'au retrait (sous le contenu ou dans le panneau) ou à l'effacement | non : conserve le choix du lecteur |
 | `attibling-privacy` | localStorage | thème | abonnés | « Reprendre la lecture » désactivé (`{"progress":false}`) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
-| `attibling-consent` | localStorage | thème | tous | Réponse à la carte de consentement : par catégorie (contenus intégrés, mesure d’audience, autres), sa version et sa date | 6 mois, puis la question revient | non : conserve le choix du lecteur |
+| `attibling-consent` | localStorage | thème | tous | Réponses du lecteur, par catégorie (contenus intégrés, mesure d’audience, autres ; seulement celles qui lui ont été demandées), leur version et leur date | 6 mois, puis la question revient | non : conserve le choix du lecteur |
 | `plausible_ignore` | localStorage | thème | tous | Le lecteur a désactivé « Compter mes visites » (`true`, lu par Plausible) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
 | `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement | non : personnalisation choisie |
 | `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement | non : service demandé (le lecteur enregistre) |
@@ -1452,19 +1468,20 @@ YouTube »** (nouvel onglet) et **« Gérer mes choix »** (le panneau « Cookie
 
 Avec le réglage *Consent notice* sur **Notice** (défaut) ou **Banner** :
 
-- une phrase dit pourquoi il est masqué : « Ce contenu vient de YouTube. Il est masqué parce que vous n'avez
-  pas accepté les contenus intégrés : l'afficher envoie votre adresse IP à YouTube, qui peut déposer des
-  cookies ou d'autres traceurs. » ;
-- **« Accepter et afficher »** (bouton plein) : accepte les contenus intégrés, pour tous les services — la même
-  question que la carte de consentement, donc une seule réponse pour tout le site — et lance celui-ci ;
-- **« Afficher seulement celui-ci »** (bouton au contour) : charge ce contenu seulement, rien n'est gardé ;
-- la carte de consentement de la page (voir [Le réglage « Consent notice »](#le-réglage--consent-notice))
-  pose la même question une fois pour tous les contenus de la page.
+- l'encadré est **la seule demande** pour les contenus intégrés : aucune carte ni bandeau ne s'affiche pour
+  eux. Une phrase dit ce que l'afficher envoie et ce que fait l'acceptation : « Ce contenu vient de YouTube :
+  l'afficher envoie votre adresse IP à YouTube, qui peut déposer des cookies ou d'autres traceurs.
+  « Accepter et afficher » affiche désormais tous les contenus intégrés du site sans clic. » ;
+- **« Accepter et afficher »** (bouton plein) : accepte les contenus intégrés, pour tous les services, sur
+  tout le site (et rien d'autre : ni mesure d'audience ni publicité) — et lance celui-ci ; les autres
+  contenus de la page s'affichent aussitôt (annoncé aux lecteurs d'écran) ;
+- **« Afficher seulement celui-ci »** (bouton au contour) : charge ce contenu seulement, rien n'est gardé.
 
 Pourquoi « tous les services » pour le bouton principal : c'est ce qui évite au lecteur de cliquer sur chaque
 vidéo et publication ; le choix reste précis, puisque le panneau a un interrupteur par service (un service
 éteint reste éteint) et que « Afficher seulement celui-ci » ne garde rien. Limite : l'accord couvre aussi des
-services que le lecteur n'a pas encore vus sur le site (la carte et l'encadré ne nomment que ceux de la page).
+services que le lecteur n'a pas encore vus sur le site ; la phrase de l'encadré le dit (« tous les contenus
+intégrés du site »).
 
 Avec *Consent notice* sur **None** : l'encadré d'avant, un clic par contenu — un bouton **« Afficher la vidéo
 YouTube »** (« Afficher la publication X »…), la phrase « L'afficher charge ce contenu depuis YouTube, qui
@@ -1510,7 +1527,8 @@ Désactivé : pas de règle de sécurité ni d'encadré, les contenus se chargen
 **À savoir.**
 
 - Un **script externe** ajouté dans Settings → Code injection → *Site footer*, ou dans le *Code injection* →
-  *Post footer* d'un article, est bloqué lui aussi sur les articles et les pages (il est placé après la règle).
+  *Post footer* d'un article, est bloqué lui aussi sur les articles et les pages (il est placé après la règle ;
+  avec *Consent tools* allumé, les services de mesure et de publicité courants passent, voir « Brancher un outil »).
   Mettez-le dans *Site header* / *Post header*, qui passent avant la règle, ou désactivez *Embed consent*.
   Sur GEEKLY, le footer d'injection est vide : rien à faire.
 - Un cadre de **votre propre site** (même adresse) n'est pas bloqué.
@@ -1579,14 +1597,15 @@ navigateur télécharge déjà la page : le clic l'affiche presque sans attente.
 
 ## 8. Référence : les réglages du thème
 
-Ghost Admin → Settings → Design & branding → **Customize** (17 réglages ; le nom affiché par Ghost vient de la clé).
+Ghost Admin → Settings → Design & branding → **Customize** (18 réglages ; le nom affiché par Ghost vient de la clé).
 
 | Réglage (Ghost Admin) | Onglet | Par défaut | Effet | Section |
 |---|---|---|---|---|
 | Dark mode logo | Site wide | vide | Logo clair pour le mode sombre et le bandeau d'accueil (avec un logo image) | [2](#2-identité-et-en-tête) |
 | Page transitions | Site wide | oui | Transitions animées entre les pages (navigateurs compatibles) | [7](#transitions-entre-les-pages) |
 | Subscribe url | Site wide | vide (la page `newsletter`, `abonnement` ou `subscribe`, sinon Portal) | Destination forcée des boutons « S'abonner » / « Se connecter », par exemple `/newsletter/` | [2](#bouton-sabonner-et-se-connecter) |
-| Consent notice | Site wide | Notice | Demande une fois l'accord pour les contenus intégrés (et les scripts marqués `data-consent`), seulement sur les pages qui en ont : *Notice* (petite carte après un peu de défilement), *Banner* (barre dès l'arrivée), *None* (pas de carte : un clic par contenu) | [5](#le-réglage--consent-notice) |
+| Consent notice | Site wide | Notice | *Notice* / *Banner* : chaque contenu intégré demande l'accord dans son encadré (« Accepter et afficher » vaut pour tous) ; pour les scripts marqués `data-consent`, et seulement sur les pages qui en ont, une petite carte après un peu de défilement (*Notice*) ou une barre dès l'arrivée (*Banner*). *None* : ni carte ni accord, un clic par contenu, scripts `data-consent` éteints | [5](#le-réglage--consent-notice) |
+| Consent tools | Site wide | non | Laisse passer sur les articles et les pages, après accord, les outils de mesure et de publicité courants marqués `data-consent` (Google, Meta, Hotjar…). À allumer seulement le jour où vous en ajoutez un ; éteint, la règle de sécurité est celle de *None* | [5](#brancher-un-outil-qui-demande-laccord-analytics-publicité-pixel) |
 | About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
 | Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |

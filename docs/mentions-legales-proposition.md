@@ -40,7 +40,7 @@ GEEKLY est une publication indépendante consacrée à la culture geek, à la te
 - Le site n'affiche pas de publicité et ne vend aucune donnée.
 - Si vous vous abonnez, je garde votre adresse e-mail et, si vous l'indiquez, votre nom. Rien d'autre ne vous est demandé.
 - Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Son seul cookie sert à rester connecté quand vous êtes abonné ([Cookies et confidentialité](https://geekly.blog/cookies/)).
-- Les polices de caractères sont servies par le site lui-même. Les vidéos YouTube, les publications X et les autres contenus intégrés aux articles ne se chargent que si vous cliquez pour les afficher.
+- Les polices de caractères sont servies par le site lui-même. Les vidéos YouTube, les publications X et les autres contenus intégrés aux articles ne se chargent qu'avec votre accord, donné dans l'encadré qui les remplace.
 - Vos préférences d'affichage et vos listes de lecture restent dans votre navigateur : elles ne sont pas envoyées au site.
 - Pour toute question ou demande : [pro@alexisdechiara.fr](mailto:pro@alexisdechiara.fr).
 
@@ -166,7 +166,7 @@ Les polices, les images et les scripts du site viennent du site lui-même, à ce
 - **Images d'autres sites** : quelques articles affichent une image (capture, logo) directement depuis le site qui la publie.
 - **Plausible** (`analytics.geekly.blog`) : les statistiques décrites plus haut, sur le serveur du site.
 
-**Vidéos YouTube et publications X.** Certains articles intègrent des vidéos YouTube, des publications X (Twitter) ou d'autres contenus venant d'un autre site. Rien n’est demandé à ces services tant que vous n’avez pas accepté (une petite carte le propose sur ces articles, l’encadré de chaque contenu aussi) ; ce choix se règle sur la page [Cookies et confidentialité](https://geekly.blog/cookies/).
+**Vidéos YouTube et publications X.** Certains articles intègrent des vidéos YouTube, des publications X (Twitter) ou d'autres contenus venant d'un autre site. Rien n’est demandé à ces services tant que vous n’avez pas accepté (l’encadré qui remplace chaque contenu le propose) ; ce choix se règle sur la page [Cookies et confidentialité](https://geekly.blog/cookies/).
 
 Une fois affichés, ces contenus sont fournis par leur service, qui reçoit votre adresse IP et applique ses propres règles :
 

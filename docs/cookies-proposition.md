@@ -7,8 +7,8 @@
 > - **Préalables**, sans quoi le texte dirait faux : dans Ghost Admin → Settings → **Analytics**, désactivez
 >   *Newsletter opens*, *Newsletter clicks* et *Member sources* ; dans Settings → **Code injection**, ne
 >   gardez que Plausible (retirez les polices Google) ; laissez le réglage du thème *Consent notice* sur
->   `Notice` (défaut : la carte ne paraît que sur les articles qui ont une vidéo ou une publication d'un
->   autre site). Si vous gardez l'un de ces suivis, voir « Si vous gardez… » à la fin.
+>   `Notice` (défaut : aucune carte, chaque vidéo ou publication d'un autre site demande l'accord dans son
+>   encadré) et *Consent tools* éteint. Si vous gardez l'un de ces suivis, voir « Si vous gardez… » à la fin.
 > - Créez la page : Pages → New page, titre « Cookies et confidentialité », **Page URL** = `cookies`
 >   (détail dans `docs/guide-auteur.md`). Collez tout ce qui se trouve entre « Texte à coller » et « Fin du
 >   texte à coller » dans une carte Markdown (`/markdown`).
@@ -25,14 +25,14 @@ Extrait de la page (réglages de la page → **Excerpt**), proposé :
 
 <!-- Texte à coller : tout ce qui suit cette ligne, dans une carte Markdown (/markdown) de la page. -->
 
-GEEKLY n'affiche pas de bandeau de cookies à l'arrivée : rien de ce que le site garde dans votre navigateur ne sert à vous suivre ou à vous montrer de la publicité. Une seule chose demande votre accord : les vidéos et publications d'autres sites (YouTube, X…) intégrées à certains articles. Sur ces articles seulement, une petite carte vous le demande, une fois. Cette page dit ce qui est gardé, pourquoi, et comment le régler. Vous retrouvez les mêmes réglages à tout moment avec le lien « Cookies et confidentialité », en bas de chaque page.
+GEEKLY n'affiche pas de bandeau de cookies à l'arrivée : rien de ce que le site garde dans votre navigateur ne sert à vous suivre ou à vous montrer de la publicité. Une seule chose demande votre accord : les vidéos et publications d'autres sites (YouTube, X…) intégrées à certains articles. Sur ces articles seulement, l'encadré qui remplace chaque contenu vous le demande. Cette page dit ce qui est gardé, pourquoi, et comment le régler. Vous retrouvez les mêmes réglages à tout moment avec le lien « Cookies et confidentialité », en bas de chaque page.
 
 ## En bref
 
 - Pas de publicité, pas de suivi d'un site à l'autre, pas de revente de données.
 - Le site ne dépose **aucun cookie** si vous n'êtes pas abonné. Abonné connecté, un seul cookie vous garde connecté.
 - Vos préférences (mode sombre, réglages de lecture) et vos listes d'abonné restent **dans votre navigateur** : elles ne sont pas envoyées au site.
-- Les vidéos YouTube, les publications X et les autres contenus d'autres sites ne se chargent **que si vous cliquez** dessus.
+- Les vidéos YouTube, les publications X et les autres contenus d'autres sites ne se chargent **qu'avec votre accord**, donné dans l'encadré qui les remplace.
 - Les statistiques de visite sont anonymes, sans cookie, et vous pouvez demander à ne pas être compté.
 
 ## Ce que le site garde, et pourquoi
@@ -56,9 +56,9 @@ Tout cela reste sur votre appareil. Rien n'est envoyé au site, et vous pouvez t
 
 ## Les contenus d'autres sites
 
-Certains articles intègrent une vidéo YouTube, une publication X ou un autre contenu venant d'un autre site. Tant que vous n'avez pas accepté, rien n'est demandé à ce service : à sa place, un encadré dit d'où vient le contenu et pourquoi il est masqué. Afficher ces contenus les charge depuis le service, qui reçoit votre adresse IP et peut déposer ses propres cookies, selon ses règles ([Google](https://policies.google.com/privacy?hl=fr), [X](https://x.com/fr/privacy)). Les vidéos YouTube sont chargées en « mode confidentialité renforcée ».
+Certains articles intègrent une vidéo YouTube, une publication X ou un autre contenu venant d'un autre site. Tant que vous n'avez pas accepté, rien n'est demandé à ce service : à sa place, un encadré dit d'où vient le contenu et ce que l'afficher envoie. Afficher ces contenus les charge depuis le service, qui reçoit votre adresse IP et peut déposer ses propres cookies, selon ses règles ([Google](https://policies.google.com/privacy?hl=fr), [X](https://x.com/fr/privacy)). Les vidéos YouTube sont chargées en « mode confidentialité renforcée ».
 
-Sur ces articles, une petite carte en bas de l'écran vous demande, une fois, si vous acceptez les contenus intégrés. « Tout accepter » : ils s'affichent sans clic, sur cette page et les suivantes, pendant 6 mois (la question revient ensuite). « Tout refuser » : rien ne change, chaque contenu reste masqué et « Afficher seulement celui-ci » le montre à la demande, sans rien garder. Le bouton « Accepter et afficher » de l'encadré revient à « Tout accepter ». Vous pouvez revenir sur votre choix ci-dessous, service par service, ou sous chaque contenu affiché sans clic. Si votre navigateur envoie le signal Global Privacy Control, la carte ne s'affiche pas et les contenus restent masqués.
+C'est cet encadré qui vous demande votre accord, à l'endroit du contenu ; aucune autre fenêtre ne s'affiche. « Accepter et afficher » : ce contenu s'affiche, et désormais tous les contenus intégrés du site s'affichent sans clic, sur cette page et les suivantes, pendant 6 mois (la question revient ensuite). « Afficher seulement celui-ci » : ce contenu seul, sans rien garder. Sans réponse, chaque contenu reste masqué. Vous pouvez revenir sur votre choix ci-dessous, pour tous les contenus intégrés ou service par service, ou sous chaque contenu affiché sans clic. Si votre navigateur envoie le signal Global Privacy Control, il est pris comme un refus : les contenus restent masqués jusqu'à ce que vous en décidiez autrement.
 
 ## Les statistiques de visite
 
@@ -82,7 +82,7 @@ Pour toute question : [pro@alexisdechiara.fr](mailto:pro@alexisdechiara.fr). Vos
 
 - **Ouvertures et clics des newsletters gardés** (Settings → Analytics) : retirez la ligne « Il ne mesure pas l'ouverture des newsletters… » ; depuis la recommandation de la CNIL publiée le 14 avril 2026, il faut l'accord de l'abonné pour le pixel d'ouverture (et, par prudence, pour les liens de suivi), par exemple une case non cochée au moment de l'inscription — ce que Portal ne propose pas aujourd'hui. Le plus simple reste de les désactiver.
 - **Member sources gardé** : Ghost note les pages vues pendant la visite (`ghost-history`) et les associe à votre compte si vous vous abonnez ; il faudrait l'accord préalable du lecteur, que le thème ne peut pas recueillir pour un script de Ghost. Désactivez-le.
-- **Un outil de mesure ou de publicité qui demande l'accord** (Google Analytics, AdSense, pixel Meta…) : la première phrase de la page devient fausse. Gardez le réglage du thème *Consent notice* sur *Notice* (ou *Banner* pour un outil qui doit compter dès la première page), marquez ses scripts `data-consent` (guide, « Brancher un outil… ») et décrivez l'outil ici (qui, quoi, combien de temps).
+- **Un outil de mesure ou de publicité qui demande l'accord** (Google Analytics, AdSense, pixel Meta…) : la première phrase de la page devient fausse. Gardez le réglage du thème *Consent notice* sur *Notice* (ou *Banner* pour un outil qui doit compter dès la première page), marquez ses scripts `data-consent`, allumez *Consent tools* (guide, « Brancher un outil… ») et décrivez l'outil ici (qui, quoi, combien de temps).
 
 ## D'où viennent les affirmations
 
