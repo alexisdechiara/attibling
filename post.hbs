@@ -32,7 +32,7 @@ and carry the strings the scripts need (copy buttons, series).
     <article class="article{{#if feature_image}} article--has-image{{/if}}" data-article
       data-style="{{#has tag="#immersif"}}immersive{{else}}{{#has tag="#carte"}}card{{else}}{{#match @custom.article_style "Immersive"}}immersive{{else}}card{{/match}}{{/has}}{{/has}}"
       {{#unless @custom.summary_for_visitors}}data-summary-members{{/unless}}
-      data-url="{{url}}" data-title="{{title}}" data-image="{{#if feature_image}}{{img_url feature_image size="m"}}{{/if}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
+      data-url="{{url}}" data-title="{{title}}" data-image="{{> "vignette/url"}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
       data-author="{{primary_author.name}}" data-published="{{date format="YYYY-MM-DD"}}"
       data-copy-link="{{t "Copy the link to the section"}}" data-link-copied="{{t "Link copied"}}"
       data-copy="{{t "Copy"}}" data-copied="{{t "Copied"}}" data-copy-code="{{t "Copy the code"}}" data-code-copied="{{t "Code copied"}}"

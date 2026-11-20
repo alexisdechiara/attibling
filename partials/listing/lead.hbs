@@ -4,14 +4,10 @@ the pill, title, excerpt and meta line (tag • date • reading time). One link
 Inside a post context.
 --}}
 <section class="container listing-lead-section" aria-label="{{t "Featured in this section"}}">
-  <article class="listing-lead{{#unless feature_image}} listing-lead--no-image{{/unless}}" data-post-tile>
+  <article class="listing-lead{{> "vignette/missing" noImage=" listing-lead--no-image"}}" data-post-tile>
     <a class="listing-lead__link" href="{{url}}">
       <span class="listing-lead__media">
-        {{#if feature_image}}
-          <img class="listing-lead__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 767px) 100vw, 640px" src="{{img_url feature_image size="l"}}" alt="" decoding="async">
-        {{else}}
-          <span class="tile__placeholder" aria-hidden="true"><span>{{title}}</span></span>
-        {{/if}}
+        {{> "vignette/image" imgClass="listing-lead__image" widths="m-l-xl" srcSize="l" sizes="(max-width: 767px) 100vw, 640px" priority="auto" placeholder="tile"}}
       </span>
       <span class="listing-lead__text">
         <span class="pill pill--soft listing-lead__pill">{{> "icons/star"}}{{t "Featured in this section"}}</span>

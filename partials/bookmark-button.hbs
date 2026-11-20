@@ -13,7 +13,7 @@ Parameters:
 --}}
 {{#if @member}}
   <button type="button" class="bookmark{{#if labelled}} bookmark--labelled{{/if}}{{#if bookmarkClass}} {{bookmarkClass}}{{/if}}" data-bookmark aria-pressed="false" hidden
-    data-url="{{url}}" data-title="{{title}}" data-image="{{#if feature_image}}{{img_url feature_image size="m"}}{{/if}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
+    data-url="{{url}}" data-title="{{title}}" data-image="{{> "vignette/url"}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
     {{#unless labelled}}aria-label="{{t "Read later"}}: {{title}}"{{/unless}}>
     <span class="bookmark__icon" aria-hidden="true">{{> "icons/bookmark" class="bookmark__off"}}{{> "icons/bookmark-filled" class="bookmark__on"}}</span>
     {{#if labelled}}<span class="bookmark__label bookmark__off">{{t "Read later"}}</span><span class="bookmark__label bookmark__on">{{t "Saved"}}</span>{{/if}}
