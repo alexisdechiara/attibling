@@ -2,9 +2,15 @@
 <!--
   Frame for a third-party embed the reader chose to show (theme setting "Embed consent",
   src/js/embeds.js). The article page forbids frames and scripts from other sites (a
-  Content-Security-Policy); this page of the site has no such policy, so the article's script
-  writes the embed in here once the reader has asked for it. It has no script of its own and
-  shows nothing when opened directly.
+  Content-Security-Policy); this page of the site has no such policy. Its only script is the one
+  below: it takes one message from the page that framed it (nothing else, and nothing from the
+  address), shows what that message describes and tells the page its height. It shows nothing when
+  opened directly.
+  - A player (YouTube, Vimeo, an X post through X's own frame…): a frame of the provider's site,
+    which cannot reach the site's pages.
+  - Markup with a provider's script (Instagram, TikTok…): the article's script puts this page in a
+    sandbox without "allow-same-origin", so it runs as an origin of its own: the provider's script
+    cannot read the site's pages, storage or cookies, nor call the site as the member.
 -->
 <html>
   <head>
@@ -18,6 +24,58 @@
       body { display: flex; flex-direction: column; align-items: center; }
       body > iframe { display: block; width: 100%; height: 100vh; border: 0; }
     </style>
+    <script>
+      // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
+      (() => {
+        // The site's origin (location.origin reads "null" inside the sandbox; the address does not change)
+        const site = new URL(location.href).origin;
+        const tell = message => parent.postMessage({ attiblingEmbed: message }, site);
+        let shown = false;
+        addEventListener("message", event => {
+          const message = event.data && event.data.attiblingEmbed;
+          if (shown || event.source !== parent || event.origin !== site || !message) return;
+          shown = true;
+          document.documentElement.style.colorScheme = message.scheme || "normal";
+          const fit = () => tell({ height: document.documentElement.scrollHeight });
+          if (message.player) {
+            const { src, title, allow, maxWidth, resize, focus } = message.player;
+            const url = new URL(src);
+            if (!/^https:$/.test(url.protocol)) return;
+            const player = document.createElement("iframe");
+            player.src = url.href;
+            player.setAttribute("allow", allow || "");
+            player.setAttribute("allowfullscreen", "");
+            if (title) player.title = title;
+            if (maxWidth) player.style.maxWidth = maxWidth;
+            // X's frame says its height in its own messages
+            if (resize === "x") {
+              addEventListener("message", e => {
+                if (e.source !== player.contentWindow || e.origin !== url.origin) return;
+                try {
+                  const call = (typeof e.data === "string" ? JSON.parse(e.data) : e.data)["twttr.embed"];
+                  const height = call && call.method === "twttr.private.resize" && call.params[0].height;
+                  if (height > 0) player.style.height = `${Math.ceil(height)}px`;
+                } catch {}
+              });
+            }
+            document.body.append(player);
+            if (focus) player.focus();
+          } else if (typeof message.markup === "string") {
+            document.body.innerHTML = message.markup;
+            // Scripts written by innerHTML do not run: re-create them
+            document.querySelectorAll("script").forEach(old => {
+              const script = document.createElement("script");
+              for (const { name, value } of old.attributes) script.setAttribute(name, value);
+              script.textContent = old.textContent;
+              old.replaceWith(script);
+            });
+          }
+          new ResizeObserver(fit).observe(document.body);
+          fit();
+        });
+      })();
+      // @license-end
+    </script>
   </head>
   <body></body>
 </html>

@@ -112,26 +112,99 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
-	it("load an X post with its script inside the site's own frame", async () => {
+	it("load an X post through X's own frame, never X's script in the site's frame, at the height X gives", async () => {
 		const { page, requests, dispose } = await open({ render: facadeOnly({ html: HTML }) });
+		// X's frame, as it answers (it says its height in a message to the page that framed it)
+		await page.route("https://platform.twitter.com/**", route =>
+			route.fulfill({
+				contentType: "text/html",
+				body: `<body style="margin:0"><div style="height:480px">post</div><script>parent.postMessage(JSON.stringify({ "twttr.embed": { method: "twttr.private.resize", params: [{ width: 550, height: 480 }] } }), "*")</script></body>`,
+			}),
+		);
 		await page.locator('[data-provider="x"] [data-embed-load]').click();
 		const frame = page.locator("iframe[data-embed-frame]");
 		await frame.waitFor();
 		const inside = await waitFor(() =>
 			frame.evaluate(f => {
 				const doc = f.contentDocument;
-				const script = doc?.querySelector("script[src]");
+				const player = doc?.querySelector("iframe");
 				return (
-					script && {
-						script: script.src,
-						quote: !!doc.querySelector("blockquote.twitter-tweet"),
-						base: doc.querySelector("base")?.target,
+					player && {
+						src: player.src,
+						scripts: [...doc.querySelectorAll("script[src]")].length,
+						quote: !!doc.querySelector("blockquote"),
 					}
 				);
 			}),
 		);
-		assert.deepEqual(inside, { script: "https://platform.twitter.com/widgets.js", quote: true, base: "_blank" });
-		assert.ok(thirdParty(requests).some(url => url.startsWith("https://platform.twitter.com/widgets.js")));
+		assert.deepEqual(inside, {
+			src: "https://platform.twitter.com/embed/Tweet.html?id=2021734851636797553&dnt=true&theme=light&lang=en",
+			scripts: 0,
+			quote: false,
+		});
+		assert.ok(!requests.some(url => url.includes("widgets.js")), "X's script is never requested");
+		assert.ok(
+			await waitFor(async () => (await frame.evaluate(f => f.offsetHeight)) >= 480),
+			"the frame takes X's height",
+		);
+		await dispose();
+	});
+
+	it("run any other scripted embed in a sandbox, cut off from the site, its markup and script kept", async () => {
+		const SCRIPTED =
+			'<figure class="kg-card kg-embed-card"><blockquote class="other-post">A post</blockquote><script async src="https://embed.example.org/embed.js"></script></figure>';
+		const { page, dispose } = await open({ render: facadeOnly({ html: SCRIPTED }) });
+		// A signed-in member (Ghost's session cookie) and the members API, which answers only with it
+		await page.context().addCookies([{ name: "ghost-members-ssr", value: "1", url: SITE, sameSite: "Lax" }]);
+		await page.route(`${SITE}/members/api/member/`, route =>
+			route.fulfill(
+				/ghost-members-ssr/.test(route.request().headers().cookie || "")
+					? { status: 200, contentType: "application/json", body: '{"email":"member@example.org"}' }
+					: { status: 401, body: "" },
+			),
+		);
+		// The provider's script tries to reach the site: its pages, storage, cookies, the member's account
+		await page.route("https://embed.example.org/**", route =>
+			route.fulfill({
+				contentType: "text/javascript",
+				body: `(async () => {
+					const tries = {};
+					const attempt = async (name, fn) => { try { tries[name] = String(await fn()); } catch { tries[name] = "blocked"; } };
+					await attempt("parent", () => parent.document.title);
+					await attempt("top", () => top.location.href);
+					await attempt("consent", () => parent.attiblingConsent.set({ analytics: true, embeds: true, other: true }));
+					await attempt("parentStorage", () => parent.localStorage.getItem("attibling-consent"));
+					await attempt("storage", () => localStorage.getItem("attibling-saved"));
+					await attempt("cookie", () => document.cookie);
+					await attempt("member", () => fetch("/members/api/member/", { credentials: "include" }).then(r => r.status));
+					document.body.dataset.tries = JSON.stringify(tries);
+					document.body.append(Object.assign(document.createElement("div"), { style: "height:300px" }));
+				})();`,
+			}),
+		);
+		await page.locator("[data-embed-load]").click();
+		const frame = page.locator("iframe[data-embed-frame]");
+		await frame.waitFor();
+		assert.match(await frame.getAttribute("sandbox"), /allow-scripts/);
+		assert.doesNotMatch(await frame.getAttribute("sandbox"), /allow-same-origin/);
+		const inner = page.frames().find(f => f.url().includes("/assets/html/embed.html"));
+		const tries = await waitFor(() => inner.evaluate(() => document.body.dataset.tries));
+		const { member, ...others } = JSON.parse(tries);
+		assert.deepEqual(others, {
+			parent: "blocked",
+			top: "blocked",
+			consent: "blocked",
+			parentStorage: "blocked",
+			storage: "blocked",
+			cookie: "blocked",
+		});
+		assert.equal(await page.evaluate(() => localStorage.getItem("attibling-consent")), null, "no consent written");
+		assert.notEqual(member, "200", "the members API does not answer the provider's script as the member");
+		assert.equal(await inner.evaluate(() => !!document.querySelector("blockquote.other-post")), true);
+		assert.ok(
+			await waitFor(async () => (await frame.evaluate(f => f.offsetHeight)) >= 300),
+			"the frame takes its height",
+		);
 		await dispose();
 	});
 

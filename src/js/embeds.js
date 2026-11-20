@@ -4,9 +4,10 @@
 // frames and scripts of other sites that Ghost wrote in the post HTML: nothing was requested. Here each
 // of those embeds becomes a facade in the theme's design (provider, title, a button, one line on what
 // loading it means, « always show », a link to the provider). On the reader's request the embed is
-// written into assets/html/embed.html, a page of the site without that policy: YouTube from
-// youtube-nocookie.com (privacy-enhanced mode) with autoplay, the others as Ghost wrote them (an X post
-// with its widgets.js). Shown without a click: what privacy/choices.js `embeds.allowed(id)` says — the
+// shown inside assets/html/embed.html, a page of the site without that policy: YouTube from
+// youtube-nocookie.com (privacy-enhanced mode) with autoplay, an X post through X's own frame, the other
+// frames as Ghost wrote them; any other embed that needs its provider's script runs in a sandbox (an
+// origin of its own, cut off from the site). Shown without a click: what privacy/choices.js `embeds.allowed(id)` says — the
 // service's own choice (« Toujours afficher », kept in localStorage "attibling-embeds", taken back under
 // each embed it loaded or in the « Cookies et confidentialité » panel), else the answer to the consent
 // notice's « Contenus intégrés » (setting consent_notice). A page that still holds an embed behind its
@@ -73,7 +74,11 @@ export const PROVIDERS = [
 		name: "SoundCloud",
 		kind: "content",
 		host: /(^|\.)soundcloud\.com$/,
-		link: url => url.searchParams.get("url") || "https://soundcloud.com/",
+		// The track's address from the frame's url= parameter, only if it is a SoundCloud web address
+		link: url => {
+			const track = parse(url.searchParams.get("url") || "");
+			return track && /(^|\.)soundcloud\.com$/.test(track.hostname) ? track.href : "https://soundcloud.com/";
+		},
 	},
 	{
 		id: "codepen",
@@ -87,6 +92,10 @@ export const PROVIDERS = [
 // Permissions the player may need (Ghost's oEmbed frames ask for the same)
 const ALLOW =
 	"accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share";
+
+// The frame page of a scripted embed: scripts, links and forms work, but as an origin of its own
+// (no "allow-same-origin"), so the provider's script cannot reach the site
+const SANDBOX = "allow-scripts allow-popups allow-popups-to-escape-sandbox allow-presentation allow-forms";
 
 const parse = value => {
 	try {
@@ -161,6 +170,19 @@ const linkOf = embed => {
 	return (own.at(-1) || links.at(-1) || source).href;
 };
 
+// The id of an X post, from the links Ghost wrote in its quote (…/status/<id>)
+const tweetOf = embed => {
+	for (const node of embed.nodes) {
+		if (node.nodeType !== 1) continue;
+		for (const a of node.querySelectorAll("a[href]")) {
+			const url = parse(a.getAttribute("href"));
+			const id = url && /(^|\.)(twitter|x)\.com$/.test(url.hostname) && url.pathname.match(/\/status(?:es)?\/(\d+)/);
+			if (id) return id[1];
+		}
+	}
+	return null;
+};
+
 const fill = (text, provider) => text.replaceAll("{provider}", provider.name);
 
 export const setUpEmbeds = (root = document.querySelector("main")) => {
@@ -199,50 +221,46 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			frame.className = "embed-frame embed-frame--auto";
 		}
 
+		// What the frame page shows (assets/html/embed.html takes it by message, nothing else): a player,
+		// a frame of the provider's site; or, for a scripted embed (Instagram, TikTok…), the markup as
+		// Ghost wrote it, whose scripts then run in a sandbox, an origin of their own that cannot read the
+		// site (its pages, the reader's lists, the member's account). An X post is shown through X's own
+		// frame (in the page's mode, without personalisation), so X's script never runs in the frame page.
+		const dark = document.documentElement.dataset.theme === "dark";
+		let message;
+		const tweet = scripts.length && provider.id === "x" && tweetOf(embed);
+		if (original && !scripts.length) {
+			const url = new URL(embed.source.href);
+			const src = provider.load ? provider.load(url) : url;
+			if (clicked && provider.kind === "video") src.searchParams.set("autoplay", "1");
+			message = { player: { src: src.href, title, allow: ALLOW, focus: clicked } };
+		} else if (tweet) {
+			const src = new URL("https://platform.twitter.com/embed/Tweet.html");
+			src.searchParams.set("id", tweet);
+			src.searchParams.set("dnt", "true");
+			src.searchParams.set("theme", dark ? "dark" : "light");
+			if (document.documentElement.lang) src.searchParams.set("lang", document.documentElement.lang);
+			message = { player: { src: src.href, allow: ALLOW, maxWidth: "550px", resize: "x", focus: clicked } };
+		} else {
+			frame.setAttribute("sandbox", SANDBOX);
+			message = { markup: embed.nodes.map(node => node.outerHTML ?? node.textContent).join("") };
+		}
+		// The frame takes the height of what it shows (no ratio, no height of its own)
+		const fits = !ratio && !original;
+		const onMessage = event => {
+			if (event.source !== frame.contentWindow || !frame.isConnected) return;
+			const height = event.data?.attiblingEmbed?.height;
+			if (fits && height > 0) frame.style.height = `${Math.ceil(height)}px`;
+		};
+		window.addEventListener("message", onMessage);
 		frame.addEventListener(
 			"load",
 			() => {
-				const doc = frame.contentDocument;
-				if (!doc) return;
-				// The same light / dark scheme as the page, so the frame stays transparent
-				doc.documentElement.style.colorScheme = getComputedStyle(frame).colorScheme;
-				const dark = document.documentElement.dataset.theme === "dark";
-				let player = null;
-				if (original && !scripts.length) {
-					player = doc.createElement("iframe");
-					const url = new URL(embed.source.href);
-					const src = provider.load ? provider.load(url) : url;
-					if (clicked && provider.kind === "video") src.searchParams.set("autoplay", "1");
-					player.src = src.href;
-					player.setAttribute("allow", ALLOW);
-					player.setAttribute("allowfullscreen", "");
-					if (title) player.title = title;
-					doc.body.append(player);
-				} else {
-					// Scripted embeds (X, Instagram, TikTok…): the markup as Ghost wrote it, scripts re-created
-					// so they run; X in the page's mode and without personalisation (data-dnt)
-					doc.body.innerHTML = embed.nodes.map(node => node.outerHTML ?? node.textContent).join("");
-					doc.querySelectorAll("blockquote.twitter-tweet, blockquote.twitter-video").forEach(quote => {
-						quote.dataset.dnt = "true";
-						if (dark) quote.dataset.theme = "dark";
-					});
-					doc.querySelectorAll("script").forEach(old => {
-						const script = doc.createElement("script");
-						for (const { name, value } of old.attributes) script.setAttribute(name, value);
-						script.textContent = old.textContent;
-						old.replaceWith(script);
-					});
-					// The frame takes the height of what it shows
-					if (!ratio && !original) {
-						const fit = () => (frame.style.height = `${doc.documentElement.scrollHeight}px`);
-						new frame.contentWindow.ResizeObserver(fit).observe(doc.body);
-						fit();
-					}
-				}
-				if (clicked) {
-					frame.focus();
-					player?.focus();
-				}
+				// The same light / dark scheme as the page, so the frame stays transparent. "*": a sandboxed
+				// frame has no origin to name; what is sent is the post's own markup.
+				message.scheme = getComputedStyle(frame).colorScheme;
+				if (clicked) frame.focus();
+				frame.contentWindow.postMessage({ attiblingEmbed: message }, "*");
 			},
 			{ once: true },
 		);
