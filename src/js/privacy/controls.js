@@ -5,7 +5,6 @@
 import { PROVIDERS } from "../embeds";
 import { isMember, readingProgress } from "../store";
 import {
-	CATEGORIES,
 	consent,
 	consentMode,
 	embeds,
@@ -18,6 +17,8 @@ import {
 import { STORAGE, storageOf } from "./registry";
 
 const EVENTS = ["attibling:privacy", "attibling:consent", "attibling:embeds", "attibling:store", "storage"];
+
+let ids = 0;
 
 const has = entry => {
 	try {
@@ -57,24 +58,79 @@ const afterClear = keys => {
 		document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
 		document.querySelectorAll("[data-theme-state]").forEach(icon => (icon.hidden = icon.dataset.themeState !== "auto"));
 	}
-	for (const key of keys.filter(k => ["attibling-saved", "attibling-progress"].includes(k)))
+	for (const key of keys.filter(k => LISTS.includes(k)))
 		window.dispatchEvent(new CustomEvent("attibling:store", { detail: { key } }));
 	window.dispatchEvent(new CustomEvent("attibling:privacy", { detail: preferences.get() }));
 };
 
-export const clearItem = entry => {
-	removeItem(entry);
-	afterClear([entry.key]);
+// The members' lists (« À lire plus tard », « Reprendre la lecture »): what clearing would lose for good
+const LISTS = STORAGE.filter(entry => entry.audience === "members" && entry.category === "feature").map(e => e.key);
+
+const listLength = key => {
+	try {
+		const value = JSON.parse(localStorage.getItem(key));
+		return Array.isArray(value) ? value.length : 0;
+	} catch {
+		return 0;
+	}
 };
 
-export const clearAll = () => {
+// Before clearing `keys`: when a list of the member's would go, ask first (as « Tout retirer » of the
+// Favoris page does), saying what would be lost; nothing to ask otherwise
+export const confirmClear = (keys, live) => {
+	const strings = live?.dataset;
+	if (!strings?.confirm) return true;
+	const parts = [
+		["attibling-saved", strings.confirmSaved],
+		["attibling-progress", strings.confirmProgress],
+	]
+		.filter(([key]) => keys.includes(key))
+		.map(([key, text]) => [listLength(key), text])
+		.filter(([n]) => n > 0)
+		// (« Un article » inside the sentence: « un article »)
+		.map(([n, text]) =>
+			text.replace(
+				"%",
+				n === 1
+					? strings.onePost.replace(/^\p{Lu}(?!\p{Lu})/u, c => c.toLowerCase())
+					: strings.manyPosts.replace("%", n),
+			),
+		);
+	if (!parts.length) return true;
+	let lists = parts.join(", ");
+	try {
+		lists = new Intl.ListFormat(document.documentElement.lang || undefined, { type: "conjunction" }).format(parts);
+	} catch {
+		// a language tag the browser does not know: the plain list
+	}
+	return window.confirm(strings.confirm.replace("{lists}", lists));
+};
+
+const liveOf = root => root.querySelector("[data-privacy-live]") || document.querySelector("[data-privacy-live]");
+
+export const clearItem = (entry, live) => {
+	if (!confirmClear([entry.key], live)) return false;
+	removeItem(entry);
+	afterClear([entry.key]);
+	return true;
+};
+
+export const clearAll = live => {
 	const items = heldItems();
+	if (
+		!confirmClear(
+			items.map(entry => entry.key),
+			live,
+		)
+	)
+		return false;
 	items.forEach(removeItem);
 	afterClear(items.map(entry => entry.key));
+	return true;
 };
 
 const announcer = root => {
-	const live = root.querySelector("[data-privacy-live]") || document.querySelector("[data-privacy-live]");
+	const live = liveOf(root);
 	return name => {
 		if (!live) return;
 		live.textContent = "";
@@ -122,46 +178,45 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 	const announce = announcer(root);
 	const group = name => root.querySelector(`[data-privacy-group="${name}"]`);
 
-	// Consent categories (fallback mode only)
+	// Consent (fallback mode only): « Services facultatifs », the kinds of the owner's gated scripts —
+	// only those the site added on this page, or the reader already accepted; and in « Contenus
+	// intégrés », the switch for all of them, first
+	const asking = consentMode() !== "none";
 	const consentGroup = group("consent");
-	if (consentGroup && consentMode() !== "none") {
-		consentGroup.hidden = false;
-		// « Contenus intégrés » always (embeds may be on any post); the other kinds only where the site
-		// added such a script (on this page) or the reader already accepted them
+	const categories = [...root.querySelectorAll("[data-consent-category]")];
+	if (asking) {
 		const present = gatedCategories();
-		consentGroup.querySelectorAll("[data-consent-category]").forEach(input => {
+		for (const input of categories) {
 			const name = input.dataset.consentCategory;
 			input.closest("label").hidden = name !== "embeds" && !present.has(name) && consent.get(name) !== true;
-		});
-		consentGroup.querySelectorAll("[data-consent-all]").forEach(button =>
+		}
+		if (consentGroup)
+			consentGroup.hidden = ![...consentGroup.querySelectorAll("[data-consent-category]")].some(
+				input => !input.closest("label").hidden,
+			);
+		// « Tout refuser » / « Tout accepter »: the kinds shown in their group, nothing else
+		consentGroup?.querySelectorAll("[data-consent-all]").forEach(button =>
 			button.addEventListener("click", () => {
-				consent.all(button.dataset.consentAll === "true");
+				const shown = [...consentGroup.querySelectorAll("[data-consent-category]")].filter(
+					input => !input.closest("label").hidden,
+				);
+				const value = button.dataset.consentAll === "true";
+				consent.set(Object.fromEntries(shown.map(input => [input.dataset.consentCategory, value])));
 				announce("saved");
 			}),
 		);
-		consentGroup.querySelectorAll("[data-consent-category]").forEach(input =>
+		for (const input of categories)
 			input.addEventListener("change", () => {
-				const choices = Object.fromEntries(
-					CATEGORIES.map(name => [
-						name,
-						name === input.dataset.consentCategory ? input.checked : consent.get(name) === true,
-					]),
-				);
-				consent.set(choices);
+				consent.set({ [input.dataset.consentCategory]: input.checked });
 				announce(input.checked ? "saved" : "next");
-			}),
-		);
+			});
 	}
 
-	// Embeds, per service
+	// Embeds, per service: named by the service alone, in the « Service par service » group
 	const list = root.querySelector("[data-privacy-providers]");
 	const providers = providersToList(allProviders);
 	if (list) {
-		list.replaceChildren(
-			...providers.map(provider =>
-				switchFor(list.dataset.label.replaceAll("{provider}", provider.name), { "data-provider": provider.id }),
-			),
-		);
+		list.replaceChildren(...providers.map(provider => switchFor(provider.name, { "data-provider": provider.id })));
 		root.querySelector("[data-privacy-providers-empty]").hidden = providers.length > 0;
 		list.addEventListener("change", event => {
 			const input = event.target.closest("[data-provider]");
@@ -202,18 +257,30 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 	// Data held
 	const count = root.querySelector("[data-privacy-count]");
 	root.querySelector("[data-privacy-clear]")?.addEventListener("click", () => {
-		clearAll();
-		announce("cleared");
+		if (clearAll(liveOf(root))) announce("cleared");
+	});
+
+	// Each switch named by its label alone, its hint read as its description
+	root.querySelectorAll(".privacy-switch").forEach(wrap => {
+		const input = wrap.querySelector("input");
+		const label = wrap.querySelector(".privacy-switch__label");
+		const hint = wrap.querySelector(".privacy-switch__hint");
+		if (!input || !label || !hint) return;
+		label.id ||= `privacy-label-${++ids}`;
+		hint.id ||= `privacy-hint-${ids}`;
+		input.setAttribute("aria-labelledby", label.id);
+		input.setAttribute("aria-describedby", hint.id);
 	});
 
 	const refresh = () => {
-		if (!consentGroup?.hidden) {
+		if (asking) {
 			const current = consent.current();
-			consentGroup.querySelectorAll("[data-consent-category]").forEach(input => {
-				input.checked = current[input.dataset.consentCategory] === true;
-			});
-			const signal = consentGroup.querySelector("[data-consent-signal]");
-			if (signal) signal.hidden = !(privacySignal() && !consent.record());
+			for (const input of categories) input.checked = current[input.dataset.consentCategory] === true;
+			// Said once, in the first group shown
+			const signal = privacySignal() && !consent.record();
+			const notes = [...root.querySelectorAll("[data-consent-signal]")];
+			const first = notes.find(note => !note.closest("[data-privacy-group]")?.hidden);
+			notes.forEach(note => (note.hidden = !signal || note !== first));
 		}
 		// Each service as it really behaves: its own choice, else the « Contenus intégrés » answer
 		list
@@ -266,6 +333,7 @@ export const setUpStoredTable = table => {
 		document.querySelector(`[data-storage-key="${CSS.escape(key)}"] [data-storage-purpose]`)?.textContent.trim() ||
 		strings.unknown;
 	const live = announcer(table.closest("[data-privacy-page]") || document);
+	const liveElement = liveOf(table.closest("[data-privacy-page]") || document);
 
 	const render = () => {
 		const rows = heldItems().map(entry => {
@@ -292,12 +360,14 @@ export const setUpStoredTable = table => {
 			button.textContent = strings.clear;
 			button.setAttribute("aria-label", strings.clearOne.replace("%", entry.key));
 			button.addEventListener("click", () => {
-				clearItem(entry);
+				const index = [...body.rows].indexOf(row);
+				if (!clearItem(entry, liveElement)) return;
+				// The list is drawn again at once (the clear's events): the focus moves now, never left on
+				// <body> — the next row's button (the one now at that place), else the last, else the note
+				render();
+				const buttons = body.querySelectorAll(".privacy-stored__clear");
+				(buttons[index] || buttons[buttons.length - 1] || empty || table).focus({ preventScroll: true });
 				live("removed");
-				// Focus stays in the table: the next row's button, else « Tout effacer »
-				requestAnimationFrame(() =>
-					(body.querySelector(".privacy-stored__clear") || clear || table).focus({ preventScroll: true }),
-				);
 			});
 			action.append(button);
 			row.append(name, purpose, value, action);
@@ -316,9 +386,10 @@ export const setUpStoredTable = table => {
 	};
 
 	clear?.addEventListener("click", () => {
-		clearAll();
+		if (!clearAll(liveElement)) return;
+		render();
+		empty?.focus({ preventScroll: true });
 		live("cleared");
-		requestAnimationFrame(() => empty?.focus({ preventScroll: true }));
 	});
 	EVENTS.forEach(name => window.addEventListener(name, render));
 	render();

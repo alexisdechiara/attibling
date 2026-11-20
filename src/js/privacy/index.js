@@ -2,10 +2,10 @@
 //  - « Cookies et confidentialité » in the footer (and « Gérer mes choix » under an embed) opens the
 //    preferences panel (panel.js, downloaded on the first click).
 //  - The consent notice (theme setting consent_notice: Notice by default, Banner; None: never): only
-//    when the page holds an embed behind its facade (YouTube, X…) or a script the site owner gated with
-//    data-consent, and the reader has not answered yet, a notice asks (notice.js). « Banner » shows it at
-//    once; « Notice » after the reader scrolls a little or after 12 seconds. Accepting loads the embeds
-//    and runs the gated scripts (choices.js); refusing leaves each embed's facade as it is.
+//    when the page holds a script the site owner gated with data-consent whose kind the reader has not
+//    answered yet, a notice asks about those kinds (notice.js). « Banner » shows it at once; « Notice »
+//    after the reader scrolls a little or after 12 seconds. Accepting runs the gated scripts
+//    (choices.js). Embeds never bring the notice: each one's facade asks for itself (embeds.js).
 //  - window.attiblingConsent: a small API for the owner's own code (see docs/guide-auteur.md).
 import { activateGated, consent, consentMode, gatedCategories, setUpGoogleConsent } from "./choices";
 
@@ -61,12 +61,9 @@ export const setUpPrivacy = () => {
 	setUpGoogleConsent();
 	activateGated();
 
-	// The notice, only when something on this page waits for an answer: a gated script, or an embed held
-	// behind its facade (embeds.js, loaded after this, says so with "attibling:gated")
-	let armed = false;
+	// The notice, only when a gated script of this page waits for an answer
 	const ask = () => {
-		if (armed || consentMode() === "none" || consent.decided() || !gatedCategories().size) return;
-		armed = true;
+		if (!consent.pending(gatedCategories()).length) return;
 		if (consentMode() === "banner") {
 			showNotice();
 			return;
@@ -87,6 +84,5 @@ export const setUpPrivacy = () => {
 		window.addEventListener("scroll", onScroll, { passive: true });
 		const timer = setTimeout(show, NOTICE_DELAY);
 	};
-	window.addEventListener("attibling:gated", ask);
 	ask();
 };
