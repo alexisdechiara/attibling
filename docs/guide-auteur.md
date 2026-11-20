@@ -158,7 +158,7 @@ secondaire ni lien en trop, le bouton « Plus » n'apparaît pas.
 À côté de « Plus », le bouton **« ••• »** (celui de l'ancien thème) ouvre un panneau sous la barre, rangé
 comme le sous-menu de l'ancien thème : en haut, les **6 derniers articles** en petites cartes (vignette, titre,
 rubrique et date ; une rangée de six sur grand écran, trois par rangée sur un écran plus étroit), puis,
-**en dessous**, le titre « Mots clés » avec « Tous les tags » (page `/tags/`) et les **12 tags** les plus
+**en dessous**, le titre « Tags » avec « Tous les tags » (page `/tags/`) et les **12 tags** les plus
 utilisés en **simples liens en gras** à la suite, sans pastilles. Il se remplit tout seul : rien à régler.
 Échap ou un clic à côté le ferme. Sur téléphone, le même contenu est en bas du menu (bouton trois traits) :
 les 4 derniers articles en liste, puis les tags.
