@@ -193,7 +193,7 @@
     --hero-post-pad: 18px;
     inset-inline: auto calc(96px - var(--hero-post-pad));
     inset-block-start: 50%;
-    width: calc(clamp(250px, 27%, 380px) + 2 * var(--hero-post-pad));
+    width: calc(clamp(260px, 31%, 440px) + 2 * var(--hero-post-pad));
     align-items: flex-end;
     gap: 10px;
     text-align: end;
@@ -253,7 +253,7 @@
   /* The hero wordmark's size; the tagline is laid out from it. The GEEKly wordmark is 3.5 times as
      wide as its size (G to the "y" tail): on desktop it grows with the window as far as the room
      left of the post allows (128px at 1024px, 188px at 1280px, 220px from 1446px). */
-  --hero-mark: clamp(72px, 22.5vw, 104px);
+  --hero-mark: clamp(64px, 19vw, 88px);
   position: absolute;
   inset-inline: 20px;
   inset-block-start: 27%;
@@ -269,11 +269,11 @@
   }
 
   @media (width >= 48rem) {
-    --hero-mark: clamp(104px, 15vw, 136px);
+    --hero-mark: clamp(92px, 13vw, 116px);
   }
 
   @media (width >= 64rem) {
-    --hero-mark: clamp(128px, 19.5vw - 62px, 220px);
+    --hero-mark: clamp(120px, 15vw - 36px, 180px);
     inset-inline: 56px auto;
     inset-block-start: 50%;
     max-width: 50%;
@@ -312,7 +312,7 @@
    stops before the descender (whose leftmost point is 2.99 em from the wordmark's start: Onest 800
    G E E K and Pacifico "l" advance, see partials/home/intro.hbs). A longer description wraps within
    that width (two lines at most). Rule: the tagline's cap top sits 0.075 of the wordmark's size
-   (--hero-mark) under the baseline of « GEEK » (16px at 220px): attached to the letters, never
+   (--hero-mark) under the baseline of « GEEK » (13.5px at 180px): attached to the letters, never
    touching them. With text-box trimming (below) that is exact for any font. Without it, the top margin
    is derived from the line boxes of the self-hosted faces: the wordmark's box reaches 0.617 of its
    size below the baseline (the line box of the Pacifico "ly" subset with its descender room), and the

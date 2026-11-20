@@ -282,7 +282,7 @@ lecture / À lire plus tard » (abonnés) → « Les plus lus » → rangées pa
 
 Le bandeau montre, sur l'image de l'article, le logo, la description du site (Settings → General → *Site
 description*, par exemple « L'actu geek, tech et pop ») et, pour un visiteur, le bouton « S'abonner ». Avec le
-logo GEEKLY coloré (grand : 220 px sur un écran large, il occupe la moitié gauche du bandeau), la description
+logo GEEKLY coloré (grand : 180 px sur un écran large, il occupe la moitié gauche du bandeau), la description
 se glisse **juste sous « GEEK », collée aux lettres, à gauche de la boucle du « y »** : gardez-la courte (une
 ligne ; plus longue, elle passe sur deux lignes au plus dans la largeur de « GEEK »). À droite : la
 pastille « À la une », le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article
