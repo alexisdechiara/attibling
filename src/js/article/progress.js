@@ -13,11 +13,60 @@ export const readShare = content => {
 	return Math.min(Math.max((window.innerHeight - box.top) / box.height, 0), 1);
 };
 
+// What the button must never sit on: a control of the page. Frames, players and embed facades count
+// whole (their own buttons, YouTube's for one, are in their corner); a control much larger than the
+// button (a whole tile that is a link) only when the button covers a good part of it.
+const CONTROL = 'a[href], button, input, select, textarea, summary, label, [tabindex]:not([tabindex="-1"])';
+const WHOLE = "iframe, video, audio, [data-embed-facade]";
+
+const coversControl = button => {
+	const r = button.getBoundingClientRect();
+	const margin = 6;
+	const [left, top, right, bottom] = [r.left - margin, r.top - margin, r.right + margin, r.bottom + margin];
+	const points = [
+		[(left + right) / 2, (top + bottom) / 2],
+		[left, top],
+		[right, top],
+		[left, bottom],
+		[right, bottom],
+		[(left + right) / 2, top],
+		[left, (top + bottom) / 2],
+	];
+	const area = (right - left) * (bottom - top);
+	for (const [x, y] of points) {
+		for (const el of document.elementsFromPoint(x, y)) {
+			if (el === button || button.contains(el)) continue;
+			if (el.closest(WHOLE)) return true;
+			const control = el.closest(CONTROL);
+			if (!control) continue;
+			const box = control.getBoundingClientRect();
+			const overlap =
+				Math.max(0, Math.min(right, box.right) - Math.max(left, box.left)) *
+				Math.max(0, Math.min(bottom, box.bottom) - Math.max(top, box.top));
+			if (overlap >= Math.min(area, box.width * box.height) * 0.2) return true;
+		}
+	}
+	return false;
+};
+
+// The button shows once the reader has scrolled a screen down (near the top there is nothing to go
+// back to), and steps aside while it would cover a control (data-shown otherwise, progress.css)
 export const setUpScrollTop = button => {
-	button?.addEventListener("click", () => {
+	if (!button) return;
+	button.addEventListener("click", () => {
 		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 		window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
 	});
+	const update = () => {
+		const away = window.scrollY < window.innerHeight || coversControl(button);
+		// Never taken from under the focus: a keyboard user on the button keeps it
+		button.toggleAttribute("data-shown", !away || document.activeElement === button);
+	};
+	update();
+	window.addEventListener("scroll", throttleToFrame(update), { passive: true });
+	window.addEventListener("resize", throttleToFrame(update), { passive: true });
+	window.addEventListener("load", update, { once: true });
+	button.addEventListener("blur", update);
 };
 
 export const setUpProgressRing = content => {

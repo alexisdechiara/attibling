@@ -34,6 +34,22 @@
   }
 }
 
+/* Shown by progress.js (data-shown) after a screen of scrolling and away from the page's controls;
+   otherwise out of the way and out of the tab order. Without JavaScript it stays as it was. */
+.progress-button {
+  transition:
+    opacity var(--duration-m) ease,
+    visibility 0s;
+
+  &:is(:root[data-js] *):not([data-shown]) {
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity var(--duration-m) ease,
+      visibility 0s var(--duration-m);
+  }
+}
+
 .progress-button__ring {
   position: absolute;
   inset: 0;

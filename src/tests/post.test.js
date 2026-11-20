@@ -143,6 +143,36 @@ describe("article page: content", () => {
 		}
 	});
 
+	it("shows « back to the top » only after a screen of scrolling, and never over a control", async () => {
+		const filler = "<p>Un paragraphe pour que la page défile bien au-delà de l’écran, ligne après ligne.</p>".repeat(30);
+		const facade =
+			'<figure class="kg-card kg-embed-card"><iframe width="200" height="113" src="https://www.youtube.com/embed/_jGbRsxHi7Q" title="Une vidéo"></iframe></figure>';
+		const html = `${filler}${facade}${filler}<p style="text-align: right">Fin de ligne : <a href="/x/">un lien</a></p>${filler}`;
+		const { page, dispose } = await open({ render: article({ html }), viewport: { width: 390, height: 844 } });
+		const button = page.locator("[data-progress-button]");
+		const shown = () =>
+			page.waitForTimeout(400).then(() => button.evaluate(b => getComputedStyle(b).visibility === "visible"));
+		// The middle of `selector` at the height of the button's middle
+		const align = selector =>
+			page.evaluate(selector => {
+				const b = document.querySelector("[data-progress-button]").getBoundingClientRect();
+				const el = document.querySelector(selector).getBoundingClientRect();
+				window.scrollBy(0, el.top + el.height / 2 - (b.top + b.height / 2));
+			}, selector);
+		assert.equal(await shown(), false, "not at the top");
+		await page.evaluate(() => window.scrollTo(0, 400));
+		assert.equal(await shown(), false, "not before a screen of scrolling");
+		await page.evaluate(() => window.scrollTo(0, 1400));
+		assert.equal(await shown(), true, "over the text");
+		await align("[data-embed-facade] [data-embed-open]");
+		assert.equal(await shown(), false, "not over the embed's « Voir sur YouTube »");
+		await align('.gh-content a[href="/x/"]');
+		assert.equal(await shown(), false, "not over a link");
+		await page.evaluate(() => window.scrollBy(0, 300));
+		assert.equal(await shown(), true, "back over the text");
+		await dispose();
+	});
+
 	// The share of the ring that is drawn, 0 to 1, once the page has had time to update it.
 	const ringAt = async (page, y) => {
 		await page.evaluate(y => window.scrollTo(0, y), y);

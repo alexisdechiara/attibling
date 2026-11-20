@@ -1147,6 +1147,9 @@ describe("privacy: embedded content asks in place (default consent_notice = Noti
 				"hidden",
 			);
 			await notice(page).getByRole("button", { name: "Tout refuser" }).click();
+			// (It shows after a screen of scrolling: article/progress.js)
+			await page.evaluate(() => window.scrollTo(0, 1800));
+			await page.waitForTimeout(100);
 			assert.equal(
 				await page.evaluate(() => getComputedStyle(document.querySelector(".progress-button")).visibility),
 				"visible",
