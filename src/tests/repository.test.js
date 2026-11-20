@@ -42,11 +42,24 @@ describe("repository", () => {
 		const text = lines.filter(line => !/^\s{4}|^\s*```/.test(line)).join("\n");
 		const anchors = [...text.matchAll(/\]\(#([^)\s]+)\)/g)].map(m => decodeURIComponent(m[1]));
 		assert.ok(anchors.length > 20, `${anchors.length} anchors`);
-		assert.deepEqual(
-			[...new Set(anchors.filter(anchor => !slugs.has(anchor)))],
-			[],
-			"anchors with no heading",
-		);
+		assert.deepEqual([...new Set(anchors.filter(anchor => !slugs.has(anchor)))], [], "anchors with no heading");
+	});
+
+	it("says in the README which translations are complete", () => {
+		const english = JSON.parse(read("locales/en.json"));
+		// Complete: at most a few values left as the English text (names, « Newsletter »…)
+		const complete = fs
+			.readdirSync(path.join(REPO_ROOT, "locales"))
+			.filter(file => {
+				const values = Object.entries(JSON.parse(read(`locales/${file}`)));
+				const same = values.filter(([key, value]) => value === english[key]).length;
+				return file === "en.json" || same / values.length < 0.2;
+			})
+			.map(file => file.replace(/\.json$/, ""));
+		const readme = read("README.md");
+		const claimed = [...(readme.match(/^Complete: (.*)\./m)?.[1] ?? "").matchAll(/`([^`]+)`/g)].map(m => m[1]);
+		assert.deepEqual(claimed.sort(), complete.sort());
+		assert.doesNotMatch(readme, /\b33 translations\b/);
 	});
 
 	it("deploy without leaving the GitHub token in the checkout", () => {
