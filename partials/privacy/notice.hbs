@@ -15,10 +15,10 @@ button refuses (it says so).
   <section class="consent-notice" aria-labelledby="consent-notice-title" data-consent-notice
     data-analytics="{{t "audience measurement"}}" data-embeds="{{t "embedded content"}}" data-other="{{t "other services"}}"
     data-title-embeds="{{t "Content from other sites"}}"
-    data-template-embeds="{{t "This page contains videos or posts from other sites ({providers}). Showing them sends your IP address to these services, which may set cookies. Accept to show them without a click, here and on the next pages; otherwise each one stays hidden until you click it. You can change your mind from “Cookies and privacy” at the bottom of the page." providers="{providers}"}}">
+    data-template-embeds="{{t "This page embeds content from {providers}, which receive your IP address and may set cookies. Accept to show it without a click." providers="{providers}"}}">
     <div class="consent-notice__text">
       <h2 class="consent-notice__title" id="consent-notice-title" data-consent-title>{{t "Your agreement, if you wish"}}</h2>
-      <p class="consent-notice__body" data-consent-body data-template="{{t "With your agreement, this site also uses services that may set cookies or follow your visit: {categories}. Without it, they stay off. You can change your mind at any time from “Cookies and privacy” at the bottom of the page." categories="{categories}"}}"></p>
+      <p class="consent-notice__body" data-consent-body data-template="{{t "With your agreement, this site uses services that may set cookies: {categories}." categories="{categories}"}}"></p>
     </div>
     <div class="consent-notice__actions">
       <button type="button" class="button button--s consent-refuse" data-consent-answer="false">{{t "Refuse all"}}</button>

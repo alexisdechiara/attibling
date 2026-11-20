@@ -581,7 +581,7 @@ describe("privacy: one answer for embedded content (default consent_notice = Not
 		assert.equal(await notice(page).locator("h2").textContent(), "Contenus d’autres sites");
 		assert.match(
 			await notice(page).locator("[data-consent-body]").textContent(),
-			/^Cette page contient des vidéos ou des publications d’autres sites \(YouTube\)\. Les afficher envoie votre adresse IP/,
+			/^Cette page intègre des contenus d’autres sites \(YouTube\), qui reçoivent votre adresse IP/,
 		);
 		await notice(page).getByRole("button", { name: "Tout accepter" }).click();
 		await waitFor(() =>
