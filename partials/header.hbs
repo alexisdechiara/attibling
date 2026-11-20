@@ -79,8 +79,9 @@ target of the hero wordmark for docking and page transitions), [data-ghost-searc
   </ul>
 </nav>
 
-{{!-- Phones: the menu sheet, opened by the menu button of the top bar --}}
-<div class="mobile-menu" id="site-menu" popover data-mobile-menu>
+{{!-- Phones: the menu sheet, opened by the menu button of the top bar; modal (app.js makes the page
+inert while it is open) --}}
+<div class="mobile-menu" id="site-menu" popover role="dialog" aria-modal="true" aria-label="{{t "Menu"}}" data-mobile-menu>
   <div class="mobile-menu__head">
     {{> wordmark size="header"}}
     <button type="button" class="icon-button" popovertarget="site-menu" popovertargetaction="hide" data-menu-close aria-label="{{t "Close menu"}}">

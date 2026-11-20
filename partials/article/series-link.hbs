@@ -14,12 +14,12 @@ first or last part nothing shows. Parameters:
       <span class="series-step__current" hidden></span>
     {{else}}
       {{#match ../direction "prev"}}
-        <a class="series-step__link" href="{{url}}" aria-label="{{t "Previous part: {title}" title=title}}">
+        <a class="series-step__link" href="{{url}}" aria-label="{{t "Previous: {title}" title=title}}">
           {{> "icons/arrow-left" class="icon-flip-rtl"}}
           <span class="series-step__text"><span class="series-step__label">{{t "Previous"}}</span>{{#if ../detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
         </a>
       {{else}}
-        <a class="series-step__link" href="{{url}}" aria-label="{{t "Next part: {title}" title=title}}">
+        <a class="series-step__link" href="{{url}}" aria-label="{{t "Next: {title}" title=title}}">
           <span class="series-step__text"><span class="series-step__label">{{t "Next"}}</span>{{#if ../detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
           {{> "icons/arrow-right" class="icon-flip-rtl"}}
         </a>

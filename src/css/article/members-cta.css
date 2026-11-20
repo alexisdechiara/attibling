@@ -1,0 +1,63 @@
+/** « Réservé aux abonnés »: the box Ghost's {{content}} renders under the public preview of a post or
+   page the reader may not read in full (partials/content-cta.hbs). The same surface as the « En bref »
+   teaser (features.css); links.css leaves its links alone. */
+.members-cta {
+  margin-block-start: 2em;
+  padding: var(--space-6);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  text-align: start;
+  hyphens: manual;
+}
+
+.gh-content .members-cta__title,
+.members-cta__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0;
+  line-height: 1.3;
+
+  .icon {
+    flex: none;
+    color: var(--color-accent);
+    font-size: 1.125rem;
+  }
+}
+
+.members-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-nav);
+  text-align: start;
+  hyphens: manual;
+}
+
+.members-cta__signin {
+  color: var(--color-text-secondary);
+}
+
+.members-cta__login {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  color: var(--color-accent);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  text-underline-offset: 3px;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,85 @@
+# Checks every pull request and every push to a branch other than master/main. The deploy workflow
+# (deploy-theme.yml) calls this same workflow and deploys only if it passes. See « Continuous
+# integration » in README.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - master
+      - main
+  workflow_call:
+
+# A newer push to the same branch or pull request cancels the run it replaces. When deploy-theme.yml
+# calls this workflow, github.workflow is « Deploy Theme », so the group never collides with its own.
+concurrency:
+  group: ${{ github.workflow }}-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Bump on purpose (never `latest`) so the CI does not change on its own.
+  GSCAN_VERSION: 6.7.0
+
+jobs:
+  build:
+    name: Check, build, assets, gscan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - name: Committed assets match the build
+        run: |
+          # The build writes assets/js, assets/css, assets/html/javascript.html and
+          # partials/tags/prepaint.hbs. Untracked files count too (new hashed chunks).
+          changes="$(git status --porcelain --untracked-files=all -- assets partials/tags/prepaint.hbs)"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            git --no-pager diff --stat -- assets partials/tags/prepaint.hbs
+            echo "::error title=Built assets are out of date::The committed assets/ (or partials/tags/prepaint.hbs) differ from what npm run build produces. Run npm run build locally and commit the result (« Rebuild theme assets »)."
+            exit 1
+          fi
+          echo "Committed assets match the build."
+      - name: gscan (Ghost 6)
+        run: |
+          npm run zip
+          npx --yes "gscan@${GSCAN_VERSION}" -z attibling.zip --v6
+
+  test:
+    name: Browser tests (Chromium)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+      # The browser download is cached per Playwright version. The system libraries it needs are not
+      # (apt packages), so --with-deps runs on every job; with a cache hit it downloads nothing else.
+      - name: Cache the Playwright browser
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-headless-shell
+      # The tests call chromium.launch() (headless), which runs Chromium's headless shell.
+      - run: npx playwright install --with-deps --only-shell chromium
+      - run: npm test

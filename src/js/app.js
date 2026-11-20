@@ -1,4 +1,4 @@
-import { isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
+import { containFocus, isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
 import { setUpBookmarks } from "./store";
 import { setUpPrefetch } from "./prefetch";
 import { setUpTransitions } from "./transitions";
@@ -206,13 +206,16 @@ onReady(() => {
 		}
 	}
 
-	// Phones: the menu sheet (a popover: Escape and a click outside close it)
+	// Phones: the menu sheet (a popover: Escape and a click outside close it). It covers the page, so
+	// the page is inert while it is open: focus stays in it, then goes back to the menu button.
 	const menuButton = document.querySelector("[data-menu-button]");
 	const menu = document.querySelector("[data-mobile-menu]");
 	if (menuButton && menu) {
+		const modal = containFocus(menu);
 		const sheet = setUpPopover(menuButton, menu, {
 			place: false,
 			onToggle: open => {
+				modal(open);
 				menuButton.setAttribute("aria-expanded", String(open));
 				if (open) requestAnimationFrame(() => menu.querySelector("[data-menu-close]")?.focus());
 			},

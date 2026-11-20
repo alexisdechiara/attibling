@@ -42,10 +42,7 @@ describe("series", () => {
 		assert.equal(s.count, "Partie 2 sur 4");
 		assert.equal(s.bar, 50, "progress bar at 2 / 4");
 		assert.deepEqual(s.rows, ["1", "2*", "3", "4"]);
-		assert.deepEqual(s.box, [
-			"Partie précédente : Jour 1 — partie de la série",
-			"Partie suivante : Jour 3 — partie de la série",
-		]);
+		assert.deepEqual(s.box, ["Précédent : Jour 1 — partie de la série", "Suivant : Jour 3 — partie de la série"]);
 		assert.deepEqual(s.line, s.box, "the same at the end of the article");
 		assert.equal(s.all, "http://theme.test/archives/?tag=hash-serie-test", "the Archives page filtered by the series");
 		assert.equal(await page.locator(".series__item--current").getAttribute("aria-current"), "page");
@@ -56,13 +53,13 @@ describe("series", () => {
 		const first = await open({ render: article({ series: { published: 4, current: 1 } }) });
 		const a = await series(first.page);
 		assert.deepEqual([a.box.length, a.line.length], [1, 1]);
-		assert.match(a.box[0], /^Partie suivante : Jour 2/);
+		assert.match(a.box[0], /^Suivant : Jour 2/);
 		await first.dispose();
 
 		const last = await open({ render: article({ series: { published: 4, current: 4 } }) });
 		const b = await series(last.page);
 		assert.equal(b.count, "Partie 4 sur 4");
-		assert.match(b.box[0], /^Partie précédente : Jour 3/);
+		assert.match(b.box[0], /^Précédent : Jour 3/);
 		assert.deepEqual([b.box.length, b.line.length], [1, 1]);
 		await last.dispose();
 	});

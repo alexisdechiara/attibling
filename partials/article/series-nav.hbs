@@ -7,7 +7,7 @@ Same series rule as article/series.hbs (internal tag #serie-…, at least two pu
   {{#match slug "~^" "hash-serie-"}}
     {{#get "posts" filter="tag:{{slug}}" limit="100" order="published_at asc" as |parts pages|}}
       {{#match pages.total ">" 1}}
-        <nav class="series-line" aria-label="{{t "Series"}}" data-series-line>
+        <nav class="series-line" aria-label="{{t "Series navigation"}}" data-series-line>
           {{> article/series-link parts=parts current=../../id direction="prev" detailed=true}}
           {{> article/series-link parts=parts current=../../id direction="next" detailed=true}}
         </nav>
