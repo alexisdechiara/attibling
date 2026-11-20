@@ -23,6 +23,33 @@ const setUpHero = hero => {
 		slide.querySelector("img")?.setAttribute("loading", "eager");
 	};
 
+	// The slide after the current one is readied in the background once the page has loaded and the
+	// browser is idle (its picture at low priority), so a tap on the next dot, which gives no warning
+	// on a touch screen, finds its picture there. Only that one: the page keeps its weight. Not with
+	// Save-Data.
+	let loaded = document.readyState === "complete";
+	const idle = callback =>
+		"requestIdleCallback" in window ? requestIdleCallback(callback, { timeout: 3000 }) : setTimeout(callback, 300);
+	const readyNext = () => {
+		if (!loaded || navigator.connection?.saveData) return;
+		idle(() => {
+			const next = slides[(current + 1) % slides.length];
+			if (!next.hidden) return;
+			next.querySelector("img")?.setAttribute("fetchpriority", "low");
+			ready(next);
+		});
+	};
+	if (!loaded) {
+		window.addEventListener(
+			"load",
+			() => {
+				loaded = true;
+				readyNext();
+			},
+			{ once: true },
+		);
+	}
+
 	let current = -1;
 	const show = index => {
 		const changed = current !== -1 && current !== index;
@@ -42,6 +69,7 @@ const setUpHero = hero => {
 			if (i === index) dot.setAttribute("aria-current", "true");
 			else dot.removeAttribute("aria-current");
 		});
+		readyNext();
 	};
 
 	dots.forEach((dot, i) => {

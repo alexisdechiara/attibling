@@ -2,7 +2,7 @@
 // reveal moves nothing, and only the pictures of the first screen are downloaded up front.
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
-import { launch, close, open, waitFor } from "./support/harness.js";
+import { launch, close, open, waitFor, sleep } from "./support/harness.js";
 import { template } from "./support/pages.js";
 import { article, LONG_HTML } from "./support/article.js";
 
@@ -155,21 +155,47 @@ describe("pictures of the first screen", () => {
 	const hero = page =>
 		page.evaluate(() => [...document.querySelectorAll(".hero__image")].map(img => img.currentSrc !== ""));
 
-	it("home hero: only the first slide's picture loads with the page, the others when asked for", async () => {
+	it("home hero: the first slide's picture loads with the page, the next one once idle, the others when asked for", async () => {
 		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
-		assert.deepEqual(await hero(page), [true, false, false, false, false, false]);
-		// Pointing at a dot readies its slide; a click shows it, faded in
-		await page.locator("[data-hero-dot]").nth(2).hover();
-		assert.equal(await waitFor(async () => (await hero(page))[2]), true, "the third picture loads on hover");
-		await page.locator("[data-hero-dot]").nth(2).click();
-		const third = page.locator("[data-hero-slide]").nth(2);
-		assert.equal(await waitFor(() => third.evaluate(el => getComputedStyle(el).opacity === "1")), true);
+		assert.deepEqual((await hero(page)).slice(2), [false, false, false, false]);
+		// Once the page has loaded and is idle: the next slide, its picture at low priority, and no other
+		assert.equal(await waitFor(async () => (await hero(page))[1]), true, "the second picture, in the background");
+		assert.equal(await page.locator(".hero__image").nth(1).evaluate(img => img.fetchPriority), "low");
+		await sleep(400);
+		assert.deepEqual(await hero(page), [true, true, false, false, false, false]);
+		// Pointing at a dot readies its slide; a click shows it, faded in, and readies the one after it
+		await page.locator("[data-hero-dot]").nth(3).hover();
+		assert.equal(await waitFor(async () => (await hero(page))[3]), true, "the fourth picture loads on hover");
+		await page.locator("[data-hero-dot]").nth(3).click();
+		const fourth = page.locator("[data-hero-slide]").nth(3);
+		assert.equal(await waitFor(() => fourth.evaluate(el => getComputedStyle(el).opacity === "1")), true);
+		assert.equal(await waitFor(async () => (await hero(page))[4]), true, "then the fifth, in the background");
+		await sleep(400);
+		assert.deepEqual(await hero(page), [true, true, false, true, true, false]);
 		// A dot clicked straight away (keyboard, touch) shows its slide too
-		await page.locator("[data-hero-dot]").nth(4).focus();
+		await page.locator("[data-hero-dot]").nth(2).focus();
 		await page.keyboard.press("Enter");
-		const fifth = page.locator("[data-hero-slide]").nth(4);
-		assert.equal(await waitFor(() => fifth.evaluate(el => !el.inert && getComputedStyle(el).opacity === "1")), true);
-		assert.deepEqual((await hero(page)).slice(0, 5), [true, false, true, false, true]);
+		const third = page.locator("[data-hero-slide]").nth(2);
+		assert.equal(await waitFor(() => third.evaluate(el => !el.inert && getComputedStyle(el).opacity === "1")), true);
+		await dispose();
+	});
+
+	it("home hero on a touch screen: the next slide's picture is already there when its dot is tapped", async () => {
+		const { page, dispose } = await open({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+		const second = page.locator(".hero__image").nth(1);
+		assert.equal(await waitFor(() => second.evaluate(img => img.currentSrc !== "" && img.complete)), true);
+		await page.locator("[data-hero-dot]").nth(1).tap();
+		assert.equal(await page.locator("[data-hero-slide]").nth(1).evaluate(el => !el.inert), true);
+		await dispose();
+	});
+
+	it("home hero with Save-Data: nothing readied in the background", async () => {
+		const { page, dispose } = await open({
+			viewport: { width: 1440, height: 900 },
+			initScript: () => Object.defineProperty(navigator, "connection", { value: { saveData: true } }),
+		});
+		await sleep(800);
+		assert.deepEqual(await hero(page), [true, false, false, false, false, false]);
 		await dispose();
 	});
 
