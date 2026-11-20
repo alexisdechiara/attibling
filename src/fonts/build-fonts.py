@@ -121,13 +121,14 @@ def main():
             "src/fonts/build-fonts.py from @fontsource-variable/onest and /literata (OFL-1.1, assets/fonts/*/OFL.txt):\n"
             "do not edit by hand. One variable WOFF2 per script subset: the browser only downloads the subsets\n"
             "whose characters the page uses (unicode-range). Preloaded: Onest latin everywhere, Literata latin on\n"
-            "posts (the files the first screen needs). The fallback faces carry metric overrides so the\n"
+            "posts from 48rem (the files the first screen needs; on phones the article's picture fills the first\n"
+            "screen and comes first). The fallback faces carry metric overrides so the\n"
             "text barely moves when the font arrives (font-display: swap). Ghost's custom fonts (Design > Brand >\n"
             "Typography) still win through --gh-font-heading / --gh-font-body (src/css/base/tokens.css). --}}\n"
         )
         f.write('<link rel="preload" href="{{asset "fonts/onest/onest-latin.woff2"}}" as="font" type="font/woff2" crossorigin>\n')
         f.write('{{#is "post"}}\n')
-        f.write('  <link rel="preload" href="{{asset "fonts/literata/literata-latin.woff2"}}" as="font" type="font/woff2" crossorigin>\n')
+        f.write('  <link rel="preload" href="{{asset "fonts/literata/literata-latin.woff2"}}" as="font" type="font/woff2" media="(min-width: 48rem)" crossorigin>\n')
         f.write("{{/is}}\n")
         f.write("<style>\n")
         for rule in rules["Onest"]:

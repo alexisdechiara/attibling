@@ -1,4 +1,4 @@
-import { isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
+import { containFocus, isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
 import { setUpBookmarks } from "./store";
 import { setUpPrefetch } from "./prefetch";
 import { setUpTransitions } from "./transitions";
@@ -128,11 +128,16 @@ const setUpNavOverflow = header => {
 	layout();
 };
 
-// Ghost's announcement bar ({{ghost_head}} adds #announcement-bar-root at the start of <body>)
-// goes right before the header, after the skip link, and scrolls away with the page.
+// Ghost's announcement bar (a deferred script of {{ghost_head}} adds #announcement-bar-root at the start
+// of <body>) goes right before the header, after the skip link, and scrolls away with the page. This
+// async module usually runs before that script: once more at DOMContentLoaded, which follows it.
 const placeAnnouncementBar = header => {
-	const bar = document.getElementById("announcement-bar-root");
-	if (bar && header) header.before(bar);
+	const place = () => {
+		const bar = document.getElementById("announcement-bar-root");
+		if (bar && header.previousElementSibling !== bar) header.before(bar);
+	};
+	place();
+	if (document.readyState !== "complete") document.addEventListener("DOMContentLoaded", place, { once: true });
 };
 
 // Third-party embeds on click (setting embed_consent: default.hbs renders the policy and the facade's
@@ -201,13 +206,16 @@ onReady(() => {
 		}
 	}
 
-	// Phones: the menu sheet (a popover: Escape and a click outside close it)
+	// Phones: the menu sheet (a popover: Escape and a click outside close it). It covers the page, so
+	// the page is inert while it is open: focus stays in it, then goes back to the menu button.
 	const menuButton = document.querySelector("[data-menu-button]");
 	const menu = document.querySelector("[data-mobile-menu]");
 	if (menuButton && menu) {
+		const modal = containFocus(menu);
 		const sheet = setUpPopover(menuButton, menu, {
 			place: false,
 			onToggle: open => {
+				modal(open);
 				menuButton.setAttribute("aria-expanded", String(open));
 				if (open) requestAnimationFrame(() => menu.querySelector("[data-menu-close]")?.focus());
 			},

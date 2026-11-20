@@ -26,7 +26,7 @@ describe("search", () => {
 		const { page, requests, dispose } = await open();
 		await page.locator("[data-ghost-search]:visible").click();
 		await page.waitForTimeout(200);
-		assert.equal(await page.locator(".m-search, .js-search, [role=dialog]").count(), 0);
+		assert.equal(await page.locator(".m-search, .js-search, [role=dialog]:not([data-mobile-menu])").count(), 0);
 		assert.deepEqual(
 			requests.filter(url => url.includes("/ghost/api/")),
 			[],

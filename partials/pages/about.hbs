@@ -23,7 +23,7 @@ Inside the page's template context. Nothing personal is written in the theme: ev
   <link rel="stylesheet" type="text/css" href="{{asset "css/about.css"}}" media="screen" />
 {{/contentFor}}
 {{#contentFor "scripts"}}
-  <script type="module" src="{{asset "js/about.js"}}"></script>
+  <script type="module" async src="{{asset "js/about.js"}}"></script>
 {{/contentFor}}
 
 {{> header}}

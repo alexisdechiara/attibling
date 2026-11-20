@@ -46,7 +46,7 @@ right after them, so its « Tout voir » link loses no post.
       </header>
       <ul class="post-grid" role="list">
         {{#foreach posts}}
-          <li>{{> post-tile size="s" eager=@first}}</li>
+          <li>{{> post-tile size="s" eager=@first heading="h2"}}</li>
         {{/foreach}}
       </ul>
     </div>
@@ -55,5 +55,5 @@ right after them, so its « Tout voir » link loses no post.
 {{/is}}
 
 {{#contentFor "scripts"}}
-  <script type="module" src="{{asset "js/home.js"}}"></script>
+  <script type="module" async src="{{asset "js/home.js"}}"></script>
 {{/contentFor}}

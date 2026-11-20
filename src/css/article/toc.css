@@ -13,6 +13,12 @@
   }
 }
 
+/* With JavaScript, already in place at the first paint when the text has two headings or more, so the
+   text does not move down when post.js shows it (over the reset's [hidden] rule, hence !important) */
+:root[data-js] .article-body:has([data-article-content] > :is(h2, h3) ~ :is(h2, h3)) .article-toc[hidden] {
+  display: block !important;
+}
+
 .article-toc__toggle {
   display: inline-flex;
   align-items: center;

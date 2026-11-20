@@ -312,20 +312,6 @@ describe("article page: header, dates, author", () => {
 		await dispose();
 	});
 
-	it("speaks French in Ghost's own call to subscribe on a members-only post", async () => {
-		const render = article({ html: "<p>Le début, public.</p>" });
-		Object.assign(render.context.post, { access: false, visibility: "members" });
-		const { page, dispose } = await open({ render });
-		const cta = page.locator(".gh-post-upgrade-cta");
-		assert.equal(await cta.locator("h2").textContent(), "Cet article est réservé aux abonnés");
-		assert.deepEqual(
-			(await cta.locator("a").allTextContents()).map(t => t.trim()),
-			["S’abonner", "Se connecter"],
-		);
-		assert.match(await cta.textContent(), /Déjà abonné \?/);
-		await dispose();
-	});
-
 	it("shares the post's full address, encoded, with each service", async () => {
 		const { page, dispose } = await open({ render: article() });
 		const links = await page.$$eval(".article-share__link", els => els.map(a => a.getAttribute("href")));

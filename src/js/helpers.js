@@ -78,6 +78,27 @@ export const setUpPopover = (button, panel, { onToggle = () => {}, place = true 
 	return { isOpen, close: () => isOpen() && toggle(false) };
 };
 
+// Makes a panel that covers the page (the phone menu sheet, the display settings sheet) behave as a
+// modal: while it is open everything else is inert, so Tab cannot leave it for the page hidden under
+// it, and assistive technologies read only the panel. A popover stays in the DOM where it is, so the
+// siblings of the panel and of each of its ancestors up to <body> are made inert, and only those the
+// panel made inert are released. Returns (on) => void.
+export const containFocus = panel => {
+	let made = [];
+	return on => {
+		made.forEach(el => (el.inert = false));
+		made = [];
+		if (!on) return;
+		for (let node = panel; node && node !== document.body; node = node.parentElement) {
+			for (const sibling of node.parentElement?.children ?? []) {
+				if (sibling === node || sibling.inert || ["SCRIPT", "STYLE", "TEMPLATE"].includes(sibling.tagName)) continue;
+				sibling.inert = true;
+				made.push(sibling);
+			}
+		}
+	};
+};
+
 // A scroll-snap strip (.js-slider-track) with previous and next buttons, which scroll it by one
 // slide and are disabled at either end. Works in right-to-left pages, where scrollLeft is negative.
 export const setUpSlider = slider => {
@@ -131,12 +152,20 @@ export const throttleToFrame = callback => {
 	};
 };
 
+// Runs callback once the whole document is parsed. Not DOMContentLoaded: it waits for the deferred
+// scripts too (Ghost's Portal, search, comments), which the theme's async modules must not wait for.
+// readyState leaves "loading" when parsing ends, before those scripts run.
 export const onReady = callback => {
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", callback, { once: true });
-	} else {
+	if (document.readyState !== "loading") {
 		callback();
+		return;
 	}
+	const parsed = () => {
+		if (document.readyState === "loading") return;
+		document.removeEventListener("readystatechange", parsed);
+		callback();
+	};
+	document.addEventListener("readystatechange", parsed);
 };
 
 export const managePostImages = () => {

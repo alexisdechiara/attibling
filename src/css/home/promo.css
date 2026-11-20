@@ -72,6 +72,11 @@
   @media (width < 64rem) {
     order: 3;
     width: 100%;
+    /* A long label (« S’abonner gratuitement ») wraps rather than widen the card at 320 px */
+    padding-block: var(--space-2);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
   }
 }
 
@@ -103,6 +108,8 @@
 
 .promo__benefits {
   display: grid;
+  /* minmax(0, …): a long benefit name is cut, it does not widen the list (320 px, WCAG 1.4.10) */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   align-content: center;
   margin: 0;
@@ -151,6 +158,7 @@
 /* Phones: the button and the sign-in link go under the benefits */
 @media (width < 64rem) {
   .promo__card {
+    grid-template-columns: minmax(0, 1fr);
     row-gap: 0;
   }
 

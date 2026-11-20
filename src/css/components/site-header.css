@@ -205,6 +205,15 @@
   margin-inline-start: var(--space-2);
 }
 
+/* Narrowest phones (320 px, or a 400 % zoom): « S'abonner » and « Compte » leave the bar, which
+   would otherwise overflow and push the menu button off screen; both are in the menu sheet */
+.site-header__subscribe,
+.site-header__account {
+  @media (width < 23rem) {
+    display: none;
+  }
+}
+
 /* Phones: no theme switch in the bar (it is in the menu sheet), the menu button instead */
 .site-header__theme {
   display: none;

@@ -7,7 +7,7 @@
         {{#if @first}}
           <li class="feature-grid__lead">{{> post-tile size="l" ratio="4-3" meta="time" sizes="(max-width: 767px) 100vw, 600px"}}</li>
         {{else}}
-          <li>{{> post-tile size="s" meta="time"}}</li>
+          <li>{{> post-tile size="s" meta="time" sizes="(max-width: 1023px) 45vw, 26vw"}}</li>
         {{/if}}
       {{/foreach}}
     </ul>

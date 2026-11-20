@@ -7,6 +7,7 @@
 // chosen fonts (fonts.bunny.net, as Ghost's custom fonts). « Réinitialiser » clears everything.
 import { isAvailable, readingProgress } from "./store";
 import { preferences } from "./privacy/choices";
+import { containFocus } from "./helpers";
 
 export const KEY = "attibling-reading";
 export const NAMES = [
@@ -171,9 +172,18 @@ export const setUpReadingSettings = () => {
 		sync();
 	});
 
-	// Opening and closing: focus moves into the panel, and back to the gear when it closes
+	// Opening and closing: focus moves into the panel, and back to the gear when it closes. On phones
+	// the panel is a bottom sheet over the article: the page is inert while it is open, so focus
+	// cannot leave it for the hidden page (a popover beside the page on wide screens stays non-modal).
 	const native = Object.hasOwn(HTMLElement.prototype, "popover");
 	const isOpen = () => (native ? panel.matches(":popover-open") : panel.classList.contains("is-open"));
+	const contain = containFocus(panel);
+	const modal = on => {
+		const sheet = on && window.matchMedia("(width < 48rem)").matches;
+		contain(sheet);
+		if (sheet) panel.setAttribute("aria-modal", "true");
+		else panel.removeAttribute("aria-modal");
+	};
 	const opened = () => {
 		sync();
 		syncProgress();
@@ -187,12 +197,15 @@ export const setUpReadingSettings = () => {
 	};
 
 	if (native) {
+		// beforetoggle: the page must be released before the browser gives focus back to the gear
+		panel.addEventListener("beforetoggle", event => modal(event.newState === "open"));
 		panel.addEventListener("toggle", event => (event.newState === "open" ? opened() : closed()));
 	} else {
 		button.removeAttribute("popovertarget");
 		panel.removeAttribute("popover");
 		const toggle = open => {
 			panel.classList.toggle("is-open", open);
+			modal(open);
 			if (open) opened();
 			else closed();
 		};

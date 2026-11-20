@@ -206,6 +206,20 @@
   max-width: 56rem;
 }
 
+/* With JavaScript, archives.js shows the filter bar above the list and regroups the rows by year: until
+   it has, the list stays invisible (its place kept), so nothing visible moves down when the bar and the
+   year headings arrive. If the script never runs, the list shows after 4 s as the server wrote it. */
+:root[data-js] .archives:not(.archives--grouped) .archives__body {
+  visibility: hidden;
+  animation: archives-reveal 0s 4s forwards;
+}
+
+@keyframes archives-reveal {
+  to {
+    visibility: visible;
+  }
+}
+
 .archives-list {
   margin: 0;
   padding: 0;

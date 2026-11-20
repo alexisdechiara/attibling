@@ -22,11 +22,6 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
 const read = file => fs.readFileSync(path.join(ROOT, file), "utf8");
 const IMAGE_SIZES = JSON.parse(read("package.json")).config.image_sizes;
 
-// Ghost 6.78, core/frontend/helpers/tpl/content-cta.hbs (MIT), rendered by {{content}} for a post the reader
-// may not read; its strings come from the theme's locales
-const CONTENT_CTA =
-	'{{{html}}}\n<aside class="gh-post-upgrade-cta">\n    <div class="gh-post-upgrade-cta-content" style="background-color: {{@site.accent_color}}">\n        {{#has visibility="paid"}}\n            {{#is "page"}}\n                <h2>{{t "This page is for paying subscribers only"}}</h2>\n            {{else}}\n                <h2>{{t "This post is for paying subscribers only"}}</h2>\n            {{/is}}\n        {{/has}}\n        {{#has visibility="members"}}\n            {{#is "page"}}\n                <h2>{{t "This page is for subscribers only"}}</h2>\n            {{else}}\n                <h2>{{t "This post is for subscribers only"}}</h2>\n            {{/is}}\n        {{/has}}\n        {{#has visibility="tiers"}}\n            {{#is "page"}}\n                <h2>{{{t "This page is for subscribers on the {tiers} only" tiers=(tiers separator=", " lastSeparator=(t " and "))}}}</h2>\n            {{else}}\n                <h2>{{{t "This post is for subscribers on the {tiers} only" tiers=(tiers separator=", " lastSeparator=(t " and "))}}}</h2>\n            {{/is}}\n        {{/has}}\n        {{#if @member}}\n            <a class="gh-btn" data-portal="account/plans" href="#/portal/account/plans" style="color:{{@site.accent_color}}">{{t "Upgrade your account"}}</a>\n        {{else}}\n            <a class="gh-btn" data-portal="signup" href="#/portal/signup" style="color:{{@site.accent_color}}">{{t "Subscribe now"}}</a>\n            <p><small>{{t "Already have an account?"}} <a data-portal="signin" href="#/portal/signin">{{t "Sign in"}}</a></small></p>\n        {{/if}}\n    </div>\n</aside>\n';
-
 const listTemplates = dir =>
 	fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap(entry => {
 		const rel = path.join(dir, entry.name);
@@ -230,7 +225,8 @@ export const renderTemplate = (name, options = {}) => {
 			return "";
 		},
 		ghost_head: () => safe('<meta name="generator" content="Ghost 6.0">'),
-		ghost_foot: () => "",
+		// The site's footer code injection (Settings > Code injection), as Ghost prints it
+		ghost_foot: () => safe(settings.codeinjection_foot || ""),
 		body_class: () => `${contexts.includes("home") ? "home-template" : `${contexts[0]}-template`}`,
 		meta_title: () => settings.title,
 		post_class() {
@@ -290,20 +286,23 @@ export const renderTemplate = (name, options = {}) => {
 			if (characters) return text.slice(0, characters);
 			return text;
 		},
-		// A post the reader may not read (access: false): Ghost renders its own call to subscribe after the
-		// public preview, with the theme's translations (ghost/core/frontend/helpers/tpl/content-cta.hbs)
+		// Like Ghost (core/frontend/helpers/content.js): a post the reader may not read in full
+		// (access === false) renders the theme's content-cta partial, the post as its context
 		content(opts) {
-			if (this.access === false) {
-				return safe(H.compile(CONTENT_CTA)(this, { data: opts.data }));
+			if (this.access !== undefined && !this.access) {
+				if (!H.partials["content-cta"]) throw new Error("Ghost's default content-cta is not stubbed");
+				return safe(H.partials["content-cta"]({ ...this, html: this.html ?? "" }, { data: opts.data }));
 			}
 			return safe(this.html || "<p>Body</p>");
 		},
+		// Like Ghost (helpers/tiers.js): the names of the post's tiers, "a, b and c tiers"
 		tiers(opts) {
-			const names = (this.tiers || []).map(t => t.name);
-			const last = names.pop();
-			return names.length
-				? names.join(opts.hash.separator ?? ", ") + (opts.hash.lastSeparator ?? " and ") + last
-				: (last ?? "");
+			const names = (this.tiers || []).map(tier => H.escapeExpression(tier.name));
+			if (!names.length) return "";
+			const { separator = ", ", lastSeparator = " and ", prefix = "" } = opts.hash;
+			const suffix = opts.hash.suffix ?? (names.length === 1 ? " tier" : " tiers");
+			const list = names.length === 1 ? names[0] : names.slice(0, -1).join(separator) + lastSeparator + names.at(-1);
+			return safe(prefix + list + suffix);
 		},
 		comments: () => "",
 		authors(opts) {
@@ -440,6 +439,7 @@ export const renderTemplate = (name, options = {}) => {
 			const { tag, any, author, number, index, visibility } = opts.hash;
 			let ok = false;
 			if (visibility) {
+				// Like Ghost: the post's visibility is one of the given ones
 				ok = visibility
 					.split(",")
 					.map(v => v.trim())

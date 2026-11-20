@@ -551,7 +551,10 @@
     }
   }
 
-  .hero__dot:is(:hover, :focus-visible):not([aria-current="true"]) .hero__dot-preview {
+  /* Escape hides it (home.js sets data-preview-hidden until the pointer leaves or the focus moves) */
+  .hero__pager:not([data-preview-hidden])
+    .hero__dot:is(:hover, :focus-visible):not([aria-current="true"])
+    .hero__dot-preview {
     opacity: 1;
     translate: 0 -50%;
   }

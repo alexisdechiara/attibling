@@ -270,6 +270,19 @@ export const saveSeed = seed => {
 	history.replaceState({ ...state, [STATE_KEY]: seed }, "");
 };
 
+// The pictures of the cells on the first screen load at once, the first one first: the template has
+// them all loading="lazy", since the server cannot know which cells come first. Cells are in row-major
+// order, so the first one below the screen ends the list.
+export const loadFirstScreen = grid => {
+	let first = true;
+	for (const img of grid.querySelectorAll("img[loading=lazy]")) {
+		if (img.getBoundingClientRect().top >= window.innerHeight) break;
+		if (first) img.setAttribute("fetchpriority", "high");
+		first = false;
+		img.loading = "eager";
+	}
+};
+
 export const prepaint = script => {
 	const grid = script.previousElementSibling;
 	try {
@@ -286,4 +299,5 @@ export const prepaint = script => {
 		// The server's order stays (CSS dense packing)
 	}
 	document.documentElement.removeAttribute("data-tags-arranging");
+	loadFirstScreen(grid);
 };
