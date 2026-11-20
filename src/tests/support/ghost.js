@@ -64,31 +64,47 @@ const literal = value => {
 	return v;
 };
 
+const test = (values, raw) => {
+	let value = raw;
+	let negate = false;
+	if (value.startsWith("-")) {
+		negate = true;
+		value = value.slice(1);
+	}
+	let ok;
+	if (value.startsWith("[")) {
+		const list = value
+			.slice(1, -1)
+			.split(",")
+			.map(s => literal(s.trim()));
+		ok = values.some(v => list.includes(v));
+	} else if (value.startsWith(">")) ok = values.some(v => v > literal(value.slice(1)));
+	else if (value.startsWith("<")) ok = values.some(v => v < literal(value.slice(1)));
+	else ok = values.some(v => v === literal(value) || String(v) === String(literal(value)));
+	return negate ? !ok : ok;
+};
+
+// Ghost joins the tags table once per "+" group: with a tags.visibility condition, the tag
+// conditions of the group (tags, tags.slug, tags.visibility) must all hold for one same tag
+// (tags:[a,b]+tags.visibility:public = shares a public tag among a, b), as checked on Ghost 6.78.
+const TAG_KEYS = /^(tag|tags|tags\.slug|tags\.visibility)$/;
 const matches = (item, filter) => {
 	if (!filter) return true;
-	return splitTop(filter, ",").some(group =>
-		splitTop(group, "+").every(cond => {
-			const [, key, raw] = cond.match(/^([\w.]+):(.*)$/);
-			let value = raw;
-			let negate = false;
-			if (value.startsWith("-")) {
-				negate = true;
-				value = value.slice(1);
-			}
-			const values = fieldValues(item, key);
-			let ok;
-			if (value.startsWith("[")) {
-				const list = value
-					.slice(1, -1)
-					.split(",")
-					.map(s => literal(s.trim()));
-				ok = values.some(v => list.includes(v));
-			} else if (value.startsWith(">")) ok = values.some(v => v > literal(value.slice(1)));
-			else if (value.startsWith("<")) ok = values.some(v => v < literal(value.slice(1)));
-			else ok = values.some(v => v === literal(value) || String(v) === String(literal(value)));
-			return negate ? !ok : ok;
-		}),
-	);
+	return splitTop(filter, ",").some(group => {
+		const conds = splitTop(group, "+").map(cond => cond.match(/^([\w.]+):(.*)$/).slice(1));
+		const joined = conds.some(([key]) => key === "tags.visibility");
+		const own = joined ? conds.filter(([key]) => !TAG_KEYS.test(key)) : conds;
+		const tagConds = joined ? conds.filter(([key]) => TAG_KEYS.test(key)) : [];
+		return (
+			own.every(([key, raw]) => test(fieldValues(item, key), raw)) &&
+			(!joined ||
+				(item.tags || []).some(tag =>
+					tagConds.every(([key, raw]) =>
+						test([key === "tags.visibility" ? tag.visibility || "public" : tag.slug], raw),
+					),
+				))
+		);
+	});
 };
 
 const sortBy = (items, order) => {

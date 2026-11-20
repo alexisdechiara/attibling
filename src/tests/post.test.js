@@ -365,6 +365,22 @@ describe("article page: header, dates, author", () => {
 		assert.ok(!tiles.includes("Overwatch est-il en train de renaître ?"), "not the post itself");
 		await dispose();
 	});
+
+	it("recommends posts that share a public tag, never one linked by an internal tag only", async () => {
+		const render = article({ tags: ["actualites"], internal: ["#top"] });
+		const { posts } = render.site;
+		const [actualites, top] = posts[1].tags;
+		posts.forEach((post, i) => {
+			if (i === 1) return;
+			// Post 0 shares #top only (and has a public tag of its own), post 2 shares Actualité
+			const tags = i === 0 ? [{ ...actualites, slug: "anime", name: "Anime" }, top] : i === 2 ? [actualites] : [];
+			Object.assign(post, { tags, primary_tag: tags.find(t => t.visibility === "public") || null });
+		});
+		const { page, dispose } = await open({ render });
+		const tiles = await page.$$eval(".article-related .tile__title", els => els.map(el => el.textContent));
+		assert.deepEqual(tiles, [posts[2].title]);
+		await dispose();
+	});
 });
 
 describe("article page: reading progress for « Reprendre la lecture »", () => {

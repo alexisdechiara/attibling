@@ -1260,8 +1260,8 @@ Qui décide, du plus fort au plus faible :
   Facebook, LinkedIn, e-mail).
 - Commentaires : ceux de Ghost (Settings → **Membership** → **Commenting**), titre « Discussion entre
   abonnés ».
-- « Recommandé pour vous » : trois autres articles qui partagent un tag avec celui-ci, du plus récent au plus
-  ancien.
+- « Recommandé pour vous » : trois autres articles qui partagent un tag public (une rubrique) avec celui-ci, du
+  plus récent au plus ancien ; les tags internes (`#top`, `#serie-…`, `#mis-a-jour`…) ne comptent pas.
 
 ### Séries : le tag #serie-…
 

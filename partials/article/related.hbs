@@ -1,9 +1,10 @@
 {{!--
-« Recommandé pour vous » (post context): three other posts sharing a tag with this one, newest first,
+« Recommandé pour vous » (post context): three other posts sharing a public tag with this one (Ghost
+checks both conditions on the same tag: internal tags such as #top or #serie-… do not count), newest first,
 as the shared post tiles. Nothing when there is none.
 --}}
 {{#if tags}}
-  {{#get "posts" limit="3" filter="tags:[{{tags[*].slug}}]+id:-{{id}}" include="tags,authors" order="published_at desc" as |related|}}{{#if related}}
+  {{#get "posts" limit="3" filter="tags:[{{tags[*].slug}}]+tags.visibility:public+id:-{{id}}" include="tags,authors" order="published_at desc" as |related|}}{{#if related}}
     <section class="article-related container" aria-labelledby="related-title">
       {{> section-header title=(t "Recommended for you") id="related-title"}}
       <ul class="post-grid" role="list">
