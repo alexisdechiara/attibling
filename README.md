@@ -11,6 +11,12 @@ Version 2 is a full redesign: a magazine layout in light and dark modes, built w
 `tocbot` remain). Everything works without settings and degrades gracefully: a browser lacking a feature
 loses decoration, never content or navigation.
 
+**Browser support**: Baseline Widely Available, i.e. Chrome and Edge 125, Firefox 126, Safari 17.5 (macOS and
+iOS) and later. On those, every page is fully readable and usable; newer features (cross-page view
+transitions, scroll-driven header, anchor-positioned menus, `@starting-style` fades, `text-box`, customizable
+select…) are progressive enhancements. The build targets are set in `vite.config.mjs` (`browsers`, used for
+both CSS and JS) and checked by `src/tests/browser-support.test.js`.
+
 ### Home page
 
 ✅ Hero card with the featured posts (pager, no autoplay) and the site's wordmark

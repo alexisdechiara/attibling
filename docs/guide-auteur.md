@@ -7,7 +7,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 ## Sommaire
 
 0. [Mise en route en 10 minutes](#0-mise-en-route-en-10-minutes)
-1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés
+1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés, navigateurs pris en charge
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées, vignette d'un article (image des cartes)
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
@@ -100,6 +100,16 @@ par la fenêtre d'abonnement de Ghost (Portal). Certaines fonctions sont réserv
 (signets, « Reprendre la lecture ») : elles n'apparaissent jamais pour un visiteur. Leurs données restent dans
 le navigateur du lecteur (stockage local) : rien n'est envoyé au serveur, et la liste n'existe que sur cet
 appareil et ce navigateur. Les abonnements doivent être activés : Settings → **Membership**.
+
+### Navigateurs pris en charge
+
+Le thème vise les navigateurs « Baseline largement disponible » : **Chrome et Edge 125, Firefox 126,
+Safari 17.5 (macOS et iPhone/iPad) et toutes les versions suivantes** (sorties à partir de mai 2024). Sur
+ces navigateurs, toutes les pages se lisent et s'utilisent entièrement. Les effets plus récents (transitions
+entre les pages, en-tête animé au défilement, ouverture en fondu des menus, menus placés par le navigateur,
+liste déroulante stylée des réglages d'affichage…) ne s'ajoutent que là où le navigateur les connaît :
+ailleurs, la même page s'affiche sans l'effet. Un navigateur plus ancien que ces versions reçoit encore le
+contenu, mais sa mise en page n'est plus vérifiée.
 
 ---
 

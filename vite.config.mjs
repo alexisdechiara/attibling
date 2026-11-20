@@ -5,15 +5,22 @@ import { defineConfig, minifySync } from "vite-plus";
 const root = import.meta.dirname;
 const outDir = path.join(root, "assets");
 
-// Browsers released in the last two years (November 2024 onwards).
-const browsers = ["chrome131", "edge131", "firefox133", "safari18.2"];
+// Baseline Widely Available on 2026-11-20 (baseline-browser-mapping 2.11.39, web-features 3.47): the
+// first versions of the core browsers released 30 months earlier, Chrome / Edge 125, Firefox 126,
+// Safari 17.5 (macOS and iOS), and everything after. Native nesting and light-dark() are in all of
+// them; what some lack (relative colours, anchor positioning, view transitions, @starting-style,
+// text-box...) is either rewritten in src/css or guarded, so they get the same content and layout,
+// with less decoration. src/tests/browser-support.test.js checks the built files against this list.
+// When it moves forward, update the README ("Browser support") and docs/guide-auteur.md too.
+export const browsers = ["chrome125", "edge125", "firefox126", "safari17.5", "ios17.5"];
 
-// The same browsers in Lightning CSS form; Vite would otherwise lower CSS for its default
-// "baseline widely available" targets (Safari 16.4), which flattens the native nesting.
+// The same browsers in Lightning CSS form (it lowers and prefixes the CSS for them: -webkit- for
+// Safari 17, e.g.); Vite would otherwise lower CSS for its own default targets (Safari 16.4), which
+// flattens the native nesting.
 const lightningcssTargets = Object.fromEntries(
 	browsers.map(b => {
 		const [, name, major, minor = 0] = b.match(/^([a-z]+)(\d+)(?:\.(\d+))?$/);
-		return [name, (Number(major) << 16) | (Number(minor) << 8)];
+		return [name === "ios" ? "ios_saf" : name, (Number(major) << 16) | (Number(minor) << 8)];
 	}),
 );
 
