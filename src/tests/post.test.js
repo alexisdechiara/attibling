@@ -144,7 +144,9 @@ describe("article page: content", () => {
 	});
 
 	it("shows « back to the top » only after a screen of scrolling, and never over a control", async () => {
-		const filler = "<p>Un paragraphe pour que la page défile bien au-delà de l’écran, ligne après ligne.</p>".repeat(30);
+		const filler = "<p>Un paragraphe pour que la page défile bien au-delà de l’écran, ligne après ligne.</p>".repeat(
+			30,
+		);
 		const facade =
 			'<figure class="kg-card kg-embed-card"><iframe width="200" height="113" src="https://www.youtube.com/embed/_jGbRsxHi7Q" title="Une vidéo"></iframe></figure>';
 		const html = `${filler}${facade}${filler}<p style="text-align: right">Fin de ligne : <a href="/x/">un lien</a></p>${filler}`;

@@ -356,12 +356,18 @@ describe("accessibility audit: contrast, forced colours, obscured focus", () => 
 			page.$$eval(
 				selector,
 				(list, selector) =>
-				list.map(el => {
-					const r = el.getBoundingClientRect();
-					const [x, y] = [r.left + r.width / 2, r.top + r.height / 2];
-					const points = [[0, 0], [-21, 0], [21, 0], [0, -21], [0, 21]];
-					return points.every(([dx, dy]) => document.elementFromPoint(x + dx, y + dy)?.closest(selector) === el);
-				}),
+					list.map(el => {
+						const r = el.getBoundingClientRect();
+						const [x, y] = [r.left + r.width / 2, r.top + r.height / 2];
+						const points = [
+							[0, 0],
+							[-21, 0],
+							[21, 0],
+							[0, -21],
+							[0, 21],
+						];
+						return points.every(([dx, dy]) => document.elementFromPoint(x + dx, y + dy)?.closest(selector) === el);
+					}),
 				selector,
 			);
 		for (const viewport of [{ width: 320, height: 700 }, PHONE, { width: 1440, height: 900 }]) {

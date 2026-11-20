@@ -201,7 +201,13 @@ describe("pictures of the first screen", () => {
 		assert.deepEqual((await hero(page)).slice(2), [false, false, false, false]);
 		// Once the page has loaded and is idle: the next slide, its picture at low priority, and no other
 		assert.equal(await waitFor(async () => (await hero(page))[1]), true, "the second picture, in the background");
-		assert.equal(await page.locator(".hero__image").nth(1).evaluate(img => img.fetchPriority), "low");
+		assert.equal(
+			await page
+				.locator(".hero__image")
+				.nth(1)
+				.evaluate(img => img.fetchPriority),
+			"low",
+		);
 		await sleep(400);
 		assert.deepEqual(await hero(page), [true, true, false, false, false, false]);
 		// Pointing at a dot readies its slide; a click shows it, faded in, and readies the one after it
@@ -226,7 +232,13 @@ describe("pictures of the first screen", () => {
 		const second = page.locator(".hero__image").nth(1);
 		assert.equal(await waitFor(() => second.evaluate(img => img.currentSrc !== "" && img.complete)), true);
 		await page.locator("[data-hero-dot]").nth(1).tap();
-		assert.equal(await page.locator("[data-hero-slide]").nth(1).evaluate(el => !el.inert), true);
+		assert.equal(
+			await page
+				.locator("[data-hero-slide]")
+				.nth(1)
+				.evaluate(el => !el.inert),
+			true,
+		);
 		await dispose();
 	});
 
