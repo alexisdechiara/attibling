@@ -372,7 +372,6 @@
   left: 50%;
   display: flex;
   align-items: center;
-  gap: 2px;
   padding: 2px 6px;
   border-radius: var(--radius-pill);
   background: var(--color-scrim-strong);
@@ -383,7 +382,6 @@
     left: auto;
     inset-inline-end: 28px;
     flex-direction: column;
-    gap: var(--space-1);
     padding: var(--space-2) var(--space-1);
     background: var(--color-scrim);
     transform: translateY(-50%);
@@ -399,8 +397,10 @@
   position: relative;
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  /* A 44px target (a 28px look: the extra 8px on each side go past the pill, on the image) */
+  width: var(--target);
+  height: var(--target);
+  margin-block: -8px;
   padding: 0;
   border: 0;
   border-radius: var(--radius-pill);
@@ -455,7 +455,7 @@
   }
 
   &[aria-current="true"] {
-    width: 34px;
+    width: calc(var(--target) + 6px);
 
     &::before {
       width: 22px;
@@ -472,9 +472,12 @@
   }
 
   @media (width >= 64rem) {
+    margin-block: 0;
+    margin-inline: -8px;
+
     &[aria-current="true"] {
-      width: 28px;
-      height: 36px;
+      width: var(--target);
+      height: calc(var(--target) + 8px);
 
       &::before {
         width: 6px;

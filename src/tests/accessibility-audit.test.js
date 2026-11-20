@@ -349,6 +349,50 @@ describe("accessibility audit: contrast, forced colours, obscured focus", () => 
 		await dispose();
 	});
 
+	it("gives the hero dots and the header « S'abonner » a 44 px target, the same look", async () => {
+		// 44 px across in both directions through the control's centre reach that control, no other (1 px
+		// short of each edge: a round box is hit-tested as a circle)
+		const square = (page, selector) =>
+			page.$$eval(
+				selector,
+				(list, selector) =>
+				list.map(el => {
+					const r = el.getBoundingClientRect();
+					const [x, y] = [r.left + r.width / 2, r.top + r.height / 2];
+					const points = [[0, 0], [-21, 0], [21, 0], [0, -21], [0, 21]];
+					return points.every(([dx, dy]) => document.elementFromPoint(x + dx, y + dy)?.closest(selector) === el);
+				}),
+				selector,
+			);
+		for (const viewport of [{ width: 320, height: 700 }, PHONE, { width: 1440, height: 900 }]) {
+			const { page, dispose } = await open({ viewport });
+			await page.locator("[data-hero-pager]").waitFor({ state: "visible" });
+			const dots = await square(page, "[data-hero-dot]");
+			assert.ok(dots.length > 1 && dots.every(Boolean), `${viewport.width}: ${dots}`);
+			const look = await page.evaluate(() => {
+				const pager = document.querySelector("[data-hero-pager]").getBoundingClientRect();
+				const hero = document.querySelector("[data-hero-pager]").offsetParent.getBoundingClientRect();
+				const dot = getComputedStyle(document.querySelector("[data-hero-dot]:not([aria-current])"), "::before");
+				return {
+					thickness: Math.round(Math.min(pager.width, pager.height)),
+					dot: [dot.width, dot.height],
+					inside: pager.left >= hero.left && pager.right <= hero.right,
+				};
+			});
+			const phone = viewport.width < 1024;
+			assert.deepEqual(look, { thickness: phone ? 32 : 36, dot: ["6px", "6px"], inside: true }, "same pill, same dots");
+			if (!phone) {
+				assert.deepEqual(await square(page, ".site-header__subscribe"), [true]);
+				assert.equal(
+					await page.locator(".site-header__subscribe").evaluate(a => a.getBoundingClientRect().height),
+					40,
+					"the button keeps its size",
+				);
+			}
+			await dispose();
+		}
+	});
+
 	it("hides the hero dot's title preview on Escape", async () => {
 		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
 		// The first dot is the current one (no preview); Tab reaches the second without showing its slide

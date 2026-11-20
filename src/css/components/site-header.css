@@ -202,7 +202,15 @@
 }
 
 .site-header__subscribe {
+  position: relative;
   margin-inline-start: var(--space-2);
+
+  /* A 44px target, the 40px look of the small button */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px 0;
+  }
 }
 
 /* Narrowest phones (320 px, or a 400 % zoom): « S'abonner » and « Compte » leave the bar, which
