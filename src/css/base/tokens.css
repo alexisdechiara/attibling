@@ -29,7 +29,7 @@
 
   /* Lines */
   --color-border: light-dark(#d9dce2, #2b2f38);
-  --color-border-strong: #8a909a; /* form fields, dashed "see all" tile */
+  --color-border-strong: #80868f; /* form fields, dashed "see all" tile: 3.4:1 on the light page (1.4.11) */
 
   /* Accent (links, primary buttons, focus) */
   --color-accent: light-dark(#1a5fd0, #8ab4f8);

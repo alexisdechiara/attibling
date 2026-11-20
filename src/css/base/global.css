@@ -106,3 +106,16 @@ a {
 
 /* Reduced motion: each component keeps at most a short fade (no movement) under
    prefers-reduced-motion: reduce; nothing needs an animation to work. */
+
+/* Forced colours (Windows contrast themes): backgrounds are dropped, so a state shown only by a
+   background (a pressed year of the archives, the current navigation item, the checked choice of the
+   display settings) gets a frame in the system highlight colour; the focus ring keeps its outline */
+@media (forced-colors: active) {
+  :is([aria-pressed="true"]:not(.bookmark), a[aria-current="page"], label:has(> input:checked)):not(
+    :focus-visible,
+    :has(:focus-visible)
+  ) {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+}
