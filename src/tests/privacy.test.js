@@ -27,27 +27,30 @@ const openPanel = async page => {
 };
 const stored = (page, key) => page.evaluate(k => localStorage.getItem(k), key);
 
-describe("privacy: nothing on arrival", () => {
+describe("privacy: nothing without something to ask", () => {
 	before(launch);
 	after(close);
 
+	// Default settings (consent_notice = Notice): a page with no embed and no gated script never shows it
 	for (const [name, render] of [
 		["home, visitor", () => home()],
 		["home, member", () => home({ member: true })],
-		["article, visitor", () => article({ html: LONG })],
-		["article, member", () => article({ member: true, html: LONG })],
+		["article without embeds, visitor", () => article()],
+		["article without embeds, member", () => article({ member: true })],
 	]) {
 		it(`shows no consent notice, banner or panel with the default settings (${name})`, async () => {
-			const { page, dispose, storageWrites } = await open({ render: render(), bodyStart: GATED, viewport: PHONE });
+			const { page, dispose, storageWrites } = await open({ render: render(), viewport: PHONE });
+			await page.clock.install();
+			await page.reload({ waitUntil: "load" });
 			await page.mouse.wheel(0, 2000);
-			await page.waitForTimeout(500);
+			await page.clock.fastForward(13000);
+			await page.waitForTimeout(200);
 			const state = await page.evaluate(() => ({
 				mode: document.documentElement.dataset.consent ?? null,
-				notice: document.querySelectorAll("[data-consent-notice], #consent-notice").length,
+				notice: document.querySelectorAll("[data-consent-notice]").length,
 				dialogOpen: !!document.querySelector("dialog[open]"),
-				gated: window.__gatedRuns ?? 0,
 			}));
-			assert.deepEqual(state, { mode: null, notice: 0, dialogOpen: false, gated: 0 });
+			assert.deepEqual(state, { mode: "notice", notice: 0, dialogOpen: false });
 			const written = (await storageWrites()).map(([key]) => key);
 			for (const key of ["attibling-consent", "attibling-privacy", "plausible_ignore"])
 				assert.ok(!written.includes(key), `${key} written on arrival`);
@@ -58,6 +61,25 @@ describe("privacy: nothing on arrival", () => {
 			await dispose();
 		});
 	}
+
+	it("never asks with consent_notice = None: embeds keep their one-click facade, gated scripts stay off", async () => {
+		const { page, dispose } = await open({
+			render: article({ html: LONG, custom: { ...ARTICLE_CUSTOM, consent_notice: "None" } }),
+			bodyStart: GATED,
+		});
+		await page.locator("[data-embed-facade]").waitFor();
+		await page.mouse.wheel(0, 2000);
+		await page.waitForTimeout(500);
+		assert.deepEqual(
+			await page.evaluate(() => [
+				document.querySelectorAll("[data-consent-notice], #consent-notice").length,
+				window.__gatedRuns ?? 0,
+				document.documentElement.dataset.consent ?? null,
+			]),
+			[0, 0, null],
+		);
+		await dispose();
+	});
 });
 
 describe("privacy: the preferences panel", () => {
@@ -83,7 +105,7 @@ describe("privacy: the preferences panel", () => {
 			modal: true,
 			label: "Cookies et confidentialité",
 			focusInside: true,
-			switches: ["Afficher les contenus de YouTube sans clic"],
+			switches: ["Contenus intégrés", "Afficher les contenus de YouTube sans clic"],
 		});
 		await page.keyboard.press("Escape");
 		await panel(page).waitFor({ state: "hidden" });
@@ -118,7 +140,7 @@ describe("privacy: the preferences panel", () => {
 		const toggle = panel(page).locator('[data-provider="youtube"]');
 		assert.equal(await toggle.isChecked(), false);
 		await toggle.check();
-		assert.deepEqual(JSON.parse(await stored(page, "attibling-embeds")), ["youtube"]);
+		assert.deepEqual(JSON.parse(await stored(page, "attibling-embeds")), { youtube: true });
 		assert.equal(requests.filter(u => /youtube/.test(u)).length, 0, "nothing loaded before the next page");
 
 		await page.reload({ waitUntil: "load" });
@@ -126,7 +148,7 @@ describe("privacy: the preferences panel", () => {
 		assert.equal(await page.locator("[data-embed-facade]").count(), 0, "shown without a click");
 		await openPanel(page);
 		await panel(page).locator('[data-provider="youtube"]').uncheck();
-		assert.equal(await stored(page, "attibling-embeds"), null);
+		assert.deepEqual(JSON.parse(await stored(page, "attibling-embeds")), { youtube: false });
 		await page.reload({ waitUntil: "load" });
 		await page.locator("[data-embed-facade]").waitFor();
 		assert.equal(await page.locator("iframe[data-embed-frame]").count(), 0);
@@ -264,7 +286,7 @@ describe("privacy: the « Cookies et confidentialité » page", () => {
 			["theme", "Le mode clair, sombre ou automatique choisi avec le bouton de l’en-tête", "dark"],
 			[
 				"attibling-embeds",
-				"Les services (YouTube, X…) dont vous avez choisi d’afficher les contenus sans clic : leur nom seulement",
+				"Les services (YouTube, X…) réglés un par un : affichés sans clic, ou gardés derrière leur encadré",
 				"youtube, x",
 			],
 			["autre-cle", "Non décrit par le thème (ajouté par un autre script)", "1"],

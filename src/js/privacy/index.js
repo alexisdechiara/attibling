@@ -1,10 +1,11 @@
 // Privacy on every page (app.js): nothing is shown on arrival.
 //  - « Cookies et confidentialité » in the footer (and « Gérer mes choix » under an embed) opens the
 //    preferences panel (panel.js, downloaded on the first click).
-//  - Fallback consent mode (theme setting consent_notice: Notice or Banner): only when the page holds a
-//    script the site owner gated with data-consent and the reader has not decided yet, a notice asks
-//    (notice.js). « Banner » shows it at once; « Notice » after the reader scrolls a little or after
-//    12 seconds. Gated scripts run only after acceptance (choices.js).
+//  - The consent notice (theme setting consent_notice: Notice by default, Banner; None: never): only
+//    when the page holds an embed behind its facade (YouTube, X…) or a script the site owner gated with
+//    data-consent, and the reader has not answered yet, a notice asks (notice.js). « Banner » shows it at
+//    once; « Notice » after the reader scrolls a little or after 12 seconds. Accepting loads the embeds
+//    and runs the gated scripts (choices.js); refusing leaves each embed's facade as it is.
 //  - window.attiblingConsent: a small API for the owner's own code (see docs/guide-auteur.md).
 import { activateGated, consent, consentMode, gatedCategories } from "./choices";
 
@@ -58,25 +59,32 @@ export const setUpPrivacy = () => {
 
 	activateGated();
 
-	// The notice, only when something on this page waits for an answer
-	if (consentMode() === "none" || consent.decided() || !gatedCategories().size) return;
-	if (consentMode() === "banner") {
-		showNotice();
-		return;
-	}
-	let shown = false;
-	const show = () => {
-		if (shown) return;
-		shown = true;
-		window.removeEventListener("scroll", onScroll);
-		clearTimeout(timer);
-		showNotice();
+	// The notice, only when something on this page waits for an answer: a gated script, or an embed held
+	// behind its facade (embeds.js, loaded after this, says so with "attibling:gated")
+	let armed = false;
+	const ask = () => {
+		if (armed || consentMode() === "none" || consent.decided() || !gatedCategories().size) return;
+		armed = true;
+		if (consentMode() === "banner") {
+			showNotice();
+			return;
+		}
+		let shown = false;
+		const show = () => {
+			if (shown) return;
+			shown = true;
+			window.removeEventListener("scroll", onScroll);
+			clearTimeout(timer);
+			showNotice();
+		};
+		// A real scroll (a quarter of the screen), not the browser restoring a position on load
+		const start = window.scrollY;
+		const onScroll = () => {
+			if (Math.abs(window.scrollY - start) > window.innerHeight / 4) show();
+		};
+		window.addEventListener("scroll", onScroll, { passive: true });
+		const timer = setTimeout(show, NOTICE_DELAY);
 	};
-	// A real scroll (a quarter of the screen), not the browser restoring a position on load
-	const start = window.scrollY;
-	const onScroll = () => {
-		if (Math.abs(window.scrollY - start) > window.innerHeight / 4) show();
-	};
-	window.addEventListener("scroll", onScroll, { passive: true });
-	const timer = setTimeout(show, NOTICE_DELAY);
+	window.addEventListener("attibling:gated", ask);
+	ask();
 };

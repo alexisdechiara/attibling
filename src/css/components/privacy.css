@@ -37,6 +37,10 @@
   padding-block: var(--space-2);
   cursor: pointer;
 
+  &[hidden] {
+    display: none;
+  }
+
   input {
     flex: none;
     position: relative;
@@ -169,11 +173,36 @@
   margin-block: var(--space-2);
 }
 
-.privacy-choice,
-.consent-notice__choice {
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
+/* The answers, in the notice and the panel (the owner's choice, see docs/guide-auteur.md): « Tout
+   accepter » solid in the ink of the page (black on light, white on dark, the reader themes' ink on
+   posts), « Tout refuser » outlined in the same ink — same size, same row, same type, a real button */
+.consent-accept,
+.consent-refuse {
+  border: 1.5px solid var(--color-inverse);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+}
+
+.consent-accept {
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+}
+
+.consent-refuse {
+  background: transparent;
   color: var(--color-text);
+}
+
+/* While the notice shows, the article's « back to the top » button moves up above it where they would
+   meet (the banner, and the notice across the bottom on phones); notice.js measures the room */
+:root[data-consent-shown="banner"] .progress-button {
+  inset-block-end: calc(var(--consent-notice-space, 0px) + var(--space-3));
+}
+
+@media (width < 40rem) {
+  :root[data-consent-shown] .progress-button {
+    inset-block-end: calc(var(--consent-notice-space, 0px) + var(--space-3));
+  }
 }
 
 .privacy-clear {

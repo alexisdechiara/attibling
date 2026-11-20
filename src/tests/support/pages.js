@@ -8,7 +8,8 @@ import { createSite, indexContext } from "./site.js";
 
 const MEMBER = { uuid: "member-1", email: "reader@example.com", name: "Reader", paid: false };
 
-export const DEFAULT_CUSTOM = { use_geekly_logo: true, embed_consent: true };
+// consent_notice: Ghost gives the theme default (package.json), Notice
+export const DEFAULT_CUSTOM = { use_geekly_logo: true, embed_consent: true, consent_notice: "Notice" };
 
 // pages: the site's pages for {{#get "pages"}} (default none), e.g. [{ slug: "newsletter", url: "/newsletter/" }]
 export const home = ({ member = false, site = {}, custom = DEFAULT_CUSTOM, pages = [], ...rest } = {}) => {

@@ -2,9 +2,19 @@
 // confidentialité » page share them) and the page's live table of what this browser holds
 // (partials/privacy/page.hbs). Every switch reads what is stored each time it is shown, and writes at
 // once; other tabs and the rest of the page follow through the events of choices.js, embeds.js, store.js.
-import { PROVIDERS, remember, remembered } from "../embeds";
+import { PROVIDERS } from "../embeds";
 import { isMember, readingProgress } from "../store";
-import { CATEGORIES, consent, consentMode, plausible, plausibleOnPage, preferences, privacySignal } from "./choices";
+import {
+	CATEGORIES,
+	consent,
+	consentMode,
+	embeds,
+	gatedCategories,
+	plausible,
+	plausibleOnPage,
+	preferences,
+	privacySignal,
+} from "./choices";
 import { STORAGE, storageOf } from "./registry";
 
 const EVENTS = ["attibling:privacy", "attibling:consent", "attibling:embeds", "attibling:store", "storage"];
@@ -96,14 +106,14 @@ const providersToList = all => {
 	if (all)
 		return [
 			...PROVIDERS,
-			...remembered()
+			...Object.keys(embeds.choices())
 				.filter(id => !byId.has(id))
 				.map(id => ({ id, name: id })),
 		];
 	const ids = new Set([
 		...[...document.querySelectorAll("[data-embed-facade][data-provider]")].map(el => el.dataset.provider),
 		...[...document.querySelectorAll("iframe[data-embed-frame]")].map(el => el.dataset.embedFrame),
-		...remembered(),
+		...Object.keys(embeds.choices()),
 	]);
 	return [...ids].filter(Boolean).map(id => byId.get(id) || { id, name: id });
 };
@@ -116,6 +126,13 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 	const consentGroup = group("consent");
 	if (consentGroup && consentMode() !== "none") {
 		consentGroup.hidden = false;
+		// « Contenus intégrés » always (embeds may be on any post); the other kinds only where the site
+		// added such a script (on this page) or the reader already accepted them
+		const present = gatedCategories();
+		consentGroup.querySelectorAll("[data-consent-category]").forEach(input => {
+			const name = input.dataset.consentCategory;
+			input.closest("label").hidden = name !== "embeds" && !present.has(name) && consent.get(name) !== true;
+		});
 		consentGroup.querySelectorAll("[data-consent-all]").forEach(button =>
 			button.addEventListener("click", () => {
 				consent.all(button.dataset.consentAll === "true");
@@ -149,7 +166,7 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 		list.addEventListener("change", event => {
 			const input = event.target.closest("[data-provider]");
 			if (!input) return;
-			remember(input.dataset.provider, input.checked);
+			embeds.set(input.dataset.provider, input.checked);
 			announce("next");
 		});
 	}
@@ -197,10 +214,8 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 			const signal = consentGroup.querySelector("[data-consent-signal]");
 			if (signal) signal.hidden = !(privacySignal() && !consent.record());
 		}
-		const always = remembered();
-		list
-			?.querySelectorAll("[data-provider]")
-			.forEach(input => (input.checked = always.includes(input.dataset.provider)));
+		// Each service as it really behaves: its own choice, else the « Contenus intégrés » answer
+		list?.querySelectorAll("[data-provider]").forEach(input => (input.checked = embeds.allowed(input.dataset.provider)));
 		if (plausibleToggle) plausibleToggle.checked = plausible.counted();
 		if (progressToggle) progressToggle.checked = preferences.get().progress;
 		if (count) {
@@ -229,6 +244,10 @@ const summarize = (raw, strings) => {
 		if (value.every(item => typeof item === "string")) return value.join(", ") || strings.empty;
 		return value.length === 1 ? strings.one : strings.many.replace("%", value.length);
 	}
+	// { youtube: true, x: false } (attibling-embeds): « youtube, x (off) »
+	const entries = value && typeof value === "object" ? Object.entries(value) : [];
+	if (entries.length && entries.every(([, on]) => typeof on === "boolean"))
+		return entries.map(([id, on]) => (on ? id : `${id} ${strings.off}`)).join(", ");
 	const text = typeof value === "object" && value ? JSON.stringify(value) : String(value);
 	return text.length > 60 ? `${text.slice(0, 59)}…` : text;
 };

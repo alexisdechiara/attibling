@@ -6,13 +6,13 @@
 // loading it means, « always show », a link to the provider). On the reader's request the embed is
 // written into assets/html/embed.html, a page of the site without that policy: YouTube from
 // youtube-nocookie.com (privacy-enhanced mode) with autoplay, the others as Ghost wrote them (an X post
-// with its widgets.js). « Always show » is kept per provider in localStorage "attibling-embeds", for
-// visitors and members alike, and can be taken back under each embed it loaded or in the privacy panel
-// (« Cookies et confidentialité », src/js/privacy/). In the fallback consent mode, accepting the category
-// « Contenus intégrés » shows every provider without a click.
-import { consent } from "./privacy/choices";
-
-const STORAGE_KEY = "attibling-embeds";
+// with its widgets.js). Shown without a click: what privacy/choices.js `embeds.allowed(id)` says — the
+// service's own choice (« Toujours afficher », kept in localStorage "attibling-embeds", taken back under
+// each embed it loaded or in the « Cookies et confidentialité » panel), else the answer to the consent
+// notice's « Contenus intégrés » (setting consent_notice). A page that still holds an embed behind its
+// facade tells the notice ("attibling:gated"); an answer or a choice made meanwhile loads the embeds it
+// allows at once, without autoplay.
+import { embeds as choices } from "./privacy/choices";
 
 // Known providers: host, kind of embed (the button says « video », « post » or « content »), the link
 // to the content on the provider's site, and how the frame's address changes when it loads
@@ -109,27 +109,13 @@ const providerFor = url => {
 	return { id: host, name: host, kind: "content" };
 };
 
-// Remembered providers ("always show")
-export const remembered = () => {
-	try {
-		const list = JSON.parse(localStorage.getItem(STORAGE_KEY));
-		return Array.isArray(list) ? list.filter(id => typeof id === "string") : [];
-	} catch {
-		return [];
-	}
-};
+// The services shown without a click, as a list (the panel, older callers)
+export const remembered = () =>
+	Object.entries(choices.choices())
+		.filter(([, on]) => on)
+		.map(([id]) => id);
 
-export const remember = (id, on) => {
-	const list = remembered().filter(item => item !== id);
-	if (on) list.push(id);
-	try {
-		if (list.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-		else localStorage.removeItem(STORAGE_KEY);
-	} catch {
-		// Storage blocked: the choice only holds for this page
-	}
-	window.dispatchEvent(new CustomEvent("attibling:embeds", { detail: list }));
-};
+export const remember = (id, on) => choices.set(id, on);
 
 // The width / height ratio of a frame, from its attributes (as helpers.js setEmbedRatios)
 const ratioOf = frame => {
@@ -265,36 +251,29 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		facade.replaceWith(frame);
 		facades.delete(embed);
 
-		// Loaded because the reader chose « always show »: a way to take it back, right here. Loaded
-		// because « Contenus intégrés » was accepted (fallback consent mode): the panel, where that is
-		// taken back.
+		// Loaded without a click (« always show », or « Contenus intégrés » accepted): a way to take it
+		// back for this service, right here (the panel has the others)
 		if (auto) {
 			const line = document.createElement("p");
 			line.className = "embed-remembered";
 			const stop = document.createElement("button");
 			stop.type = "button";
 			stop.className = "embed-remembered__stop";
-			if (auto === "consent") {
-				stop.dataset.privacyOpen = "";
-				stop.textContent = strings.manage;
-			} else {
-				stop.dataset.embedStop = provider.id;
-				stop.textContent = fill(strings.stop, provider);
-				stop.addEventListener("click", () => {
-					remember(provider.id, false);
-					document
-						.querySelectorAll(`[data-embed-stop="${CSS.escape(provider.id)}"]`)
-						.forEach(b => b.parentElement.remove());
-					announce(fill(strings.stopped, provider));
-				});
-			}
+			stop.dataset.embedStop = provider.id;
+			stop.textContent = fill(strings.stop, provider);
+			stop.addEventListener("click", () => {
+				choices.set(provider.id, false);
+				document
+					.querySelectorAll(`[data-embed-stop="${CSS.escape(provider.id)}"]`)
+					.forEach(b => b.parentElement.remove());
+				announce(fill(strings.stopped, provider));
+			});
 			line.append(stop);
 			frame.after(line);
 		}
 	};
 
 	const embeds = findEmbeds(root);
-	const always = remembered();
 
 	for (const embed of embeds) {
 		const { provider, frame, nodes } = embed;
@@ -326,14 +305,9 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		facade.querySelector("[data-embed-open]").href = linkOf(embed);
 		const checkbox = facade.querySelector("[data-embed-always]");
 		facade.querySelector("[data-embed-load]").addEventListener("click", () => {
-			if (checkbox.checked) {
-				remember(provider.id, true);
-				// The other embeds of the same provider in the page follow the choice (load() removes
-				// each from the map, which a Map's iterator allows)
-				for (const other of facades.keys())
-					if (other !== embed && other.provider.id === provider.id) load(other, { auto: true });
-			}
 			load(embed, { clicked: true });
+			// The other embeds of the same provider in the page follow the choice (sync, below)
+			if (checkbox.checked) choices.set(provider.id, true);
 		});
 
 		// Replace what Ghost wrote (the blocked frame, the inert script) by the facade, caption kept
@@ -342,9 +316,13 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		facades.set(embed, facade);
 	}
 
-	const all = consent.get("embeds") === true;
-	for (const embed of embeds) {
-		if (always.includes(embed.provider.id)) load(embed, { auto: true });
-		else if (all) load(embed, { auto: "consent" });
-	}
+	// Every embed the reader's choices allow loads without a click: now, and after an answer or a choice
+	// made on this page (the notice, the panel, « always show » on another embed of the same service)
+	const sync = () => {
+		for (const embed of [...facades.keys()]) if (choices.allowed(embed.provider.id)) load(embed, { auto: true });
+	};
+	sync();
+	window.addEventListener("attibling:consent", sync);
+	window.addEventListener("attibling:embeds", sync);
+	if (facades.size) window.dispatchEvent(new CustomEvent("attibling:gated"));
 };

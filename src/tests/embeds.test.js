@@ -138,7 +138,7 @@ describe("third-party embeds", () => {
 		await youtube.locator("[data-embed-always]").check();
 		await youtube.locator("[data-embed-load]").click();
 		await page.locator("iframe[data-embed-frame]").waitFor();
-		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), ["youtube"]);
+		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), { youtube: true });
 
 		await page.reload({ waitUntil: "load" });
 		const frame = page.locator("iframe[data-embed-frame]");
@@ -149,8 +149,8 @@ describe("third-party embeds", () => {
 		const stop = page.locator("[data-embed-stop]");
 		assert.equal((await stop.textContent()).trim(), "Ne plus afficher automatiquement les contenus de YouTube");
 		await stop.click();
-		// The last service taken back: nothing is kept any more
-		assert.equal(await page.evaluate(() => localStorage.getItem("attibling-embeds")), null);
+		// Taken back: kept behind its facade, even if « Contenus intégrés » is accepted later
+		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), { youtube: false });
 		await dispose();
 	});
 

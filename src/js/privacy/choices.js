@@ -3,17 +3,26 @@
 //
 //   preferences        "attibling-privacy" { progress: false } when the member turned off « Reprendre la
 //                      lecture » (default on: nothing is stored until they turn it off)
-//   consent            "attibling-consent" { analytics, embeds, other, at } — only in the fallback consent
-//                      mode (theme setting consent_notice ≠ None), for scripts the site owner gates;
+//   consent            "attibling-consent" { analytics, embeds, other, at } — the consent notice's answer
+//                      (theme setting consent_notice: Notice by default, Banner; None: never asked), for
+//                      the embeds held behind their facade and the scripts the site owner gates;
 //                      re-asked after 6 months (CNIL recommendation 2020-092, § 39)
+//   embeds             "attibling-embeds" { youtube: true, x: false } — per service, what overrides the
+//                      « Contenus intégrés » answer: true = shown without a click (« Toujours afficher »),
+//                      false = kept behind its facade although the category was accepted. One truth:
+//                      embeds.allowed(id) = the service's own choice, else the category's answer.
+//                      Accepting the category drops the « false » entries (all services on).
+//                      (Older versions kept an array of ids: read as { id: true }.)
 //   privacySignal()    Global Privacy Control / Do Not Track: taken as a refusal until the reader says
 //                      otherwise in the panel
 //   activateGated()    runs the owner's gated scripts (<script type="text/plain" data-consent="analytics">,
 //                      <template data-consent="other">) whose category was accepted
 //
-// Events on window: "attibling:privacy" (preferences changed), "attibling:consent" (detail: the choices).
+// Events on window: "attibling:privacy" (preferences changed), "attibling:consent" (detail: the choices),
+// "attibling:embeds" (per-service choices changed).
 export const PRIVACY_KEY = "attibling-privacy";
 export const CONSENT_KEY = "attibling-consent";
+export const EMBEDS_KEY = "attibling-embeds";
 export const CATEGORIES = ["analytics", "embeds", "other"];
 // Six months, then the question is asked again (the choice is then forgotten)
 export const CONSENT_MAX_AGE = 183 * 24 * 60 * 60 * 1000;
@@ -85,6 +94,8 @@ export const consent = {
 	set(choices) {
 		const record = Object.fromEntries(CATEGORIES.map(name => [name, choices[name] === true]));
 		writeJSON(CONSENT_KEY, { ...record, at: Date.now() });
+		// « Contenus intégrés » accepted: every service on (a service turned off earlier follows)
+		if (record.embeds) embeds.drop(false);
 		emit("attibling:consent", record);
 		activateGated();
 	},
@@ -92,8 +103,53 @@ export const consent = {
 	current: () => Object.fromEntries(CATEGORIES.map(name => [name, consent.get(name)])),
 };
 
-// Categories the page's gated elements belong to (to say what the notice is about)
-export const gatedCategories = (root = document) => new Set([...root.querySelectorAll(GATED)].map(categoryOf));
+// --- Embeds, per service ---------------------------------------------------------------------------
+const readEmbeds = () => {
+	try {
+		const value = JSON.parse(localStorage.getItem(EMBEDS_KEY));
+		if (Array.isArray(value))
+			return Object.fromEntries(value.filter(id => typeof id === "string").map(id => [id, true]));
+		if (!value || typeof value !== "object") return {};
+		return Object.fromEntries(Object.entries(value).filter(([, on]) => typeof on === "boolean"));
+	} catch {
+		return {};
+	}
+};
+
+const writeEmbeds = choices => {
+	writeJSON(EMBEDS_KEY, Object.keys(choices).length ? choices : null);
+	emit("attibling:embeds", choices);
+};
+
+export const embeds = {
+	// { id: true | false }: the services the reader chose one by one
+	choices: readEmbeds,
+	// Shown without a click: the service's own choice, else the « Contenus intégrés » answer
+	allowed(id) {
+		const own = readEmbeds()[id];
+		return typeof own === "boolean" ? own : consent.get("embeds") === true;
+	},
+	set(id, on) {
+		writeEmbeds({ ...readEmbeds(), [id]: Boolean(on) });
+	},
+	// Removes the entries whose value is `value` (accepting the category drops the « off » ones)
+	drop(value) {
+		const choices = readEmbeds();
+		const kept = Object.fromEntries(Object.entries(choices).filter(([, on]) => on !== value));
+		if (Object.keys(kept).length !== Object.keys(choices).length) writeEmbeds(kept);
+	},
+};
+
+// Embeds held behind their facade on this page (src/js/embeds.js): they wait for the « embeds » answer
+export const heldEmbeds = (root = document) => [...root.querySelectorAll("[data-embed-facade][data-provider]")];
+
+// Categories waiting on this page (to say what the notice is about): the owner's gated elements, and
+// « embeds » while an embed is held behind its facade
+export const gatedCategories = (root = document) => {
+	const found = new Set([...root.querySelectorAll(GATED)].map(categoryOf));
+	if (heldEmbeds(root).length) found.add("embeds");
+	return found;
+};
 
 let warned = false;
 

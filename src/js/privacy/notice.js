@@ -2,7 +2,7 @@
 // the page waits for an answer. Not a modal: no backdrop, no focus taken, the page stays usable; it is
 // placed right after the skip link so it is the first thing a keyboard or screen-reader user reaches.
 // Any answer is kept (choices.js) and the notice goes away for six months.
-import { CATEGORIES, consent, gatedCategories } from "./choices";
+import { CATEGORIES, consent, gatedCategories, heldEmbeds } from "./choices";
 
 export const showNotice = ({ openPanel } = {}) => {
 	const template = document.getElementById("consent-notice");
@@ -11,14 +11,35 @@ export const showNotice = ({ openPanel } = {}) => {
 	const mode = document.documentElement.dataset.consent === "banner" ? "banner" : "notice";
 	notice.classList.add(`consent-notice--${mode}`);
 
-	// What the page would load: « mesure d'audience, contenus intégrés »
+	// What the page would load. Embeds only: the services by name (« YouTube, X »); otherwise the kinds
+	// of services (« mesure d'audience, contenus intégrés (YouTube) »)
 	const present = gatedCategories();
-	const names = CATEGORIES.filter(name => present.has(name)).map(name => notice.dataset[name]);
+	const providers = [...new Set(heldEmbeds().map(el => el.querySelector("[data-embed-provider]")?.textContent))]
+		.filter(Boolean)
+		.join(", ");
 	const body = notice.querySelector("[data-consent-body]");
-	body.textContent = body.dataset.template.replace("{categories}", names.join(", "));
+	if (present.size === 1 && present.has("embeds")) {
+		notice.querySelector("[data-consent-title]").textContent = notice.dataset.titleEmbeds;
+		body.textContent = notice.dataset.templateEmbeds.replace("{providers}", providers);
+	} else {
+		const names = CATEGORIES.filter(name => present.has(name)).map(name =>
+			name === "embeds" && providers ? `${notice.dataset.embeds} (${providers})` : notice.dataset[name],
+		);
+		body.textContent = body.dataset.template.replace("{categories}", names.join(", "));
+	}
 
+	// While it is shown, controls fixed at the bottom of the window (the article's « back to the top »)
+	// move up above it where they would overlap (privacy.css: data-consent-shown, --consent-notice-space)
+	const root = document.documentElement;
+	const room = new ResizeObserver(() => {
+		const box = notice.getBoundingClientRect();
+		root.style.setProperty("--consent-notice-space", `${Math.ceil(window.innerHeight - box.top)}px`);
+	});
 	const close = () => {
 		notice.remove();
+		room.disconnect();
+		root.removeAttribute("data-consent-shown");
+		root.style.removeProperty("--consent-notice-space");
 		document.removeEventListener("keydown", onKey);
 	};
 	const onKey = event => {
@@ -47,5 +68,7 @@ export const showNotice = ({ openPanel } = {}) => {
 	const skip = document.querySelector(".skip-link");
 	if (skip) skip.after(notice);
 	else document.body.prepend(notice);
+	root.setAttribute("data-consent-shown", mode);
+	room.observe(notice);
 	return notice;
 };

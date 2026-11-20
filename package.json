@@ -140,8 +140,8 @@
 					"Notice",
 					"Banner"
 				],
-				"default": "None",
-				"description": "Only if you add trackers that need consent (data-consent, see the guide). None: nothing is shown."
+				"default": "Notice",
+				"description": "Asks once before showing embeds (YouTube, X…) and gated trackers. None: one click per embed."
 			},
 			"about_tags": {
 				"type": "text",
