@@ -258,7 +258,7 @@
   "Theme": "Thème",
   "These services only run with your agreement. Your answer is kept for 6 months, then asked again.": "Ces services ne fonctionnent qu’avec votre accord. Votre réponse est gardée 6 mois, puis la question est reposée.",
   "These switches need JavaScript. Without it, no embedded content is ever loaded.": "Ces réglages ont besoin de JavaScript. Sans lui, aucun contenu intégré n’est jamais chargé.",
-  "This also clears {lists}, kept in this browser only: they cannot be recovered. Clear anyway?": "Cela efface aussi {lists}, gardées dans ce navigateur seulement : elles ne pourront pas être récupérées. Effacer quand même ?",
+  "This also clears {lists}. This data is kept in this browser only and cannot be recovered. Clear anyway?": "Cela efface aussi {lists}. Ces données ne sont gardées que dans ce navigateur et ne pourront pas être récupérées. Effacer quand même ?",
   "This content comes from {provider}: showing it sends your IP address to {provider}, which may set cookies or other trackers. “Accept and show” shows all embedded content on the site without a click from now on.": "Ce contenu vient de {provider} : l’afficher envoie votre adresse IP à {provider}, qui peut déposer des cookies ou d’autres traceurs. « Accepter et afficher » affiche désormais tous les contenus intégrés du site sans clic.",
   "This external content only loads when you ask for it: turn on JavaScript to show it.": "Ce contenu externe ne se charge qu’à votre demande : activez JavaScript pour l’afficher.",
   "This list needs JavaScript: it reads what your browser holds for this site.": "Cette liste a besoin de JavaScript : elle lit ce que votre navigateur garde pour ce site.",

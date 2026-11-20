@@ -394,6 +394,28 @@ describe("privacy: the preferences panel", () => {
 			);
 			await dispose();
 		}
+		// The whole sentence, right in French with one list as with two
+		for (const [storage, lists] of [
+			[{ "attibling-saved": saved }, "votre liste « À lire plus tard » (2 articles)"],
+			[
+				{ "attibling-saved": saved, "attibling-progress": progress },
+				"votre liste « À lire plus tard » (2 articles) et votre liste « Reprendre la lecture » (un article)",
+			],
+		]) {
+			const { page, dispose } = await open({
+				render: template("page-cookies", { member: true, locale: "fr" }),
+				storage,
+				lang: "fr",
+			});
+			let message;
+			page.on("dialog", dialog => ((message = dialog.message()), dialog.dismiss()));
+			await page.locator("[data-stored-clear]").first().click();
+			assert.equal(
+				message,
+				`Cela efface aussi ${lists}. Ces données ne sont gardées que dans ce navigateur et ne pourront pas être récupérées. Effacer quand même ?`,
+			);
+			await dispose();
+		}
 		// Nothing of value: no question
 		const { page, dispose } = await open({ render: home(), storage: { theme: "dark" } });
 		let asked = 0;
