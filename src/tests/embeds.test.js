@@ -55,6 +55,8 @@ describe("third-party embeds", () => {
 		assert.match(csp, /frame-src 'self'/);
 		assert.match(csp, /script-src 'self' 'unsafe-inline'[^;]* https:\/\/cdn\.jsdelivr\.net/);
 		assert.doesNotMatch(csp, /youtube|twitter/);
+		// Hardening: no plugin content, no <base> pointing elsewhere
+		assert.match(csp, /; object-src 'none'; base-uri 'self'$/);
 		const [youtube, x, other] = await facades(page);
 		assert.deepEqual(
 			{ ...youtube, ratio: undefined },

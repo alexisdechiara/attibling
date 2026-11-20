@@ -1568,6 +1568,9 @@ Désactivé : pas de règle de sécurité ni d'encadré, les contenus se chargen
   désactivez *Embed consent*. Sur GEEKLY, le footer d'injection est vide et Plausible ne charge pas d'autre
   script : rien à faire.
 - Un cadre de **votre propre site** (même adresse) n'est pas bloqué.
+- La règle interdit aussi les balises `<object>` et `<embed>` (anciens greffons, PDF intégré par `<embed>`) et
+  une balise `<base>` qui pointerait vers un autre site. Aucune carte de Ghost ne s'en sert ; pour un PDF,
+  utilisez la carte *File* ou un lien.
 - Les **images** collées par adresse dans un article (hébergées ailleurs) et les images choisies dans la
   bibliothèque **Unsplash** de Ghost sont chargées depuis leur site d'origine : la règle ne concerne que les
   cadres et les scripts.
