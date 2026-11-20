@@ -566,7 +566,7 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 		await page.mouse.wheel(0, 600);
 		await notice(page).waitFor({ state: "visible" });
 		await notice(page).evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
-		const info = await page.evaluate(() => {
+		const info = await page.evaluate(before => {
 			const el = document.querySelector("[data-consent-notice]");
 			const box = el.getBoundingClientRect();
 			return {
@@ -577,9 +577,12 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 				bottomGap: Math.round(window.innerHeight - box.bottom),
 				narrow: box.width <= 420,
 				text: el.querySelector("[data-consent-body]").textContent.includes("mesure d’audience"),
-				height: document.documentElement.scrollHeight,
+				// Nothing moves: the page only grows at its end, by the room the notice takes
+				grown:
+					document.documentElement.scrollHeight - before ===
+					parseFloat(document.documentElement.style.getPropertyValue("--consent-notice-space")),
 			};
-		});
+		}, height);
 		assert.deepEqual(info, {
 			afterSkipLink: true,
 			focusInside: false,
@@ -588,7 +591,7 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 			bottomGap: 16,
 			narrow: true,
 			text: true,
-			height,
+			grown: true,
 		});
 		// « Tout refuser » and « Tout accepter »: same size, same row, same type, 44 px at least
 		const buttons = await notice(page)
@@ -803,6 +806,34 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 		assert.equal(await notice(page).count(), 0, "not asked again");
 		assert.equal(await page.evaluate(() => window.__gatedRuns), 1);
 		await dispose();
+	});
+
+	it("keeps room for the notice at the end of the page: the last footer links scroll above it (WCAG 2.4.11)", async () => {
+		for (const mode of ["Banner", "Notice"]) {
+			const { page, dispose } = await open({
+				render: article({ custom: custom(mode), html: LONG }),
+				bodyStart: GATED,
+				viewport: { width: 390, height: 844 },
+			});
+			if (mode === "Notice") await page.mouse.wheel(0, 600);
+			await notice(page).waitFor({ state: "visible" });
+			await notice(page).evaluate(el => Promise.all(el.getAnimations().map(a => a.finished)));
+			// Every control of the footer, focused in turn from the keyboard's point of view (scrolled into
+			// view as the browser does on focus): none under the notice
+			const hidden = await page.evaluate(() => {
+				const top = document.querySelector("[data-consent-notice]").getBoundingClientRect().top;
+				return [...document.querySelectorAll("footer :is(a, button)")]
+					.filter(el => el.getClientRects().length)
+					.filter(el => {
+						el.focus();
+						el.scrollIntoView({ block: "nearest" });
+						return el.getBoundingClientRect().bottom > top + 0.5;
+					})
+					.map(el => el.textContent.trim());
+			});
+			assert.deepEqual(hidden, [], mode);
+			await dispose();
+		}
 	});
 
 	it("refusing (or closing) keeps the script off, on this page and the next; withdrawing in the panel", async () => {

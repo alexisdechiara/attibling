@@ -224,6 +224,12 @@
   scroll-margin-block-end: calc(var(--consent-notice-space, 0px) + 52px + 2 * var(--space-5));
 }
 
+/* At the end of the page there is nothing left to scroll: the room the notice takes is added after the
+   footer, so its last links can come above the notice too (only below the content: nothing moves) */
+:root[data-consent-shown] body {
+  padding-block-end: var(--consent-notice-space, 0px);
+}
+
 /* The article's « back to the top » button: above the banner on wide screens; on phones, where it would
    only land on the content (or an embed's buttons) above the notice, it waits until the notice is gone */
 :root[data-consent-shown="banner"] .progress-button {
