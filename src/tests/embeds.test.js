@@ -251,6 +251,21 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
+	it("link « Voir sur SoundCloud » to a SoundCloud web address only", async () => {
+		const frame = url =>
+			`<figure class="kg-card kg-embed-card"><iframe width="100%" height="166" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}"></iframe></figure>`;
+		const html =
+			frame("https://soundcloud.com/artist/track") + frame("javascript:alert(1)") + frame("https://evil.example/");
+		const { page, dispose } = await open({ render: facadeOnly({ html }) });
+		await page.locator("[data-embed-facade]").first().waitFor();
+		assert.deepEqual(await page.$$eval("[data-embed-open]", links => links.map(a => a.getAttribute("href"))), [
+			"https://soundcloud.com/artist/track",
+			"https://soundcloud.com/",
+			"https://soundcloud.com/",
+		]);
+		await dispose();
+	});
+
 	it("work on pages too", async () => {
 		const { page, requests, dispose } = await open({ render: template("page", { post: { html: YOUTUBE_CARD } }) });
 		await page.locator("[data-embed-facade]").waitFor();
