@@ -9,6 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { launch, close, open } from "./support/harness.js";
 import { template } from "./support/pages.js";
+import { STORAGE } from "../js/privacy/registry.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const PHONE = { width: 390, height: 844 };
@@ -215,9 +216,11 @@ describe("reference document", () => {
 });
 
 // --- What the theme keeps in the browser --------------------------------------------------------------
-// Every localStorage / sessionStorage key the theme's code uses (src/js, templates) must be a row of the
-// table « Ce que le thème garde dans le navigateur » of docs/guide-auteur.md, and every row marked
-// « thème » must still be used by the code; the proposed legal notice lists the same keys.
+// One source of truth, src/js/privacy/registry.js: every localStorage / sessionStorage key the theme's
+// code uses (src/js, templates) must be declared there, and every key declared as the theme's must still
+// be used. The registry feeds the « Cookies et confidentialité » page (partials/privacy/stored.hbs: one
+// row per key, in the same order) and the author guide's table « Ce que le thème garde dans le
+// navigateur »; the proposed legal notice points to that page instead of copying the table.
 
 const walk = dir =>
 	fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -228,7 +231,7 @@ const walk = dir =>
 
 const storageKeysInCode = () => {
 	const files = [
-		...walk(path.join(ROOT, "src/js")),
+		...walk(path.join(ROOT, "src/js")).filter(f => !f.endsWith(path.join("privacy", "registry.js"))),
 		...walk(path.join(ROOT, "partials")),
 		...fs
 			.readdirSync(ROOT)
@@ -265,21 +268,43 @@ const guideRows = () => {
 	}));
 };
 
+const BY = { theme: "thème", ghost: "Ghost" };
+const STORAGE_NAME = { local: "localStorage", session: "sessionStorage" };
+
 describe("what the theme keeps in the browser", () => {
-	it("every storage key in the code is listed in the author guide, and nothing else", () => {
+	it("every storage key in the code is declared in the registry, and nothing else", () => {
 		const code = storageKeysInCode();
-		const rows = guideRows();
-		const theme = rows.filter(row => row.by === "thème").map(row => row.key);
+		const theme = STORAGE.filter(entry => entry.by === "theme").map(entry => entry.key);
 		assert.ok(code.has("theme") && code.has("attibling-saved"), "the scan finds the known keys");
-		assert.deepEqual([...code].sort(), [...theme].sort(), "docs/guide-auteur.md table = keys used by the theme");
-		for (const row of rows) assert.match(row.storage, /^(localStorage|sessionStorage)$/, row.key);
+		assert.deepEqual([...code].sort(), [...theme].sort(), "src/js/privacy/registry.js = keys used by the theme");
+		assert.equal(new Set(STORAGE.map(e => e.key)).size, STORAGE.length, "no key declared twice");
 	});
 
-	it("the proposed legal notice lists the same keys", () => {
+	it("the author guide's table lists the registry, row for row", () => {
+		assert.deepEqual(
+			guideRows(),
+			STORAGE.map(entry => ({ key: entry.key, storage: STORAGE_NAME[entry.storage], by: BY[entry.by] })),
+			"docs/guide-auteur.md, « Ce que le thème garde dans le navigateur »",
+		);
+	});
+
+	it("the page « Cookies et confidentialité » renders one row per key of the registry", () => {
+		const partial = fs.readFileSync(path.join(ROOT, "partials/privacy/stored.hbs"), "utf8");
+		const rows = [...partial.matchAll(/data-storage-key="([^"]+)"/g)].map(m => m[1]);
+		assert.deepEqual(
+			rows,
+			STORAGE.map(entry => entry.key),
+			"partials/privacy/stored.hbs",
+		);
+	});
+
+	it("the proposed legal notice points to the cookies page instead of copying its tables", () => {
 		const proposal = fs.readFileSync(path.join(ROOT, "docs/mentions-legales-proposition.md"), "utf8");
-		for (const row of guideRows()) {
-			if (row.key === "attibling-probe") continue; // written and removed at once: not something kept
-			assert.ok(proposal.includes(`| \`${row.key}\` |`), `${row.key} in docs/mentions-legales-proposition.md`);
-		}
+		const text = proposal.slice(
+			proposal.indexOf("<!-- Texte à coller"),
+			proposal.indexOf("<!-- Fin du texte à coller"),
+		);
+		assert.match(text, /\]\(https:\/\/geekly\.blog\/cookies\/\)/);
+		for (const entry of STORAGE) assert.ok(!text.includes(`| \`${entry.key}\` |`), `${entry.key} copied in the notice`);
 	});
 });
