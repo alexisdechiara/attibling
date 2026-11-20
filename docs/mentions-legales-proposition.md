@@ -40,7 +40,7 @@ GEEKLY est une publication indépendante consacrée à la culture geek, à la te
 - Le site n'affiche pas de publicité et ne vend aucune donnée.
 - Si vous vous abonnez, je garde votre adresse e-mail et, si vous l'indiquez, votre nom. Rien d'autre ne vous est demandé.
 - Le site ne dépose aucun cookie publicitaire ni de mesure d'audience. Son seul cookie sert à rester connecté quand vous êtes abonné ([Cookies et confidentialité](https://geekly.blog/cookies/)).
-- Les polices de caractères sont servies par le site lui-même. Les vidéos YouTube, les publications X et les autres contenus intégrés aux articles ne se chargent que si vous cliquez pour les afficher.
+- Les polices de caractères sont servies par le site lui-même. Les vidéos YouTube, les publications X et les autres contenus intégrés aux articles ne se chargent que si vous les acceptez (d'un clic sur chacun, ou une fois pour toutes).
 - Vos préférences d'affichage et vos listes de lecture restent dans votre navigateur : elles ne sont pas envoyées au site.
 - Pour toute question ou demande : [pro@alexisdechiara.fr](mailto:pro@alexisdechiara.fr).
 

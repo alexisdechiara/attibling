@@ -612,8 +612,11 @@ avait quittée. **« Mélanger »** tire une nouvelle disposition, avec une cour
 a demandé moins d'animations).
 Sans JavaScript, ou avec le mode « économie de données » du navigateur, la page garde l'ordre par défaut : du
 tag le plus fourni au moins fourni, le premier en grand. Il n'y a pas de réglage pour couper le hasard : si
-vous le voulez, retirez la ligne `{{> "tags/prepaint"}}` de `partials/pages/tags.hbs` (l'ordre par défaut
-reste, sans « Mélanger »).
+vous le voulez, retirez **ensemble** deux lignes de `partials/pages/tags.hbs` : le petit script
+`<script>document.documentElement.setAttribute("data-tags-arranging", "")</script>` (avant la grille) et
+`{{> "tags/prepaint"}}` (après la grille). L'ordre par défaut reste, sans « Mélanger » ni le nombre de tags
+sous le titre. N'en retirer qu'une cache toute la grille (le premier script la masque jusqu'à ce que le
+second l'ait disposée). À refaire après chaque mise à jour du thème.
 
 **L'aperçu au survol.** Avec une souris, laisser le pointeur environ une demi-seconde sur une case l'agrandit
 en une carte posée au-dessus des autres : image, nom, nombre d'articles, description, **les 3 derniers
@@ -911,12 +914,15 @@ D'où ce qui s'affiche, et seulement là :
 - **sur une page sans contenu intégré** (accueil, rubriques, la plupart des articles) : **rien**, jamais ;
 - **sur un article qui en contient** : une petite carte « Contenus d'autres sites » dans le coin bas, après
   un peu de défilement ou 12 secondes (réglage *Consent notice*, plus bas). Elle nomme les services de la page
-  (« YouTube, X ») et dit ce que les afficher envoie. **« Tout accepter »** : tous les contenus de la page
+  (« YouTube, X ») : « Cette page intègre des contenus d'autres sites ({services}). Acceptez pour les afficher
+  sans clic. », puis « Personnalisez vos choix ou changez d'avis dans Cookies et confidentialité. » (ce lien
+  ouvre le panneau). Ce que l'affichage envoie (adresse IP, cookies du service) est dit dans l'encadré de
+  chaque contenu, pas dans la carte. **« Tout accepter »** : tous les contenus de la page
   s'affichent d'un coup, et ceux des pages suivantes aussi, sans clic (pendant 6 mois, ou jusqu'au retrait).
   **« Tout refuser »** ou × : rien ne change, chaque contenu reste masqué ;
 - **à la place de chaque contenu, tant que le lecteur n'a pas accepté** : un encadré qui dit d'où il vient
-  et pourquoi il est masqué, avec **« Accepter et afficher »** (tous les contenus intégrés, la même réponse
-  que la carte) et **« Afficher seulement celui-ci »** (ce contenu, rien n'est gardé), plus « Gérer mes
+  et pourquoi il est masqué, avec **« Accepter et afficher »** (la catégorie « Contenus intégrés » seulement,
+  pour tous les services : les autres catégories restent sans réponse) et **« Afficher seulement celui-ci »** (ce contenu, rien n'est gardé), plus « Gérer mes
   choix » et « Voir sur YouTube ».
 
 Toujours disponibles :
@@ -1002,8 +1008,8 @@ Design & branding → Customize → *Site wide* → **Consent notice** :
   « Toujours afficher les contenus de YouTube ») ; tout script marqué `data-consent` reste éteint (un
   avertissement apparaît dans la console du navigateur).
 
-Dans les deux modes : rien n'est bloquant (pas de fond grisé, pas de mur, la page reste utilisable),
-Le lien « Cookies et confidentialité » du texte ouvre le panneau, le × ferme **en refusant** (il le dit), Échap aussi ; la réponse est
+Dans les deux modes : rien n'est bloquant (pas de fond grisé, pas de mur, la page reste utilisable) ;
+le lien « Cookies et confidentialité » du texte ouvre le panneau, le × ferme **en refusant** (il le dit), Échap aussi ; la réponse est
 gardée **6 mois** puis la question revient (`attibling-consent`, avec la version de la question : si le
 thème change de catégories, il redemande) ; aucune case n'est pré-cochée ; le choix se retire aussi
 simplement dans le panneau. Un navigateur qui envoie **Global Privacy Control** ou **Do Not Track** est
@@ -1193,7 +1199,7 @@ en visiteur et en abonné.
 | Publications X, autres contenus intégrés | le service (`platform.twitter.com`, `twimg.com`…) | **après le clic** du lecteur (ou « Toujours afficher ») | thème (réglage *Embed consent*) |
 | Images collées par adresse, images Unsplash | leur site (`images.unsplash.com`…) | quand elles s'affichent | vous (contenu) |
 | Plausible (statistiques, GEEKLY) | `analytics.geekly.blog` (votre serveur) | toujours, sauf si le lecteur a désactivé « Compter mes visites » | vous (Code injection) |
-| Ce que vous ajoutez dans Code injection (statistiques…) | ce que vous y mettez | toujours (ou après accord, si marqué `data-consent`) | vous |
+| Ce que vous ajoutez dans Code injection (statistiques…) | ce que vous y mettez | toujours (ou après accord, si marqué `data-consent`) ; sur les articles et les pages, ce qu'un script charge ensuite depuis un autre site est bloqué (voir « Vidéos et contenus intégrés ») | vous |
 | Liens de partage (X, Facebook, LinkedIn) | — | rien n'est chargé : ce sont de simples liens | thème |
 
 Avec *Embed consent* désactivé, YouTube (`youtube.com`, avec ses cookies `YSC`, `VISITOR_INFO1_LIVE`…,
@@ -1487,16 +1493,20 @@ l'article : `YSC`, `VISITOR_INFO1_LIVE`, `__Secure-YNID`, `__Secure-ROLLOUT_TOKE
 que ce mode peut garder des informations une fois la vidéo lancée. Surtout, **YouTube reste contacté** : le lecteur
 vient des serveurs de Google (youtube-nocookie.com, googlevideo.com, i.ytimg.com, www.google.com,
 gstatic.com…), qui reçoivent l'adresse IP du lecteur, et il garde des informations dans le stockage du
-navigateur (localStorage, IndexedDB) au nom de youtube-nocookie.com. Les autres services (X, Vimeo…) se
-chargent tels que Ghost les a enregistrés (Vimeo avec `dnt=1`, X sans personnalisation, `data-dnt`) et peuvent
-déposer leurs cookies (X : `__cf_bm`, constaté en local).
+navigateur (localStorage, IndexedDB) au nom de youtube-nocookie.com. Une publication X est affichée par le cadre
+de X lui-même (`platform.twitter.com`, sans personnalisation, dans le mode clair ou sombre de la page), sans
+le script `widgets.js` ; les autres cadres (Vimeo, Spotify…) se chargent tels que Ghost les a enregistrés
+(Vimeo avec `dnt=1`). Tous peuvent déposer leurs cookies (X : `__cf_bm`, constaté en local).
 
 **Comment c'est fait (et pourquoi c'est sûr).** Sur les articles et les pages, le thème ajoute dans l'en-tête de
 la page une règle de sécurité du navigateur (*Content-Security-Policy*) qui interdit les cadres et les scripts
 venant d'autres sites. Le navigateur refuse donc de contacter YouTube ou X, avant même que la page ait fini de
 s'afficher, **même si JavaScript est désactivé**. Le script du thème remplace ensuite chaque contenu bloqué par
 l'encadré ; le clic charge le lecteur dans une petite page du site (`assets/html/embed.html`) qui n'a pas
-cette règle. Sans JavaScript, l'encadré est remplacé par une phrase (« Ce contenu externe ne se charge qu'à
+cette règle. Un lecteur (YouTube, Vimeo, X…) y est un cadre du site du service, qui ne peut rien lire du
+blog. Un contenu qui a besoin du script de son service (Instagram, TikTok…) y tourne dans un « bac à
+sable » (`sandbox`) : le navigateur le traite comme un site à part, son script ne peut lire ni la page, ni
+les listes du lecteur, ni son compte abonné, ni changer ses choix de confidentialité. Sans JavaScript, l'encadré est remplacé par une phrase (« Ce contenu externe ne se charge qu'à
 votre demande : activez JavaScript pour l'afficher. ») ; la publication X garde son texte et son lien.
 
 La règle laisse passer ce dont Ghost a besoin : ses propres scripts (Portal, la recherche, les commentaires,
@@ -1512,8 +1522,12 @@ Désactivé : pas de règle de sécurité ni d'encadré, les contenus se chargen
 
 - Un **script externe** ajouté dans Settings → Code injection → *Site footer*, ou dans le *Code injection* →
   *Post footer* d'un article, est bloqué lui aussi sur les articles et les pages (il est placé après la règle).
-  Mettez-le dans *Site header* / *Post header*, qui passent avant la règle, ou désactivez *Embed consent*.
-  Sur GEEKLY, le footer d'injection est vide : rien à faire.
+  Dans *Site header* / *Post header*, placés avant la règle, un script externe se charge, **mais tout script
+  qu'il ajoute ensuite depuis un autre site est bloqué** (Google Tag Manager, régies publicitaires, widgets
+  de commentaires tiers chargent ainsi la suite de leur code). Plausible et les statistiques de Ghost ne sont
+  pas concernés. En cas de doute, ouvrez la console du navigateur sur un article (message « violates the
+  following Content Security Policy directive »), ou désactivez *Embed consent*. Sur GEEKLY, le footer
+  d'injection est vide et Plausible ne charge pas d'autre script : rien à faire.
 - Un cadre de **votre propre site** (même adresse) n'est pas bloqué.
 - Les **images** collées par adresse dans un article (hébergées ailleurs) et les images choisies dans la
   bibliothèque **Unsplash** de Ghost sont chargées depuis leur site d'origine : la règle ne concerne que les
@@ -1681,7 +1695,7 @@ navigateur du lecteur.
 | Les mentions légales n'ont pas de sommaire | Il faut au moins deux intertitres **Heading 2 / Heading 3** (pas du texte en gras), et le modèle Document (slug `mentions-legales` ou Template → Document). Les intertitres placés dans une carte HTML comptent aussi ; pas ceux des cartes Ghost (toggle, header…). |
 | « Dernière mise à jour » change après une simple correction | C'est la date du dernier enregistrement de la page dans Ghost : voulu pour une page de référence. |
 | Une vidéo YouTube s'affiche comme un encadré avec un bouton | Voulu : elle ne se charge qu'au clic du lecteur (réglage **Embed consent**, voir [Vidéos et contenus intégrés](#vidéos-et-contenus-intégrés-youtube-x)). |
-| Un script ajouté dans l'injection de code ne marche pas sur les articles | Il est dans *Site footer* ou *Post footer* et vient d'un autre site : la règle qui bloque YouTube et X le bloque aussi. Déplacez-le dans *Site header* / *Post header*, ou désactivez **Embed consent**. |
+| Un script ajouté dans l'injection de code ne marche pas sur les articles | Il est dans *Site footer* ou *Post footer* et vient d'un autre site : la règle qui bloque YouTube et X le bloque aussi. Déplacez-le dans *Site header* / *Post header* ; s'il charge lui-même d'autres scripts depuis un autre site (Google Tag Manager, régie…), ceux-là restent bloqués : désactivez alors **Embed consent**. La console du navigateur le dit (« violates the following Content Security Policy directive »). |
 | Une vidéo démarre sans clic | Le lecteur a coché « Toujours afficher les contenus de YouTube » : le lien « Ne plus afficher automatiquement… » sous la vidéo annule ce choix. |
 | Une carte affiche un aplat de couleur (ou une autre image que celle voulue) | La carte montre l'image à la une parce que l'article n'a pas d'image de partage : ajoutez-en une (réglages de l’article → **Facebook card** → téléverser l’image, voir [Vignette d'un article](#vignette-dun-article-image-des-cartes)). Si l'image de partage est déjà là et qu'une liste « À lire plus tard » montre l'ancienne, gardez l'article de nouveau. |
 | Le préchargement ne se voit pas | C'est normal : il n'y a rien à voir, la page suivante s'ouvre juste plus vite. Il est coupé en mode « économie de données » et sur connexion 2G. |
