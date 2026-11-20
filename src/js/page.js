@@ -75,4 +75,17 @@ onReady(() => {
 
 	const documentRoot = document.querySelector("[data-document]");
 	if (documentRoot) import("./document").then(({ setUpDocument }) => setUpDocument(documentRoot));
+
+	// « Cookies et confidentialité » (partials/privacy/page.hbs): what this browser holds, and the choices
+	const privacy = document.querySelector("[data-privacy-page]");
+	if (privacy) {
+		import("./privacy/controls").then(({ setUpControls, setUpStoredTable }) => {
+			privacy.querySelectorAll("[data-privacy-nojs]").forEach(el => (el.hidden = true));
+			privacy.querySelectorAll("[data-privacy-js]").forEach(el => (el.hidden = false));
+			const controls = privacy.querySelector("[data-privacy-controls]");
+			if (controls) setUpControls(controls, { allProviders: true });
+			const held = privacy.querySelector("[data-privacy-held]");
+			if (held) setUpStoredTable(held);
+		});
+	}
 });

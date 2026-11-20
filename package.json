@@ -133,6 +133,16 @@
 				"group": "post",
 				"description": "Slug of the page linked as « About » in the author box. Empty: a-propos or about."
 			},
+			"consent_notice": {
+				"type": "select",
+				"options": [
+					"None",
+					"Notice",
+					"Banner"
+				],
+				"default": "None",
+				"description": "Only if you add trackers that need consent (data-consent, see the guide). None: nothing is shown."
+			},
 			"about_tags": {
 				"type": "text",
 				"default": "",

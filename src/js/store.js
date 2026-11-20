@@ -16,7 +16,8 @@
 //     .clear()
 //     .subscribe(fn)               fn(list) after every change, also from other tabs; returns unsubscribe
 //
-//   readingProgress                « Reprendre la lecture », most recent first, at most 6 posts
+//   readingProgress                « Reprendre la lecture », most recent first, at most 6 posts; nothing
+//                                  is recorded while the member has turned it off (privacy/choices.js)
 //     .list()                      [{ url, title, image, tag, readingTime, progress, updatedAt }]
 //     .get(url)                    the entry or null
 //     .set(post)                   post: { url, title, image?, tag?, readingTime?, progress } with
@@ -29,6 +30,8 @@
 //
 // URLs are stored as paths (a post keeps its entry if the site's domain changes). Storage keys:
 // "attibling-saved" and "attibling-progress" (JSON arrays).
+
+import { progressEnabled } from "./privacy/choices";
 
 const SAVED_KEY = "attibling-saved";
 const PROGRESS_KEY = "attibling-progress";
@@ -130,6 +133,7 @@ export const readingProgress = {
 	list: () => read(PROGRESS_KEY).sort(newestFirst("updatedAt")),
 	get: url => read(PROGRESS_KEY).find(item => item.url === toPath(url)) || null,
 	set(post) {
+		if (!progressEnabled()) return;
 		const progress = Math.min(Math.max(Number(post.progress) || 0, 0), 1);
 		const entry = { ...clean(post), progress, updatedAt: Date.now() };
 		const rest = read(PROGRESS_KEY).filter(item => item.url !== entry.url);

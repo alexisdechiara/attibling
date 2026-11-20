@@ -7,13 +7,16 @@
 // written into assets/html/embed.html, a page of the site without that policy: YouTube from
 // youtube-nocookie.com (privacy-enhanced mode) with autoplay, the others as Ghost wrote them (an X post
 // with its widgets.js). « Always show » is kept per provider in localStorage "attibling-embeds", for
-// visitors and members alike, and can be taken back under each embed it loaded.
+// visitors and members alike, and can be taken back under each embed it loaded or in the privacy panel
+// (« Cookies et confidentialité », src/js/privacy/). In the fallback consent mode, accepting the category
+// « Contenus intégrés » shows every provider without a click.
+import { consent } from "./privacy/choices";
 
 const STORAGE_KEY = "attibling-embeds";
 
 // Known providers: host, kind of embed (the button says « video », « post » or « content »), the link
 // to the content on the provider's site, and how the frame's address changes when it loads
-const PROVIDERS = [
+export const PROVIDERS = [
 	{
 		id: "youtube",
 		name: "YouTube",
@@ -107,7 +110,7 @@ const providerFor = url => {
 };
 
 // Remembered providers ("always show")
-const remembered = () => {
+export const remembered = () => {
 	try {
 		const list = JSON.parse(localStorage.getItem(STORAGE_KEY));
 		return Array.isArray(list) ? list.filter(id => typeof id === "string") : [];
@@ -116,14 +119,16 @@ const remembered = () => {
 	}
 };
 
-const remember = (id, on) => {
+export const remember = (id, on) => {
 	const list = remembered().filter(item => item !== id);
 	if (on) list.push(id);
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+		if (list.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+		else localStorage.removeItem(STORAGE_KEY);
 	} catch {
 		// Storage blocked: the choice only holds for this page
 	}
+	window.dispatchEvent(new CustomEvent("attibling:embeds", { detail: list }));
 };
 
 // The width / height ratio of a frame, from its attributes (as helpers.js setEmbedRatios)
@@ -260,22 +265,29 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		facade.replaceWith(frame);
 		facades.delete(embed);
 
-		// Loaded because the reader chose « always show »: a way to take it back, right here
+		// Loaded because the reader chose « always show »: a way to take it back, right here. Loaded
+		// because « Contenus intégrés » was accepted (fallback consent mode): the panel, where that is
+		// taken back.
 		if (auto) {
 			const line = document.createElement("p");
 			line.className = "embed-remembered";
 			const stop = document.createElement("button");
 			stop.type = "button";
 			stop.className = "embed-remembered__stop";
-			stop.dataset.embedStop = provider.id;
-			stop.textContent = fill(strings.stop, provider);
-			stop.addEventListener("click", () => {
-				remember(provider.id, false);
-				document
-					.querySelectorAll(`[data-embed-stop="${CSS.escape(provider.id)}"]`)
-					.forEach(b => b.parentElement.remove());
-				announce(fill(strings.stopped, provider));
-			});
+			if (auto === "consent") {
+				stop.dataset.privacyOpen = "";
+				stop.textContent = strings.manage;
+			} else {
+				stop.dataset.embedStop = provider.id;
+				stop.textContent = fill(strings.stop, provider);
+				stop.addEventListener("click", () => {
+					remember(provider.id, false);
+					document
+						.querySelectorAll(`[data-embed-stop="${CSS.escape(provider.id)}"]`)
+						.forEach(b => b.parentElement.remove());
+					announce(fill(strings.stopped, provider));
+				});
+			}
 			line.append(stop);
 			frame.after(line);
 		}
@@ -330,5 +342,9 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		facades.set(embed, facade);
 	}
 
-	for (const embed of embeds) if (always.includes(embed.provider.id)) load(embed, { auto: true });
+	const all = consent.get("embeds") === true;
+	for (const embed of embeds) {
+		if (always.includes(embed.provider.id)) load(embed, { auto: true });
+		else if (all) load(embed, { auto: "consent" });
+	}
 };

@@ -5,7 +5,8 @@
 // from the defaults, and written on <html> as data-reading-<name>="<value>" (reading.css). The
 // pre-paint script of default.hbs applies them before the first paint on the next pages, with the
 // chosen fonts (fonts.bunny.net, as Ghost's custom fonts). « Réinitialiser » clears everything.
-import { isAvailable } from "./store";
+import { isAvailable, readingProgress } from "./store";
+import { preferences } from "./privacy/choices";
 
 export const KEY = "attibling-reading";
 export const NAMES = [
@@ -135,8 +136,19 @@ export const setUpReadingSettings = () => {
 		});
 	};
 
+	// « Retenir où je m'arrête »: the reading progress of « Reprendre la lecture » (privacy/choices.js)
+	const syncProgress = () => {
+		const on = preferences.get().progress;
+		form.querySelectorAll('input[name="progress"]').forEach(input => (input.checked = (input.value === "on") === on));
+	};
+
 	form.addEventListener("change", event => {
 		const { name, value } = event.target;
+		if (name === "progress") {
+			preferences.set("progress", value === "on");
+			if (value === "off") readingProgress.clear();
+			return;
+		}
 		if (!NAMES.includes(name) || !VALUE.test(value)) return;
 		const base = defaults(article);
 		const style = name === "style" ? value : settings.style || base.style;
@@ -164,6 +176,7 @@ export const setUpReadingSettings = () => {
 	const isOpen = () => (native ? panel.matches(":popover-open") : panel.classList.contains("is-open"));
 	const opened = () => {
 		sync();
+		syncProgress();
 		place(button, panel);
 		button.setAttribute("aria-expanded", "true");
 		requestAnimationFrame(() => form.querySelector("select, input:checked")?.focus());
@@ -200,6 +213,8 @@ export const setUpReadingSettings = () => {
 		apply(settings);
 		sync();
 	});
+	window.addEventListener("attibling:privacy", syncProgress);
 
 	sync();
+	syncProgress();
 };

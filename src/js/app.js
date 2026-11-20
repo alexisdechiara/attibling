@@ -4,6 +4,7 @@ import { setUpPrefetch } from "./prefetch";
 import { setUpTransitions } from "./transitions";
 import { setUpPortalLinks } from "./portal-links";
 import { setUpLogoInk } from "./logo-ink";
+import { setUpPrivacy } from "./privacy";
 
 // Before Ghost's Portal script binds its links: sign-up / sign-in go to the theme's page (portal-links.js)
 setUpPortalLinks();
@@ -158,6 +159,7 @@ onReady(() => {
 	}
 
 	const header = document.getElementById("site-header");
+	setUpPrivacy();
 	setUpEmbedFacades();
 	setUpThemeSwitch();
 	setUpLogoInk();

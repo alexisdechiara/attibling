@@ -59,7 +59,7 @@ describe("third-party embeds", () => {
 				provider: "youtube",
 				label: "Afficher la vidéo YouTube",
 				title: "Un revenu inconditionnel ?",
-				note: "L’afficher contacte YouTube, qui peut déposer des cookies.",
+				note: "L’afficher charge ce contenu depuis YouTube, qui reçoit alors votre adresse IP et peut déposer des cookies ou d’autres traceurs.",
 				always: "Toujours afficher les contenus de YouTube",
 				link: "https://www.youtube.com/watch?v=_jGbRsxHi7Q&t=12",
 				linkTarget: "_blank",
@@ -149,7 +149,8 @@ describe("third-party embeds", () => {
 		const stop = page.locator("[data-embed-stop]");
 		assert.equal((await stop.textContent()).trim(), "Ne plus afficher automatiquement les contenus de YouTube");
 		await stop.click();
-		assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-embeds"))), []);
+		// The last service taken back: nothing is kept any more
+		assert.equal(await page.evaluate(() => localStorage.getItem("attibling-embeds")), null);
 		await dispose();
 	});
 

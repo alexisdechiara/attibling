@@ -38,6 +38,23 @@ Phones: everything stacks in that order.
     <div class="site-footer__bottom">
       <p class="site-footer__copyright">{{@site.title}} &copy; {{date format="YYYY"}}</p>
       <ul class="site-footer__legal" role="list">
+        {{!-- « Cookies et confidentialité »: opens the preferences panel (src/js/privacy/, the panel's
+        <template> sits here); without JavaScript, a link to the page of that name when the site has
+        one (slug cookies or confidentialite, or a page with the « Privacy » template), else nothing. --}}
+        <li class="site-footer__privacy">
+          {{#get "pages" filter="slug:[cookies,confidentialite],custom_template:custom-privacy" limit="1" as |privacyPages|}}
+            {{#foreach privacyPages}}
+              <a href="{{url}}" data-privacy-open>{{t "Cookies and privacy"}}</a>
+              {{> "privacy/panel" url=url}}
+            {{else}}
+              <button type="button" class="site-footer__privacy-button" data-privacy-open hidden>{{t "Cookies and privacy"}}</button>
+              {{> "privacy/panel"}}
+            {{/foreach}}
+          {{else}}
+            <button type="button" class="site-footer__privacy-button" data-privacy-open hidden>{{t "Cookies and privacy"}}</button>
+            {{> "privacy/panel"}}
+          {{/get}}
+        </li>
         <li>{{t "Published with"}}&nbsp;<a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a></li>
         <li><a href="{{asset "html/javascript.html"}}" rel="jslicense">{{t "JavaScript license information"}}</a></li>
       </ul>

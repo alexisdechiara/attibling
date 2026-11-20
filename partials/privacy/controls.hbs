@@ -1,0 +1,74 @@
+{{!--
+The reader's privacy choices, shared by the preferences panel (privacy/panel.hbs, every page) and the
+« Cookies et confidentialité » page (privacy/page.hbs). src/js/privacy/controls.js shows the groups that
+apply (a group stays hidden otherwise) and keeps every switch in step with what is stored:
+  - consent: the fallback consent mode only (theme setting consent_notice ≠ None): accept / refuse all,
+    same size and look, and one switch per category (the owner's gated scripts);
+  - embeds: per service (YouTube, X…), « show without a click » (localStorage attibling-embeds);
+  - plausible: when the page loads Plausible, « count my visits » (its own flag plausible_ignore);
+  - members: signed-in members, « remember where I stop » (« Reprendre la lecture »);
+  - data: what this browser holds for the site, and « clear ».
+Switches are checkboxes with role="switch", wrapped in their label. Parameter: page=true on the page
+« Cookies et confidentialité », whose own section lists and clears the data (no « data » group).
+--}}
+<div class="privacy-controls" data-privacy-controls>
+  <fieldset class="privacy-group" data-privacy-group="consent" hidden>
+    <legend class="privacy-group__title">{{t "Optional services"}}</legend>
+    <p class="privacy-group__note">{{t "These services only run with your agreement. Your answer is kept for 6 months, then asked again."}}</p>
+    <div class="privacy-group__actions">
+      <button type="button" class="button button--s privacy-choice" data-consent-all="false">{{t "Refuse all"}}</button>
+      <button type="button" class="button button--s privacy-choice" data-consent-all="true">{{t "Accept all"}}</button>
+    </div>
+    <label class="privacy-switch">
+      <span class="privacy-switch__text"><span class="privacy-switch__label">{{t "Audience measurement"}}</span><span class="privacy-switch__hint">{{t "Statistics tools added by the site that need your agreement."}}</span></span>
+      <input type="checkbox" role="switch" data-consent-category="analytics">
+    </label>
+    <label class="privacy-switch">
+      <span class="privacy-switch__text"><span class="privacy-switch__label">{{t "Embedded content"}}</span><span class="privacy-switch__hint">{{t "Videos and posts from other sites, shown without a click."}}</span></span>
+      <input type="checkbox" role="switch" data-consent-category="embeds">
+    </label>
+    <label class="privacy-switch">
+      <span class="privacy-switch__text"><span class="privacy-switch__label">{{t "Other services"}}</span><span class="privacy-switch__hint">{{t "Anything else added by the site that needs your agreement (advertising, social networks…)."}}</span></span>
+      <input type="checkbox" role="switch" data-consent-category="other">
+    </label>
+    <p class="privacy-group__note" data-consent-signal hidden>{{t "Your browser asks sites not to track you (Global Privacy Control or Do Not Track): these services stay off unless you turn them on here."}}</p>
+  </fieldset>
+
+  <fieldset class="privacy-group" data-privacy-group="embeds">
+    <legend class="privacy-group__title">{{t "Embedded content"}}</legend>
+    <p class="privacy-group__note">{{t "Videos and posts from other sites (YouTube, X…) only load when you click them: the service then receives your IP address and may set cookies. Turn a service on to show its content without a click."}}</p>
+    <div class="privacy-group__list" data-privacy-providers
+      data-label="{{t "Show {provider} content without a click" provider="{provider}"}}"></div>
+    <p class="privacy-group__empty" data-privacy-providers-empty hidden>{{t "No service is shown without a click."}}</p>
+  </fieldset>
+
+  <fieldset class="privacy-group" data-privacy-group="plausible" hidden>
+    <legend class="privacy-group__title">{{t "Visit statistics"}}</legend>
+    <label class="privacy-switch">
+      <span class="privacy-switch__text"><span class="privacy-switch__label">{{t "Count my visits"}}</span><span class="privacy-switch__hint">{{t "Audience measurement without cookies (Plausible): pages viewed, referring site, country, type of device, never who you are. Off: this browser is no longer counted."}}</span></span>
+      <input type="checkbox" role="switch" data-plausible-toggle>
+    </label>
+  </fieldset>
+
+  <fieldset class="privacy-group" data-privacy-group="members" hidden>
+    <legend class="privacy-group__title">{{t "Your reading"}}</legend>
+    <label class="privacy-switch">
+      <span class="privacy-switch__text"><span class="privacy-switch__label">{{t "Remember where I stop in posts"}}</span><span class="privacy-switch__hint">{{t "For “Continue reading” on the home page, in this browser only. Off: the list is cleared and nothing more is recorded."}}</span></span>
+      <input type="checkbox" role="switch" data-privacy-progress>
+    </label>
+  </fieldset>
+
+  {{#unless page}}
+  <div class="privacy-group privacy-group--data" data-privacy-group="data">
+    <h3 class="privacy-group__title">{{t "Data in this browser"}}</h3>
+    <p class="privacy-group__note" data-privacy-count data-none="{{t "This site keeps nothing in this browser."}}" data-one="{{t "This site keeps 1 item in this browser."}}" data-many="{{t "This site keeps % items in this browser."}}"></p>
+    {{#if @member}}<p class="privacy-group__note">{{t "Your “Read later” and “Continue reading” lists are kept in this browser, not in your account: whoever signs in on this browser sees them. Signing out with the site’s “Sign out” link clears them."}}</p>{{/if}}
+    <button type="button" class="button button--s privacy-clear" data-privacy-clear>{{> "icons/reset"}}<span>{{t "Clear this site's data"}}</span></button>
+  </div>
+  {{/unless}}
+  <p class="sr-only" aria-live="polite" data-privacy-live
+    data-cleared="{{t "This site's data has been cleared from this browser, your choices included."}}"
+    data-removed="{{t "Item cleared from this browser."}}"
+    data-saved="{{t "Choice saved in this browser."}}"
+    data-next="{{t "Choice saved: it applies from the next page."}}"></p>
+</div>

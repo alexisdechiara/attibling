@@ -1,0 +1,13 @@
+{{~!--
+Extra hosts of the embeds' Content-Security-Policy (default.hbs, posts and pages, setting embed_consent) in
+the fallback consent mode only (setting consent_notice = Notice or Banner): the common audience
+measurement, tag manager and advertising services, so that a script the owner gated with data-consent
+(and whatever it loads) can run on posts and pages once the reader accepts. Nothing here loads by itself:
+these services only run when the owner added them AND the reader agreed. Not listed (YouTube, X…):
+embeds keep their facade. Another service: see docs/guide-auteur.md (« Brancher un outil… »).
+Parameter kind="script" or kind="frame".
+--~}}
+{{~#match @custom.consent_notice "None"}}{{else}}{{#if @custom.consent_notice~}}
+{{~#match kind "script"}} https://www.googletagmanager.com https://*.google-analytics.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://connect.facebook.net https://*.hotjar.com https://*.clarity.ms https://plausible.io https://*.matomo.cloud https://cdn.usefathom.com https://cloud.umami.is https://static.cloudflareinsights.com https://snap.licdn.com https://analytics.tiktok.com{{/match~}}
+{{~#match kind "frame"}} https://*.googlesyndication.com https://*.doubleclick.net https://www.googletagmanager.com https://*.adtrafficquality.google https://*.hotjar.com{{/match~}}
+{{~/if}}{{/match~}}

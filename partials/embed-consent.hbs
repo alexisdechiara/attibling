@@ -5,7 +5,11 @@ default.hbs puts a Content-Security-Policy in the <head> that forbids frames and
 even without JavaScript. src/js/embeds.js replaces each blocked embed with this facade; the reader's
 click loads it inside assets/html/embed.html, a page of the site that has no such policy (YouTube in
 privacy-enhanced mode, youtube-nocookie.com). « Always show » is kept per provider in localStorage
-("attibling-embeds"). {provider} is filled in by the script; the button's label depends on the kind of
+("attibling-embeds"), and can be taken back in the privacy panel (« Gérer mes choix », src/js/privacy/).
+What the facade says follows the CNIL's conditions for a valid consent: who (the provider, named), what
+(its servers receive the IP address and may set cookies or other trackers), for this provider only, given
+by a clear action (the button; « always show » is never pre-ticked), as easy to withdraw (the panel, and
+« Ne plus afficher automatiquement » under an embed shown that way); nothing loads before. {provider} is filled in by the script; the button's label depends on the kind of
 embed (video, post, other). See docs/guide-auteur.md, « Vidéos et contenus intégrés ».
 --}}
 <template id="embed-facade" data-embed-frame="{{asset "html/embed.html"}}"
@@ -14,7 +18,8 @@ embed (video, post, other). See docs/guide-auteur.md, « Vidéos et contenus int
   data-label-content="{{t "Show the content from {provider}" provider="{provider}"}}"
   data-frame-title="{{t "Content from {provider}" provider="{provider}"}}"
   data-stop="{{t "Stop showing content from {provider} automatically" provider="{provider}"}}"
-  data-stopped="{{t "Content from {provider} will no longer be shown automatically." provider="{provider}"}}">
+  data-stopped="{{t "Content from {provider} will no longer be shown automatically." provider="{provider}"}}"
+  data-manage="{{t "Manage my choices"}}">
   <div class="embed-facade" data-embed-facade>
     <div class="embed-facade__poster" data-embed-poster>
       <p class="embed-facade__provider pill" data-embed-provider></p>
@@ -22,9 +27,10 @@ embed (video, post, other). See docs/guide-auteur.md, « Vidéos et contenus int
       <button type="button" class="embed-facade__load button button--l" data-embed-load>{{> icons/play}}<span data-embed-label></span></button>
     </div>
     <div class="embed-facade__consent">
-      <p class="embed-facade__note" data-embed-note>{{t "Showing it connects to {provider}, which may set cookies." provider="{provider}"}}</p>
+      <p class="embed-facade__note" data-embed-note>{{t "Showing it loads this content from {provider}, which then receives your IP address and may set cookies or other trackers." provider="{provider}"}}</p>
       <div class="embed-facade__actions">
         <label class="embed-facade__always"><input type="checkbox" data-embed-always> <span>{{t "Always show content from {provider}" provider="{provider}"}}</span></label>
+        <button type="button" class="embed-facade__manage" data-privacy-open>{{t "Manage my choices"}}</button>
         <a class="embed-facade__open" data-embed-open href="#" target="_blank" rel="noopener noreferrer">{{t "View on {provider}" provider="{provider}"}}{{> icons/external}}<span class="sr-only"> {{t "(opens in a new tab)"}}</span></a>
       </div>
     </div>

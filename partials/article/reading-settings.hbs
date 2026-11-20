@@ -124,6 +124,18 @@ summary); default.hbs applies the saved ones before the first paint, src/css/art
       </div>
     </fieldset>
 
+    {{!-- Not a display setting: where the member stops reading, for « Reprendre la lecture » on the
+    home page (on by default; off clears the list). Kept apart from the others (src/js/privacy/choices.js,
+    "attibling-privacy"), so « Réinitialiser » leaves it alone; also in the « Cookies et confidentialité »
+    panel. --}}
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Remember where I stop"}}</legend>
+      <div class="segmented segmented--2">
+        <label><input type="radio" name="progress" value="on" checked>{{t "Yes"}}</label>
+        <label><input type="radio" name="progress" value="off">{{t "No"}}</label>
+      </div>
+    </fieldset>
+
     <div class="reading-settings__foot">
       <span class="reading-settings__note">{{t "Saved in this browser"}}</span>
       <button type="button" class="reading-settings__reset" data-reading-reset>{{> "icons/reset"}}{{t "Reset"}}</button>

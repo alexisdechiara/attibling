@@ -11,6 +11,8 @@ Inside the page's template context. See docs/guide-auteur.md (« Mentions légal
     is no table of contents (the headings keep their anchors).
   - The content: the generic page's reading column (pages/content.css); a <dl> sets out who / where / how
     to reach (publisher, host) as a compact identity block; headings get the copy-link button of articles.
+Parameter privacy=true (page-cookies.hbs, page-confidentialite.hbs, custom-privacy.hbs): the theme's live
+privacy sections follow the text (privacy/page.hbs), set up by page.js (src/js/privacy/controls.js).
 data-copy-link / data-link-copied: the strings of the copy-link buttons (src/js/article/strings.js).
 --}}
 {{#contentFor "preload"}}
@@ -53,6 +55,7 @@ data-copy-link / data-link-copied: the strings of the copy-link buttons (src/js/
 
       <div class="page-content gh-content document__content js-post-content" data-document-content>
         {{content}}
+        {{#if ../privacy}}{{> "privacy/page"}}{{/if}}
       </div>
       <p class="sr-only" aria-live="polite" data-article-live></p>
     </article>

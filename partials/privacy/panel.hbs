@@ -1,0 +1,26 @@
+{{!--
+Preferences panel « Cookies et confidentialité », every page (default.hbs). Inert inside a <template>
+until the reader opens it: the footer's link (partials/footer.hbs) or « Gérer mes choix » under an
+embed; src/js/privacy/panel.js clones it into the page as a modal <dialog> (a bottom sheet on phones):
+Escape and the close button close it, focus goes back to what opened it. Its switches are
+privacy/controls.hbs. Parameter: url — the address of the « Cookies et confidentialité » page, when the
+site has one (footer.hbs finds it), for the « Tout voir » link.
+--}}
+<template id="privacy-panel">
+  <dialog class="privacy-panel" aria-labelledby="privacy-panel-title" data-privacy-panel>
+    <div class="privacy-panel__head">
+      <span class="privacy-panel__grip" aria-hidden="true"></span>
+      <h2 class="privacy-panel__title" id="privacy-panel-title">{{t "Cookies and privacy"}}</h2>
+      <button type="button" class="icon-button privacy-panel__close" aria-label="{{t "Close"}}" data-privacy-close>{{> "icons/close"}}</button>
+    </div>
+    <div class="privacy-panel__body">
+      <p class="privacy-panel__intro">{{t "Your choices stay in this browser: nothing is sent to the site."}}</p>
+      {{> "privacy/controls"}}
+    </div>
+    {{#if url}}
+      <div class="privacy-panel__foot">
+        <a class="privacy-panel__more" href="{{url}}">{{t "Everything the site keeps, in detail"}}{{> "icons/chevron-right" class="icon-flip-rtl"}}</a>
+      </div>
+    {{/if}}
+  </dialog>
+</template>

@@ -73,6 +73,9 @@ export const template = (
 		"page-mentions-legales": {
 			post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z", ...post },
 		},
+		"page-cookies": {
+			post: { ...PAGE, title: "Cookies et confidentialité", updated_at: "2026-11-20T10:00:00.000Z", ...post },
+		},
 		"error-404": {},
 	};
 	for (const [custom_, page_] of [
@@ -83,6 +86,8 @@ export const template = (
 		["custom-saved-posts", "page-favoris"],
 		["custom-about", "page-a-propos"],
 		["custom-document", "page-mentions-legales"],
+		["custom-privacy", "page-cookies"],
+		["page-confidentialite", "page-cookies"],
 	]) {
 		contexts[custom_] = contexts[page_];
 	}
