@@ -10,9 +10,9 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 1. [Notions de base](#1-notions-de-base) — réglages du thème, tags internes, visiteurs et abonnés, navigateurs pris en charge
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées, vignette d'un article (image des cartes)
-4. [Signets « À lire plus tard » sur les tuiles](#4-signets-à-lire-plus-tard-sur-les-tuiles)
+4. [Signets « À lire plus tard » sur les tuiles](#4-signets--à-lire-plus-tard--sur-les-tuiles)
 5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
-6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, article réservé aux abonnés, vidéos et contenus intégrés
+6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, article réservé aux abonnés, impression, vidéos et contenus intégrés
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
 9. [Référence : les conventions](#9-référence--les-conventions)
@@ -362,7 +362,7 @@ navigateur :
 - **Reprendre la lecture** : les articles commencés et pas finis, avec une barre de progression et « 40 % lu
   • reste environ 7 min » (6 au plus ; un article lu à plus de 90 % sort de la liste). La liste est remplie
   par les pages d'article.
-- **À lire plus tard** : les articles gardés avec le signet (voir [section 4](#4-signets-à-lire-plus-tard-sur-les-tuiles)).
+- **À lire plus tard** : les articles gardés avec le signet (voir [section 4](#4-signets--à-lire-plus-tard--sur-les-tuiles)).
 
 Le titre de la section est un bouton : cliquez-le pour passer d'une liste à l'autre. La section s'ouvre sur
 « Reprendre la lecture » s'il y a une lecture en cours, sinon sur « À lire plus tard ». Chaque carte est un
@@ -778,7 +778,7 @@ courte).
    modèle **Subscribe** et remplissez le réglage **Subscribe url**). Son titre ne s'affiche pas (le grand
    titre est « S'abonner à » + le nom du site).
 2. **Relier les boutons** : rien à faire pour ces trois slugs (voir
-   [Bouton « S'abonner »](#bouton-sabonner-et-se-connecter)). Le réglage **Subscribe url** reste possible
+   [Bouton « S'abonner »](#bouton--sabonner--et--se-connecter-)). Le réglage **Subscribe url** reste possible
    pour forcer une autre adresse.
 3. **Accroche** = l'**Excerpt** de la page. Vide : la phrase du thème (« C'est gratuit : recevez les derniers
    articles directement dans votre boîte mail et profitez des outils de lecture réservés aux abonnés. »).
@@ -1482,6 +1482,17 @@ section (« Lien copié ») ; sur téléphone il est après le titre. Chaque blo
 (« Copié » pendant 2 s) et affiche sa langue si elle est choisie dans la carte Code de Ghost (`bash`,
 `javascript`…).
 
+### Impression d'un article
+
+Rien à faire : la commande Imprimer du navigateur (ou « Enregistrer en PDF ») donne une version papier sobre.
+Sont imprimés le titre, le tag, l'auteur et la date, le texte (en noir sur blanc, l'adresse de chaque lien
+externe entre parenthèses), puis « Publié le · Mis à jour le ». Sont laissés de côté l'en-tête et le pied de
+page du site, l'image de couverture, le sommaire, les boutons (signet, partage, copier, « Revenir en haut »),
+la liste des parties d'une série et sa ligne « Précédent / Suivant », la boîte auteur, les commentaires et
+« Recommandé pour vous ». Une vidéo ou un contenu intégré, qui ne peut pas s'imprimer, est remplacé par une
+ligne qui dit ce que c'était et où le voir (« Contenu de YouTube — titre (https://www.youtube.com/watch?v=…) »).
+Les réglages d'affichage de l'abonné (thème, police, largeur) ne s'appliquent pas au papier.
+
 ### Vidéos et contenus intégrés (YouTube, X…)
 
 **Pour vous, rien ne change** : collez l'adresse d'une vidéo YouTube, d'une publication X, d'un morceau
@@ -1642,16 +1653,16 @@ Ghost Admin → Settings → Design & branding → **Customize** (18 réglages ;
 |---|---|---|---|---|
 | Dark mode logo | Site wide | vide | Logo clair pour le mode sombre et le bandeau d'accueil (avec un logo image) | [2](#2-identité-et-en-tête) |
 | Page transitions | Site wide | oui | Transitions animées entre les pages (navigateurs compatibles) | [7](#transitions-entre-les-pages) |
-| Subscribe url | Site wide | vide (la page `newsletter`, `abonnement` ou `subscribe`, sinon Portal) | Destination forcée des boutons « S'abonner » / « Se connecter », par exemple `/newsletter/` | [2](#bouton-sabonner-et-se-connecter) |
-| Consent notice | Site wide | Notice | *Notice* / *Banner* : chaque contenu intégré demande l'accord dans son encadré (« Accepter et afficher » vaut pour tous) ; pour les scripts marqués `data-consent`, et seulement sur les pages qui en ont, une petite carte après un peu de défilement (*Notice*) ou une barre dès l'arrivée (*Banner*). *None* : ni carte ni accord, un clic par contenu, scripts `data-consent` éteints | [5](#le-réglage--consent-notice) |
+| Subscribe url | Site wide | vide (la page `newsletter`, `abonnement` ou `subscribe`, sinon Portal) | Destination forcée des boutons « S'abonner » / « Se connecter », par exemple `/newsletter/` | [2](#bouton--sabonner--et--se-connecter-) |
+| Consent notice | Site wide | Notice | *Notice* / *Banner* : chaque contenu intégré demande l'accord dans son encadré (« Accepter et afficher » vaut pour tous) ; pour les scripts marqués `data-consent`, et seulement sur les pages qui en ont, une petite carte après un peu de défilement (*Notice*) ou une barre dès l'arrivée (*Banner*). *None* : ni carte ni accord, un clic par contenu, scripts `data-consent` éteints | [5](#le-réglage--consent-notice-) |
 | Consent tools | Site wide | non | Laisse passer sur les articles et les pages, après accord, les outils de mesure et de publicité courants marqués `data-consent` (Google, Meta, Hotjar…). À allumer seulement le jour où vous en ajoutez un ; éteint, la règle de sécurité est celle de *None* | [5](#brancher-un-outil-qui-demande-laccord-analytics-publicité-pixel) |
 | About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
 | Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |
 | Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque | [3](#les-rangées-par-rubrique) |
-| Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») | [6](#les-deux-styles--carte-et-immersif) |
+| Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») | [6](#les-deux-styles---carte--et--immersif-) |
 | Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles | [6](#réglages-daffichage-abonnés) |
-| Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs | [6](#en-bref--le-résumé-en-points-numérotés) |
+| Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs | [6](#-en-bref---le-résumé-en-points-numérotés) |
 | Embed consent | Post | oui | Vidéos YouTube, publications X et autres contenus intégrés chargés seulement au clic du lecteur (rien n'est demandé au service avant) | [6](#vidéos-et-contenus-intégrés-youtube-x) |
 | About page | Post | vide (`a-propos` ou `about`) | Page liée par « À propos » dans la boîte auteur | [6](#boîte-auteur) |
 
@@ -1680,7 +1691,7 @@ d'articles de « Derniers articles ».
 
 | Carte | Modèle | Section |
 |---|---|---|
-| « En bref » (auteur) | `<ol class="en-bref"><li>…</li></ol>` en tête d'article | [6](#en-bref--le-résumé-en-points-numérotés) |
+| « En bref » (auteur) | `<ol class="en-bref"><li>…</li></ol>` en tête d'article | [6](#-en-bref---le-résumé-en-points-numérotés) |
 | « En bref » (IA, facultatif) | `<ol class="en-bref" data-source="ia">…</ol>` | [6](#résumé-par-ia-facultatif) |
 | Fiche de test | `<aside class="fiche-test">…</aside>` (classes `fiche-test__type`, `__titre`, `__note`, `__infos`, `__plus`, `__moins`, `__verdict` ; `data-type="VideoGame"` facultatif) | [6](#fiche-de-test) |
 | Liens « Suivre le blog » | `<ul class="about-links"><li><a href="…">…</a></li></ul>` dans la page À propos | [5](#à-propos) |

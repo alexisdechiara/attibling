@@ -18,6 +18,37 @@ describe("repository", () => {
 		}
 	});
 
+	it("links every anchor of the author guide to one of its headings, by GitHub's slug rule", () => {
+		// GitHub (github-slugger): the heading's text, lower case, without any character that is not a
+		// letter, mark, digit, "_", "-" or a space (« », ’, ?, :, NBSP…), each space a "-"; "-1", "-2"…
+		// for a heading met again
+		const lines = read("docs/guide-auteur.md").split("\n");
+		let fenced = false;
+		const seen = new Map();
+		const slugs = new Set();
+		for (const line of lines) {
+			if (/^\s*```/.test(line)) fenced = !fenced;
+			const heading = !fenced && line.match(/^#{1,6}\s+(.*?)\s*#*\s*$/);
+			if (!heading) continue;
+			const text = heading[1].replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/[`*]/g, "");
+			const base = text
+				.toLowerCase()
+				.replace(/[^\p{L}\p{M}\p{N}\p{Pc} -]/gu, "")
+				.replace(/ /g, "-");
+			const n = seen.get(base) || 0;
+			seen.set(base, n + 1);
+			slugs.add(n ? `${base}-${n}` : base);
+		}
+		const text = lines.filter(line => !/^\s{4}|^\s*```/.test(line)).join("\n");
+		const anchors = [...text.matchAll(/\]\(#([^)\s]+)\)/g)].map(m => decodeURIComponent(m[1]));
+		assert.ok(anchors.length > 20, `${anchors.length} anchors`);
+		assert.deepEqual(
+			[...new Set(anchors.filter(anchor => !slugs.has(anchor)))],
+			[],
+			"anchors with no heading",
+		);
+	});
+
 	it("deploy without leaving the GitHub token in the checkout", () => {
 		const workflow = read(".github/workflows/deploy-theme.yml");
 		const deploy = workflow.slice(workflow.indexOf("\n  deploy:"));
