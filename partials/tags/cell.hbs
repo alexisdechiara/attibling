@@ -4,6 +4,10 @@ one link to the tag (its picture under a scrim, or a tinted surface, as the « �
 icon of partials/about/tag-icon.hbs in a badge, name, number of posts, description when the tag has one) and a « Détails » button (shown by
 src/js/tags.js) that opens the preview with the tag's latest posts.
 data-posts / data-image feed the arrangement (src/js/tags/layout.js), data-description the preview.
+loading="lazy" is only the server's default: the arrangement is shuffled in the browser, so the script
+right after the grid (tags/prepaint.hbs) turns the cells of the first screen eager, the first one
+fetchpriority="high", before they are requested (observed on Ghost 6.78: requested about 0.5 s after
+the HTML, long before DOMContentLoaded).
 Parameters:
   size="feature" | "wide"   size without JavaScript (the server's default arrangement)
 --}}
