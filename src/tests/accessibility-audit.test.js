@@ -127,6 +127,8 @@ describe("accessibility audit: reflow", () => {
 
 	const cases = {
 		"home, visitor": home(),
+		// French labels are longer (« S’abonner gratuitement » in the subscription block)
+		"home, visitor, French": home({ locale: "fr" }),
 		"home, member": home({ member: true }),
 		"post, visitor": article(),
 		"post, member (settings gear)": article({ member: true }),
