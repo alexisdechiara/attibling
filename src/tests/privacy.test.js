@@ -529,6 +529,8 @@ describe("privacy: fallback consent mode (setting consent_notice)", () => {
 		});
 		await notice(page).waitFor({ state: "visible" });
 		await page.keyboard.press("Tab"); // skip link
+		await page.keyboard.press("Tab"); // the link in the sentence, then the two answers
+		assert.equal(await page.evaluate(() => document.activeElement.textContent.trim()), "Cookies and privacy");
 		await page.keyboard.press("Tab");
 		assert.equal(await page.evaluate(() => document.activeElement.textContent.trim()), "Refuse all");
 		await page.keyboard.press("Escape");

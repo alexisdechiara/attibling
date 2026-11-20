@@ -8,7 +8,7 @@ bottom corner shown after a little scrolling or 12 seconds.
 The wording: with embeds only, it names the services of the page ({providers}) and what showing them
 sends; otherwise the kinds of services ({categories}). « Tout accepter » is a solid button (ink on light,
 light on dark), « Tout refuser » an outlined button of the same size on the same row (the owner's choice:
-see docs/guide-auteur.md on equal prominence); « Personnaliser » opens the preferences panel; the close
+see docs/guide-auteur.md on equal prominence); the « Cookies et confidentialité » link in the text opens the preferences panel; the close
 button refuses (it says so).
 --}}
 <template id="consent-notice">
@@ -19,11 +19,11 @@ button refuses (it says so).
     <div class="consent-notice__text">
       <h2 class="consent-notice__title" id="consent-notice-title" data-consent-title>{{t "Your agreement, if you wish"}}</h2>
       <p class="consent-notice__body" data-consent-body data-template="{{t "With your agreement, this site uses services that may set cookies: {categories}." categories="{categories}"}}"></p>
+      <p class="consent-notice__more" data-consent-more data-template="{{t "You can change your mind in {link}." link="{link}"}}"><button type="button" class="consent-notice__link" data-consent-customise>{{t "Cookies and privacy"}}</button></p>
     </div>
     <div class="consent-notice__actions">
       <button type="button" class="button button--s consent-refuse" data-consent-answer="false">{{t "Refuse all"}}</button>
       <button type="button" class="button button--s consent-accept" data-consent-answer="true">{{t "Accept all"}}</button>
-      <button type="button" class="consent-notice__customise" data-consent-customise>{{t "Customise"}}</button>
     </div>
     <button type="button" class="icon-button consent-notice__close" data-consent-answer="false" aria-label="{{t "Close and continue without accepting"}}" title="{{t "Close and continue without accepting"}}">{{> "icons/close"}}</button>
   </section>

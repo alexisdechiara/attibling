@@ -415,33 +415,29 @@
 
   .consent-notice--banner & {
     @media (width >= 64rem) {
-      grid-template-columns: repeat(3, auto);
+      grid-template-columns: repeat(2, auto);
     }
   }
 }
 
-/* « Personnaliser »: a text button, under the two answers (beside them in the wide banner) */
-.consent-notice__customise {
-  grid-column: 1 / -1;
-  justify-self: center;
-  min-height: var(--target);
-  padding-inline: var(--space-3);
+/* « Cookies et confidentialité », in the sentence: opens the preferences panel */
+.consent-notice__more {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  line-height: 1.5;
+}
+
+.consent-notice__link {
+  padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
   background: none;
   color: var(--color-accent);
   font: inherit;
-  font-size: var(--text-m);
   font-weight: var(--weight-semibold);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
-
-  .consent-notice--banner & {
-    @media (width >= 64rem) {
-      grid-column: auto;
-    }
-  }
 }
 
 .consent-notice__close {

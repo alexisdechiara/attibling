@@ -28,6 +28,14 @@ export const showNotice = ({ openPanel } = {}) => {
 		body.textContent = body.dataset.template.replace("{categories}", names.join(", "));
 	}
 
+	// « Vous pouvez changer d'avis dans [Cookies et confidentialité]. »: the link sits where the
+	// translation puts {link}
+	const more = notice.querySelector("[data-consent-more]");
+	if (more) {
+		const [before, after = ""] = more.dataset.template.split("{link}");
+		more.replaceChildren(before, more.firstElementChild, after);
+	}
+
 	// While it is shown, controls fixed at the bottom of the window (the article's « back to the top »)
 	// move up above it where they would overlap (privacy.css: data-consent-shown, --consent-notice-space)
 	const root = document.documentElement;

@@ -1003,7 +1003,7 @@ Design & branding → Customize → *Site wide* → **Consent notice** :
   avertissement apparaît dans la console du navigateur).
 
 Dans les deux modes : rien n'est bloquant (pas de fond grisé, pas de mur, la page reste utilisable),
-« Personnaliser » ouvre le panneau, le × ferme **en refusant** (il le dit), Échap aussi ; la réponse est
+Le lien « Cookies et confidentialité » du texte ouvre le panneau, le × ferme **en refusant** (il le dit), Échap aussi ; la réponse est
 gardée **6 mois** puis la question revient (`attibling-consent`, avec la version de la question : si le
 thème change de catégories, il redemande) ; aucune case n'est pré-cochée ; le choix se retire aussi
 simplement dans le panneau. Un navigateur qui envoie **Global Privacy Control** ou **Do Not Track** est
