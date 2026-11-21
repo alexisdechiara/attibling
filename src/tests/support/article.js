@@ -13,6 +13,8 @@
 //  - pages         pages of the site (default: an « À propos » page, slug a-propos)
 //  - tags          public tag slugs of the post (default actualites, jeux-video)
 //  - authors       number of authors with published posts (default 1: single-author site)
+//  - comments      Settings > Membership > Commenting: "all" (default), "paid" or "off"
+//  - paid          true for a paid member (with member: true)
 import { createSite } from "./site.js";
 import { DEFAULT_CUSTOM } from "./pages.js";
 
@@ -105,12 +107,21 @@ export const article = (options = {}) => {
 		pages = [{ id: "page-1", title: "À propos", slug: "a-propos", url: "/a-propos/" }],
 		tags = ["actualites", "jeux-video"],
 		authors = 1,
+		comments = "all",
+		paid = false,
 	} = options;
 	const site = createSite({ authors });
+	// Settings > Membership > Commenting: @site.comments_enabled (boolean) and @site.comments_access
+	site.settings.comments_enabled = comments !== "off";
+	site.settings.comments_access = comments;
 	const base = site.posts[1];
 	const publicTags = tags.map(slug => site.tags.find(t => t.slug === slug)).filter(Boolean);
 	const post = {
 		...base,
+		// As the Content API gives a public post: access, and comments = access and commenting not off
+		comment_id: base.id,
+		access: true,
+		comments: comments !== "off",
 		html,
 		feature_image: image,
 		updated_at: "2026-06-02T10:00:00.000Z",
@@ -152,7 +163,7 @@ export const article = (options = {}) => {
 		site,
 		context: { post },
 		contexts: ["post"],
-		member: member ? MEMBER : null,
+		member: member ? { ...MEMBER, paid } : null,
 		custom: { ...ARTICLE_CUSTOM, ...custom },
 		locale: options.locale || "fr",
 	};

@@ -21,6 +21,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
 
 const read = file => fs.readFileSync(path.join(ROOT, file), "utf8");
 const IMAGE_SIZES = JSON.parse(read("package.json")).config.image_sizes;
+// Ghost 6.78's comments-ui (core/shared/config/defaults.json: comments.url, version 1.6)
+export const COMMENTS_UI = "https://cdn.jsdelivr.net/ghost/comments-ui@~1.6/umd/comments-ui.min.js";
 
 const listTemplates = dir =>
 	fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap(entry => {
@@ -304,7 +306,36 @@ export const renderTemplate = (name, options = {}) => {
 			const list = names.length === 1 ? names[0] : names.slice(0, -1).join(separator) + lastSeparator + names.at(-1);
 			return safe(prefix + list + suffix);
 		},
-		comments: () => "",
+		// Like Ghost 6.78 (core/frontend/helpers/comments.js): nothing without a comment_id, when comments are
+		// off or when the reader may not read the post (access); otherwise comments-ui's script tag with its
+		// data attributes, written as Ghost writes them (values not escaped, title null when not given)
+		comments(opts) {
+			if (!this.comment_id) return "";
+			if (!settings.comments_enabled || settings.comments_access === "off" || !this.access) return "";
+			const mode = ["dark", "light"].includes(opts.hash.mode) ? opts.hash.mode : "auto";
+			const saturation = parseInt(opts.hash.saturation, 10);
+			const data = {
+				locale: settings.locale || "en",
+				"ghost-comments": settings.url.replace(/\/?$/, "/"),
+				api: settings.url.replace(/\/?$/, "/") + "ghost/api/content/",
+				admin: settings.url.replace(/\/?$/, "/") + "ghost/",
+				key: "frontend-key",
+				title: typeof opts.hash.title === "string" ? opts.hash.title : null,
+				count: opts.hash.count !== false,
+				"post-id": this.id,
+				"color-scheme": mode,
+				"avatar-saturation": isNaN(saturation) ? 60 : saturation,
+				"accent-color": settings.accent_color || "",
+				"comments-enabled": settings.comments_access || "all",
+				publication: settings.title,
+			};
+			const attributes = Object.entries(data)
+				.map(([key, value]) => `data-${key}="${value}"`)
+				.join(" ");
+			return safe(`
+        <script defer src="${COMMENTS_UI}" ${attributes} crossorigin="anonymous"></script>
+    `);
+		},
 		authors(opts) {
 			const plain = opts?.hash?.autolink === "false" || opts?.hash?.autolink === false;
 			return safe((this.authors || []).map(a => (plain ? a.name : `<a href="${a.url}">${a.name}</a>`)).join(", "));

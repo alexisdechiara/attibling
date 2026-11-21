@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { renderTemplate } from "./ghost.js";
+import { renderTemplate, COMMENTS_UI } from "./ghost.js";
 import { home } from "./pages.js";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -49,6 +49,10 @@ const close = async () => {
  *  - slow: { "/assets/js/archives.js": 1500 } files of the repository served that many ms late (a slow
  *    network for one script, e.g. to see the page before it runs); "/__slow.js" is an empty script
  *  - fail: ["/assets/js/archives.js"] files of the repository answered with a 404 (a script that fails)
+ *  - hash: fragment of the address the page is opened at, e.g. "#ghost-comments-root"
+ *  - commentsUi: { delay, script } answers Ghost's comments-ui (COMMENTS_UI, from jsDelivr, the script of
+ *    {{comments}}) after `delay` ms with the JavaScript `script`; "fail": a 404; null (default): aborted,
+ *    like every other request outside the site (it is still listed in `requests`)
  *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, javaScriptEnabled: browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
@@ -71,6 +75,8 @@ const open = async (options = {}) => {
 		ghostDefer = null,
 		slow = {},
 		fail = [],
+		commentsUi = null,
+		hash = "",
 	} = options;
 	const render = options.render || (fixture ? null : home());
 
@@ -146,6 +152,12 @@ const open = async (options = {}) => {
 			return route.fulfill({ status: 200, contentType: "text/html", body: html });
 		}
 
+		if (commentsUi && url.href === COMMENTS_UI) {
+			if (commentsUi === "fail") return route.fulfill({ status: 404, body: "not found" });
+			await sleep(commentsUi.delay || 0);
+			return route.fulfill({ status: 200, contentType: "application/javascript", body: commentsUi.script });
+		}
+
 		if (url.origin === SITE) {
 			if (slow[url.pathname]) await sleep(slow[url.pathname]);
 			if (fail.includes(url.pathname)) return route.fulfill({ status: 404, body: "not found" });
@@ -174,7 +186,9 @@ const open = async (options = {}) => {
 		return route.abort();
 	});
 
-	await page.goto(render ? `${SITE}/__render` : `${SITE}/src/tests/fixtures/${fixture}`, { waitUntil: "load" });
+	await page.goto((render ? `${SITE}/__render` : `${SITE}/src/tests/fixtures/${fixture}`) + hash, {
+		waitUntil: "load",
+	});
 
 	return {
 		page,
