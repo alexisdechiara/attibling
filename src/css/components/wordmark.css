@@ -86,12 +86,12 @@
   height: 32px;
 }
 
-/* Hero: 120px at 1440px, 62px on phones; the "ly" keeps its descender inside the box so the
-   tagline can sit right under it */
+/* Hero: its size is --hero-mark (src/css/home/hero.css: 148px at 1440px, 68px on a phone); the "ly"
+   keeps its descender inside the box so the tagline can sit right under it. No shadow on the letters:
+   the hero's veil carries their contrast. */
 .wordmark--hero {
   font-size: var(--hero-mark, clamp(62px, 8.4vw, 120px));
   letter-spacing: -0.02em;
-  text-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
 
   .wordmark__script {
     display: inline-block;

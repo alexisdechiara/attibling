@@ -82,57 +82,136 @@
   object-fit: cover;
 }
 
-/* Shade: dark under the wordmark and the post's text, lighter in between to let the image show
-   (contrast checked on the boards: wordmark letters ≥ 3:1, tagline and title ≥ 4.5:1) */
+/* The shade over the picture: one light, even veil, plus two wide ramps that deepen it towards the
+   text, never a shape: from the top (the wordmark) and the bottom (the post) on phones and tablets,
+   from the inline start (the wordmark) and the inline end (the post) on desktop. Each ramp holds its
+   strength over its text, then falls off over hundreds of pixels as 1 - smootherstep, whose slope is
+   zero where it starts and where it ends, so neither end can be seen (a plain linear stop shows a line).
+   No shadow on the letters. Three strengths, per slide: --hero-veil, --hero-ramp-a (towards the
+   wordmark) and --hero-ramp-b (towards the post). src/js/hero-veil.js sets them from the picture's
+   brightness under each text block, aiming at the targets below; these are the values without it
+   (no JavaScript, a picture from another origin, the static hero). */
+.hero {
+  --hero-veil: 0.34;
+  --hero-ramp-a: 0.6;
+  --hero-ramp-b: 0.7;
+  /* Read once by src/js/hero-veil.js:
+     --hero-target-a / -b  the backdrop luminance each block must come down to (0.161 is 4.5:1 for
+                           white text, 0.048 is 3:1 for the blue G)
+     --hero-reach-a / -b   the ramp's strength at the far edge of its text block (share of its peak)
+     --hero-veil-k         the share of the larger need carried by the even veil (the rest by the ramps)
+     --hero-floor          the least shade each block gets (thin bright detail can vanish in the
+                           100px sample the script reads) */
+  --hero-target-a: 0.24;
+  --hero-target-b: 0.18;
+  --hero-reach-a: 1;
+  --hero-reach-b: 0.68;
+  --hero-veil-k: 0.4;
+  --hero-floor: 0.25;
+
+  @media (width >= 64rem) {
+    --hero-reach-b: 1;
+  }
+}
+
 .hero__scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-media) 88%, transparent) 0%,
-    color-mix(in srgb, var(--color-media) 86%, transparent) 36%,
-    color-mix(in srgb, var(--color-media) 30%, transparent) 45%,
-    color-mix(in srgb, var(--color-media) 30%, transparent) 52%,
-    color-mix(in srgb, var(--color-media) 80%, transparent) 58%,
-    color-mix(in srgb, var(--color-media) 82%, transparent) 100%
-  );
+  background:
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 100%), transparent) 60%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 99.8%), transparent) 62.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 98.4%), transparent) 65%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 95.1%), transparent) 67.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 89.6%), transparent) 70%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 82%), transparent) 72.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 72.5%), transparent) 75%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 61.6%), transparent) 77.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 50%), transparent) 80%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 38.4%), transparent) 82.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 27.5%), transparent) 85%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 18%), transparent) 87.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 10.4%), transparent) 90%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 4.9%), transparent) 92.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 1.6%), transparent) 95%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0.2%), transparent) 97.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0%), transparent) 100%
+      )
+      top / 100% 80% no-repeat,
+    linear-gradient(
+        0deg,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 100%), transparent) 50%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 99.8%), transparent) 53.1%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 98.4%), transparent) 56.3%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 95.1%), transparent) 59.4%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 89.6%), transparent) 62.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 82%), transparent) 65.6%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 72.5%), transparent) 68.8%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 61.6%), transparent) 71.9%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 50%), transparent) 75%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 38.4%), transparent) 78.1%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 27.5%), transparent) 81.3%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 18%), transparent) 84.4%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 10.4%), transparent) 87.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 4.9%), transparent) 90.6%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 1.6%), transparent) 93.8%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0.2%), transparent) 96.9%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0%), transparent) 100%
+      )
+      bottom / 100% 62% no-repeat,
+    color-mix(in srgb, var(--color-media) calc(var(--hero-veil) * 100%), transparent);
 
   @media (width >= 64rem) {
     background:
-      radial-gradient(
-        46% 30% at 24% 38%,
-        color-mix(in srgb, var(--color-media) 85%, transparent) 0%,
-        color-mix(in srgb, var(--color-media) 80%, transparent) 72%,
-        color-mix(in srgb, var(--color-media) 0%, transparent) 100%
-      ),
       linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--color-media) 78%, transparent) 0%,
-        color-mix(in srgb, var(--color-media) 74%, transparent) 38%,
-        color-mix(in srgb, var(--color-media) 30%, transparent) 50%,
-        color-mix(in srgb, var(--color-media) 30%, transparent) 56%,
-        color-mix(in srgb, var(--color-media) 74%, transparent) 64%,
-        color-mix(in srgb, var(--color-media) 78%, transparent) 100%
-      );
-
-    &:dir(rtl) {
-      background:
-        radial-gradient(
-          46% 30% at 76% 38%,
-          color-mix(in srgb, var(--color-media) 85%, transparent) 0%,
-          color-mix(in srgb, var(--color-media) 80%, transparent) 72%,
-          color-mix(in srgb, var(--color-media) 0%, transparent) 100%
-        ),
-        linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 100%), transparent) 40%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 99.8%), transparent) 43.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 98.4%), transparent) 47.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 95.1%), transparent) 51.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 89.6%), transparent) 55%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 82%), transparent) 58.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 72.5%), transparent) 62.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 61.6%), transparent) 66.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 50%), transparent) 70%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 38.4%), transparent) 73.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 27.5%), transparent) 77.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 18%), transparent) 81.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 10.4%), transparent) 85%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 4.9%), transparent) 88.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 1.6%), transparent) 92.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0.2%), transparent) 96.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0%), transparent) 100%
+        )
+        left / 80% 100% no-repeat,
+      linear-gradient(
           270deg,
-          color-mix(in srgb, var(--color-media) 78%, transparent) 0%,
-          color-mix(in srgb, var(--color-media) 74%, transparent) 38%,
-          color-mix(in srgb, var(--color-media) 30%, transparent) 50%,
-          color-mix(in srgb, var(--color-media) 30%, transparent) 56%,
-          color-mix(in srgb, var(--color-media) 74%, transparent) 64%,
-          color-mix(in srgb, var(--color-media) 78%, transparent) 100%
-        );
-    }
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 100%), transparent) 42%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 99.8%), transparent) 45.6%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 98.4%), transparent) 49.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 95.1%), transparent) 52.9%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 89.6%), transparent) 56.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 82%), transparent) 60.1%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 72.5%), transparent) 63.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 61.6%), transparent) 67.4%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 50%), transparent) 71%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 38.4%), transparent) 74.6%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 27.5%), transparent) 78.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 18%), transparent) 81.9%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 10.4%), transparent) 85.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 4.9%), transparent) 89.1%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 1.6%), transparent) 92.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0.2%), transparent) 96.4%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0%), transparent) 100%
+        )
+        right / 82% 100% no-repeat,
+      color-mix(in srgb, var(--color-media) calc(var(--hero-veil) * 100%), transparent);
+  }
+
+  /* Drawn for left-to-right; mirrored as a whole for right-to-left */
+  &:dir(rtl) {
+    transform: scaleX(-1);
   }
 }
 
@@ -251,9 +330,10 @@
    centred on desktop. The block is not a link (clicking it does nothing); only its button is. */
 .hero__brand {
   /* The hero wordmark's size; the tagline is laid out from it. The GEEKly wordmark is 3.5 times as
-     wide as its size (G to the "y" tail): on desktop it grows with the window as far as the room
-     left of the post allows (128px at 1024px, 188px at 1280px, 220px from 1446px). */
-  --hero-mark: clamp(64px, 19vw, 88px);
+     wide as its size (G to the "y" tail): 68px on a 390px phone (62px at 320px), 82px at 768px, then
+     on desktop it grows with the window (112px at 1024px, 134px at 1280px, 148px from 1445px), leaving
+     the picture room between it and the post. */
+  --hero-mark: clamp(62px, 17.5vw, 80px);
   position: absolute;
   inset-inline: 20px;
   inset-block-start: 27%;
@@ -269,11 +349,11 @@
   }
 
   @media (width >= 48rem) {
-    --hero-mark: clamp(92px, 13vw, 116px);
+    --hero-mark: clamp(80px, 10.7vw, 96px);
   }
 
   @media (width >= 64rem) {
-    --hero-mark: clamp(120px, 15vw - 36px, 180px);
+    --hero-mark: clamp(104px, 8.65vw + 23px, 148px);
     inset-inline: 56px auto;
     inset-block-start: 50%;
     max-width: 50%;
@@ -300,11 +380,12 @@
   max-width: 100%;
   margin-block-start: var(--space-3);
   font-family: var(--font-heading);
-  font-size: clamp(0.9375rem, 0.13 * var(--hero-mark), 1.625rem);
+  /* A real line of text beside the wordmark: 0.19 of its size (28px at 1440px, 21px at 1024px),
+     never under 15px */
+  font-size: clamp(0.9375rem, 0.19 * var(--hero-mark), 1.75rem);
   font-weight: var(--weight-strong);
   line-height: 1.25;
-  letter-spacing: -0.005em;
-  text-shadow: 0 1px 12px rgb(0 0 0 / 0.5);
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
@@ -312,7 +393,7 @@
    stops before the descender (whose leftmost point is 2.99 em from the wordmark's start: Onest 800
    G E E K and Pacifico "l" advance, see partials/home/intro.hbs). A longer description wraps within
    that width (two lines at most). Rule: the tagline's cap top sits 0.075 of the wordmark's size
-   (--hero-mark) under the baseline of « GEEK » (13.5px at 180px): attached to the letters, never
+   (--hero-mark) under the baseline of « GEEK » (11px at 148px): attached to the letters, never
    touching them. With text-box trimming (below) that is exact for any font. Without it, the top margin
    is derived from the line boxes of the self-hosted faces: the wordmark's box reaches 0.617 of its
    size below the baseline (the line box of the Pacifico "ly" subset with its descender room), and the

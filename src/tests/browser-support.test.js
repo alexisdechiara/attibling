@@ -246,11 +246,15 @@ describe("browser support: without the newer features (Firefox 126, Safari 17.5)
 		const { page, dispose } = await open({ initScript: olderBrowser, viewport: { width: 1440, height: 900 } });
 		assert.ok((await stripNewerCss(page)) > 10, "the newer CSS was removed");
 
-		// The hero's shade (it was a relative colour, dropped by Firefox 126): two gradients, the darkest
-		// stop 85 % of the media colour
-		const scrim = await page.evaluate(() => getComputedStyle(document.querySelector(".hero__scrim")).backgroundImage);
-		assert.match(scrim, /radial-gradient.*linear-gradient/);
-		assert.match(scrim, /color\(srgb 0\.0666667 0\.0745098 0\.0941176 \/ 0\.85\)/);
+		// The hero's shade (no relative colour, which Firefox 126 drops): two ramps over an even veil,
+		// the ramps' strongest stop 60 % of the media colour, the veil 34 % (the CSS defaults)
+		const scrim = await page.evaluate(() => {
+			const style = getComputedStyle(document.querySelector(".hero__scrim"));
+			return { image: style.backgroundImage, color: style.backgroundColor };
+		});
+		assert.match(scrim.image, /^linear-gradient.*linear-gradient/);
+		assert.match(scrim.image, /color\(srgb 0\.0666667 0\.0745098 0\.0941176 \/ 0\.6\)/);
+		assert.match(scrim.color, /color\(srgb 0\.0666667 0\.0745098 0\.0941176 \/ 0\.34\)/);
 
 		// « Plus »: opened by the Popover API, placed under its button by the script
 		const button = await box(page, "[data-more-button]");

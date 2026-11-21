@@ -1,6 +1,7 @@
 import { onReady, setUpSlider } from "./helpers";
 import { setUpDock } from "./dock";
 import { setUpIntro } from "./intro";
+import { setUpHeroVeil } from "./hero-veil";
 import { isAvailable, readingProgress, savedPosts } from "./store";
 
 const PROMO_KEY = "attibling-promo-closed";
@@ -308,7 +309,10 @@ onReady(() => {
 	setUpIntro();
 	setUpDock();
 	const hero = document.querySelector("[data-hero]");
-	if (hero) setUpHero(hero);
+	if (hero) {
+		setUpHero(hero);
+		setUpHeroVeil(hero);
+	}
 	const promo = document.querySelector("[data-promo]");
 	if (promo) setUpPromo(promo);
 	const lists = document.querySelector("[data-member-lists]");
