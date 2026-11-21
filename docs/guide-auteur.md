@@ -1214,7 +1214,8 @@ en visiteur et en abonné.
 | Quoi | Depuis | Quand | Qui le décide |
 |---|---|---|---|
 | Polices Onest, Literata, Pacifico | votre site (`/assets/fonts/`) | toujours | thème |
-| Portal (abonnement, compte), recherche, commentaires | `cdn.jsdelivr.net` | toujours (commentaires : articles où ils sont ouverts) | Ghost |
+| Portal (abonnement, compte), recherche | `cdn.jsdelivr.net` | toujours | Ghost |
+| Commentaires | `cdn.jsdelivr.net` | articles où ils sont ouverts, quand le lecteur s'en approche (ou suit un lien vers eux) | Ghost (le moment : thème) |
 | Stripe, hCaptcha / Turnstile | `js.stripe.com`… | seulement si Portal en a besoin (paiement, anti-spam) | Ghost |
 | Polices personnalisées (Brand → Typography) | `fonts.bunny.net` | si vous en avez choisi | Ghost |
 | Police de lecture choisie par un abonné | `fonts.bunny.net` | seulement pour l'abonné qui en choisit une | thème |
@@ -1289,7 +1290,14 @@ Qui décide, du plus fort au plus faible :
   Suivant » de la série (toujours le dernier élément), les mots clés (tags publics) et le partage (X,
   Facebook, LinkedIn, e-mail).
 - Commentaires : ceux de Ghost (Settings → **Membership** → **Commenting**), titre « Discussion entre
-  abonnés ».
+  abonnés ». Ils se chargent quand le lecteur arrive vers la fin de l'article (environ deux écrans avant),
+  pas à l'ouverture : l'image d'en-tête s'affiche plus vite sur téléphone (0,4 à 0,7 s de moins dans nos
+  mesures, et 240 Ko économisés pour qui ne descend pas jusque-là). Pendant le chargement, une ligne discrète « Chargement des
+  commentaires… » occupe leur place. Les liens vers les commentaires se chargent tout de suite et tombent au
+  bon endroit : « Voir le commentaire » des e-mails de notification de Ghost (`#ghost-comments-…`), le
+  bouton « Commenter » de la newsletter (`#ghost-comments-root`), ou un lien que vous écrivez vous-même dans
+  un article vers `#ghost-comments`. Sans JavaScript, les commentaires de Ghost ne peuvent pas fonctionner :
+  une phrase le dit à leur place. Rien à régler.
 - « Recommandé pour vous » : trois autres articles qui partagent un tag public (une rubrique) avec celui-ci, du
   plus récent au plus ancien ; les tags internes (`#top`, `#serie-…`, `#mis-a-jour`…) ne comptent pas.
 
