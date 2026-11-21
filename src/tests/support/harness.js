@@ -14,6 +14,7 @@ const MIME = {
 	".js": "application/javascript",
 	".css": "text/css",
 	".svg": "image/svg+xml",
+	".png": "image/png",
 	".json": "application/json",
 	".woff2": "font/woff2",
 };
@@ -156,6 +157,19 @@ const open = async (options = {}) => {
 			if (commentsUi === "fail") return route.fulfill({ status: 404, body: "not found" });
 			await sleep(commentsUi.delay || 0);
 			return route.fulfill({ status: 200, contentType: "application/javascript", body: commentsUi.script });
+		}
+
+		// Images stored by Ghost and their resized renditions (/content/images/size/wN/[format/F/]…): the
+		// file of the same name in tests/fixtures/images, whatever the size
+		if (url.origin === SITE && url.pathname.startsWith("/content/images/")) {
+			const name = url.pathname.replace(/^\/content\/images\/(size\/w\d+\/)?(format\/\w+\/)?/, "");
+			const file = path.join(REPO_ROOT, "src", "tests", "fixtures", "images", path.basename(name));
+			if (!fs.existsSync(file)) return route.fulfill({ status: 404, body: "not found" });
+			return route.fulfill({
+				status: 200,
+				contentType: MIME[path.extname(file)] || "image/png",
+				body: fs.readFileSync(file),
+			});
 		}
 
 		if (url.origin === SITE) {
