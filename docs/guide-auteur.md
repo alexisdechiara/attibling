@@ -298,7 +298,7 @@ lecture / À lire plus tard » (abonnés) → « Les plus lus » → rangées pa
 
 Le bandeau montre, sur l'image de l'article, le logo, la description du site (Settings → General → *Site
 description*, par exemple « L'actu geek, tech et pop ») et, pour un visiteur, le bouton « S'abonner ». Avec le
-logo GEEKLY coloré (grand : 180 px sur un écran large, il occupe la moitié gauche du bandeau), la description
+logo GEEKLY coloré (grand : 148 px sur un écran large, il occupe un peu moins de la moitié gauche du bandeau), la description
 se glisse **juste sous « GEEK », collée aux lettres, à gauche de la boucle du « y »** : gardez-la courte (une
 ligne ; plus longue, elle passe sur deux lignes au plus dans la largeur de « GEEK »). À droite : la
 pastille « À la une », le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article
@@ -307,8 +307,12 @@ s'éclaire au survol) : le logo, la description et le fond de l'image ne mènent
 
 **Pour choisir l'article affiché** : dans l'éditeur de l'article → panneau des réglages → cochez
 **Feature this post**, et donnez-lui une **image à la une** (*Post feature image*) large (2000 px conseillé),
-de préférence avec le sujet au centre (le bandeau assombrit les côtés pour la lisibilité du logo et du
-titre). Le bandeau prend l'article mis en avant **le plus récent** ; avec plusieurs articles mis en avant
+de préférence avec le sujet au centre. L'image reste visible sur tout le bandeau sous un voile léger, un peu
+plus sombre vers la gauche (le logo) et vers la droite (le titre) ; le thème dose ce voile image par image,
+plus fort sur une image claire ou chargée, plus léger sur une image sombre. Évitez une bannière qui porte
+elle-même un **grand texte** (un logo ou un nom écrit en gros, comme l'image de l'article sur Dokploy) : ce
+texte reste visible derrière le logo et le titre du bandeau et se mélange avec eux ; préférez une bannière
+sans texte. Le bandeau prend l'article mis en avant **le plus récent** ; avec plusieurs articles mis en avant
 (jusqu'à 6), des points permettent de passer de l'un à l'autre (verticalement à droite sur ordinateur, en
 bas sur téléphone ; flèches du clavier). Pas de défilement automatique : pour montrer qu'on peut cliquer, les
 points ondulent une fois par visite quand le bandeau apparaît, grossissent au survol (sur ordinateur, le titre
