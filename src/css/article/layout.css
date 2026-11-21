@@ -415,8 +415,66 @@
 }
 
 .article-comments__inner {
+  position: relative;
   width: min(100%, 864px);
   margin-inline: auto;
+}
+
+/* Loaded when the reader gets near them (src/js/article/comments.js, data-comments on the section). Until
+   comments-ui has drawn and sized its frame, the section keeps about the height it will take (Ghost's form
+   for a member who may comment, its « sign up / upgrade » invitation for everyone else, measured with Ghost
+   6.78), so nothing below jumps, and shows a quiet « Chargement des commentaires… »; the frame stays hidden
+   meanwhile (comments-ui creates it 400 px high and empty). Without JavaScript: the <noscript> sentence. */
+.article-comments[data-comments-space] {
+  --comments-space: 21.5rem;
+
+  &[data-comments-space="form"] {
+    --comments-space: 15.5rem;
+  }
+
+  @media (width < 30rem) {
+    --comments-space: 23rem;
+
+    &[data-comments-space="form"] {
+      --comments-space: 17.5rem;
+    }
+  }
+}
+
+:root[data-js]
+  .article-comments:is(:not([data-comments]), [data-comments="waiting"], [data-comments="loading"])
+  .article-comments__inner {
+  min-height: var(--comments-space);
+}
+
+/* A block: no line-box gap under the frame. color-scheme light: comments-ui's document declares none (so
+   light); a frame whose scheme differs from its document's gets an opaque white backdrop, which in dark
+   mode hid the light text comments-ui draws on a transparent page. */
+#ghost-comments-root > iframe {
+  display: block;
+  color-scheme: light;
+}
+
+:root[data-js] .article-comments[data-comments="loading"] #ghost-comments-root {
+  position: absolute;
+  inset: 0 0 auto;
+  visibility: hidden;
+}
+
+.article-comments__status {
+  margin: 0;
+  padding-block: var(--space-9);
+  color: var(--color-text-muted);
+  font-size: var(--text-m);
+  text-align: center;
+
+  &[data-comments-status]:is(:root:not([data-js]) *) {
+    display: none;
+  }
+
+  .article-comments[data-comments="error"] & {
+    color: var(--color-text-secondary);
+  }
 }
 
 /* « Recommandé pour vous » ------------------------------------------------------------------ */

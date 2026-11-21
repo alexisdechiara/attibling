@@ -72,10 +72,23 @@ and carry the strings the scripts need (copy buttons, series).
         {{> article/author}}
       {{/get}}
 
+      {{!-- Ghost's comments (comments-ui, ~250 KB from jsDelivr) load only when the reader gets near them,
+      or at once when the address or a link targets them (#ghost-comments…): src/js/article/comments.js.
+      Ghost's own {{comments}} output stays as Ghost writes it, inert inside the <template> until the script
+      copies it after #ghost-comments-root (comments-ui draws its frame in that element when it is the
+      script's previous sibling; the anchor #ghost-comments-root of Ghost's newsletter works before that).
+      data-comments-space: the height kept while loading, the comment form (a member who may comment) or
+      Ghost's « sign up / upgrade » invitation (everyone else). Without JavaScript comments-ui cannot run:
+      the <noscript> sentence says so. --}}
       {{#if comments}}
-        <section class="article-comments container" aria-label="{{t "Member discussion"}}">
+        <section class="article-comments container" aria-label="{{t "Member discussion"}}" data-comments
+          data-comments-space="{{#if @member}}{{#match @site.comments_access "paid"}}{{#if @member.paid}}form{{else}}invite{{/if}}{{else}}form{{/match}}{{else}}invite{{/if}}"
+          data-comments-error="{{t "The comments could not be loaded. Reload the page to try again."}}">
           <div class="article-comments__inner js-native-comments">
-            {{comments title=(t "Member discussion") count=true}}
+            <p class="article-comments__status" role="status" data-comments-status>{{t "Loading comments…"}}</p>
+            <div id="ghost-comments-root"></div>
+            <template data-comments-script>{{comments title=(t "Member discussion") count=true}}</template>
+            <noscript><p class="article-comments__status">{{t "Comments need JavaScript: turn it on to read and write them."}}</p></noscript>
           </div>
         </section>
       {{/if}}

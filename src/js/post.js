@@ -1,6 +1,7 @@
 // Article page (post.hbs): content enhancements (embed ratios, galleries, zoomable images), table of
 // contents, copy buttons, series box, « En bref », fiche de test structured data, reading progress
-// (ring, back to the top, members' « Reprendre la lecture »), and the members' display settings.
+// (ring, back to the top, members' « Reprendre la lecture »), the members' display settings, and Ghost's
+// comments, loaded when the reader gets near them.
 import mediumZoom from "medium-zoom";
 import {
 	setEmbedRatios,
@@ -18,8 +19,12 @@ import { setUpReview } from "./article/review";
 import { setUpToc } from "./article/toc";
 import { setUpProgressRing, setUpProgressStore, setUpScrollTop } from "./article/progress";
 import { setUpReadingSettings } from "./reading-settings";
+import { setUpComments } from "./article/comments";
 
 onReady(() => {
+	// First, so that nothing below can keep the comments from loading
+	setUpComments(document.querySelector("[data-comments]"));
+
 	const article = document.querySelector("[data-article]");
 	const content = document.querySelector("[data-article-content]");
 	if (!article || !content) return;
