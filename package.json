@@ -176,7 +176,7 @@
 		"build": "vp build",
 		"check": "vp check",
 		"test": "vp test",
-		"zip": "zip -r attibling.zip . -x '.*' '.*/*' 'node_modules/*' 'src/*' 'attibling.zip' 'package-lock.json' 'vite.config.mjs'",
+		"zip": "zip -r attibling.zip . -x '.*' '.*/*' 'node_modules/*' 'src/*' 'docs/*' 'README.md' 'PRODUCT.md' 'attibling.zip' 'package-lock.json' 'vite.config.mjs'",
 		"deploy": "vp run build && vp run zip && node src/deploy/index.js",
 		"order-locales": "node src/order-locales.js",
 		"ghost": "docker compose -f src/docker-compose.yml up"
