@@ -4,12 +4,13 @@ in the <ul class="about-rubrics">. The tag's name is the link to the tag page; t
 (the link's ::after covers it). With a feature image: the image behind a scrim, text in light ink; without:
 a tinted surface (cycled by position) with the rubric's icon. The description and the count are optional
 lines. The cell's size comes from its position in the list (src/css/about.css).
+Its sizes attribute is the width of the cell's box (about/rubric-sizes.hbs).
 The first three cells are on the first screen (phone and desktop): their pictures load at once, the
 first one (the largest) first; the others load lazily.
 --}}
 <li class="about-rubric{{#if feature_image}} about-rubric--image{{/if}}">
   {{#if feature_image}}
-    <img class="about-rubric__image"{{> "image/srcset" image=feature_image widths="s-m-l" srcSize="m"}} sizes="(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 40vw" alt=""{{#has number="1"}} fetchpriority="high"{{else}}{{#has number="2,3"}}{{else}} loading="lazy"{{/has}}{{/has}} decoding="async">
+    <img class="about-rubric__image"{{> "image/srcset" image=feature_image widths="medium" srcSize="m"}} sizes="{{> "about/rubric-sizes"}}" alt=""{{#has number="1"}} fetchpriority="high"{{else}}{{#has number="2,3"}}{{else}} loading="lazy"{{/has}}{{/has}} decoding="async">
   {{/if}}
   <span class="about-rubric__icon" aria-hidden="true">{{> "about/tag-icon"}}</span>
   <div class="about-rubric__body">

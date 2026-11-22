@@ -237,10 +237,22 @@ const cellsOf = grid => {
 	return cells.sort((a, b) => a.dataset.rank - b.dataset.rank);
 };
 
-// first = { columns, rows, column, gap } (firstRows): the cells that start in these rows at this number
+// The width a picture needs to cover its cell (object-fit: cover): its box's width, or, when the cell is tall,
+// the width at which the picture is as high as the cell: height × the picture's ratio (its width and height
+// attributes when the markup has them, else 16:9). It is asked for 1.5% under (0.985): a vertical scrollbar, which
+// the page has not got yet when the estimate is made, narrows the grid by up to 1.2% (15 px at 1350 px), and a
+// cell of 399.7 px that asked for 405 would get the next rendition up for the sake of 5 px (a picture 1.5% too
+// small is not seen)
+const coverWidth = (img, width, height) => {
+	return `${Math.ceil(Math.max(width, height * (img.getAttribute("width") / img.getAttribute("height") || 16 / 9)) * 0.985)}px`;
+};
+
+// first = { columns, rows, column, gap, row } (firstRows): the cells that start in these rows at this number
 // of columns load their pictures at once (loadFirst), each at the width of its cell: sizes="auto" (the
 // template) needs a layout, which the page does not have yet, and the browser would take the whole
-// screen's width instead
+// screen's width instead. Every cell's picture gets its sizes (a cell 1 column wide and 2 high needs a picture
+// three times wider than the cell) at the number of columns of the screen, which `auto` cannot know: it only
+// takes the width of the box.
 export const arrange = (grid, seed, first) => {
 	const cells = cellsOf(grid);
 	const tags = cells.map(cell => ({
@@ -248,14 +260,18 @@ export const arrange = (grid, seed, first) => {
 		image: cell.hasAttribute("data-image"),
 		description: Boolean(cell.querySelector(".tag-cell__description")),
 	}));
+	const geometry = first || firstRows();
 	let visual = [];
 	let early = [];
+	const { column, gap, row } = geometry;
 	for (const columns of COLUMNS) {
 		const result = layout(seed, tags, columns);
 		visual = result.order;
 		for (const { index, w, h } of result.cells) {
 			cells[index].style.setProperty(`--w${columns}`, w);
 			cells[index].style.setProperty(`--h${columns}`, h);
+			const img = geometry.columns === columns && cells[index].querySelector("img");
+			if (img) img.sizes = coverWidth(img, w * column + (w - 1) * gap, h * row + (h - 1) * gap);
 		}
 		if (first?.columns === columns) early = result.cells.filter(c => c.y < first.rows);
 	}
@@ -264,13 +280,7 @@ export const arrange = (grid, seed, first) => {
 	grid.setAttribute("data-arranged", "");
 	// The largest cell first: it is the largest picture of the screen
 	early.sort((a, b) => b.w * b.h - a.w * a.h);
-	loadFirst(
-		early.map(c => {
-			const img = cells[c.index].querySelector("img");
-			if (img) img.sizes = `${Math.ceil(c.w * first.column + (c.w - 1) * first.gap)}px`;
-			return img;
-		}),
-	);
+	loadFirst(early.map(c => cells[c.index].querySelector("img")));
 	return seed;
 };
 
@@ -310,7 +320,7 @@ export const firstRows = () => {
 	const width = Math.min(innerWidth - 2 * Math.min(56, Math.max(16, innerWidth * 0.04)), 1328);
 	const column = (width - (columns - 1) * gap) / columns;
 	const row = Math.max(112, column * 0.8);
-	return { columns, column, gap, rows: Math.max(1, Math.ceil((innerHeight - GRID_TOP) / (row + gap))) };
+	return { columns, column, gap, row, rows: Math.max(1, Math.ceil((innerHeight - GRID_TOP) / (row + gap))) };
 };
 
 // Once the page is laid out: the pictures of every cell on the first screen, whatever firstRows guessed.

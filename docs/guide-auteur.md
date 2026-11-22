@@ -429,7 +429,8 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
   Pour avoir cinq rangées, fixez les cinq.
 - Pour de belles rangées : donnez une **image** à vos tags (Tags → le tag → *Tag image*) pour les tuiles de
   tags et la bannière, et des images à la une à vos articles. **Bannière** : l'image du tag de *Home row 4*
-  remplit le fond, assombrie à gauche pour que le nom reste lisible (une image large, 2000 px, sujet à droite) ;
+  remplit le fond, assombrie à gauche pour que le nom reste lisible (une image large, 2000 px, sujet à droite ; sur ordinateur la bannière est une bande basse, environ 4,6 fois plus large
+  que haute, découpée au centre de l'image : gardez le sujet dans la bande centrale, vers la droite mais pas au bord) ;
   sans image, un fond sombre avec deux lueurs aux couleurs du logo.
 - Au survol (ou au focus du clavier), les vignettes et les cartes **se soulèvent** légèrement, comme dans
   l'ancien thème, sans soulignement. Sans image, les tuiles et les affiches ont

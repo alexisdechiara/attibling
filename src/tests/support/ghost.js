@@ -266,11 +266,12 @@ export const renderTemplate = (name, options = {}) => {
 			// here (no ?size= mark), so a misspelt size shows in the tests
 			const size = IMAGE_SIZES[opts?.hash?.size] ? opts.hash.size : undefined;
 			// An image stored by Ghost (/content/images/…): its resized rendition, at Ghost's own address
-			// (/content/images/size/w1000/…, /size/w600/format/webp/… with a format), which the hero's
+			// (/content/images/size/w1000/…, /size/w600/format/webp/… with a format, /size/w1400h304/… for a size with a height), which the hero's
 			// veil (src/js/hero-veil.js) reads; the harness serves them from tests/fixtures/images
 			if (size && image.startsWith("/content/images/")) {
 				const fmt = opts?.hash?.format ? `format/${opts.hash.format}/` : "";
-				return image.replace("/content/images/", `/content/images/size/w${IMAGE_SIZES[size].width}/${fmt}`);
+				const { width, height } = IMAGE_SIZES[size];
+				return image.replace("/content/images/", `/content/images/size/w${width}${height ? `h${height}` : ""}/${fmt}`);
 			}
 			// format="webp" (Ghost: /size/wN/format/webp/…), written after the size
 			const format = opts?.hash?.format ? `&format=${opts.hash.format}` : "";

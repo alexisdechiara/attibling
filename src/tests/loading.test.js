@@ -7,6 +7,8 @@ import { template, home } from "./support/pages.js";
 import { article, LONG_HTML } from "./support/article.js";
 
 const PHONE = { width: 390, height: 844 };
+// package.json image_sizes: the name the test site's img_url writes (&size=<name>) for each width
+const IMAGE_NAME = { 220: "w220", 300: "s", 400: "w400", 500: "w500", 600: "m", 800: "w800", 1000: "l" };
 
 // Layout shifts of anything inside <main> (the header's wordmark may move when its font arrives)
 const recordShifts = () => {
@@ -408,7 +410,7 @@ describe("pictures: WebP, at the width of their box", () => {
 				const url = img.currentSrc || img.src;
 				return `${/[?&]size=(\w+)/.exec(url)?.[1]} ${/[?&]format=(\w+)/.exec(url)?.[1]} ${Math.round(img.getBoundingClientRect().width)}`;
 			});
-	it("home: the hero and the collection banner take the 1400 px rendition on a 1350 px screen, not the 2000 px one", async () => {
+	it("home: the hero takes the 1400 px rendition on a 1350 px screen, not the 2000 px one; the collection banner, a strip, its 1400 × 392 crop", async () => {
 		const { page, dispose } = await open({
 			render: home({ site: { tagImage: tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}` } }),
 			viewport: DESKTOP,
@@ -417,7 +419,7 @@ describe("pictures: WebP, at the width of their box", () => {
 		const banner = page.locator(".banner__image").first();
 		await banner.scrollIntoViewIfNeeded();
 		await waitFor(() => banner.evaluate(img => img.currentSrc !== ""));
-		assert.equal(await chosen(page, ".banner__image"), "w1400 webp 1242");
+		assert.equal(await chosen(page, ".banner__image"), "banner webp 1242");
 		// Every rendition of the page is WebP
 		const formats = await page.evaluate(() =>
 			[...document.querySelectorAll("main img[srcset]")]
@@ -462,11 +464,11 @@ describe("pictures: WebP, at the width of their box", () => {
 		});
 		// 903 px wide: the 1000 px rendition (the sizes attribute said 70vw: 1344 px, the 2000 px one)
 		assert.match(await chosen(page, ".listing-hero__image"), /^l webp 90\d$/);
-		// A tile of the grid is 314 px wide (33vw: 634 px, the 1000 px rendition)
+		// A tile of the grid is 314 px wide (33vw: 634 px, the 1000 px rendition): the 400 px one
 		const tile = page.locator(".post-grid .tile__image").first();
 		await tile.scrollIntoViewIfNeeded();
 		await waitFor(() => tile.evaluate(img => img.currentSrc !== ""));
-		assert.match(await chosen(page, ".post-grid .tile__image"), /^m webp 3\d\d$/);
+		assert.match(await chosen(page, ".post-grid .tile__image"), /^w400 webp 3\d\d$/);
 		await dispose();
 	});
 
@@ -510,9 +512,10 @@ describe("« Tags »: the first pictures do not wait for the style sheets", () =
 				const entry = entries.find(e => e.name === img.currentSrc);
 				const box = img.getBoundingClientRect();
 				return {
-					// The rendition asked for (the test site's &size=s | m | l: 300, 600, 1000 px) against the box
-					wanted: { s: 300, m: 600, l: 1000 }[/[?&]size=(\w+)/.exec(img.currentSrc)?.[1]],
+					// The rendition asked for (the test site's &size=<name>) against the box
+					wanted: /[?&]size=(\w+)/.exec(img.currentSrc)?.[1],
 					width: box.width,
+					height: box.height,
 					early: Boolean(entry) && entry.startTime < sheets - 300,
 					onScreen: box.top < innerHeight,
 					firstRow: box.top <= document.querySelector(".tag-cell").getBoundingClientRect().top + 1,
@@ -548,10 +551,15 @@ describe("« Tags »: the first pictures do not wait for the style sheets", () =
 				early.every(p => p.onScreen),
 				`only pictures of the first screen at ${viewport.width}px: ${JSON.stringify(pictures)}`,
 			);
-			// Each at the width of its cell (no layout yet for sizes="auto": not the screen's width)
+			// Each at the width of its cell (no layout yet for sizes="auto": not the screen's width): the smallest
+			// rendition that covers it (as wide as its height needs for a 16:9 picture, when the cell is tall), less the 1.5% the
+			// script allows for a scrollbar
 			for (const p of early) {
-				const smallest = [300, 600, 1000].find(w => w >= Math.floor(p.width)) || 1000;
-				assert.equal(p.wanted, smallest, `a ${Math.round(p.width)} px cell at ${viewport.width}px`);
+				const smallest =
+					[220, 300, 400, 500, 600, 800, 1000].find(
+						w => w >= Math.ceil(Math.max(p.width, (p.height * 16) / 9) * 0.985),
+					) || 1000;
+				assert.equal(p.wanted, IMAGE_NAME[smallest], `a ${Math.round(p.width)} px cell at ${viewport.width}px`);
 			}
 			const first = pictures.filter(p => p.priority === "high");
 			assert.equal(first.length, 1, "one picture first");

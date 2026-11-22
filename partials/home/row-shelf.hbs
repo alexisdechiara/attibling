@@ -6,7 +6,7 @@
     </div>
     <div class="shelf" data-shelf>
       <ol class="shelf__track js-slider-track" role="list">
-        {{#foreach rowposts}}<li class="shelf__item">{{> post-tile size="s" sizes="(max-width: 423px) 72vw, 305px"}}</li>{{/foreach}}
+        {{#foreach rowposts}}<li class="shelf__item">{{> post-tile size="s" sizes="clamp(250px, 72vw, 305px)"}}</li>{{/foreach}}
       </ol>
       {{> shelf-controls label=../name}}
     </div>

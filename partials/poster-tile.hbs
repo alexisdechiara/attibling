@@ -12,7 +12,7 @@ Parameters:
 <article class="tile tile--poster{{> "vignette/missing" noImage=" tile--no-image"}}{{#if class}} {{class}}{{/if}}" data-post-tile>
   <a class="tile__link" href="{{url}}">
     <span class="tile__media">
-      {{> "vignette/image" imgClass="tile__image" widths="s-m" srcSize="m" sizes="(max-width: 767px) 45vw, 216px" eager=eager backdrop=true placeholder="tile"}}
+      {{> "vignette/image" imgClass="tile__image" widths="small" srcSize="m" sizes="calc(clamp(150px, 40vw, 216px) * 2.667)" eager=eager backdrop=true placeholder="tile"}}
     </span>
     <h3 class="tile__title">{{title}}</h3>
     {{> tile-pill}}

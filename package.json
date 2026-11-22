@@ -31,11 +31,23 @@
 			"xs": {
 				"width": 100
 			},
+			"w220": {
+				"width": 220
+			},
 			"s": {
 				"width": 300
 			},
+			"w400": {
+				"width": 400
+			},
+			"w500": {
+				"width": 500
+			},
 			"m": {
 				"width": 600
+			},
+			"w800": {
+				"width": 800
 			},
 			"l": {
 				"width": 1000
@@ -43,8 +55,16 @@
 			"w1400": {
 				"width": 1400
 			},
+			"banner": {
+				"width": 1400,
+				"height": 392
+			},
 			"xl": {
 				"width": 2000
+			},
+			"banner-xl": {
+				"width": 2000,
+				"height": 560
 			}
 		},
 		"custom": {

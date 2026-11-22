@@ -10,14 +10,15 @@ Parameters:
   meta="tag-time" | "time" | "tag-date" | "none"   meta line (default "tag-time": « Jeux vidéo • 5 min »)
   heading="h2"             title element (default h3)
   eager=true               load the picture at once (above the fold); default lazy
-  sizes="..."              sizes attribute of the picture (default about a third of the page)
+  sizes="..."              sizes attribute of the picture: the width of the tile's box (default: a tile of the
+                           post grid, auto-fill columns of 280 px at least, CSS .post-grid)
   nobookmark=true          no bookmark button
   class="..."              extra classes on the tile
 --}}
 <article class="tile tile--{{#if size}}{{size}}{{else}}s{{/if}}{{#if ratio}} tile--ratio-{{ratio}}{{/if}}{{> "vignette/missing" noImage=" tile--no-image"}}{{#if class}} {{class}}{{/if}}" data-post-tile>
   <a class="tile__link" href="{{url}}">
     <span class="tile__media">
-      {{> "vignette/image" imgClass="tile__image" widths="s-m-l" srcSize="m" sizes=sizes defaultSizes="(max-width: 633px) 92vw, 430px" eager=eager placeholder="tile"}}
+      {{> "vignette/image" imgClass="tile__image" widths="medium" srcSize="m" sizes=sizes defaultSizes="(max-width: 634px) 92vw, (max-width: 964px) calc((92vw - 24px) / 2), (max-width: 1295px) calc((92vw - 48px) / 3), (max-width: 1443px) calc((92vw - 72px) / 4), 314px" eager=eager placeholder="tile"}}
     </span>
     {{#match heading "h2"}}<h2 class="tile__title">{{title}}</h2>{{else}}<h3 class="tile__title">{{title}}</h3>{{/match}}
     {{> tile-meta}}

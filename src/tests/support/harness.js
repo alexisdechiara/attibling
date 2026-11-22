@@ -172,10 +172,10 @@ const open = async (options = {}) => {
 			return route.fulfill({ status: 200, contentType: "application/javascript", body: commentsUi.script });
 		}
 
-		// Images stored by Ghost and their resized renditions (/content/images/size/wN/[format/F/]…): the
+		// Images stored by Ghost and their resized renditions (/content/images/size/wN[hM]/[format/F/]…): the
 		// file of the same name in tests/fixtures/images, whatever the size
 		if (url.origin === SITE && url.pathname.startsWith("/content/images/")) {
-			const name = url.pathname.replace(/^\/content\/images\/(size\/w\d+\/)?(format\/\w+\/)?/, "");
+			const name = url.pathname.replace(/^\/content\/images\/(size\/w\d+(h\d+)?\/)?(format\/\w+\/)?/, "");
 			const file = path.join(REPO_ROOT, "src", "tests", "fixtures", "images", path.basename(name));
 			if (!fs.existsSync(file)) return route.fulfill({ status: 404, body: "not found" });
 			return route.fulfill({
