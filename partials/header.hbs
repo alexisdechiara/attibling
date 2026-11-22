@@ -18,23 +18,21 @@ Parameters:
 Stable hooks (other scripts rely on them): #site-header, [data-header-logo] (the logo link: the
 target of the hero wordmark for docking and page transitions), [data-ghost-search].
 --}}
-{{!-- A {{#get}} block changes the context: the block parameter top keeps the parameters of this partial --}}
+{{!-- A {{#get}} block changes the context: the block parameter top keeps the parameters of this partial.
+Ghost renders the block of {{#get}} for an empty result and its {{else}} when the query fails: either way the
+header renders once (header-select.hbs), without the data it could not get. --}}
 {{#with this as |top|}}
   {{#get "posts" limit="6" include="tags" as |discoverposts|}}
     {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}
-      {{#if @member}}
-        {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags}}
-      {{else if @custom.subscribe_url}}
-        {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags}}
-      {{else if top.subscribePagesKnown}}
-        {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags subscribePages=top.subscribePages subscribePagesKnown=true}}
-      {{else}}
-        {{#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |subscribepages|}}
-          {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags subscribePages=subscribepages subscribePagesKnown=true}}
-        {{else}}
-          {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags}}
-        {{/get}}
-      {{/if}}
+      {{> header-select top=top discoverposts=discoverposts discovertags=discovertags}}
+    {{else}}
+      {{> header-select top=top discoverposts=discoverposts}}
+    {{/get}}
+  {{else}}
+    {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}
+      {{> header-select top=top discovertags=discovertags}}
+    {{else}}
+      {{> header-select top=top}}
     {{/get}}
   {{/get}}
 {{/with}}

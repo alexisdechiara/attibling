@@ -166,6 +166,7 @@
   "Older posts": "Articles plus anciens",
   "On: its content is shown without a click. Off: one click each time.": "Activé : ses contenus s’affichent sans clic. Désactivé : un clic à chaque fois.",
   "One word of the title is enough: the site search goes through every post.": "Un mot du titre suffit : la recherche du site parcourt tous les articles.",
+  "Only the {shown} most recent posts are listed ({total} in all).": "Seuls les {shown} articles les plus récents sont listés ({total} au total).",
   "Only when the site records where its members come from: the last pages viewed (15 at most, 24 hours) and the referring site, sent to Ghost if you subscribe": "Seulement si le site note d’où viennent ses abonnés : les dernières pages vues (15 au plus, sur 24 heures) et le site d’origine, envoyés à Ghost si vous vous abonnez",
   "Only when the site shows recommendations: those you already opened, so they are counted once": "Seulement si le site affiche des recommandations : celles que vous avez déjà ouvertes, pour ne les compter qu’une fois",
   "Only while you fill in a gift subscription: the form's state": "Seulement pendant que vous remplissez un abonnement cadeau : l’état du formulaire",

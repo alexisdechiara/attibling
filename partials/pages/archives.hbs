@@ -85,7 +85,9 @@ The page's own title is the heading; its content (optional) shows under it as an
           {{#match pagination.pages ">" 9}}{{#get "posts" limit="100" page="10" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
         </ol>
         {{!-- Beyond 1 000 posts the older ones are not listed: say so (outside the list, which archives.js rebuilds) --}}
-        {{#match pagination.pages ">" 10}}<p class="archives__cap" role="note" data-archives-cap>1000 / {{pagination.total}} — {{t "Older posts"}}</p>{{/match}}
+        {{#match pagination.pages ">" 10}}<p class="archives__cap" role="note" data-archives-cap>{{t "Only the {shown} most recent posts are listed ({total} in all)." shown="1000" total=pagination.total}}</p>{{/match}}
+      {{else}}
+        <ol class="archives-list" role="list" data-archives-list></ol>
       {{/get}}
       <p class="archives__empty" data-archives-empty hidden>{{t "No post matches these filters."}}</p>
       <nav class="archives-yearnav" aria-label="{{t "Years"}}" data-archives-yearnav hidden>

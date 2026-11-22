@@ -42,6 +42,64 @@ describe("header queries", () => {
 	});
 });
 
+describe("a query that is empty or fails", () => {
+	const once = html => {
+		assert.equal(html.match(/id="site-header"/g)?.length, 1, "one header");
+		assert.equal(html.match(/id="site-menu"/g)?.length, 1, "one menu sheet");
+		assert.equal(html.match(/id="site-discover"/g)?.length, 1, "one « ••• » panel");
+	};
+	const variants = {
+		"no posts": { site: { adjust: s => (s.posts = []) } },
+		"no tags": { site: { adjust: s => (s.tags = []) } },
+		"neither posts nor tags": {
+			site: {
+				adjust: s => {
+					s.posts = [];
+					s.tags = [];
+				},
+			},
+		},
+	};
+
+	for (const [name, site] of Object.entries(variants)) {
+		it(`renders the header once with ${name}`, () => {
+			once(render(template("tag", site)));
+			once(render(home(site)));
+		});
+	}
+
+	it("renders the header once when its queries fail, for a visitor and a member", () => {
+		for (const failing of [["posts"], ["tags"], ["posts", "tags"], ["pages"], ["posts", "tags", "pages"]]) {
+			for (const member of [false, true]) {
+				const options = template("page-a-propos", { member });
+				options.site.failGets = failing;
+				once(render(options));
+				const index = home({ member });
+				index.site.failGets = failing;
+				once(render(index));
+			}
+		}
+	});
+
+	it("renders the article when the authors query fails or finds nobody", () => {
+		const failing = article();
+		failing.site.failGets = ["authors"];
+		const html = render(failing);
+		assert.ok(html.includes('id="main"') && html.includes("data-article"));
+		const none = article();
+		none.site.authors = [];
+		assert.ok(render(none).includes("data-article"));
+	});
+
+	it("renders the archives list when the posts query fails, and says how many posts are not listed", () => {
+		const failing = template("page-archives");
+		failing.site.failGets = ["posts"];
+		assert.ok(render(failing).includes("data-archives-list"));
+		const long = render({ ...template("page-archives", { site: { extra: 1100 } }), locale: "fr" });
+		assert.match(long, /Seuls les 1000 articles les plus récents sont listés \(1\d{3} au total\)\./);
+	});
+});
+
 describe("home queries", () => {
 	it("looks up the subscription page once for the header, the hero and the subscription block", () => {
 		const options = home({ pages: [{ slug: "abonnement", url: "/abonnement/" }] });

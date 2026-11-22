@@ -442,6 +442,9 @@ export const renderTemplate = (name, options = {}) => {
 		get(resource, opts) {
 			const { order, limit = 15, page = 1 } = opts.hash;
 			gets.push({ resource, limit: String(limit), page: String(page), filter: opts.hash.filter || "" });
+			// site.failGets = ["tags"]: those queries fail; Ghost's helper then renders {{else}} (and only then:
+			// an empty result renders the block)
+			if (site.failGets?.includes(resource)) return opts.inverse(this);
 			// Like Ghost ("filter.match is not a function"), a filter must be a plain string: build it
 			// with {{path}} inside the string, never with a subexpression such as (concat ...)
 			if (opts.hash.filter !== undefined && typeof opts.hash.filter !== "string") {
