@@ -3,9 +3,15 @@
 // makes it sticky) the disclosure is kept open; elsewhere it is a « Sommaire » button.
 import tocbot from "tocbot";
 
+// Left out of the table of contents: headings inside Ghost cards (header, signup, toggle…) are not
+// sections of the text, and an author can leave one out with the class js-toc-ignore. The rule of
+// src/css/article/toc.css that shows the box before this script runs counts the same headings.
+const IGNORED = ".js-toc-ignore, .en-bref, .kg-card *";
+
 export const setUpToc = (toc, content) => {
 	if (!toc || !content) return;
-	const headings = content.querySelectorAll("h2, h3");
+	// Only the headings tocbot will list: a « Sommaire » box with nothing under it helps nobody
+	const headings = [...content.querySelectorAll("h2, h3")].filter(heading => !heading.matches(IGNORED));
 	if (headings.length < 2) return;
 	toc.hidden = false;
 	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -13,8 +19,7 @@ export const setUpToc = (toc, content) => {
 		tocSelector: "[data-toc-list]",
 		contentSelector: "[data-article-content]",
 		headingSelector: "h2, h3",
-		// Headings inside Ghost cards (header, signup, toggle…) are not sections of the text
-		ignoreSelector: ".js-toc-ignore, .en-bref, .kg-card *",
+		ignoreSelector: IGNORED,
 		hasInnerContainers: true,
 		orderedList: false,
 		headingsOffset: 120,

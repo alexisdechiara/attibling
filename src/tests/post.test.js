@@ -299,6 +299,26 @@ describe("article page: content", () => {
 		await dispose();
 	});
 
+	it("has no table of contents when the headings are those of cards or are left out of it", async () => {
+		const cards =
+			'<div class="kg-card kg-header-card"><h2 id="en-tete">En-tête</h2><h3 id="sous-titre">Sous-titre</h3></div>' +
+			'<div class="kg-card kg-signup-card"><h2 id="inscription">Inscription</h2></div><p>Un texte sans intertitre.</p>';
+		const ignored =
+			'<h2 id="seul">Seul</h2><p>Texte.</p><h2 id="hors" class="js-toc-ignore">Hors sommaire</h2><p>Fin.</p>';
+		for (const html of [cards, ignored, cards + ignored]) {
+			for (const width of [1440, 390]) {
+				const { page, dispose } = await open({ render: article({ html }), viewport: { width, height: 900 } });
+				await page.waitForTimeout(150);
+				const toc = await page.evaluate(() => {
+					const el = document.querySelector("[data-toc]");
+					return { display: getComputedStyle(el).display, links: el.querySelectorAll("a").length };
+				});
+				assert.deepEqual(toc, { display: "none", links: 0 }, `at ${width}px`);
+				await dispose();
+			}
+		}
+	});
+
 	it("scrolls back to the top, instantly when reduced motion is preferred", async () => {
 		for (const reducedMotion of ["no-preference", "reduce"]) {
 			const { page, dispose } = await open({ render: article(), reducedMotion });

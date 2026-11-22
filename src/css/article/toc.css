@@ -14,8 +14,12 @@
 }
 
 /* With JavaScript, already in place at the first paint when the text has two headings or more, so the
-   text does not move down when post.js shows it (over the reset's [hidden] rule, hence !important) */
-:root[data-js] .article-body:has([data-article-content] > :is(h2, h3) ~ :is(h2, h3)) .article-toc[hidden] {
+   text does not move down when post.js shows it (over the reset's [hidden] rule, hence !important).
+   Only headings the script lists (article/toc.js): those of cards are never direct children of the text,
+   and the author leaves one out with .js-toc-ignore */
+:root[data-js]
+  .article-body:has([data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore))
+  .article-toc[hidden] {
   display: block !important;
 }
 
