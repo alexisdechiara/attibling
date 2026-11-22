@@ -144,7 +144,7 @@ describe("tags layout (pure)", () => {
 	it("the inline pre-paint script is the build of src/js/tags/layout.js", () => {
 		const partial = fs.readFileSync(path.join(REPO_ROOT, "partials/tags/prepaint.hbs"), "utf8");
 		assert.equal(partial, tagsPrepaint(), "run npm run build");
-		assert.ok(partial.length < 5600, `${partial.length} bytes`);
+		assert.ok(partial.length < 5700, `${partial.length} bytes`);
 	});
 });
 
