@@ -42,7 +42,7 @@ right after them, so its « Tout voir » link loses no post.
     <div class="container">
       <header class="page-heading">
         <h1 class="page-heading__title">{{t "All posts"}}</h1>
-        <p class="page-heading__note">{{t "Page"}} {{pagination.page}} {{t "of"}} {{pagination.pages}}</p>
+        <p class="page-heading__note">{{t "Page {page} of {pages}" page=pagination.page pages=pagination.pages}}</p>
       </header>
       <ul class="post-grid" role="list">
         {{#foreach posts}}

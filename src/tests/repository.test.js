@@ -18,6 +18,17 @@ describe("repository", () => {
 		}
 	});
 
+	it("writes the page and slide counters as whole sentences with their placeholders in all locales", () => {
+		const files = fs.readdirSync(path.join(REPO_ROOT, "locales"));
+		assert.equal(files.length, 33);
+		for (const file of files) {
+			const locale = JSON.parse(read(`locales/${file}`));
+			assert.match(locale["Page {page} of {pages}"], /\{page\}.*\{pages\}|\{pages\}.*\{page\}/, file);
+			assert.match(locale["{n} of {total}"], /\{n\}.*\{total\}|\{total\}.*\{n\}/, file);
+			assert.ok(!("of" in locale) && !("Page" in locale), `${file}: the word-by-word keys are gone`);
+		}
+	});
+
 	it("links every anchor of the author guide to one of its headings, by GitHub's slug rule", () => {
 		// GitHub (github-slugger): the heading's text, lower case, without any character that is not a
 		// letter, mark, digit, "_", "-" or a space (« », ’, ?, :, NBSP…), each space a "-"; "-1", "-2"…

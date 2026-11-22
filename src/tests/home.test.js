@@ -493,6 +493,16 @@ describe("home layout", () => {
 		await dispose();
 	});
 
+	it("writes « Page 2 sur N » and « 1 sur 6: titre » in French, with the number in the sentence", async () => {
+		const { page, dispose } = await open({ render: paged(2, { locale: "fr" }) });
+		assert.match(await page.locator(".pagination__status").textContent(), /^Page 2 sur \d+$/);
+		assert.match(await page.locator(".page-heading__note").textContent(), /^Page 2 sur \d+$/);
+		await dispose();
+		const hero = await open({ render: home({ locale: "fr" }) });
+		assert.match(await hero.page.locator("[data-hero-dot] .sr-only").first().textContent(), /^1 sur 6: \S/);
+		await hero.dispose();
+	});
+
 	it("shows page 2 and after as a plain grid without the hero", async () => {
 		const { page, dispose } = await open({ render: paged(2) });
 		assert.equal(await page.locator("[data-hero]").count(), 0);

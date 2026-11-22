@@ -32,7 +32,7 @@ export const home = ({ member = false, site = {}, custom = DEFAULT_CUSTOM, pages
 	};
 };
 
-export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM } = {}) => {
+export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM, locale = "en" } = {}) => {
 	const data = createSite(site);
 	return {
 		template: "index",
@@ -41,6 +41,7 @@ export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM
 		contexts: ["paged", "index"],
 		member: member ? MEMBER : null,
 		custom,
+		locale,
 	};
 };
 
