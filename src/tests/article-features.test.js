@@ -1,7 +1,9 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { launch, close, open } from "./support/harness.js";
 import { article, LONG_HTML, SUMMARY_CARD, AI_SUMMARY_CARD, REVIEW_CARD } from "./support/article.js";
+import { reviewedType } from "../js/article/review.js";
 
 // What the series box shows: visible rows (number and title, or « ⋯ n parties »), the count, the bar,
 // and the previous / next links of the box and of the end line
@@ -253,19 +255,52 @@ describe("fiche de test", () => {
 		await dispose();
 	});
 
-	it("adds Review structured data only when the card gives a score", async () => {
-		const { page, dispose } = await open({ render: article({ html: LONG_HTML + REVIEW_CARD }) });
-		const data = JSON.parse(await page.locator("script[data-review-jsonld]").textContent());
-		assert.equal(data["@type"], "Review");
-		assert.deepEqual(data.itemReviewed, { "@type": "CreativeWork", name: "Jeu Fictif 2077" });
-		assert.deepEqual(data.reviewRating, { "@type": "Rating", ratingValue: 8.5, bestRating: 10, worstRating: 0 });
-		assert.equal(data.author.name, "Alexis De Chiara");
-		assert.equal(data.reviewBody, "Un excellent jeu, à quelques détails près.");
+	const jsonLd = async (html, options = {}) => {
+		const { page, dispose } = await open({ render: article({ html: LONG_HTML + html, ...options }) });
+		await page.waitForSelector("[data-toc] a", { state: "attached" });
+		const scripts = await page.$$eval("script[data-review-jsonld]", els => els.map(el => JSON.parse(el.textContent)));
 		await dispose();
+		return scripts;
+	};
 
+	it("adds Review structured data when the card gives a score and a type search engines show reviews for", async () => {
+		const [data, ...others] = await jsonLd(REVIEW_CARD);
+		assert.equal(others.length, 0);
+		assert.equal(data["@context"], "https://schema.org");
+		assert.equal(data["@type"], "Review");
+		assert.deepEqual(data.itemReviewed, { "@type": "VideoGame", name: "Jeu Fictif 2077" });
+		assert.deepEqual(data.reviewRating, { "@type": "Rating", ratingValue: 8.5, bestRating: 10, worstRating: 0 });
+		assert.deepEqual(data.author, { "@type": "Person", name: "Alexis De Chiara" });
+		assert.match(data.datePublished, /^\d{4}-\d{2}-\d{2}$/);
+		assert.equal(data.reviewBody, "Un excellent jeu, à quelques détails près.");
+		assert.equal(data.url, "http://theme.test/__render");
+
+		// The type is read whatever its case and written as schema.org spells it
+		const [lower] = await jsonLd(REVIEW_CARD.replace('data-type="VideoGame"', 'data-type=" tvseries "'));
+		assert.equal(lower.itemReviewed["@type"], "TVSeries");
+	});
+
+	it("adds no Review structured data without a score, without a type, or with a type that earns no review snippet", async () => {
 		const noScore = REVIEW_CARD.replace('<p class="fiche-test__note"><strong>8,5</strong>/10</p>', "");
-		const other = await open({ render: article({ html: LONG_HTML + noScore }) });
-		assert.equal(await other.page.locator("script[data-review-jsonld]").count(), 0);
-		await other.dispose();
+		assert.deepEqual(await jsonLd(noScore), [], "no score");
+		assert.deepEqual(await jsonLd(REVIEW_CARD.replace(' data-type="VideoGame"', "")), [], "no type");
+		for (const type of ["CreativeWork", "Thing", "Article", ""]) {
+			assert.deepEqual(await jsonLd(REVIEW_CARD.replace("VideoGame", type)), [], `type « ${type} »`);
+		}
+	});
+
+	it("accepts every type the author guide lists for data-type", () => {
+		const guide = fs.readFileSync(new URL("../../docs/guide-auteur.md", import.meta.url), "utf8");
+		const section = guide.slice(guide.indexOf("### Fiche de test"));
+		const bullet = section.slice(section.indexOf("- Données structurées"), section.indexOf("- Sur téléphone"));
+		const listed = [...bullet.matchAll(/`([A-Z][A-Za-z]+)`/g)].map(match => match[1]);
+		assert.ok(listed.length > 25, `${listed.length} types listed`);
+		const refused = listed.filter(type => reviewedType(type) !== type);
+		// CreativeWork is the guide's example of a type that is not accepted
+		assert.deepEqual(refused, ["CreativeWork"]);
+	});
+
+	it("adds no Review structured data when the post has no author name", async () => {
+		assert.deepEqual(await jsonLd(REVIEW_CARD, { authorName: "" }), []);
 	});
 });
