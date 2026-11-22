@@ -463,6 +463,31 @@ describe("rows by tag", () => {
 	});
 });
 
+describe("« Derniers articles » list", () => {
+	before(launch);
+	after(close);
+
+	it("labels the list of the next posts with its own name, not a button's", async () => {
+		const { page, dispose } = await open({ render: home({ locale: "fr" }) });
+		assert.equal(await page.locator(".latest__list").getAttribute("aria-label"), "Autres articles récents");
+		await dispose();
+	});
+
+	it("says « Aucun article » instead of showing an empty section on a site without posts", async () => {
+		const none = s => {
+			s.posts = [];
+		};
+		const { page, dispose } = await open({ render: home({ locale: "fr", site: { adjust: none } }) });
+		assert.equal(await page.locator(".latest .latest__empty").textContent(), "Aucun article");
+		assert.equal(await page.locator(".latest__grid").count(), 0);
+		await dispose();
+
+		const listing = await open({ render: paged(2, { locale: "fr", site: { adjust: none } }) });
+		assert.equal(await listing.page.locator(".post-grid .latest__empty").textContent(), "Aucun article");
+		await listing.dispose();
+	});
+});
+
 describe("rows with only some tags pinned", () => {
 	before(launch);
 	after(close);

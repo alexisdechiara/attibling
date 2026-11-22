@@ -47,6 +47,8 @@ right after them, so its « Tout voir » link loses no post.
       <ul class="post-grid" role="list">
         {{#foreach posts}}
           <li>{{> post-tile size="s" eager=@first heading="h2"}}</li>
+        {{else}}
+          <li class="latest__empty">{{t "No posts"}}</li>
         {{/foreach}}
       </ul>
     </div>

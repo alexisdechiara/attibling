@@ -333,7 +333,8 @@ site (Settings → Design & branding → Brand → *Publication cover*), ou sur 
 
 Le dernier article publié s'affiche en grand (pastille « Nouveau », rubrique, titre, extrait, date et temps
 de lecture), les 6 suivants en liste à droite. L'extrait est le champ *Excerpt* de l'article s'il est rempli,
-sinon le début du texte. « Tout voir » mène à la page 2 de la liste.
+sinon le début du texte. « Tout voir » mène à la page 2 de la liste. Sur un site sans aucun article publié, la
+section affiche « Aucun article ».
 
 Le thème affiche **7 articles par page** (réglage `posts_per_page` du thème) : la page 2 commence donc
 exactement après les 7 articles de l'accueil. Les pages 2, 3… montrent une grille simple, sans bandeau.
