@@ -56,17 +56,23 @@
 
 /* Two states: sign-up (default) and sign-in (#connexion, or data-state="signin" written by
    newsletter.js); a site where only invited members join shows the sign-in only */
-.subscribe-panel--signin {
+.subscribe-panel--signin,
+.subscribe-hero__heading--signin {
   display: none;
 }
 
 .subscribe-hero:is([data-state="signin"], :has(#connexion:target), .subscribe-hero--signin-only) {
-  .subscribe-panel--signup {
+  .subscribe-panel--signup,
+  .subscribe-hero__heading--signup {
     display: none;
   }
 
   .subscribe-panel--signin {
     display: block;
+  }
+
+  .subscribe-hero__heading--signin {
+    display: inline;
   }
 }
 
@@ -75,7 +81,12 @@
     display: block;
   }
 
-  .subscribe-panel--signin {
+  .subscribe-hero__heading--signup {
+    display: inline;
+  }
+
+  .subscribe-panel--signin,
+  .subscribe-hero__heading--signin {
     display: none;
   }
 }
