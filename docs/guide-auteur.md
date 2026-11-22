@@ -1253,6 +1253,10 @@ Rien à faire : textes « Page non trouvée », un grand bouton « Ouvrir la rec
 qui reçoit le focus à l'arrivée), « Aller à la page d'accueil » et les trois premières rubriques de la
 navigation principale, puis les 4 derniers articles.
 
+Les **autres erreurs** (500, 503…) ont leur propre modèle (`error.hbs`), de même présentation que la 404 :
+le code d'erreur donné par Ghost, « Une erreur est survenue », la recherche et les 4 derniers articles. Le message
+technique de Ghost (en anglais) n'est pas affiché.
+
 ### Fichier routes.yaml
 
 Aucun n'est nécessaire : toutes ces pages sont des pages Ghost avec un modèle. Laissez le `routes.yaml` par

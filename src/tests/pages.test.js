@@ -227,6 +227,39 @@ describe("404 page", () => {
 	});
 });
 
+describe("error page (any error but 404)", () => {
+	before(launch);
+	after(close);
+
+	it("reuses the 404 design with the status code, its own title, the search and the latest posts", async () => {
+		const { page, dispose } = await open({ render: template("error", { locale: "fr" }) });
+		const view = await page.evaluate(() => ({
+			title: document.title,
+			code: document.querySelector(".error-page__code").textContent,
+			h1: document.querySelector("h1").textContent.trim(),
+			text: document.querySelector(".error-page__text").textContent.trim(),
+			search: document.querySelector(".error-page__search")?.hasAttribute("data-ghost-search"),
+			recent: document.querySelectorAll(".error-page__recent .tile").length,
+			stylesheet: Boolean(document.querySelector('link[rel=stylesheet][href$="css/404.css"]')),
+		}));
+		assert.match(view.title, /^Une erreur est survenue - /);
+		assert.equal(view.code, "500");
+		assert.equal(view.h1, "Une erreur est survenue");
+		assert.doesNotMatch(view.text, /introuvable|trouvée/);
+		assert.ok(view.search);
+		assert.equal(view.recent, 4);
+		assert.ok(view.stylesheet, "the 404 stylesheet");
+		await dispose();
+	});
+
+	it("leaves the 404 page as it was", async () => {
+		const { page, dispose } = await open({ render: template("error-404", { locale: "fr" }) });
+		assert.equal(await page.locator(".error-page__code").textContent(), "404");
+		assert.equal(await page.locator("h1").textContent(), "Page non trouvée");
+		await dispose();
+	});
+});
+
 describe("archives page", () => {
 	before(launch);
 	after(close);
