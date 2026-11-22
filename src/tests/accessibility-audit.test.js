@@ -258,14 +258,18 @@ describe("accessibility audit: names, titles and headings", () => {
 	before(launch);
 	after(close);
 
-	it("names the series links after their visible label, and the two series landmarks differently", async () => {
+	it("names the series links after their visible text (WCAG 2.5.3), and the two series landmarks differently", async () => {
 		const { page, dispose } = await open({
 			render: article({ series: { published: 4, current: 2, description: "Construire son homelab" } }),
 		});
 		const result = await page.evaluate(() => ({
 			links: [...document.querySelectorAll(".series-step__link")]
 				.filter(a => a.checkVisibility())
-				.map(a => [a.querySelector(".series-step__label").textContent, a.getAttribute("aria-label")]),
+				.map(a => {
+					const visible = a.textContent.replace(/\s+/g, " ").trim();
+					// The accessible name: aria-label when there is one, else the text of the link
+					return [visible, a.getAttribute("aria-label") ?? visible];
+				}),
 			// Landmarks exposed now (the closed menu sheet's are not)
 			navs: [...document.querySelectorAll("nav")]
 				.filter(nav => nav.checkVisibility())
@@ -275,7 +279,10 @@ describe("accessibility audit: names, titles and headings", () => {
 						document.getElementById(nav.getAttribute("aria-labelledby"))?.textContent.replace(/\s+/g, " ").trim(),
 				),
 		}));
-		for (const [label, name] of result.links) assert.ok(name.startsWith(label), `« ${name} » starts with « ${label} »`);
+		assert.equal(result.links.length, 4, "previous and next, in the box and at the end");
+		for (const [visible, name] of result.links) {
+			assert.ok(name.toLowerCase().includes(visible.toLowerCase()), `« ${name} » contains the visible « ${visible} »`);
+		}
 		assert.equal(new Set(result.navs).size, result.navs.length, `unique landmark names: ${result.navs}`);
 		await dispose();
 	});

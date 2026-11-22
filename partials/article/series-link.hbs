@@ -20,9 +20,9 @@ Parameters:
     {{~#foreach opts.parts~}}{{~#with this as |outer|~}}
       {{~#foreach opts.parts from=@number limit="2"~}}
         {{~#match id opts.current~}}{{~#match outer.id opts.current~}}{{~else~}}
-          <a class="series-step__link" href="{{outer.url}}" aria-label="{{t "Previous: {title}" title=outer.title}}">
+          <a class="series-step__link" href="{{outer.url}}"{{#unless opts.detailed}} aria-label="{{t "Previous: {title}" title=outer.title}}"{{/unless}}>
             {{> "icons/arrow-left" class="icon-flip-rtl"}}
-            <span class="series-step__text"><span class="series-step__label">{{t "Previous"}}</span>{{#if opts.detailed}}<span class="series-step__title">{{outer.title}}</span>{{/if}}</span>
+            <span class="series-step__text"><span class="series-step__label">{{t "Previous"}}</span>{{#if opts.detailed}} <span class="series-step__title">{{outer.title}}</span>{{/if}}</span>
           </a>
         {{~/match~}}{{~/match~}}
       {{~/foreach~}}
@@ -32,8 +32,8 @@ Parameters:
       {{~#match id opts.current~}}
         {{~#foreach opts.parts from=@number limit="2"~}}
           {{~#match id opts.current~}}{{~else~}}
-            <a class="series-step__link" href="{{url}}" aria-label="{{t "Next: {title}" title=title}}">
-              <span class="series-step__text"><span class="series-step__label">{{t "Next"}}</span>{{#if opts.detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
+            <a class="series-step__link" href="{{url}}"{{#unless opts.detailed}} aria-label="{{t "Next: {title}" title=title}}"{{/unless}}>
+              <span class="series-step__text"><span class="series-step__label">{{t "Next"}}</span>{{#if opts.detailed}} <span class="series-step__title">{{title}}</span>{{/if}}</span>
               {{> "icons/arrow-right" class="icon-flip-rtl"}}
             </a>
           {{~/match~}}

@@ -18,7 +18,9 @@ const series = page =>
 			return `${li.dataset.part}${li.matches(".series__item--current") ? "*" : ""}`;
 		});
 		const links = root =>
-			[...root.querySelectorAll(".series-step__link")].filter(visible).map(a => a.getAttribute("aria-label"));
+			[...root.querySelectorAll(".series-step__link")]
+				.filter(visible)
+				.map(a => a.getAttribute("aria-label") ?? a.textContent.replace(/\s+/g, " ").trim());
 		const bar = box.querySelector(".series__bar");
 		return {
 			name: box.querySelector("[data-series-name]").textContent,
@@ -45,7 +47,11 @@ describe("series", () => {
 		assert.equal(s.bar, 50, "progress bar at 2 / 4");
 		assert.deepEqual(s.rows, ["1", "2*", "3", "4"]);
 		assert.deepEqual(s.box, ["Précédent : Jour 1 — partie de la série", "Suivant : Jour 3 — partie de la série"]);
-		assert.deepEqual(s.line, s.box, "the same at the end of the article");
+		assert.deepEqual(
+			s.line,
+			["Précédent Jour 1 — partie de la série", "Suivant Jour 3 — partie de la série"],
+			"the end of the article names its links after their visible text (label and title)",
+		);
 		assert.equal(s.all, "http://theme.test/archives/?tag=hash-serie-test", "the Archives page filtered by the series");
 		assert.equal(await page.locator(".series__item--current").getAttribute("aria-current"), "page");
 		await dispose();
