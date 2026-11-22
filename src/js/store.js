@@ -37,15 +37,20 @@ const SAVED_KEY = "attibling-saved";
 const PROGRESS_KEY = "attibling-progress";
 const EVENT = "attibling:store";
 
+// Probed once per page (a write and a removal fire `storage` events in the other tabs: never on every
+// read or write)
+let storageOk;
 const storageWorks = () => {
+	if (storageOk !== undefined) return storageOk;
 	try {
 		const probe = "attibling-probe";
 		localStorage.setItem(probe, "1");
 		localStorage.removeItem(probe);
-		return true;
+		storageOk = true;
 	} catch {
-		return false;
+		storageOk = false;
 	}
+	return storageOk;
 };
 
 export const isMember = () => document.documentElement.hasAttribute("data-member");
