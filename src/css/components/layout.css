@@ -192,9 +192,10 @@
 }
 
 .page-heading__title {
-  font-size: var(--text-4xl);
-  font-weight: var(--weight-heavy);
-  letter-spacing: -0.02em;
+  font-size: var(--h1-size);
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+  line-height: var(--h1-leading);
 }
 
 .page-heading__note {
