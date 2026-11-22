@@ -18,6 +18,13 @@ import { STORAGE, storageOf } from "./registry";
 
 const EVENTS = ["attibling:privacy", "attibling:consent", "attibling:embeds", "attibling:store", "storage"];
 
+// A `storage` event from another tab matters here only for a key this theme keeps (or null: clear())
+// (the storage probe is written and removed at once: never a change)
+const ours = event =>
+	event.type !== "storage" ||
+	event.key === null ||
+	(event.key !== "attibling-probe" && STORAGE.some(entry => entry.key === event.key));
+
 let ids = 0;
 
 const has = entry => {
@@ -295,7 +302,11 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 		}
 		root.dispatchEvent(new CustomEvent("privacy:refresh"));
 	};
-	EVENTS.forEach(name => window.addEventListener(name, refresh));
+	EVENTS.forEach(name =>
+		window.addEventListener(name, event => {
+			if (ours(event)) refresh();
+		}),
+	);
 	refresh();
 	return { refresh };
 };
@@ -391,7 +402,11 @@ export const setUpStoredTable = table => {
 		empty?.focus({ preventScroll: true });
 		live("cleared");
 	});
-	EVENTS.forEach(name => window.addEventListener(name, render));
+	EVENTS.forEach(name =>
+		window.addEventListener(name, event => {
+			if (ours(event)) render();
+		}),
+	);
 	render();
 	return { render };
 };

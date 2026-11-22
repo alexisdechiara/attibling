@@ -1230,3 +1230,61 @@ describe("privacy: Google Consent Mode v2", () => {
 		await dispose();
 	});
 });
+
+describe("privacy: storage probing and storage events", () => {
+	before(launch);
+	after(close);
+
+	const probes = async storageWrites => (await storageWrites()).filter(([key]) => key === "attibling-probe").length;
+
+	it("probes the storage once per page, not on every scroll frame of a member's article", async () => {
+		const { page, dispose, storageWrites } = await open({
+			render: article({ member: true, html: LONG }),
+			viewport: PHONE,
+		});
+		await page.waitForTimeout(300);
+		const afterLoad = await probes(storageWrites);
+		assert.ok(afterLoad <= 1, "one probe at most while loading");
+		for (let i = 0; i < 30; i++) {
+			await page.mouse.wheel(0, 120);
+			await page.waitForTimeout(20);
+		}
+		await page.waitForTimeout(600);
+		assert.equal(await probes(storageWrites), afterLoad, "no probe while scrolling");
+		await dispose();
+	});
+
+	it("does not write anything while a visitor scrolls an article", async () => {
+		const { page, dispose, storageWrites } = await open({ render: article({ html: LONG }), viewport: PHONE });
+		await page.waitForTimeout(300);
+		const written = (await storageWrites()).length;
+		await page.mouse.wheel(0, 1500);
+		await page.waitForTimeout(600);
+		assert.equal((await storageWrites()).length, written);
+		await dispose();
+	});
+
+	it("ignores the storage events of keys the theme does not keep: the table is not redrawn, the focus stays", async () => {
+		const { page, dispose } = await open({
+			render: template("page-cookies", { locale: "fr" }),
+			storage: { theme: "dark", "attibling-embeds": '["x"]' },
+			viewport: WIDE,
+		});
+		const button = page.locator('tr[data-held-key="theme"] button');
+		await button.waitFor();
+		await button.focus();
+		await page.evaluate(() => (document.querySelector('tr[data-held-key="theme"]').dataset.mark = "1"));
+		const fire = key => page.evaluate(k => window.dispatchEvent(new StorageEvent("storage", { key: k })), key);
+		await fire("ghost-admin-foo");
+		await fire("attibling-probe");
+		assert.equal(await page.locator('tr[data-held-key="theme"][data-mark]').count(), 1, "same rows");
+		assert.equal(await page.evaluate(() => document.activeElement.closest("tr")?.dataset.heldKey), "theme");
+		// A key of the theme, and clear() (key null), do redraw
+		await fire("theme");
+		assert.equal(await page.locator('tr[data-held-key="theme"][data-mark]').count(), 0, "theme key redraws");
+		await page.evaluate(() => (document.querySelector('tr[data-held-key="theme"]').dataset.mark = "1"));
+		await fire(null);
+		assert.equal(await page.locator('tr[data-held-key="theme"][data-mark]').count(), 0, "clear() redraws");
+		await dispose();
+	});
+});

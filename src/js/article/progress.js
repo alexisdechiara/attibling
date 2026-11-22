@@ -2,7 +2,7 @@
 // missing (progress.css draws it otherwise), the button itself, and, for members, the progress kept
 // in the reader store for « Reprendre la lecture » on the home page (src/js/store.js keeps posts read
 // between 10 % and 90 % only).
-import { postFromElement, readingProgress } from "../store";
+import { isAvailable, postFromElement, readingProgress } from "../store";
 import { throttleToFrame } from "../helpers";
 
 // Share of the content read, 0 to 1: from its top entering at the bottom of the viewport to its end
@@ -88,7 +88,8 @@ export const setUpProgressRing = content => {
 
 // Members: the progress is written at most once a second while scrolling, and when the page is left
 export const setUpProgressStore = (content, article) => {
-	if (!content || !article) return;
+	// Visitors, or storage that does not work: nothing to record, so no listeners and no measuring
+	if (!content || !article || !isAvailable()) return;
 	const post = postFromElement(article);
 	let last = -1;
 	let lastWrite = 0;
