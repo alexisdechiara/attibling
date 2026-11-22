@@ -29,6 +29,19 @@ describe("repository", () => {
 		}
 	});
 
+	it("keeps « vous » in fr.json and « tu » in fr-informal.json", () => {
+		const informal = JSON.parse(read("locales/fr-informal.json"));
+		const formal = JSON.parse(read("locales/fr.json"));
+		// Words in -ez that are not a « vous » form
+		const allowed = new Set(["chez", "assez", "nez", "rez", "lez"]);
+		const vous = ([key, value]) =>
+			/\b(vous|votre|vos)\b/i.test(value) ||
+			(value.match(/\b[\p{L}]+ez\b/giu) || []).some(word => !allowed.has(word.toLowerCase()));
+		assert.deepEqual(Object.entries(informal).filter(vous).map(([key]) => key), [], "« vous » in fr-informal.json");
+		const tu = ([key, value]) => /(^|[^\p{L}-])(tu|ton|ta|tes|toi)(?![\p{L}-])/iu.test(value);
+		assert.deepEqual(Object.entries(formal).filter(tu).map(([key]) => key), [], "« tu » in fr.json");
+	});
+
 	it("links every anchor of the author guide to one of its headings, by GitHub's slug rule", () => {
 		// GitHub (github-slugger): the heading's text, lower case, without any character that is not a
 		// letter, mark, digit, "_", "-" or a space (« », ’, ?, :, NBSP…), each space a "-"; "-1", "-2"…
