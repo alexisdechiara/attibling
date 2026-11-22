@@ -266,6 +266,18 @@ describe("« Mes favoris » page", () => {
 	before(launch);
 	after(close);
 
+	it("asks not to be indexed (the list lives in the reader's browser), other pages do not", async () => {
+		const robots = async render => {
+			const { page, dispose } = await open({ render });
+			const value = await page.$$eval('meta[name="robots"]', m => m.map(e => e.content));
+			await dispose();
+			return value;
+		};
+		assert.deepEqual(await robots(template("page-favoris")), ["noindex, follow"]);
+		assert.deepEqual(await robots(template("custom-saved-posts", { member: true })), ["noindex, follow"]);
+		assert.deepEqual(await robots(template("page-archives")), []);
+	});
+
 	it("draws the member's saved posts and removes them one by one or all at once", async () => {
 		const { page, dispose } = await open({
 			render: template("page-favoris", { member: true }),

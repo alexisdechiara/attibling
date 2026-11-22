@@ -681,7 +681,8 @@ autre appareil et disparaît si l'on efface les données du site) ; la phrase so
 un message l'explique. Un **visiteur** voit une invitation à s'abonner ou à se connecter.
 
 À créer : une page `favoris` (ou le modèle **Saved Posts**), vide ; son titre (« Mes favoris ») est le grand
-titre. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent.
+titre. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent. La page demande aux moteurs de
+recherche de ne pas l'indexer (`noindex, follow`) : sa liste est propre à chaque lecteur, il n'y a rien à référencer.
 
 ### À propos
 
