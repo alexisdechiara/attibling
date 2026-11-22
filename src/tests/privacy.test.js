@@ -462,11 +462,14 @@ describe("privacy: the « Cookies et confidentialité » page", () => {
 		assert.equal(await held.locator("tbody tr").count(), 2);
 		// The focus moves with the click itself (the list is drawn again at once): the next row's button
 		assert.equal(await page.evaluate(() => document.activeElement.closest("tr")?.dataset.heldKey), "attibling-embeds");
+		// Other scripts' keys are listed without a button, and « Tout effacer » leaves them alone
+		assert.equal(await held.locator('tr[data-held-key="autre-cle"] button').count(), 0);
 		await page.locator("[data-stored-clear]").click();
-		await page.locator("[data-stored-empty]").waitFor({ state: "visible" });
-		assert.equal(await page.evaluate(() => document.activeElement.matches("[data-stored-empty]")), true);
-		assert.equal(await held.isVisible(), false);
-		assert.equal(await page.evaluate(() => localStorage.length), 0);
+		await held.locator('tr[data-held-key="attibling-embeds"]').waitFor({ state: "detached" });
+		assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), ["autre-cle"]);
+		assert.equal(await page.locator("[data-stored-clear]").isVisible(), false, "nothing left to clear");
+		assert.equal(await held.isVisible(), true);
+		assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("[data-privacy-held]")), true);
 		// The switches of the page list every embed service
 		assert.ok((await page.locator("[data-privacy-page] [data-privacy-providers] [data-provider]").count()) >= 10);
 		await dispose();
@@ -1285,6 +1288,30 @@ describe("privacy: storage probing and storage events", () => {
 		await page.evaluate(() => (document.querySelector('tr[data-held-key="theme"]').dataset.mark = "1"));
 		await fire(null);
 		assert.equal(await page.locator('tr[data-held-key="theme"][data-mark]').count(), 0, "clear() redraws");
+		await dispose();
+	});
+});
+
+describe("privacy: clearing leaves other scripts' keys alone", () => {
+	before(launch);
+	after(close);
+
+	const seed = { theme: "dark", "attibling-embeds": '["x"]', foo: "1", "ghost-admin-foo": "2" };
+
+	it("« Tout effacer » of the page removes the theme's keys only", async () => {
+		const { page, dispose } = await open({ render: template("page-cookies", { locale: "fr" }), storage: seed });
+		await page.locator("[data-stored-clear]").click();
+		await page.locator('tr[data-held-key="theme"]').waitFor({ state: "detached" });
+		assert.deepEqual((await page.evaluate(() => Object.keys(localStorage))).sort(), ["foo", "ghost-admin-foo"]);
+		await dispose();
+	});
+
+	it("« Tout effacer » of the panel removes the theme's keys only", async () => {
+		const { page, dispose } = await open({ render: home(), storage: seed });
+		await openPanel(page);
+		await panel(page).locator("[data-privacy-clear]").click();
+		await until(async () => (await stored(page, "theme")) === null, "theme cleared");
+		assert.deepEqual((await page.evaluate(() => Object.keys(localStorage))).sort(), ["foo", "ghost-admin-foo"]);
 		await dispose();
 	});
 });

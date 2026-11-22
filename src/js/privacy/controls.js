@@ -45,8 +45,13 @@ const unknownKeys = () => {
 	}
 };
 
+// What the theme keeps in this browser: the only things « Tout effacer » removes
+const themeItems = () => STORAGE.filter(has);
+
+// The page's table also shows, read-only, the keys of other scripts of this origin (Ghost Admin, Portal,
+// the owner's own): the theme never removes what it did not write
 export const heldItems = () => [
-	...STORAGE.filter(has),
+	...themeItems(),
 	...unknownKeys().map(key => ({ key, storage: "local", by: "other" })),
 ];
 
@@ -123,7 +128,7 @@ export const clearItem = (entry, live) => {
 };
 
 export const clearAll = live => {
-	const items = heldItems();
+	const items = themeItems();
 	if (
 		!confirmClear(
 			items.map(entry => entry.key),
@@ -296,7 +301,7 @@ export const setUpControls = (root, { allProviders = false } = {}) => {
 		if (plausibleToggle) plausibleToggle.checked = plausible.counted();
 		if (progressToggle) progressToggle.checked = preferences.get().progress;
 		if (count) {
-			const n = heldItems().length;
+			const n = themeItems().length;
 			count.textContent =
 				n === 0 ? count.dataset.none : n === 1 ? count.dataset.one : count.dataset.many.replace("%", n);
 		}
@@ -346,6 +351,16 @@ export const setUpStoredTable = table => {
 	const live = announcer(table.closest("[data-privacy-page]") || document);
 	const liveElement = liveOf(table.closest("[data-privacy-page]") || document);
 
+	// Read as stacked rows on phones (pages/content.css): each cell names its column
+	const decorate = row => {
+		row.setAttribute("role", "row");
+		[...row.cells].forEach((cell, i) => {
+			cell.setAttribute("role", "cell");
+			if (i > 0 && i < 3) cell.dataset.label = headers[i];
+		});
+		return row;
+	};
+
 	const render = () => {
 		const rows = heldItems().map(entry => {
 			let raw = "";
@@ -365,13 +380,15 @@ export const setUpStoredTable = table => {
 			const value = document.createElement("td");
 			value.textContent = summarize(raw, strings);
 			const action = document.createElement("td");
+			row.append(name, purpose, value, action);
+			if (entry.by === "other") return decorate(row);
 			const button = document.createElement("button");
 			button.type = "button";
 			button.className = "privacy-stored__clear";
 			button.textContent = strings.clear;
 			button.setAttribute("aria-label", strings.clearOne.replace("%", entry.key));
 			button.addEventListener("click", () => {
-				const index = [...body.rows].indexOf(row);
+				const index = [...body.querySelectorAll(".privacy-stored__clear")].indexOf(button);
 				if (!clearItem(entry, liveElement)) return;
 				// The list is drawn again at once (the clear's events): the focus moves now, never left on
 				// <body> — the next row's button (the one now at that place), else the last, else the note
@@ -381,25 +398,23 @@ export const setUpStoredTable = table => {
 				live("removed");
 			});
 			action.append(button);
-			row.append(name, purpose, value, action);
-			// Read as stacked rows on phones (pages/content.css): each cell names its column
-			row.setAttribute("role", "row");
-			[...row.cells].forEach((cell, i) => {
-				cell.setAttribute("role", "cell");
-				if (i > 0 && i < 3) cell.dataset.label = headers[i];
-			});
-			return row;
+			return decorate(row);
 		});
 		body.replaceChildren(...rows);
 		table.hidden = rows.length === 0;
 		if (empty) empty.hidden = rows.length > 0;
-		if (clear) clear.hidden = rows.length === 0;
+		if (clear) clear.hidden = !body.querySelector(".privacy-stored__clear");
 	};
 
 	clear?.addEventListener("click", () => {
 		if (!clearAll(liveElement)) return;
 		render();
-		empty?.focus({ preventScroll: true });
+		// Nothing left: the note; only other scripts' keys left: the table
+		if (empty && !empty.hidden) empty.focus({ preventScroll: true });
+		else {
+			table.tabIndex = -1;
+			table.focus({ preventScroll: true });
+		}
 		live("cleared");
 	});
 	EVENTS.forEach(name =>
