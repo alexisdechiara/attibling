@@ -43,11 +43,11 @@ Inside the page's template context. Nothing personal is written in the theme: ev
         <ul class="about-rubrics" role="list">
           {{#if @custom.about_tags}}
             {{#get "tags" filter="slug:[{{@custom.about_tags}}]+visibility:public" include="count.posts" order="count.posts desc" limit="12"}}
-              {{#foreach tags}}{{> "about/rubric"}}{{/foreach}}
+              {{#foreach tags}}{{#match count.posts ">" 0}}{{> "about/rubric"}}{{/match}}{{/foreach}}
             {{/get}}
           {{else}}
             {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="6"}}
-              {{#foreach tags}}{{> "about/rubric"}}{{/foreach}}
+              {{#foreach tags}}{{#match count.posts ">" 0}}{{> "about/rubric"}}{{/match}}{{/foreach}}
             {{/get}}
           {{/if}}
         </ul>

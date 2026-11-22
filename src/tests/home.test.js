@@ -463,6 +463,38 @@ describe("rows by tag", () => {
 	});
 });
 
+describe("tags without posts", () => {
+	before(launch);
+	after(close);
+
+	// Only the three first tags keep their posts: the six most used tags then hold three empty ones
+	const emptyTags = s => {
+		for (const tag of s.tags.filter(t => t.visibility === "public").slice(3)) tag.count = { posts: 0 };
+	};
+	const withPosts = ["Actualité", "Jeux vidéo", "VF"].sort();
+
+	it("stay out of the « Tags » tiles, the discover panel and the About page", async () => {
+		const { page, dispose } = await open({ render: home({ site: { adjust: emptyTags } }) });
+		assert.deepEqual(
+			(await page.$$eval(".tag-grid .tag-tile__name", names => names.map(n => n.textContent.trim()))).sort(),
+			withPosts,
+			"home tiles",
+		);
+		const discover = await page.$$eval(".discover__tag", links => links.map(a => a.textContent.trim()));
+		assert.deepEqual([...discover.slice(0, 3)].sort(), withPosts);
+		assert.equal(discover.length % 3, 0, "only the tags with posts, in each of the two panels");
+		assert.ok(discover.length > 0 && discover.every(name => withPosts.includes(name)), discover.join());
+		await dispose();
+
+		const about = await open({ render: template("page-a-propos", { site: { adjust: emptyTags } }) });
+		assert.deepEqual(
+			(await about.page.$$eval(".about-rubric__name", names => names.map(n => n.textContent.trim()))).sort(),
+			withPosts,
+		);
+		await about.dispose();
+	});
+});
+
 describe("home layout", () => {
 	before(launch);
 	after(close);
