@@ -210,7 +210,9 @@ describe("third-party embeds", () => {
 				};
 			},
 		});
-		await page.route("https://platform.twitter.com/**", route => route.fulfill({ contentType: "text/html", body: "<body>x</body>" }));
+		await page.route("https://platform.twitter.com/**", route =>
+			route.fulfill({ contentType: "text/html", body: "<body>x</body>" }),
+		);
 		const listeners = () => page.evaluate(() => window.__messageListeners);
 		const before = await listeners();
 		for (const provider of ["youtube", "x"]) {

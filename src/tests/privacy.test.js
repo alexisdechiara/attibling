@@ -469,7 +469,10 @@ describe("privacy: the « Cookies et confidentialité » page", () => {
 		assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), ["autre-cle"]);
 		assert.equal(await page.locator("[data-stored-clear]").isVisible(), false, "nothing left to clear");
 		assert.equal(await held.isVisible(), true);
-		assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("[data-privacy-held]")), true);
+		assert.equal(
+			await page.evaluate(() => document.activeElement === document.querySelector("[data-privacy-held]")),
+			true,
+		);
 		// The switches of the page list every embed service
 		assert.ok((await page.locator("[data-privacy-page] [data-privacy-providers] [data-provider]").count()) >= 10);
 		await dispose();

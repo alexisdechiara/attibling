@@ -50,10 +50,7 @@ const themeItems = () => STORAGE.filter(has);
 
 // The page's table also shows, read-only, the keys of other scripts of this origin (Ghost Admin, Portal,
 // the owner's own): the theme never removes what it did not write
-export const heldItems = () => [
-	...themeItems(),
-	...unknownKeys().map(key => ({ key, storage: "local", by: "other" })),
-];
+export const heldItems = () => [...themeItems(), ...unknownKeys().map(key => ({ key, storage: "local", by: "other" }))];
 
 const removeItem = entry => {
 	try {
