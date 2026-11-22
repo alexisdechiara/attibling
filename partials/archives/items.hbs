@@ -2,7 +2,7 @@
 Rows of the archives list, one <li> per post of the current {{#get}} result (see pages/archives.hbs).
 data-* attributes feed the filters of archives.js: year, month, tag slugs (public AND internal: a series
 #serie-x is "hash-serie-x"), primary tag slug. Without JavaScript each row reads « 25 nov. 2025 — Title —
-Rubrique • 5 min ».
+Tag • 5 min ».
 --}}
 {{#foreach posts}}
   <li class="archive-item" data-archive-item data-year="{{date published_at format="YYYY"}}" data-month="{{date published_at format="MM"}}" data-month-name="{{date published_at format="MMMM"}}" data-tags="{{#foreach tags visibility="all"}}{{slug}} {{/foreach}}" data-primary="{{primary_tag.slug}}" data-date="{{date published_at format="YYYY-MM-DD"}}">

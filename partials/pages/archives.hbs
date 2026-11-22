@@ -6,7 +6,7 @@ Every published post, newest first, as text rows (day, title, section, reading t
 most 100 posts per {{#get}}, so the list is fetched in pages of 100 (page="1" … page="10": up to 1 000
 posts; add a block to go further). Empty pages render nothing.
 archives.js groups the rows by year and month and shows the filter bar (year buttons, title search,
-« Rubrique » list, live count); without JavaScript the bar stays hidden and the full list stays readable.
+« Tag » list, live count); without JavaScript the bar stays hidden and the full list stays readable.
 ?tag=<slug> (any tag, internal ones included, e.g. ?tag=hash-serie-avent for the series #serie-avent)
 shows only that tag's posts, oldest first: « Voir toute la série » links here.
 The page's own title is the heading; its content (optional) shows under it as an introduction.
@@ -26,7 +26,7 @@ The page's own title is the heading; its content (optional) shows under it as an
 
 <main id="main" class="site-main archives" data-archives
   data-i18n-none="{{t "No posts"}}" data-i18n-one="{{t "1 post"}}" data-i18n-many="{{t "% posts"}}"
-  data-i18n-all="{{t "All years"}}" data-i18n-older="{{t "Previous year: %"}}" data-i18n-series="{{t "Series: %"}}" data-i18n-tag="{{t "Section: %"}}">
+  data-i18n-all="{{t "All years"}}" data-i18n-older="{{t "Previous year: %"}}" data-i18n-series="{{t "Series: %"}}" data-i18n-tag="{{t "Tag: %"}}">
   <div class="container">
     {{#post}}
       <header class="archives__header">
@@ -47,9 +47,9 @@ The page's own title is the heading; its content (optional) shows under it as an
         <input class="archives-bar__input" id="archives-search" type="search" placeholder="{{t "Search a title"}}" autocomplete="off" data-archives-search>
       </div>
       <div class="archives-bar__select">
-        <label class="archives-bar__select-label" for="archives-tag">{{t "Section"}}</label>
+        <label class="archives-bar__select-label" for="archives-tag">{{t "Tag"}}</label>
         <select class="archives-bar__select-input" id="archives-tag" data-archives-tag>
-          <option value="">{{t "All sections"}}</option>
+          <option value="">{{t "All tags"}}</option>
           {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="count.posts desc"}}
             {{#foreach tags}}{{#match count.posts ">" 0}}<option value="{{slug}}">{{name}} ({{count.posts}})</option>{{/match}}{{/foreach}}
           {{/get}}

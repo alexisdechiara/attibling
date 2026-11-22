@@ -11,7 +11,7 @@ const openPanel = async page => {
 	await page.waitForFunction(() => document.querySelector("[data-reading-settings]").matches(":popover-open"));
 };
 
-// The visible swatch of the « Thème » list and the visible name of the chosen theme: one line
+// The visible swatch of the « Palette » list and the visible name of the chosen theme: one line
 const themeLine = page =>
 	page.evaluate(() => {
 		const select = document.getElementById("reading-theme");
@@ -28,7 +28,7 @@ const themeLine = page =>
 		};
 	});
 
-describe("finishing: reading settings « Thème » list", () => {
+describe("finishing: reading settings « Palette » list", () => {
 	before(launch);
 	after(close);
 

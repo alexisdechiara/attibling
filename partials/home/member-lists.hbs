@@ -4,7 +4,7 @@ Members only: one section with two lists kept in this browser (src/js/store.js):
 tard » (bookmarked posts). The title is the switch between them: a borderless button opening a
 listbox. Default list: « Reprendre la lecture » when a reading is in progress, else « À lire plus
 tard ». The section stays hidden when both lists are empty or the browser storage is unavailable.
-Each card is one link with a « Retirer » button; « Tout effacer » empties the reading list,
+Each card is one link with a « Retirer » button; « Tout retirer » empties the list shown,
 « Tout voir » leads to the « Mes favoris » page (a page with the slug "favoris").
 home.js fills the list from the templates below; the translated strings are data-* attributes
 ("%" is replaced by a number or a title).
@@ -23,7 +23,7 @@ home.js fills the list from the templates below; the translated strings are data
         <li class="member-lists__option" role="option" id="member-list-saved" tabindex="-1" aria-selected="false" data-list="saved"><span>{{t "Read later"}}</span>{{> "icons/check"}}</li>
       </ul>
       <span class="section-header__note">{{t "kept on this device"}}</span>
-      <button type="button" class="button button--ghost button--s member-lists__action" data-list-clear>{{t "Clear all"}}</button>
+      <button type="button" class="button button--ghost button--s member-lists__action" data-list-clear>{{t "Remove all"}}</button>
       <a class="section-header__more member-lists__action" href="{{@site.url}}/favoris/" data-list-all hidden>{{t "See all"}}<span class="sr-only"> ({{t "Read later"}})</span>{{> "icons/chevron-right" class="icon-flip-rtl"}}</a>
     </div>
     <div class="shelf" data-shelf>

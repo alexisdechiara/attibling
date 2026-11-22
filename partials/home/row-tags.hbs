@@ -1,7 +1,7 @@
-{{!-- Home row « Rubriques »: the six most used public tags as tag tiles; « Tous les tags » leads to the page with the slug "tags" (page-tags.hbs). --}}
+{{!-- Home row « Tags »: the six most used public tags as tag tiles; « Tous les tags » leads to the page with the slug "tags" (page-tags.hbs). --}}
 {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="6" as |toptags|}}{{#match toptags.0.count.posts ">" 0}}
   <section class="home-section row row--tags container" aria-labelledby="row-tags">
-    {{> section-header title=(t "Sections") id="row-tags" url=(concat @site.url "/tags/") urlLabel=(t "All tags")}}
+    {{> section-header title=(t "Tags") id="row-tags" url=(concat @site.url "/tags/") urlLabel=(t "All tags")}}
     <ul class="tag-grid" role="list">
       {{#foreach toptags}}{{#match count.posts ">" 0}}<li>{{> tag-tile}}</li>{{/match}}{{/foreach}}
     </ul>

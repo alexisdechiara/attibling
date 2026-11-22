@@ -434,7 +434,7 @@ describe("rows by tag", () => {
 		const { page, dispose } = await open();
 		assert.deepEqual(await rows(page), [
 			["shelf", "Jeux vidéo"],
-			["tags", "Sections"],
+			["tags", "Tags"],
 			["posters", "VF"],
 			["list", "Actualité"],
 			["banner", "Anime"],
@@ -454,11 +454,35 @@ describe("rows by tag", () => {
 		const { page, dispose } = await open({ render: home({ custom }) });
 		assert.deepEqual(await rows(page), [
 			["shelf", "Jeux vidéo"],
-			["tags", "Sections"],
+			["tags", "Tags"],
 			["posters", "Anime"],
 			["list", "Actualité"],
 			["feature", "Dossier"],
 		]);
+		await dispose();
+	});
+});
+
+describe("one wording for the same things", () => {
+	before(launch);
+	after(close);
+
+	it("empties the saved list with the same button label on the home and on « Mes favoris »", async () => {
+		const homeList = await open({ render: home({ member: true, locale: "fr" }) });
+		const onHome = await homeList.page.locator("[data-list-clear]").textContent();
+		await homeList.dispose();
+		const saved = await open({ render: template("page-favoris", { member: true, locale: "fr" }) });
+		const onSaved = await saved.page.locator("[data-saved-clear]").textContent();
+		await saved.dispose();
+		assert.equal(onHome, "Tout retirer");
+		assert.equal(onSaved, onHome);
+	});
+
+	it("calls the tags « Tags » on the home, in the header and in the banner", async () => {
+		const { page, dispose } = await open({ render: home({ locale: "fr", custom: { home_row_4: "ia" } }) });
+		assert.equal(await page.locator(".row--tags h2").textContent(), "Tags");
+		assert.equal(await page.locator("nav.nav-pills").getAttribute("aria-label"), "Tags");
+		assert.match(await page.locator(".banner__kicker").innerText(), /^Tag\s*·\s*\d+ articles$/);
 		await dispose();
 	});
 });
@@ -501,7 +525,7 @@ describe("rows with only some tags pinned", () => {
 		);
 		assert.deepEqual(rows, [
 			["shelf", "Anime"],
-			["tags", "Sections"],
+			["tags", "Tags"],
 			["posters", "VF"],
 			["list", "Actualité"],
 			["feature", "Informatique"],

@@ -40,6 +40,37 @@ describe("repository", () => {
 		}
 	});
 
+	it("uses « tag » (never « rubrique ») and keeps « thème » for the Ghost theme only", () => {
+		for (const file of ["locales/fr.json", "locales/fr-informal.json"]) {
+			const locale = JSON.parse(read(file));
+			assert.deepEqual(
+				Object.entries(locale)
+					.filter(([, value]) => /rubriques?/i.test(value))
+					.map(([key]) => key),
+				[],
+				`${file}: « rubrique »`,
+			);
+			assert.deepEqual(
+				Object.entries(locale)
+					.filter(([, value]) => /thème/i.test(value.replace(/\b(le|du|ce) thème/gi, "")))
+					.map(([key]) => key),
+				[],
+				`${file}: « thème » for something other than the Ghost theme`,
+			);
+			assert.deepEqual(
+				["Palette", "Switch mode", "Light mode", "Dark mode", "Automatic mode"].map(key => locale[key]),
+				["Palette", "Changer de mode", "Mode clair", "Mode sombre", "Mode automatique"],
+				file,
+			);
+		}
+		const english = JSON.parse(read("locales/en.json"));
+		assert.deepEqual(
+			Object.keys(english).filter(key => /^(Section|Sections|All sections|See the section|Theme)$/.test(key)),
+			[],
+			"the old « Section » and « Theme » keys are gone",
+		);
+	});
+
 	it("keeps « vous » in fr.json and « tu » in fr-informal.json", () => {
 		const informal = JSON.parse(read("locales/fr-informal.json"));
 		const formal = JSON.parse(read("locales/fr.json"));

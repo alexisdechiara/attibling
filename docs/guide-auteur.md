@@ -11,7 +11,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées, vignette d'un article (image des cartes)
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets--à-lire-plus-tard--sur-les-tuiles)
-5. [Pages du site](#5-pages-du-site) — rubriques, auteurs, tags, archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
+5. [Pages du site](#5-pages-du-site) — pages de tag, auteurs, page « Tags », archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
 6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, article réservé aux abonnés, impression, vidéos et contenus intégrés
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
@@ -52,7 +52,7 @@ Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section q
 4. **Pages à créer** (Pages → New page, réglage *Page URL*, voir [section 5](#5-pages-du-site)) : `newsletter`
    (abonnement), `archives`, `favoris` (titre « Mes favoris »), `a-propos`, `tags`, `authors`. Ajoutez-les à la
    navigation secondaire (Settings → Navigation) : Tags `/tags/`, Archives `/archives/`, À propos `/a-propos/`.
-5. **Tags** : une *Tag image* et une *Description* pour les rubriques (Actualité, Jeux vidéo, Anime, Dossier,
+5. **Tags** : une *Tag image* et une *Description* pour les tags (Actualité, Jeux vidéo, Anime, Dossier,
    IA, Test) ; les tags internes au fil des articles : `#top` + `#top-1`…`#top-10` (« Les plus lus »),
    `#serie-…` (séries, `total: 24` dans la description du tag), `#mis-a-jour`, `#immersif` / `#carte`.
 6. **Articles à mettre en avant** : *Feature this post* sur les articles du bandeau (jusqu'à 6), avec une image
@@ -173,14 +173,14 @@ secondaire ni lien en trop, le bouton « Plus » n'apparaît pas.
 
 À côté de « Plus », le bouton **« ••• »** (celui de l'ancien thème) ouvre un panneau sous la barre, rangé
 comme le sous-menu de l'ancien thème : en haut, les **6 derniers articles** en petites cartes (vignette, titre,
-rubrique et date ; une rangée de six sur grand écran, trois par rangée sur un écran plus étroit), puis,
+tag et date ; une rangée de six sur grand écran, trois par rangée sur un écran plus étroit), puis,
 **en dessous**, le titre « Tags » avec « Tous les tags » (page `/tags/`) et les **12 tags** les plus
 utilisés en **simples liens en gras** à la suite, sans pastilles. Il se remplit tout seul : rien à régler.
 Échap ou un clic à côté le ferme. Sur téléphone, le même contenu est en bas du menu (bouton trois traits) :
 les 4 derniers articles en liste, puis les tags.
 
 Sur téléphone : la navigation principale devient une rangée de pastilles qui défile sous la barre, et le
-bouton menu (trois traits) ouvre un panneau avec toute la navigation, le changement de thème et
+bouton menu (trois traits) ouvre un panneau avec toute la navigation, le changement de mode et
 « S'abonner » / « Compte ».
 
 ### Pied de page
@@ -229,7 +229,7 @@ Membership → *Subscription access* : « Anyone can sign up »). Un abonné con
 > envoyer le thème sous un autre nom les remet à vide. Le bouton recevait alors `data-portal="signup"`, que
 > Portal intercepte. Depuis, la page est trouvée par son slug, sans réglage.
 
-### Thème clair, sombre, automatique
+### Mode clair, sombre, automatique
 
 Le bouton rond (demi-cercle) de l'en-tête fait tourner : automatique (suit le réglage de l'appareil) →
 sombre → clair → automatique. Le choix est gardé dans le navigateur du lecteur et appliqué avant
@@ -292,7 +292,7 @@ l'ancien thème : ils ne font plus rien et peuvent partir aussi. Puis **Save**.
 ## 3. Page d'accueil
 
 Ordre de la page : bandeau → « Derniers articles » → encart d'abonnement (visiteurs) **ou** « Reprendre la
-lecture / À lire plus tard » (abonnés) → « Les plus lus » → rangées par rubrique → pied de page.
+lecture / À lire plus tard » (abonnés) → « Les plus lus » → rangées par tag → pied de page.
 
 ### Le grand bandeau (hero) et les articles « à la une »
 
@@ -302,7 +302,7 @@ logo GEEKLY coloré (grand : 148 px sur un écran large, il occupe un peu moins 
 se glisse **juste sous « GEEK », collée aux lettres, à gauche de la boucle du « y »** : gardez-la courte (une
 ligne ; plus longue, elle passe sur deux lignes au plus dans la largeur de « GEEK »). À droite : la
 pastille « À la une », le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article
-est rempli), sa rubrique et son temps de lecture. **Seul ce groupe à droite est un lien** vers l'article (il
+est rempli), son tag et son temps de lecture. **Seul ce groupe à droite est un lien** vers l'article (il
 s'éclaire au survol) : le logo, la description et le fond de l'image ne mènent nulle part.
 
 **Pour choisir l'article affiché** : dans l'éditeur de l'article → panneau des réglages → cochez
@@ -331,7 +331,7 @@ site (Settings → Design & branding → Brand → *Publication cover*), ou sur 
 
 ### « Derniers articles » et la pagination
 
-Le dernier article publié s'affiche en grand (pastille « Nouveau », rubrique, titre, extrait, date et temps
+Le dernier article publié s'affiche en grand (pastille « Nouveau », tag, titre, extrait, date et temps
 de lecture), les 6 suivants en liste à droite. L'extrait est le champ *Excerpt* de l'article s'il est rempli,
 sinon le début du texte. « Tout voir » mène à la page 2 de la liste. Sur un site sans aucun article publié, la
 section affiche « Aucun article ».
@@ -371,7 +371,7 @@ navigateur :
 
 Le titre de la section est un bouton : cliquez-le pour passer d'une liste à l'autre. La section s'ouvre sur
 « Reprendre la lecture » s'il y a une lecture en cours, sinon sur « À lire plus tard ». Chaque carte est un
-lien vers l'article et a un bouton « Retirer » ; « Tout effacer » vide la liste de lecture ; « Tout voir »
+lien vers l'article et a un bouton « Retirer » ; « Tout retirer » vide la liste affichée ; « Tout voir »
 (liste « À lire plus tard ») mène à la page **Mes favoris** — créez une page Ghost dont le slug est
 `favoris` (voir [Pages du site](#5-pages-du-site)). Quand les deux listes sont vides, la section n'existe pas.
 Rien à régler dans Ghost.
@@ -392,7 +392,7 @@ article, enlevez-lui `#top` (et son tag de rang). Sans aucun article `#top`, rie
 ni espace vide. Astuce : regardez vos statistiques Ghost (Analytics) pour
 choisir.
 
-### Les rangées par rubrique
+### Les rangées par tag
 
 Sous « Les plus lus », le thème enchaîne des rangées de formes différentes, toujours dans cet ordre (deux
 rangées voisines n'ont jamais la même forme) :
@@ -400,10 +400,10 @@ rangées voisines n'ont jamais la même forme) :
 | Ordre | Forme | Réglage (onglet *Homepage*) | Sans réglage |
 |---|---|---|---|
 | 1 | Étagère de vignettes 16:9 qui défile | **Home row 1** | le tag le plus utilisé |
-| 2 | Tuiles des rubriques (6 tags les plus utilisés, image du tag ou teinte) | — | toujours |
+| 2 | Tuiles des tags (6 tags les plus utilisés, image du tag ou teinte) | — | toujours |
 | 3 | Affiches 2:3 qui défilent, puis « Tous les articles » | **Home row 2** | le 2ᵉ tag le plus utilisé |
 | 4 | Liste numérotée de 6 titres, du plus récent au plus ancien | **Home row 3** | le 3ᵉ |
-| 5 | Bannière de collection (image du tag en fond, « Rubrique · N articles », 3 articles) | **Home row 4** | le 4ᵉ |
+| 5 | Bannière de collection (image du tag en fond, « Tag · N articles », 3 articles) | **Home row 4** | le 4ᵉ |
 | 6 | Un grand article et quatre petits | **Home row 5** | le 5ᵉ |
 
 **Pour choisir le tag d'une rangée** : tapez son **slug** dans le réglage (le slug est visible dans Ghost
@@ -426,7 +426,7 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
   seulement *Home row 1* = `anime` alors qu'« Anime » est le 4ᵉ tag le plus utilisé, la rangée n° 4 disparaît).
   Pour avoir cinq rangées, fixez les cinq.
 - Pour de belles rangées : donnez une **image** à vos tags (Tags → le tag → *Tag image*) pour les tuiles de
-  rubriques et la bannière, et des images à la une à vos articles. **Bannière** : l'image du tag de *Home row 4*
+  tags et la bannière, et des images à la une à vos articles. **Bannière** : l'image du tag de *Home row 4*
   remplit le fond, assombrie à gauche pour que le nom reste lisible (une image large, 2000 px, sujet à droite) ;
   sans image, un fond sombre avec deux lueurs aux couleurs du logo.
 - Au survol (ou au focus du clavier), les vignettes et les cartes **se soulèvent** légèrement, comme dans
@@ -437,7 +437,7 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
 ### Vignette d'un article (image des cartes)
 
 Les **cartes** d'un article (accueil : « Derniers articles », « Les plus lus », toutes les rangées ; pages de
-rubrique et d'auteur ; articles liés en bas d'un article ; menu « ••• » ; page 404 ; « À lire plus tard »,
+tag et d'auteur ; articles liés en bas d'un article ; menu « ••• » ; page 404 ; « À lire plus tard »,
 « Reprendre la lecture » et « Mes favoris ») montrent sa **vignette** :
 
 1. l'**image de partage** de l'article, s'il en a une (Facebook d'abord, sinon X) ;
@@ -493,7 +493,7 @@ sont pas affichés plutôt que de faire semblant. Rien à régler dans Ghost.
 
 ## 5. Pages du site
 
-Les pages autres que l'accueil et les articles : rubriques (pages de tag), auteurs, « Tags », « Auteurs »,
+Les pages autres que l'accueil et les articles : pages de tag, auteurs, « Tags », « Auteurs »,
 « Archives », « Mes favoris », « À propos », la page d'abonnement, les pages ordinaires et la page 404.
 Aucun fichier `routes.yaml` n'est nécessaire : tout repose sur des **pages Ghost** et des **modèles** du thème.
 
@@ -535,9 +535,9 @@ Pas à pas :
 > d'abonnement et « Voir toute la série » (articles) pointent vers `/favoris/` et `/archives/` : gardez ces
 > slugs, ou prévoyez une redirection (Settings → Labs → Redirects) si vous en choisissez d'autres.
 
-### Rubriques (pages de tag)
+### Pages de tag
 
-Chaque tag public a sa page (`/tag/<slug>/`) : un en-tête habillé, l'article « À la une de la rubrique », puis
+Chaque tag public a sa page (`/tag/<slug>/`) : un en-tête habillé, l'article « À la une de ce tag », puis
 la grille des autres articles (7 par page) et la pagination.
 
 - **Image** : Ghost Admin → **Tags** → le tag → **Tag image**. Elle remplit la droite de l'en-tête et se fond
@@ -599,7 +599,7 @@ l'indexer (`<meta name="robots" content="noindex, follow">`). Deux choses à fai
 
 ### Pages « Tags » et « Auteurs »
 
-Créez une page `tags` (ou le modèle **Tags**) : toutes les rubriques publiques qui ont des articles, en
+Créez une page `tags` (ou le modèle **Tags**) : tous les tags publics qui ont des articles, en
 mosaïque, détaillée juste en dessous ([Page « Tags » : la mosaïque](#page--tags---la-mosaïque)).
 
 Créez une page `authors` (ou le modèle **Authors**) : une carte par auteur (photo, nom, nombre d'articles,
@@ -614,7 +614,7 @@ défaut son **extrait**), un bouton **« Mélanger »**, puis une mosaïque (« 
 qui ont au moins un article : des cases de tailles variées (1×1, 2×1, 1×2, 2×2) sur 2 colonnes (téléphone),
 4 (tablette) ou 6 (ordinateur), sans trou. Chaque case montre l'**image du tag** sous un voile sombre (texte
 lisible sur toute image) ou, sans image, une **surface teintée** ; une icône choisie d'après le slug du tag
-(la même règle que les rubriques de la page À propos, voir plus bas) ; puis le nom et le nombre d'articles. Les grandes cases (2×2) affichent aussi la **description** du tag. En bas,
+(la même règle que les tags de la page À propos, voir plus bas) ; puis le nom et le nombre d'articles. Les grandes cases (2×2) affichent aussi la **description** du tag. En bas,
 un lien « Tous les articles, par date » mène à `/archives/` (créez la page Archives, voir plus bas).
 
 **Rendre la page plus riche (Ghost Admin → Tags → le tag) :**
@@ -640,7 +640,7 @@ second l'ait disposée). À refaire après chaque mise à jour du thème.
 
 **L'aperçu au survol.** Avec une souris, laisser le pointeur environ une demi-seconde sur une case l'agrandit
 en une carte posée au-dessus des autres : image, nom, nombre d'articles, description, **les 3 derniers
-articles du tag** (titre, date, temps de lecture) et un bouton **« Voir la rubrique »**. La carte se ferme quand
+articles du tag** (titre, date, temps de lecture) et un bouton **« Voir le tag »**. La carte se ferme quand
 le pointeur s'en va, avec Échap, en cliquant ailleurs ou en faisant défiler la page. Au clavier et sur écran
 tactile, le petit bouton **(i) « Détails »** dans le coin de la case ouvre la même carte (un clic ou un
 toucher sur la case, lui, ouvre toujours la page du tag) ; Échap ou « Fermer » la referme.
@@ -657,9 +657,9 @@ sur le modèle du deuxième.
 ### Archives
 
 La page liste **tous** les articles publiés, du plus récent au plus ancien, groupés par année puis par mois
-(jour, titre, rubrique, durée). En haut, une barre sans bordure filtre la liste sans recharger la page :
+(jour, titre, tag, durée). En haut, une barre sans bordure filtre la liste sans recharger la page :
 boutons d'année (« Toutes », puis chaque année trouvée), champ « Rechercher un titre » (sans tenir compte des
-accents ni des majuscules), liste « Rubrique » (tags publics avec leur nombre d'articles sur tout le site) et
+accents ni des majuscules), liste « Tag » (tags publics avec leur nombre d'articles sur tout le site) et
 le nombre d'articles affichés. Avec une année choisie, des boutons mènent à l'année suivante et à la
 précédente. La recherche de Ghost (loupe de l'en-tête) reste là pour chercher dans le texte des articles.
 
@@ -696,7 +696,7 @@ Une page que vous remplissez dans Ghost ; le thème n'écrit aucun texte personn
 mosaïque** (« bento ») qui porte tout le reste, dans cet ordre de lecture (le même sur téléphone, où les
 cases s'empilent en une colonne ; 2 colonnes sur tablette, 4 sur ordinateur) :
 
-1. les **rubriques**, une case chacune ;
+1. les **tags**, une case chacune ;
 2. **votre texte** (l'éditeur de la page) ;
 3. **l'auteur** ;
 4. **un chiffre** : le nombre d'articles publiés et l'année du premier ;
@@ -706,19 +706,19 @@ Voici où va chaque texte et chaque image, avec les brouillons de la maquette à
 
 1. **Titre** de la page : `À propos`.
 2. **Excerpt** (réglages de la page : la roue crantée en haut à droite de l'éditeur → **Excerpt**) =
-   l'accroche, en grand sous le titre. Une seule phrase, qui dit aussi que vous écrivez hors des rubriques :
+   l'accroche, en grand sous le titre. Une seule phrase, qui dit aussi que vous écrivez hors des tags :
    > Mon blog personnel : j'y publie ce qui me fait envie, autour de l'informatique, de la culture pop, des
    > jeux vidéo et des animés, et parfois sur tout autre chose, simplement parce que j'ai envie d'en parler.
 
    Ne répétez pas cette idée dans le texte de la page (point 4).
-3. **Les rubriques** = vos **tags**. Chaque case mène à la page du tag et montre son nom, sa description,
+3. **Les tags** : une case par tag public. Chaque case mène à la page du tag et montre son nom, sa description,
    son nombre d'articles, et son image :
    - lesquelles : réglage du thème **About tags** (Site wide), les slugs séparés par des virgules, jusqu'à 12,
      par exemple `actualites,jeux-video,anime,dossiers,ia,test`. Vide : les 6 tags publics les plus utilisés ;
    - **ordre et tailles** : du tag le plus fourni au moins fourni (l'ordre de la liste du réglage ne compte
      pas). La première case est la plus grande (2 × 2 sur ordinateur, toute la largeur sur tablette, plus
      haute sur téléphone), la deuxième est large, les suivantes vont par quatre ; une dernière rangée
-     incomplète élargit ses cases pour ne laisser aucun trou. Cela marche de 1 à 12 rubriques ;
+     incomplète élargit ses cases pour ne laisser aucun trou. Cela marche de 1 à 12 tags ;
    - la **phrase** de chaque case = la **Description** du tag (Ghost Admin → Tags → le tag). Les textes de la
      maquette :
 
@@ -731,7 +731,7 @@ Voici où va chaque texte et chaque image, avec les brouillons de la maquette à
      | IA | Les outils et les débats autour de l'intelligence artificielle. |
      | Test | Logiciels, services et jeux essayés pour de bon. |
 
-     (Ces descriptions s'affichent aussi en tête des pages de rubrique.) Sans description, la case garde le
+     (Ces descriptions s'affichent aussi en tête des pages de tag.) Sans description, la case garde le
      nom et le nombre d'articles ;
    - l'**image** de la case = l'image du tag (Ghost Admin → Tags → le tag → **Tag image**), assombrie sous le
      texte pour qu'il reste lisible quelle que soit la photo. Sans image : une surface teintée (quatre teintes
@@ -743,9 +743,9 @@ Voici où va chaque texte et chaque image, avec les brouillons de la maquette à
      tout autre slug → `#`. La liste est dans `partials/about/tag-icon.hbs` (une ligne à ajouter pour un
      nouveau mot).
 4. **Le texte de la page** (l'éditeur) est **facultatif**. S'il y en a, il s'affiche juste après les
-   rubriques, en grand, dans la police de lecture, sans cadre (plusieurs paragraphes, une image y tiennent).
+   tags, en grand, dans la police de lecture, sans cadre (plusieurs paragraphes, une image y tiennent).
    Sans texte — ou avec seulement la carte `about-links` du point 7, ce que fait GEEKLY — ce bloc
-   disparaît et les cases de l'auteur, du chiffre et de « Suivre » suivent directement les rubriques.
+   disparaît et les cases de l'auteur, du chiffre et de « Suivre » suivent directement les tags.
 5. **L'auteur** = les auteurs du site qui ont publié : photo, nom, **Bio**, **Location** et **Website** de
    leur fiche (Settings → Staff ; chaque élément vide disparaît). Un seul auteur : une grande case, le nom
    n'est pas un lien (voir [Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)). Plusieurs : une case
@@ -913,8 +913,8 @@ faute la change aussi. Pour une page de mentions légales, c'est ce qu'on attend
 jour-là).
 
 **Sans JavaScript** : pas de sommaire ni de bouton Imprimer (le texte, les intertitres et leurs ancres
-restent). Un abonné qui a choisi un autre thème de lecture garde le mode clair / sombre du site sur cette
-page (les thèmes de lecture ne s'appliquent qu'aux articles).
+restent). Un abonné qui a choisi une autre palette de lecture garde le mode clair / sombre du site sur cette
+page (les palettes de lecture ne s'appliquent qu'aux articles).
 
 ### Cookies et confidentialité : la page, le panneau, le consentement
 
@@ -932,7 +932,7 @@ les **contenus d'autres sites** (vidéos YouTube, publications X…) : ils ne se
 
 D'où ce qui s'affiche, et seulement là :
 
-- **sur une page sans contenu intégré** (accueil, rubriques, la plupart des articles) : **rien**, jamais ;
+- **sur une page sans contenu intégré** (accueil, pages de tag, la plupart des articles) : **rien**, jamais ;
 - **sur un article qui en contient** : pas de carte ni de bandeau. La demande est faite **à la place de
   chaque contenu, tant que le lecteur n'a pas accepté** : un encadré qui dit d'où il vient et ce que
   l'afficher envoie (son adresse IP au service, qui peut déposer des cookies), avec **« Accepter et
@@ -1047,7 +1047,7 @@ focus revient où il était (ou sur le contenu principal). Le bouton « retour e
 au-dessus de la barre (*Banner*) sur ordinateur ; sur téléphone, il attend que la carte soit partie.
 
 **Les deux boutons.** « Tout accepter » est plein, à l'encre de la page (noir sur fond clair, blanc sur fond
-sombre, l'encre du thème de lecture sur les articles) ; « Tout refuser » est un vrai bouton de la même
+sombre, l'encre de la palette de lecture sur les articles) ; « Tout refuser » est un vrai bouton de la même
 taille, sur la même ligne, dans la même police, avec un contour de 2 px de la même encre. **C'est votre
 choix, pas une exigence** : la CNIL recommande des boutons « présentés au même niveau et sur le même format »,
 « mis en évidence de manière identique » (recommandation 2020-092, § 32–34). Un bouton plein face à un bouton
@@ -1197,7 +1197,7 @@ cookie**. C'est aussi la liste que la page « Cookies et confidentialité » aff
 | `attibling-consent` | localStorage | thème | tous | Réponses du lecteur, par catégorie (contenus intégrés, mesure d’audience, autres ; seulement celles qui lui ont été demandées), leur version et leur date | 6 mois, puis la question revient | non : conserve le choix du lecteur |
 | `plausible_ignore` | localStorage | thème | tous | Le lecteur a désactivé « Compter mes visites » (`true`, lu par Plausible) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
 | `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement | non : personnalisation choisie |
-| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, rubrique, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement | non : service demandé (le lecteur enregistre) |
+| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, tag, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement | non : service demandé (le lecteur enregistre) |
 | `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture), noté automatiquement, désactivable | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement | non selon notre lecture : fonction du compte abonné, locale, désactivable — incertain |
 | `attibling-member` | localStorage | thème | abonnés | Empreinte de l'abonné à qui appartiennent les listes et réglages ci-dessus (jamais son identifiant) : un autre abonné, ou une déconnexion (Portal, session expirée), les efface | Jusqu'à la déconnexion ou à l'effacement | non : protège les listes du compte |
 | `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune | non |
@@ -1217,7 +1217,7 @@ contactés (polices, contenus intégrés…) sont dans le tableau suivant.
 
 ### Ce que le navigateur charge, et d'où (confidentialité)
 
-Pour vos mentions légales (rubrique « services externes ») : ce que le navigateur d'un lecteur demande à
+Pour vos mentions légales (la section « services externes ») : ce que le navigateur d'un lecteur demande à
 d'autres sites que le vôtre, et quand. Relevé sur un vrai Ghost 6 avec ce thème (journal réseau de Chromium),
 en visiteur et en abonné.
 
@@ -1250,7 +1250,7 @@ Ghost.
 ### Page 404
 
 Rien à faire : textes « Page non trouvée », un grand bouton « Ouvrir la recherche » (la recherche de Ghost,
-qui reçoit le focus à l'arrivée), « Aller à la page d'accueil » et les trois premières rubriques de la
+qui reçoit le focus à l'arrivée), « Aller à la page d'accueil » et les trois premiers liens de la
 navigation principale, puis les 4 derniers articles.
 
 Les **autres erreurs** (500, 503…) ont leur propre modèle (`error.hbs`), de même présentation que la 404 :
@@ -1293,7 +1293,7 @@ Qui décide, du plus fort au plus faible :
 
 ### En-tête, sommaire, partage
 
-- En-tête : rubrique principale (pastille) et deuxième tag public, titre, auteur, date, temps de lecture ;
+- En-tête : tag principal (pastille) et deuxième tag public, titre, auteur, date, temps de lecture ;
   pour un abonné, le bouton « À lire plus tard » (le même signet que sur les tuiles). Sans image à la une,
   le titre s'affiche sur le fond de la page.
 - Légende de l'image à la une : celle saisie dans Ghost sous l'image (« Add a caption »).
@@ -1312,7 +1312,7 @@ Qui décide, du plus fort au plus faible :
   bouton « Commenter » de la newsletter (`#ghost-comments-root`), ou un lien que vous écrivez vous-même dans
   un article vers `#ghost-comments`. Sans JavaScript, les commentaires de Ghost ne peuvent pas fonctionner :
   une phrase le dit à leur place. Rien à régler.
-- « Recommandé pour vous » : trois autres articles qui partagent un tag public (une rubrique) avec celui-ci, du
+- « Recommandé pour vous » : trois autres articles qui partagent un tag public avec celui-ci, du
   plus récent au plus ancien ; les tags internes (`#top`, `#serie-…`, `#mis-a-jour`…) ne comptent pas.
 
 ### Séries : le tag #serie-…
@@ -1449,7 +1449,7 @@ qui monte du bas sur téléphone) :
 
 | Réglage | Choix (défaut en premier) |
 |---|---|
-| Thème | GEEKLY (nom du site), Désert, Encre, Forêt — chacun en clair et en sombre, selon le bouton clair / sombre |
+| Palette | GEEKLY (nom du site), Désert, Encre, Forêt — chacun en clair et en sombre, selon le bouton clair / sombre |
 | Police des titres | Onest, Space Grotesk, Libre Baskerville, Poppins, Lora, JetBrains Mono |
 | Police du texte | Literata, Merriweather, IBM Plex Serif, Inter, Noto Sans, Fira Mono |
 | Largeur de l'article | M, S, L (en Immersif : L pleine largeur, M 1 200 px, S 864 px) |
@@ -1462,7 +1462,7 @@ qui monte du bas sur téléphone) :
 | Résumé « En bref » | Afficher, Masquer |
 
 « Réinitialiser » remet tout par défaut. Les choix sont gardés dans le navigateur de l'abonné (sur cet
-appareil) et appliqués avant l'affichage de la page, sans clignotement. Le thème choisi habille toute la page
+appareil) et appliqués avant l'affichage de la page, sans clignotement. La palette choisie habille toute la page
 de l'article, en-tête et pied de page compris. Les polices autres que celles par défaut ne sont téléchargées
 que si l'abonné les choisit, depuis fonts.bunny.net (le même service que les polices personnalisées de
 Ghost). Pour retirer la roue : réglage **Reading settings** (onglet **Post**). Les visiteurs ne la voient
@@ -1495,7 +1495,7 @@ abonnés payants », « aux abonnés de ces offres : … ») avec « S'abonner �
 Pour un article *Members only*, « S'abonner » mène à la page d'abonnement du thème (comme le bouton de
 l'en-tête) ; pour un article payant, à la fenêtre Portal de Ghost, qui présente les offres. Un abonné gratuit
 devant un article payant voit « Changer d'abonnement ». Les textes viennent du thème (traduits), les
-couleurs du thème clair ou sombre : la couleur d'accent de Ghost n'y est pas utilisée.
+couleurs du mode clair ou sombre : la couleur d'accent de Ghost n'y est pas utilisée.
 
 ### Copier un lien, copier du code
 
@@ -1513,7 +1513,7 @@ page du site, l'image de couverture, le sommaire, les boutons (signet, partage, 
 la liste des parties d'une série et sa ligne « Précédent / Suivant », la boîte auteur, les commentaires et
 « Recommandé pour vous ». Une vidéo ou un contenu intégré, qui ne peut pas s'imprimer, est remplacé par une
 ligne qui dit ce que c'était et où le voir (« Contenu de YouTube — titre (https://www.youtube.com/watch?v=…) »).
-Les réglages d'affichage de l'abonné (thème, police, largeur) ne s'appliquent pas au papier.
+Les réglages d'affichage de l'abonné (palette, police, largeur) ne s'appliquent pas au papier.
 
 ### Vidéos et contenus intégrés (YouTube, X…)
 
@@ -1631,7 +1631,7 @@ dessous ; à la fin, il s'ouvre depuis le logo comme un diaphragme et se dissout
 - **Avec le logo GEEKLY coloré** (réglage *Use geekly logo*) : l'animation complète. **Avec un logo image ou le
   titre du site** : un simple fondu (le logo du bandeau apparaît en grandissant légèrement), sans écran sombre.
 - **Quand** : une fois par session de navigation (l'onglet ou la fenêtre ; elle revient à la visite suivante),
-  sur la page 1 de l'accueil seulement — jamais sur un article, une rubrique, la page 2…
+  sur la page 1 de l'accueil seulement — jamais sur un article, une page de tag, la page 2…
 - **Passer** : un clic, une touche, la molette, un toucher ou le défilement l'arrêtent aussitôt.
 - **Jamais** avec « réduire les animations ». Les moteurs de recherche et les lecteurs d'écran ne la voient pas :
   la page est complète dessous pendant toute l'animation (l'écran sombre est décoratif) et le logo du bandeau
@@ -1643,7 +1643,7 @@ Dans les navigateurs qui savent animer le passage d'une page à l'autre (Chrome 
 plus ; pas Firefox pour l'instant) :
 
 - l'image de la tuile sur laquelle on clique glisse et s'agrandit jusqu'à l'image d'en-tête de l'article ;
-- une tuile de rubrique devient l'en-tête de la page du tag ;
+- une tuile de tag devient l'en-tête de la page du tag ;
 - le grand logo de l'accueil (ou le logo de l'en-tête) rejoint le logo de l'en-tête de la page suivante ;
 - l'en-tête reste en place ; tout le reste passe en fondu court.
 
@@ -1678,10 +1678,10 @@ Ghost Admin → Settings → Design & branding → **Customize** (18 réglages ;
 | Subscribe url | Site wide | vide (la page `newsletter`, `abonnement` ou `subscribe`, sinon Portal) | Destination forcée des boutons « S'abonner » / « Se connecter », par exemple `/newsletter/` | [2](#bouton--sabonner--et--se-connecter-) |
 | Consent notice | Site wide | Notice | *Notice* / *Banner* : chaque contenu intégré demande l'accord dans son encadré (« Accepter et afficher » vaut pour tous) ; pour les scripts marqués `data-consent`, et seulement sur les pages qui en ont, une petite carte après un peu de défilement (*Notice*) ou une barre dès l'arrivée (*Banner*). *None* : ni carte ni accord, un clic par contenu, scripts `data-consent` éteints | [5](#le-réglage--consent-notice-) |
 | Consent tools | Site wide | non | Laisse passer sur les articles et les pages, après accord, les outils de mesure et de publicité courants marqués `data-consent` (Google, Meta, Hotjar…). À allumer seulement le jour où vous en ajoutez un ; éteint, la règle de sécurité est celle de *None* | [5](#brancher-un-outil-qui-demande-laccord-analytics-publicité-pixel) |
-| About tags | Site wide | vide (6 tags les plus utilisés) | Rubriques de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
+| About tags | Site wide | vide (6 tags les plus utilisés) | Tags de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
 | Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |
-| Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque | [3](#les-rangées-par-rubrique) |
+| Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque | [3](#les-rangées-par-tag) |
 | Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») | [6](#les-deux-styles---carte--et--immersif-) |
 | Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles | [6](#réglages-daffichage-abonnés) |
 | Summary for visitors | Post | non | « En bref » visible aussi par les visiteurs | [6](#-en-bref---le-résumé-en-points-numérotés) |
@@ -1725,8 +1725,8 @@ d'articles de « Derniers articles ».
 impression). Voir [section 5](#créer-une-page-et-lui-donner-son-modèle).
 
 **Ghost** : *Facebook card* (ou *X card*) → image (vignette des cartes, [section 3](#vignette-dun-article-image-des-cartes)),
-*Feature this post* (bandeau de l'accueil, article en tête d'une rubrique), *Excerpt* (extraits,
-accroches des pages), *Tag image* et *Description* (rubriques, À propos, bannière de l'accueil), *Site
+*Feature this post* (bandeau de l'accueil, article en tête d'un tag), *Excerpt* (extraits,
+accroches des pages), *Tag image* et *Description* (tags, À propos, bannière de l'accueil), *Site
 description* (phrase du bandeau), Settings → Staff (boîte auteur, pages d'auteur), Settings → Navigation
 (en-tête, menu « Plus », pied de page).
 
@@ -1746,12 +1746,12 @@ navigateur du lecteur.
 | La fenêtre « Compte » de Ghost a d'autres couleurs que le site | Portal ne prend que la couleur d'accent : Settings → Design & branding → Accent color (voir [Ce qui passe encore par Portal](#ce-qui-passe-encore-par-portal)). |
 | Pas de formulaire sur la page d'abonnement | Inscription fermée ou sur invitation (Settings → Membership), ou vous êtes connecté (vue abonné). |
 | Le formulaire affiche une erreur à chaque essai | Ghost n'arrive pas à envoyer l'e-mail : vérifiez la configuration e-mail du serveur (Mailgun / SMTP). |
-| Une rubrique n'a pas de phrase sur « À propos » ou en tête de sa page | Le tag n'a pas de **Description**. |
-| Une rubrique manque sur « À propos » | Slug mal tapé dans **About tags** (vérifiez dans Tags), ou tag sans article. |
-| Une icône de rubrique est un `#` | Aucun mot connu dans le slug : voir la liste plus haut. |
+| Un tag n'a pas de phrase sur « À propos » ou en tête de sa page | Le tag n'a pas de **Description**. |
+| Un tag manque sur « À propos » | Slug mal tapé dans **About tags** (vérifiez dans Tags), ou tag sans article. |
+| Une icône de tag est un `#` | Aucun mot connu dans le slug : voir la liste plus haut. |
 | La bio ne s'enregistre pas | Ghost limite la bio à 250 caractères. |
 | « Mes favoris » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
-| L'article « À la une » d'une rubrique n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
+| L'article « À la une » d'un tag n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
 | L'encadré de série n'apparaît pas | Le tag doit être interne (nom commençant par `#`) et commencer par `#serie-` ; il faut au moins deux parties **publiées** portant exactement le même tag. |
 | « Partie 3 sur 3 » alors que la série en compte plus | Ajoutez `total: N` dans la description du tag. |
 | « Voir toute la série » mène à une page 404 | Créez la page Archives (slug `archives`, voir [Archives](#archives)). |
