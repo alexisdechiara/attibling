@@ -1176,7 +1176,8 @@ complétez la page Cookies (qui, quoi, combien de temps). **Pour AdSense**, voir
 **Incertain** : l'avis de la CNIL sur un outil précis (sa liste de solutions évaluées a laissé place à un
 outil d'auto-évaluation : c'est à l'éditeur de vérifier les conditions) ; la qualification du suivi de
 progression de lecture (automatique, local, désactivable : traité comme partie du service abonné) ; les
-deux clés de session de l'accueil (animation déjà jouée), qui ne quittent jamais l'appareil (EDPB § 44) mais
+deux clés d'animation de l'accueil (animation déjà jouée : `attibling-intro`, gardée jusqu'à l'effacement, et
+`attibling-hero-cue`, le temps de la session), qui ne quittent jamais l'appareil (EDPB § 44) mais
 ne sont pas strictement « demandées » ; la valeur juridique de Global Privacy Control en France (le thème
 l'applique comme un refus, par prudence).
 
@@ -1190,7 +1191,7 @@ cookie**. C'est aussi la liste que la page « Cookies et confidentialité » aff
 |---|---|---|---|---|---|---|
 | `theme` | localStorage | thème | tous | Mode clair, sombre ou automatique choisi avec le bouton de l'en-tête | Jusqu'au prochain changement ou à l'effacement | non : personnalisation de l'interface choisie par le lecteur |
 | `attibling-promo-closed` | localStorage | thème | visiteurs | Encart d'abonnement de l'accueil fermé pour de bon | Jusqu'à l'effacement | non : choix d'interface du lecteur |
-| `attibling-intro` | sessionStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée dans cette session | Fin de la session | non selon notre lecture (interface, ne quitte pas l'appareil) — incertain |
+| `attibling-intro` | localStorage | thème | tous | Animation d'arrivée de l'accueil déjà jouée lors de la première visite (pour ne plus la rejouer) | Jusqu'à l'effacement | non selon notre lecture (interface, ne quitte pas l'appareil) — incertain |
 | `attibling-hero-cue` | sessionStorage | thème | tous | Petite ondulation des points du bandeau d'accueil déjà jouée dans cette session | Fin de la session | idem |
 | `attibling-embeds` | localStorage | thème | tous | Services réglés un par un (YouTube, X…) : `{"youtube":true}` affiché sans clic, `false` gardé masqué même si « Contenus intégrés » est accepté | Jusqu'au retrait (sous le contenu ou dans le panneau) ou à l'effacement | non : conserve le choix du lecteur |
 | `attibling-privacy` | localStorage | thème | abonnés | « Reprendre la lecture » désactivé (`{"progress":false}`) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
@@ -1645,21 +1646,26 @@ rien casser dans un navigateur qui ne les connaît pas.
 
 ### L'animation d'arrivée de l'accueil
 
-À la première visite de l'accueil, sur un écran sombre, les lettres **G E E K** se peignent l'une après
-l'autre d'un coup de pinceau, « ly » s'écrit comme au stylo, puis le logo glisse et rapetisse jusqu'à sa place
-dans le bandeau pendant que la page apparaît (moins de 2 secondes en tout). L'écran n'est pas un aplat noir :
-une nuit profonde légèrement bleutée, une lumière douce derrière le logo, un léger grain, la page devinée floue
-dessous ; à la fin, il s'ouvre depuis le logo comme un diaphragme et se dissout dans la page.
+La première fois qu'un lecteur arrive sur le site par l'accueil, le logo du bandeau s'installe : les lettres
+**G E E K** montent à leur place l'une après l'autre, « ly » les rejoint comme une signature, et l'ensemble se
+pose en rapetissant très légèrement (moins d'une seconde en tout). Il n'y a pas d'écran par-dessus la page :
+l'image à la une, les titres et le menu sont affichés et utilisables dès la première image, seul le logo bouge.
+L'animation ne coûte presque rien au navigateur (elle ne fait que déplacer et faire apparaître des lettres déjà
+dessinées) : elle ne retarde ni l'affichage de l'image du bandeau ni la lecture.
 
 - **Réglage** : **Arrival animation** (onglet *Homepage*), activé par défaut. Désactivé : jamais d'animation.
-- **Avec le logo GEEKLY coloré** (réglage *Use geekly logo*) : l'animation complète. **Avec un logo image ou le
-  titre du site** : un simple fondu (le logo du bandeau apparaît en grandissant légèrement), sans écran sombre.
-- **Quand** : une fois par session de navigation (l'onglet ou la fenêtre ; elle revient à la visite suivante),
-  sur la page 1 de l'accueil seulement — jamais sur un article, une page de tag, la page 2…
+- **Avec le logo GEEKLY coloré** (réglage *Use geekly logo*) : l'animation lettre par lettre. **Avec un logo image
+  ou le titre du site** : un simple fondu (le logo du bandeau apparaît en grandissant légèrement).
+- **Quand** : une seule fois par navigateur, à la première arrivée sur la page 1 de l'accueil — jamais sur un
+  article, une page de tag, la page 2…, ni quand on revient à l'accueil depuis une autre page du site. Le
+  navigateur s'en souvient (`attibling-intro`, voir [ce que le thème garde dans le
+  navigateur](#ce-que-le-thème-garde-dans-le-navigateur)) : elle ne revient qu'après « Tout effacer » sur la page
+  « Cookies et confidentialité », un effacement des données du site, ou dans une fenêtre privée. Si le navigateur
+  bloque le stockage local, elle ne se joue pas du tout (plutôt qu'à chaque page).
 - **Passer** : un clic, une touche, la molette, un toucher ou le défilement l'arrêtent aussitôt.
 - **Jamais** avec « réduire les animations ». Les moteurs de recherche et les lecteurs d'écran ne la voient pas :
-  la page est complète dessous pendant toute l'animation (l'écran sombre est décoratif) et le logo du bandeau
-  reste le titre de la page. Si quelque chose échoue, la page s'affiche normalement.
+  le logo du bandeau reste le titre de la page, à sa place. Si quelque chose échoue, la page s'affiche
+  normalement.
 
 ### Transitions entre les pages
 
@@ -1704,7 +1710,7 @@ Ghost Admin → Settings → Design & branding → **Customize** (18 réglages ;
 | Consent tools | Site wide | non | Laisse passer sur les articles et les pages, après accord, les outils de mesure et de publicité courants marqués `data-consent` (Google, Meta, Hotjar…). À allumer seulement le jour où vous en ajoutez un ; éteint, la règle de sécurité est celle de *None* | [5](#brancher-un-outil-qui-demande-laccord-analytics-publicité-pixel) |
 | About tags | Site wide | vide (6 tags les plus utilisés) | Tags de la page « À propos » : slugs séparés par des virgules | [5](#à-propos) |
 | Use geekly logo | Homepage | non | Logo GEEKLY coloré (en-tête, bandeau, menu, pied de page) | [2](#logo-geekly-coloré-logo-image-ou-titre) |
-| Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, une fois par session | [7](#lanimation-darrivée-de-laccueil) |
+| Arrival animation | Homepage | oui | Animation d'arrivée de l'accueil, à la première visite seulement | [7](#lanimation-darrivée-de-laccueil) |
 | Home row 1 à Home row 5 | Homepage | vide (tags les plus utilisés) | Tag (slug) de chaque rangée de l'accueil ; `none` la masque | [3](#les-rangées-par-tag) |
 | Article style | Post | Card | Style des articles : Card (« Carte ») ou Immersive (« Immersif ») | [6](#les-deux-styles---carte--et--immersif-) |
 | Reading settings | Post | oui | Les abonnés ont la roue « Réglages d'affichage » sur les articles | [6](#réglages-daffichage-abonnés) |
@@ -1790,8 +1796,8 @@ navigateur du lecteur.
 | Pas d'icône Bluesky (ou Threads, Mastodon…) dans le pied de page et « Suivre le blog » | Le compte n'est pas rempli : Settings → General → **Social accounts**, puis **Save**. |
 | Pas de roue crantée | Réservée aux abonnés connectés, sur les articles, réglage Reading settings activé ; elle reste cachée si le navigateur bloque le stockage local (navigation privée stricte). |
 | Le style Immersif ne s'applique pas | Un abonné qui a choisi « Carte » dans ses réglages garde son choix sur tous les articles. |
-| L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une fois par session de navigation (fermez l'onglet ou ouvrez une fenêtre privée pour la revoir), seulement sur la page 1 de l'accueil, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
-| Au lieu des lettres dessinées, le logo apparaît en fondu | Le réglage **Use geekly logo** est désactivé : avec un logo image ou le titre du site, l'animation est un simple fondu. |
+| L'animation d'arrivée ne se joue pas | Elle ne se joue qu'une seule fois par navigateur, à la première arrivée sur le site (pour la revoir : fenêtre privée, ou « Tout effacer » sur la page « Cookies et confidentialité »), seulement sur la page 1 de l'accueil et pas en y revenant depuis une autre page du site, jamais avec « réduire les animations » (réglage de l'appareil). Vérifiez **Arrival animation** (onglet *Homepage*). |
+| Au lieu des lettres qui arrivent une à une, le logo apparaît en fondu | Le réglage **Use geekly logo** est désactivé : avec un logo image ou le titre du site, l'animation est un simple fondu. |
 | Pas de transition entre les pages | Navigateur sans « View Transitions » entre pages (aujourd'hui Chrome, Edge et Safari récents ; pas Firefox), « réduire les animations » activé, ou réglage **Page transitions** désactivé. La navigation reste normale. |
 | Les mentions légales n'ont pas de sommaire | Il faut au moins deux intertitres **Heading 2 / Heading 3** (pas du texte en gras), et le modèle Document (slug `mentions-legales` ou Template → Document). Les intertitres placés dans une carte HTML comptent aussi ; pas ceux des cartes Ghost (toggle, header…). |
 | « Dernière mise à jour » change après une simple correction | C'est la date du dernier enregistrement de la page dans Ghost : voulu pour une page de référence. |

@@ -1,285 +1,69 @@
-/** Arrival animation of the home page (partials/home/intro.hbs; started by the script in default.hbs)
+/** Arrival animation of the home page (started and ended by the script in default.hbs)
 
-   <html data-intro="play">   the full animation (coloured GEEKly wordmark), 1.95 s:
-     screen 0–100 ms; G 100–400; E 250–550; E 400–700; K 520–800; "l" 800–1000; "y" 1000–1260;
-     pause 1260–1450; the mark travels to the hero wordmark while the backdrop dissolves into the page
-     (an iris opening from the wordmark’s light, the blur melting) 1380–1940.
-   <html data-intro="skip">   a click, key, wheel, touch or scroll: the screen fades out in 150 ms
-   <html data-intro="sober">  logo image or plain title: the hero logo fades and grows in, 700 ms
-   The script removes the attribute when it is over; everything here is keyed to it, so the page is
-   untouched without it. Nothing moves in the page's own layout (the layer is fixed): no layout shift. */
+   <html data-intro="play">   the coloured GEEKly wordmark arrives in the hero, 780 ms: the letters
+     G E E K rise into place one after the other (0, 70, 140 and 210 ms, 420 ms each), "ly" follows like
+     a signature (320 ms, 460 ms), while the whole wordmark settles from slightly larger.
+   <html data-intro="sober">  logo image or plain title: the hero logo fades and grows in, 600 ms
+   The script removes the attribute when it is over (or at the reader's first click, key, wheel, touch
+   or scroll); everything here is keyed to it, so the page is untouched without it.
 
-.intro {
-  display: none;
-}
+   Cheap by construction: no layer over the page (it is painted and usable from the first frame, the
+   hero picture included), and only opacity and transform are animated, on the hero wordmark's own
+   letters: the compositor does it all, nothing is laid out or painted again and nothing shifts. */
 
-:root[data-intro="play"],
-:root[data-intro="skip"] {
-  .intro {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    overflow: hidden;
-    /* Shown until the end of the animation, then hidden (lets clicks through even before the script
-       removes the attribute) */
-    animation: intro-end 1950ms step-end both;
+:root[data-intro="play"] #hero-wordmark .wordmark__letters {
+  transform-origin: 0 100%;
+  animation: intro-settle 780ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+
+  &:dir(rtl) {
+    transform-origin: 100% 100%;
   }
 
-  /* The backdrop: a deep, slightly blue-tinted night with a soft light behind the wordmark, a vignette
-     and a fine grain; the page shows through, faintly and blurred. At the end it dissolves into the
-     page: an iris opens from the wordmark's light (soft edge), the blur melts and the light swells. */
-  .intro__backdrop {
-    position: absolute;
-    inset: -2%;
-    background:
-      radial-gradient(
-        42% 34% at 50% 47%,
-        color-mix(in srgb, var(--wordmark-g) 20%, transparent) 0%,
-        color-mix(in srgb, var(--wordmark-g) 6%, transparent) 55%,
-        transparent 100%
-      ),
-      radial-gradient(
-        120% 90% at 50% 45%,
-        color-mix(in srgb, var(--color-media) 86%, transparent) 0%,
-        color-mix(in srgb, var(--color-media) 95%, transparent) 58%,
-        color-mix(in srgb, color-mix(in srgb, var(--color-media), #000 50%) 99%, transparent) 100%
-      );
-    -webkit-backdrop-filter: blur(var(--intro-blur)) saturate(1.2);
-    backdrop-filter: blur(var(--intro-blur)) saturate(1.2);
-    -webkit-mask-image: radial-gradient(
-      circle at 50% 46%,
-      transparent var(--intro-iris),
-      #000 calc(var(--intro-iris) + 28vmax)
-    );
-    mask-image: radial-gradient(
-      circle at 50% 46%,
-      transparent var(--intro-iris),
-      #000 calc(var(--intro-iris) + 28vmax)
-    );
-    animation:
-      intro-backdrop-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both,
-      intro-dissolve 560ms cubic-bezier(0.45, 0, 0.25, 1) 1380ms both;
-
-    /* The light behind the wordmark, which breathes in, then swells as the backdrop opens */
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        30% 22% at 50% 47%,
-        color-mix(in srgb, var(--color-on-media) 9%, transparent) 0%,
-        color-mix(in srgb, var(--wordmark-k) 4%, transparent) 45%,
-        transparent 100%
-      );
-      animation:
-        intro-light 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 80ms both,
-        intro-swell 560ms ease-in 1380ms both;
-    }
-
-    /* Grain, so the dark never looks flat (an SVG noise, very faint) */
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity: 0.07;
-      mix-blend-mode: overlay;
-    }
+  /* Flex items of the wordmark: each can be transformed without changing the line */
+  > span {
+    animation: intro-letter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   }
 
-  /* The mark, centred, then moved onto the hero wordmark by --intro-to (src/js/intro.js) */
-  .intro__mark {
-    --intro-width: min(80vw, 760px);
-    position: absolute;
-    inset: 0;
-    width: var(--intro-width);
-    height: calc(var(--intro-width) * 1620 / 3560);
-    margin: auto;
-    transform-origin: 0 0;
-    animation: intro-travel 500ms cubic-bezier(0.3, 0.7, 0.2, 1) 1450ms both;
+  > .wordmark__e1 {
+    animation-delay: 70ms;
   }
 
-  .intro__svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    /* The hero wordmark's shadow, so that the hand-over at the end does not show */
-    filter: drop-shadow(0 2px 16px rgb(0 0 0 / 0.45));
+  > .wordmark__e2 {
+    animation-delay: 140ms;
   }
 
-  /* The hero's own wordmark stays transparent (still in the accessibility tree) until the mark lands */
-  .hero__title {
-    animation: intro-hold 1950ms step-end both;
-  }
-}
-
-:root[data-intro="skip"] {
-  .intro {
-    animation: intro-fade 150ms ease both;
+  > .wordmark__k {
+    animation-delay: 210ms;
   }
 
-  .intro__backdrop,
-  .intro__backdrop::before,
-  .intro__mark,
-  .hero__title {
-    animation: none;
+  > .wordmark__script {
+    transform-origin: 0 70%;
+    animation: intro-script 460ms cubic-bezier(0.2, 0.8, 0.2, 1) 320ms backwards;
   }
-}
-
-.intro__g {
-  fill: var(--wordmark-g);
-}
-
-.intro__e1 {
-  fill: var(--wordmark-e1);
-}
-
-.intro__e2 {
-  fill: var(--wordmark-e2);
-}
-
-.intro__k {
-  fill: var(--wordmark-k);
-}
-
-.intro__script {
-  fill: var(--wordmark-script-on-media);
-}
-
-/* The brush: a thick white stroke that follows each letter; the pen: a thinner one for "ly" */
-.intro__stroke {
-  fill: none;
-  stroke: #fff; /* mask luminance: white shows the letter */
-  stroke-width: 220;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1 2;
-  stroke-dashoffset: 1.05;
-  animation: intro-draw 300ms cubic-bezier(0.45, 0, 0.25, 1) both;
-}
-
-.intro__stroke--pen {
-  stroke-width: 160;
-  animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
-}
-
-.intro__stroke--g {
-  animation-delay: 100ms;
-}
-
-.intro__stroke--e1 {
-  animation-delay: 250ms;
-}
-
-.intro__stroke--e2 {
-  animation-delay: 400ms;
-}
-
-.intro__stroke--k {
-  animation-duration: 280ms;
-  animation-delay: 520ms;
-}
-
-.intro__stroke--l {
-  animation-duration: 200ms;
-  animation-delay: 800ms;
-}
-
-.intro__stroke--y {
-  animation-duration: 260ms;
-  animation-delay: 1000ms;
 }
 
 /* Logo image or plain site title: a short fade and growth of the hero logo, nothing else */
 :root[data-intro="sober"] .hero__title {
-  animation: intro-sober 700ms var(--ease-out) both;
+  animation: intro-sober 600ms var(--ease-out) backwards;
 }
 
-/* The backdrop's blur (the page faintly visible under it) and its opening */
-@property --intro-blur {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 18px;
-}
-
-@property --intro-iris {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 0%;
-}
-
-.intro__backdrop {
-  --intro-blur: 18px;
-  --intro-iris: -30vmax;
-}
-
-@keyframes intro-backdrop-in {
+@keyframes intro-settle {
   from {
-    --intro-blur: 4px;
+    transform: scale(1.06);
   }
 }
 
-@keyframes intro-dissolve {
-  to {
-    --intro-blur: 0px;
-    --intro-iris: 90vmax;
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-@keyframes intro-light {
+@keyframes intro-letter {
   from {
     opacity: 0;
-    transform: scale(0.82);
+    transform: translateY(0.24em) scale(0.92);
   }
 }
 
-@keyframes intro-swell {
-  to {
-    opacity: 0;
-    transform: scale(1.5);
-  }
-}
-
-@keyframes intro-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes intro-travel {
-  to {
-    transform: var(--intro-to, none);
-  }
-}
-
-@keyframes intro-fade {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-@keyframes intro-end {
-  from {
-    visibility: visible;
-  }
-
-  to {
-    visibility: hidden;
-  }
-}
-
-@keyframes intro-hold {
+@keyframes intro-script {
   from {
     opacity: 0;
-  }
-
-  to {
-    opacity: 1;
+    transform: translateY(0.1em) rotate(-8deg) scale(0.9);
   }
 }
 
@@ -292,11 +76,9 @@
 
 /* Never with reduced motion (the script does not start it either) */
 @media (prefers-reduced-motion: reduce) {
-  .intro {
-    display: none !important;
-  }
-
-  .hero__title {
+  :root[data-intro] .hero__title,
+  :root[data-intro] #hero-wordmark .wordmark__letters,
+  :root[data-intro] #hero-wordmark .wordmark__letters > span {
     animation: none !important;
   }
 }

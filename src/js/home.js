@@ -1,6 +1,5 @@
 import { onReady, setUpSlider } from "./helpers";
 import { setUpDock } from "./dock";
-import { setUpIntro } from "./intro";
 import { setUpHeroVeil } from "./hero-veil";
 import { isAvailable, readingProgress, savedPosts } from "./store";
 
@@ -312,7 +311,6 @@ const setUpShelves = () => {
 };
 
 onReady(() => {
-	setUpIntro();
 	setUpDock();
 	const hero = document.querySelector("[data-hero]");
 	if (hero) {

@@ -29,11 +29,11 @@ export const STORAGE = [
 	},
 	{
 		key: "attibling-intro",
-		storage: "session",
+		storage: "local",
 		by: "theme",
 		audience: "all",
 		category: "feature",
-		lifetime: "session",
+		lifetime: "until-cleared",
 	},
 	{
 		key: "attibling-hero-cue",
