@@ -3,15 +3,27 @@ export const isRTL = () => {
 	return ["ar", "he", "fa"].includes($html.getAttribute("lang"));
 };
 
+// Gallery rows keep the ratio of each image: the flex of its box is its width over its height, from the
+// attributes Ghost writes. An image without them (pasted or imported HTML) keeps the equal share of the CSS.
 export const adjustImageGallery = () => {
-	const images = document.querySelectorAll(".kg-gallery-image img");
+	document.querySelectorAll(".kg-gallery-image img").forEach(img => {
+		const container = img.closest(".kg-gallery-image");
+		const width = parseFloat(img.getAttribute("width"));
+		const height = parseFloat(img.getAttribute("height"));
+		if (!container || !(width > 0) || !(height > 0)) return;
+		container.style.flex = `${width / height} 1 0%`;
+	});
+};
 
-	for (var i = 0, len = images.length; i < len; i++) {
-		const container = images[i].closest(".kg-gallery-image");
-		const width = images[i].attributes.width.value;
-		const height = images[i].attributes.height.value;
-		const ratio = width / height;
-		container.style.flex = `${ratio} 1 0%`;
+// Runs the enhancements of a page one by one: one that throws is reported like any uncaught error (the
+// console, window.onerror) and does not keep the others from running.
+export const runEach = (...tasks) => {
+	for (const task of tasks) {
+		try {
+			task();
+		} catch (error) {
+			reportError(error);
+		}
 	}
 };
 

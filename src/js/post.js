@@ -10,6 +10,7 @@ import {
 	makeImagesZoomable,
 	markPrintLinks,
 	onReady,
+	runEach,
 	wrapLooseText,
 } from "./helpers";
 import { ensureHeadingIds, setUpCodeBlocks, setUpHeadingLinks } from "./article/copy";
@@ -29,23 +30,26 @@ onReady(() => {
 	const content = document.querySelector("[data-article-content]");
 	if (!article || !content) return;
 
-	wrapLooseText(content);
-	markPrintLinks(content);
-	setEmbedRatios();
-	adjustImageGallery();
-	managePostImages();
-	makeImagesZoomable(mediumZoom);
+	// Each on its own (runEach): content the theme did not foresee must not cost the reader the rest
+	runEach(
+		() => wrapLooseText(content),
+		() => markPrintLinks(content),
+		setEmbedRatios,
+		adjustImageGallery,
+		managePostImages,
+		() => makeImagesZoomable(mediumZoom),
 
-	setUpSummary(content, article.querySelector("[data-article-intro]"));
-	document.querySelectorAll("[data-series]").forEach(setUpSeries);
-	ensureHeadingIds(content);
-	setUpToc(article.querySelector("[data-toc]"), content);
-	setUpHeadingLinks(content);
-	setUpCodeBlocks(content);
-	setUpReview(content, article);
+		() => setUpSummary(content, article.querySelector("[data-article-intro]")),
+		() => document.querySelectorAll("[data-series]").forEach(setUpSeries),
+		() => ensureHeadingIds(content),
+		() => setUpToc(article.querySelector("[data-toc]"), content),
+		() => setUpHeadingLinks(content),
+		() => setUpCodeBlocks(content),
+		() => setUpReview(content, article),
 
-	setUpScrollTop(document.querySelector("[data-progress-button]"));
-	setUpProgressRing(content);
-	setUpProgressStore(content, article);
-	setUpReadingSettings();
+		() => setUpScrollTop(document.querySelector("[data-progress-button]")),
+		() => setUpProgressRing(content),
+		() => setUpProgressStore(content, article),
+		setUpReadingSettings,
+	);
 });

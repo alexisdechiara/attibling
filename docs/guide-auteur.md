@@ -1383,7 +1383,7 @@ La carte récapitulative d'un test (jeu, anime, outil…), à placer à la fin d
 ou après :
 
 ```html
-<aside class="fiche-test">
+<aside class="fiche-test" data-type="VideoGame">
   <p class="fiche-test__type">Fiche de test</p>
   <h2 class="fiche-test__titre">Jeu Fictif 2077</h2>
   <p class="fiche-test__note"><strong>8,5</strong>/10</p>
@@ -1407,9 +1407,33 @@ ou après :
 - Un champ vide (`<dd></dd>`, liste sans point, paragraphe vide) est masqué ; vous pouvez aussi supprimer la
   ligne. On peut ajouter d'autres paires `<dt>…</dt><dd>…</dd>` (« Testé sur », « Prix »…).
 - Le titre (H2) entre dans le sommaire de l'article.
-- Données structurées : quand la note est présente, le thème ajoute pour les moteurs de recherche une
-  donnée « Review » (note, meilleure note, nom de l'œuvre, auteur, date, verdict). Pour un jeu vidéo,
-  vous pouvez préciser le type : `<aside class="fiche-test" data-type="VideoGame">`.
+- Données structurées : le thème ajoute pour les moteurs de recherche une donnée « Review » (note,
+  meilleure note, nom de l'œuvre, auteur, date, verdict), qui permet à Google d'afficher la note sous le
+  lien de l'article. Il ne l'ajoute que si la fiche donne une note **et** le type de ce que vous testez,
+  dans `data-type` sur la première ligne : Google n'affiche une note que pour certains types, et une
+  fiche sans type (ou avec un type qu'il ne reconnaît pas, comme `CreativeWork`) ne lui apporte rien.
+  Écrivez le type en anglais, tel quel :
+
+  | Vous testez | `data-type` |
+  |---|---|
+  | Un jeu vidéo | `VideoGame` |
+  | Un jeu de société, un jeu de rôle | `Game` |
+  | Une série, un anime | `TVSeries` (une saison : `TVSeason` ; un épisode : `TVEpisode`) |
+  | Un film | `Movie` |
+  | Un livre, un tome de manga | `Book` (la série entière : `BookSeries`) |
+  | Un logiciel, un outil, un service en ligne | `SoftwareApplication` (ou `WebApplication`, `MobileApplication`) |
+  | Du matériel, un produit | `Product` |
+  | Un album, un morceau | `MusicAlbum`, `MusicRecording` |
+  | Un podcast | `PodcastSeries` (un épisode : `PodcastEpisode`) |
+  | Un événement, un salon | `Event` |
+  | Une formation | `Course` |
+
+  Sont aussi acceptés : `CreativeWorkSeries`, `CreativeWorkSeason`, `Episode`, `MovieSeries`,
+  `VideoGameSeries`, `PodcastSeason`, `Audiobook`, `MediaObject`, `AudioObject`, `VideoObject`,
+  `MusicPlaylist`, `HowTo`, `Recipe`, `LocalBusiness` et `Organization`. Sans `data-type`, la fiche
+  s'affiche de la même façon : seule la donnée pour les moteurs de recherche manque. Vous pouvez vérifier
+  un article publié avec le [test des résultats enrichis](https://search.google.com/test/rich-results)
+  de Google.
 - Sur téléphone, la carte passe sur une colonne.
 
 ### « Mis à jour le » : le tag #mis-a-jour
@@ -1705,7 +1729,7 @@ d'articles de « Derniers articles ».
 |---|---|---|
 | « En bref » (auteur) | `<ol class="en-bref"><li>…</li></ol>` en tête d'article | [6](#-en-bref---le-résumé-en-points-numérotés) |
 | « En bref » (IA, facultatif) | `<ol class="en-bref" data-source="ia">…</ol>` | [6](#résumé-par-ia-facultatif) |
-| Fiche de test | `<aside class="fiche-test">…</aside>` (classes `fiche-test__type`, `__titre`, `__note`, `__infos`, `__plus`, `__moins`, `__verdict` ; `data-type="VideoGame"` facultatif) | [6](#fiche-de-test) |
+| Fiche de test | `<aside class="fiche-test">…</aside>` (classes `fiche-test__type`, `__titre`, `__note`, `__infos`, `__plus`, `__moins`, `__verdict` ; `data-type="VideoGame"`… : le type testé, nécessaire pour la note dans Google) | [6](#fiche-de-test) |
 | Liens « Suivre le blog » | `<ul class="about-links"><li><a href="…">…</a></li></ul>` dans la page À propos | [5](#à-propos) |
 | Lien jamais préchargé | `<a href="…" data-no-prefetch>` | [7](#préchargement-au-survol) |
 
@@ -1747,6 +1771,7 @@ navigateur du lecteur.
 | « Voir toute la série » mène à une page 404 | Créez la page Archives (slug `archives`, voir [Archives](#archives)). |
 | « En bref » ne s'affiche pas | La carte doit être une carte **HTML** (pas un paragraphe) et la liste doit avoir la classe `en-bref` ; un visiteur voit l'encart à la place ; l'abonné l'a peut-être masqué dans ses réglages (« Réinitialiser »). |
 | La fiche de test n'a pas de style | Vérifiez la classe `fiche-test` et que c'est une carte HTML. |
+| La note d'un test n'apparaît pas dans Google | La fiche doit donner une note (`8,5/10`) et un type reconnu dans `data-type` ([fiche de test](#fiche-de-test)). Google reste libre de ne pas l'afficher. |
 | « Mis à jour le » n'apparaît pas | Il manque le tag interne `#mis-a-jour`. |
 | Pas de bouton « À propos » dans la boîte auteur | Aucune page `a-propos` / `about`, ou le réglage About page ne correspond à aucune page publiée. |
 | Pas de « Tous ses articles », le nom de l'auteur n'est pas un lien | Normal sur un site où un seul auteur a publié ([Un seul auteur](#un-seul-auteur--pas-de-page-dauteur)) ; les liens reviennent dès qu'un deuxième auteur publie. |

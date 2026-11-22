@@ -151,35 +151,7 @@
   display: none;
 }
 
-/* A wide text (L) leaves no room for the table of contents in the margin below 90rem */
-@media (width < 90rem) {
-  :root[data-reading-width="l"] .article .article-toc {
-    grid-column: main;
-    grid-row: 1;
-    contain: none;
-    margin-block-end: var(--space-6);
-    padding: 0;
-
-    .article-toc__toggle {
-      display: inline-flex;
-    }
-
-    .article-toc__title {
-      display: none;
-    }
-
-    .article-toc__nav {
-      position: static;
-      width: auto;
-      max-height: none;
-      margin-block-start: var(--space-3);
-      padding: var(--space-4) var(--space-5);
-      overflow: visible;
-      background: var(--color-surface);
-      box-shadow: var(--shadow-1);
-    }
-  }
-}
+/* A wide text (L) below 90rem: the table of contents leaves the margin (article/toc.css) */
 
 /* The panel ------------------------------------------------------------------------------- */
 .site-header__settings {

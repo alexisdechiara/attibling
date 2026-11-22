@@ -199,6 +199,34 @@ describe("article page: comments", () => {
 		await dispose();
 	});
 
+	it("gives up, with the same message, when comments-ui has loaded but draws nothing", async () => {
+		const { page, dispose } = await openArticle({
+			commentsUi: { delay: 0, script: "window.__commentsUiRan = true;" },
+		});
+		const state = () => page.evaluate(() => document.querySelector("[data-comments]").dataset.comments);
+		// The page's clock, by hand from here: the wait is 15 seconds
+		await page.clock.install();
+		await page.evaluate(() => (location.hash = "#ghost-comments"));
+		assert.equal(await waitFor(() => page.evaluate(() => window.__commentsUiRan === true)), true);
+		await page.clock.runFor(14000);
+		assert.equal(await state(), "loading", "still waiting after 14 seconds");
+		await page.clock.runFor(2000);
+		assert.equal(await state(), "error", "given up after 15 seconds");
+		assert.match(await page.locator("[data-comments-status]").textContent(), /n’ont pas pu être chargés/);
+		assert.equal(await page.locator("[data-comments-status]").isVisible(), true);
+		// And it no longer polls: comments drawn later would show at once if it still did
+		await page.evaluate(() => {
+			const section = document.querySelector("[data-comments]");
+			section.dataset.comments = "loading";
+			const frame = document.createElement("iframe");
+			frame.srcdoc = '<section data-testid="content-box" data-loaded="true">Comments</section>';
+			section.querySelector("#ghost-comments-root").append(frame);
+		});
+		await page.clock.runFor(10000);
+		assert.equal(await state(), "loading", "the polling has stopped");
+		await dispose();
+	});
+
 	it("keeps the room of Ghost's form or of its invitation, by who reads", async () => {
 		const cases = [
 			[{}, "invite"],

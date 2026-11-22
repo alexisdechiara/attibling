@@ -15,6 +15,7 @@
 //  - authors       number of authors with published posts (default 1: single-author site)
 //  - comments      Settings > Membership > Commenting: "all" (default), "paid" or "off"
 //  - paid          true for a paid member (with member: true)
+//  - authorName    the name of the post's author (default: the site's author; "" for an author without name)
 import { createSite } from "./site.js";
 import { DEFAULT_CUSTOM } from "./pages.js";
 
@@ -67,7 +68,7 @@ export const AI_SUMMARY_CARD = `<!--kg-card-begin: html-->
 
 // The documented « Fiche de test » snippet (docs/guide-auteur.md)
 export const REVIEW_CARD = `<!--kg-card-begin: html-->
-<aside class="fiche-test">
+<aside class="fiche-test" data-type="VideoGame">
   <p class="fiche-test__type">Fiche de test</p>
   <h2 class="fiche-test__titre">Jeu Fictif 2077</h2>
   <p class="fiche-test__note"><strong>8,5</strong>/10</p>
@@ -128,6 +129,10 @@ export const article = (options = {}) => {
 		tags: [...publicTags, ...internal.map(internalTag)],
 		primary_tag: publicTags[0] || null,
 	};
+	if (options.authorName !== undefined) {
+		post.primary_author = { ...base.primary_author, name: options.authorName };
+		post.authors = [post.primary_author];
+	}
 	site.posts[1] = post;
 
 	if (series) {

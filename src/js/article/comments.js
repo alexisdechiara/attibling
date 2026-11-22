@@ -14,7 +14,8 @@
 //
 // States (data-comments on the section, styled by article/layout.css): "waiting", "loading" (the space is
 // kept, a quiet « Chargement des commentaires… » shows, the frame stays hidden until comments-ui has drawn
-// the comments), "ready", "error" (the script could not load: blocked, offline).
+// the comments), "ready", "error" (the script could not load: blocked, offline; or it loaded and drew no
+// frame within TIMEOUT ms).
 const TARGET = /^#ghost-comments(?:-|$)/;
 const MARGIN = "200% 0px";
 // comments-ui 1.6 creates its frame 400 px high and empty, draws a skeleton, and asks for the comments only
@@ -24,6 +25,9 @@ const MARGIN = "200% 0px";
 // frame shows FALLBACK ms after it appeared.
 const LOADED_BOX = '[data-testid="content-box"]';
 const FALLBACK = 8000;
+// comments-ui adds its frame as soon as it runs: none this long after the script has loaded, it never will
+// (it failed, or a later version draws elsewhere), and the section says so instead of « loading » for ever
+const TIMEOUT = 15000;
 const TICK = 150;
 
 export const targetsComments = hash => TARGET.test(hash || "");
@@ -45,15 +49,28 @@ export const setUpComments = section => {
 		if (status) status.hidden = state === "ready";
 	};
 
+	const fail = () => {
+		setState("error");
+		if (status) status.textContent = section.dataset.commentsError || status.textContent;
+	};
+
 	// Shows the frame once comments-ui has drawn the comments and the frame's height has settled (the same on
-	// two ticks in a row)
-	const whenDrawn = () => {
+	// two ticks in a row). Stops, with the error message, when the script has loaded and no frame comes.
+	const whenDrawn = script => {
+		let loaded = null;
 		let appeared = null;
 		let height = null;
+		script.addEventListener("load", () => (loaded = performance.now()));
 		const timer = setInterval(() => {
 			if (section.dataset.comments !== "loading") return clearInterval(timer);
 			const frame = root.querySelector("iframe:not([data-frame])");
-			if (!frame) return;
+			if (!frame) {
+				if (loaded !== null && performance.now() - loaded > TIMEOUT) {
+					clearInterval(timer);
+					fail();
+				}
+				return;
+			}
 			appeared ??= performance.now();
 			let box = null;
 			try {
@@ -80,11 +97,8 @@ export const setUpComments = section => {
 		setState("loading");
 		const script = document.createElement("script");
 		for (const { name, value } of source.attributes) script.setAttribute(name, value);
-		script.addEventListener("error", () => {
-			setState("error");
-			if (status) status.textContent = section.dataset.commentsError || status.textContent;
-		});
-		whenDrawn();
+		script.addEventListener("error", fail);
+		whenDrawn(script);
 		root.after(script);
 	};
 
