@@ -283,6 +283,20 @@ describe("tags page: grid and arrangement", () => {
 		await dispose();
 	});
 
+	it("keeps « Mélanger » hidden with no tag or a single tag, and shows it from two", async () => {
+		for (const [n, shown] of [
+			[0, false],
+			[1, false],
+			[2, true],
+		]) {
+			const { page, dispose } = await open({ render: tagsPage(n) });
+			await sleep(200);
+			const hidden = await page.evaluate(() => document.querySelector("[data-tags-shuffle]").hidden);
+			assert.equal(!hidden, shown, `${n} tag(s)`);
+			await dispose();
+		}
+	});
+
 	it("is gap-free and in visual order at 390, 768 and 1440 px, for several visits", async () => {
 		for (const viewport of [PHONE, TABLET, DESKTOP]) {
 			for (let visit = 0; visit < 3; visit++) {

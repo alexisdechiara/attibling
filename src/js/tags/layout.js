@@ -293,7 +293,8 @@ export const prepaint = script => {
 		if (seed === null) seed = saving ? 0 : crypto.getRandomValues(new Uint32Array(1))[0] || 1;
 		arrange(grid, seed);
 		showCount(grid);
-		document.querySelector("[data-tags-shuffle]")?.removeAttribute("hidden");
+		// Shuffling needs something to move: not with no tag, or a single one
+		if (cellsOf(grid).length >= 2) document.querySelector("[data-tags-shuffle]")?.removeAttribute("hidden");
 		saveSeed(seed);
 	} catch {
 		// The server's order stays (CSS dense packing)
