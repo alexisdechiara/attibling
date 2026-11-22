@@ -130,7 +130,12 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     {{!-- Pacifico, the "ly" of the GEEKLY wordmark (use_geekly_logo), served by the theme (this
     @font-face is here so the URL works for a Ghost installed in a subdirectory); it is only
     downloaded when the wordmark is shown. The file holds only the letters l and y (3 KB instead of
-    78 KB for the whole font; OFL-1.1, assets/fonts/pacifico/OFL.txt). --}}
+    78 KB for the whole font; OFL-1.1, assets/fonts/pacifico/OFL.txt). With the wordmark on, it is on the
+    first screen of every page: the file is preloaded, as otherwise the browser only asks for it once the
+    style sheets have arrived and the wordmark is laid out (the "ly" would then change face late). --}}
+    {{#if @custom.use_geekly_logo}}
+      <link rel="preload" href="{{asset "fonts/pacifico/pacifico-ly.woff2"}}" as="font" type="font/woff2" crossorigin>
+    {{/if}}
     <style>
       @font-face {
         font-family: 'Pacifico';

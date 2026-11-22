@@ -2,6 +2,7 @@ import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
 import { article } from "./support/article.js";
+import { home, DEFAULT_CUSTOM } from "./support/pages.js";
 
 // Computed font-family of each element, before and after setting Ghost's custom font variables on :root
 const families = (page, selectors) =>
@@ -50,7 +51,11 @@ describe("fonts", () => {
 		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
 			els.map(el => [new URL(el.href).pathname, el.crossOrigin]),
 		);
-		assert.deepEqual(preloads, [["/assets/fonts/onest/onest-latin.woff2", "anonymous"]]);
+		// Pacifico too, with the GEEKly wordmark: the "ly" is on the first screen of every page
+		assert.deepEqual(preloads, [
+			["/assets/fonts/onest/onest-latin.woff2", "anonymous"],
+			["/assets/fonts/pacifico/pacifico-ly.woff2", "anonymous"],
+		]);
 		const faces = await page.evaluate(() =>
 			[...document.styleSheets]
 				.flatMap(sheet => [...sheet.cssRules])
@@ -77,6 +82,24 @@ describe("fonts", () => {
 		assert.match(pacifico.src, /pacifico-ly\.woff2/);
 		assert.match(pacifico.range, /U\+6C, U\+79/i);
 		assert.ok(fontRequests.includes("/assets/fonts/pacifico/pacifico-ly.woff2"), fontRequests.join());
+		assert.equal(
+			fontRequests.filter(p => p.includes("pacifico")).length,
+			1,
+			`the preloaded file is the one the wordmark uses: ${fontRequests}`,
+		);
+		await dispose();
+	});
+
+	it("do not preload Pacifico without the GEEKly wordmark", async () => {
+		const { page, requests, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, use_geekly_logo: false } }),
+		});
+		await page.evaluate(() => document.fonts.ready);
+		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
+			els.map(el => new URL(el.href).pathname),
+		);
+		assert.deepEqual(preloads, ["/assets/fonts/onest/onest-latin.woff2"]);
+		assert.ok(!requests.some(url => url.includes("pacifico")), "Pacifico is not downloaded");
 		await dispose();
 	});
 
@@ -104,6 +127,7 @@ describe("fonts", () => {
 		assert.deepEqual(preloads, [
 			"/assets/fonts/onest/onest-latin.woff2",
 			"/assets/fonts/literata/literata-latin.woff2",
+			"/assets/fonts/pacifico/pacifico-ly.woff2",
 		]);
 		const fonts = requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname);
 		assert.ok(fonts.includes("/assets/fonts/literata/literata-latin.woff2"), fonts.join());
