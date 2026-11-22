@@ -423,6 +423,15 @@ describe("article page: header, dates, author", () => {
 		await dispose();
 	});
 
+	it("shows no empty « Tags » block and no recommendations for a post with internal tags only", async () => {
+		const { page, dispose } = await open({ render: article({ tags: [], internal: ["#top"] }) });
+		assert.equal(await page.locator("#article-tags-label").count(), 0, "no Tags label");
+		assert.equal(await page.locator(".article-share__tags").count(), 0, "no empty list of tags");
+		assert.equal(await page.locator(".article-related").count(), 0, "no recommendations");
+		assert.equal(await page.locator(".article-share__links a").count(), 4, "the share links stay");
+		await dispose();
+	});
+
 	it("prints a series box as its name and « Partie N sur T » only", async () => {
 		const { page, dispose } = await open({
 			render: article({ series: { published: 4, current: 2, description: "Construire son homelab" } }),

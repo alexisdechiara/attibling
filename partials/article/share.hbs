@@ -1,8 +1,8 @@
 {{!--
-Tags (public tags of the post, as pills) and share links (post context).
+Tags (public tags of the post, as pills; nothing for a post with internal tags only) and share links (post context).
 --}}
 <div class="article-share">
-  {{#if tags}}
+  {{#if primary_tag}}
     <div class="article-share__group">
       <span class="article-share__label" id="article-tags-label">{{t "Tags"}}</span>
       <ul class="article-share__tags" role="list" aria-labelledby="article-tags-label">
