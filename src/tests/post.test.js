@@ -564,9 +564,16 @@ describe("article page: header, dates, author", () => {
 		const member = await open({ render: article({ member: true }) });
 		const button = member.page.locator(".article-header [data-bookmark]");
 		assert.equal(await button.isVisible(), true);
+		// One name, the list's: « À lire plus tard », then « Dans À lire plus tard » once the post is in it
+		// (the visible label is the accessible name; the state is aria-pressed)
+		const name = () => button.evaluate(element => element.innerText.trim());
+		assert.equal(await button.getAttribute("aria-label"), null);
+		assert.deepEqual([await name(), await button.getAttribute("aria-pressed")], ["À lire plus tard", "false"]);
 		await button.click();
-		assert.equal(await button.getAttribute("aria-pressed"), "true");
-		assert.equal(await button.locator(".bookmark__label:visible").textContent(), "Enregistré");
+		assert.deepEqual([await name(), await button.getAttribute("aria-pressed")], ["Dans À lire plus tard", "true"]);
+		assert.equal(await button.locator(".bookmark__label:visible").textContent(), "Dans À lire plus tard");
+		await button.click();
+		assert.deepEqual([await name(), await button.getAttribute("aria-pressed")], ["À lire plus tard", "false"]);
 		await member.dispose();
 	});
 

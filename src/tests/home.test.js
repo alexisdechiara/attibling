@@ -500,7 +500,35 @@ describe("one wording for the same things", () => {
 	before(launch);
 	after(close);
 
-	it("empties the saved list with the same button label on the home and on « Mes favoris »", async () => {
+	it("names every bookmark and the list « À lire plus tard », with the post's title on tiles", async () => {
+		const { page, dispose } = await open({
+			render: home({ member: true, locale: "fr" }),
+			storage: { "attibling-saved": JSON.stringify(SAVED) },
+		});
+		const names = await page.$$eval("main [data-post-tile] [data-bookmark]", buttons =>
+			buttons.map(button => [
+				button.getAttribute("aria-label"),
+				button.dataset.title,
+				button.textContent.trim(),
+				button.hasAttribute("aria-pressed"),
+			]),
+		);
+		assert.ok(names.length > 5, `${names.length} bookmarks`);
+		for (const [label, title, text, pressed] of names) {
+			assert.equal(label, `À lire plus tard : ${title}`);
+			assert.equal(text, "", "an icon: the label is its name");
+			assert.equal(pressed, true, "the state is aria-pressed, the name does not change");
+		}
+		assert.equal(new Set(names.map(([label]) => label)).size > 5, true, "one name per post");
+		// The members' list and its link to the page
+		assert.equal((await page.locator("#member-list-saved").textContent()).trim(), "À lire plus tard");
+		assert.equal((await page.locator("[data-list-all]").textContent()).trim(), "Tout voir (À lire plus tard)");
+		assert.match(await page.locator("[data-list-all]").getAttribute("href"), /\/favoris\/$/);
+		assert.doesNotMatch(await page.locator("main").innerText(), /favori|enregistré/i);
+		await dispose();
+	});
+
+	it("empties the saved list with the same button label on the home and on the « À lire plus tard » page", async () => {
 		const homeList = await open({ render: home({ member: true, locale: "fr" }) });
 		const onHome = await homeList.page.locator("[data-list-clear]").textContent();
 		await homeList.dispose();

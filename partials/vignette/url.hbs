@@ -1,4 +1,4 @@
 {{!-- URL (size m) of the post's vignette (see vignette/image.hbs: og image, else X image, else feature
 image), or nothing: the picture stored with a saved post or a post being read (data-image), which the
-members' lists and « Mes favoris » draw as a tile. Inside a post context. --}}
+members' lists and the « À lire plus tard » page draw as a tile. Inside a post context. --}}
 {{~#if og_image}}{{img_url og_image size="m" format="webp"}}{{else if twitter_image}}{{img_url twitter_image size="m" format="webp"}}{{else if feature_image}}{{img_url feature_image size="m"}}{{/if~}}

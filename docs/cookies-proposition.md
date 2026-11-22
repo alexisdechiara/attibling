@@ -41,7 +41,7 @@ GEEKLY n'affiche pas de bandeau de cookies à l'arrivée : rien de ce que le sit
 
 **Vos préférences.** Le mode clair ou sombre, l'encart d'abonnement que vous avez fermé, vos réglages d'affichage des articles : le site s'en souvient dans votre navigateur parce que vous les avez choisis.
 
-**Vos outils d'abonné.** « À lire plus tard » garde les articles que vous enregistrez. « Reprendre la lecture » note où vous vous êtes arrêté dans les derniers articles commencés, pour vous y ramener depuis l'accueil ; vous pouvez l'éteindre (« Retenir où je m'arrête », ci-dessous ou dans les réglages d'affichage), la liste est alors effacée.
+**Vos outils d'abonné.** « À lire plus tard » garde les articles que vous y ajoutez. « Reprendre la lecture » note où vous vous êtes arrêté dans les derniers articles commencés, pour vous y ramener depuis l'accueil ; vous pouvez l'éteindre (« Retenir où je m'arrête », ci-dessous ou dans les réglages d'affichage), la liste est alors effacée.
 
 **Vos choix.** Les services que vous avez choisi d'afficher sans clic, ou votre refus d'être compté dans les statistiques : le site garde ces choix pour les respecter.
 

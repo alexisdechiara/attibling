@@ -34,7 +34,7 @@ both CSS and JS) and checked by `src/tests/browser-support.test.js`.
 
 ### Pages and the rest
 
-✅ Tag, author, all tags, all authors, archives (client-side filters, more than 100 posts), saved posts,
+✅ Tag, author, all tags, all authors, archives (client-side filters, more than 100 posts), « Read later »,
 about, subscription and 404 templates
 ✅ Page transitions between pages (cross-document View Transitions, `page_transitions`) and prefetch on
 hover / focus (Speculation Rules with a `<link rel="prefetch">` fallback, off with Save-Data)

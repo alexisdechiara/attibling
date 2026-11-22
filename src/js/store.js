@@ -1,5 +1,5 @@
 // Reader store: the lists members keep in their browser (localStorage), shared by the home page,
-// the article pages and « Mes favoris ». Nothing leaves the browser.
+// the article pages and the « À lire plus tard » page. Nothing leaves the browser.
 //
 // Members only: every list reads as empty and writes nothing unless <html> carries data-member
 // (default.hbs renders it from {{#if @member}}) and localStorage works (private windows, blocked

@@ -5,7 +5,7 @@ tard » (bookmarked posts). The title is the switch between them: a borderless b
 listbox. Default list: « Reprendre la lecture » when a reading is in progress, else « À lire plus
 tard ». The section stays hidden when both lists are empty or the browser storage is unavailable.
 Each card is one link with a « Retirer » button; « Tout retirer » empties the list shown,
-« Tout voir » leads to the « Mes favoris » page (a page with the slug "favoris").
+« Tout voir » leads to the « À lire plus tard » page (a page with the slug "favoris").
 home.js fills the list from the templates below; the translated strings are data-* attributes
 ("%" is replaced by a number or a title).
 --}}
@@ -31,7 +31,7 @@ home.js fills the list from the templates below; the translated strings are data
       {{> shelf-controls}}
     </div>
     <p class="container member-lists__empty" data-list-empty="resume" hidden>{{t "No reading in progress."}}</p>
-    <p class="container member-lists__empty" data-list-empty="saved" hidden>{{t "No saved post yet: use the bookmark on a post to read it later."}}</p>
+    <p class="container member-lists__empty" data-list-empty="saved" hidden>{{t "Nothing to read later yet: use the bookmark on a post to add it to this list."}}</p>
 
     <template data-list-template>
       <li class="shelf__item">

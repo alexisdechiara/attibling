@@ -11,7 +11,7 @@ n'est fait (chaque fonctionnalité a un comportement par défaut : le thème mar
 2. [Identité et en-tête](#2-identité-et-en-tête) — logo, navigation, menu « ••• », en-tête qui se range, pied de page, « S'abonner », clair / sombre, polices
 3. [Page d'accueil](#3-page-daccueil) — bandeau, derniers articles, encart, listes des abonnés, « Les plus lus », rangées, vignette d'un article (image des cartes)
 4. [Signets « À lire plus tard » sur les tuiles](#4-signets--à-lire-plus-tard--sur-les-tuiles)
-5. [Pages du site](#5-pages-du-site) — pages de tag, auteurs, page « Tags », archives, favoris, à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
+5. [Pages du site](#5-pages-du-site) — pages de tag, auteurs, page « Tags », archives, « À lire plus tard », à propos, abonnement, mentions légales, cookies et confidentialité (page, panneau, consentement), ce que le thème garde dans le navigateur, ce que le navigateur charge et d'où, 404
 6. [Articles](#6-articles) — styles, séries, « En bref », résumé IA, fiche de test, mise à jour, boîte auteur, réglages d'affichage, article réservé aux abonnés, impression, vidéos et contenus intégrés
 7. [Animations, transitions et préchargement](#7-animations-transitions-et-préchargement)
 8. [Référence : les réglages du thème](#8-référence--les-réglages-du-thème)
@@ -50,7 +50,7 @@ Pour un site comme GEEKLY, dans cet ordre. Chaque étape renvoie à la section q
 3. **Site** : Settings → General → *Site description* = `L'actu geek, tech et pop` (la phrase sous le logo du
    bandeau) ; Settings → Membership → *Anyone can sign up* ; au moins une newsletter active.
 4. **Pages à créer** (Pages → New page, réglage *Page URL*, voir [section 5](#5-pages-du-site)) : `newsletter`
-   (abonnement), `archives`, `favoris` (titre « Mes favoris »), `a-propos`, `tags`, `authors`. Ajoutez-les à la
+   (abonnement), `archives`, `favoris` (titre « À lire plus tard »), `a-propos`, `tags`, `authors`. Ajoutez-les à la
    navigation secondaire (Settings → Navigation) : Tags `/tags/`, Archives `/archives/`, À propos `/a-propos/`.
 5. **Tags** : une *Tag image* et une *Description* pour les tags (Actualité, Jeux vidéo, Anime, Dossier,
    IA, Test) ; les tags internes au fil des articles : `#top` + `#top-1`…`#top-10` (« Les plus lus »),
@@ -202,7 +202,7 @@ d'auteur (site à un seul auteur).
 ### Bouton « S'abonner » et « Se connecter »
 
 Tous les boutons « S'abonner » / « S'abonner gratuitement » (en-tête, menu du téléphone, bandeau d'accueil,
-encart d'abonnement, encart « Résumé réservé aux abonnés » des articles, page « Mes favoris », page « À
+encart d'abonnement, encart « Résumé réservé aux abonnés » des articles, page « À lire plus tard », page « À
 propos ») et tous les liens « Se connecter » mènent à **la page d'abonnement du thème**, jamais à la fenêtre
 de Ghost (Portal), dès que cette page existe. Le thème la trouve dans cet ordre :
 
@@ -367,13 +367,13 @@ navigateur :
 - **Reprendre la lecture** : les articles commencés et pas finis, avec une barre de progression et « 40 % lu
   • reste environ 7 min » (6 au plus ; un article lu à plus de 90 % sort de la liste). La liste est remplie
   par les pages d'article.
-- **À lire plus tard** : les articles gardés avec le signet (voir [section 4](#4-signets--à-lire-plus-tard--sur-les-tuiles)).
+- **À lire plus tard** : les articles ajoutés avec le signet (voir [section 4](#4-signets--à-lire-plus-tard--sur-les-tuiles)).
 
 Le titre de la section est un bouton : cliquez-le pour passer d'une liste à l'autre. La section s'ouvre sur
 « Reprendre la lecture » s'il y a une lecture en cours, sinon sur « À lire plus tard ». Chaque carte est un
 lien vers l'article et a un bouton « Retirer » ; « Tout retirer » vide la liste affichée ; « Tout voir »
-(liste « À lire plus tard ») mène à la page **Mes favoris** — créez une page Ghost dont le slug est
-`favoris` (voir [Pages du site](#5-pages-du-site)). Quand les deux listes sont vides, la section n'existe pas.
+(liste « À lire plus tard ») mène à la page du même nom — créez une page Ghost dont le slug est
+`favoris` et le titre « À lire plus tard » (voir [Pages du site](#5-pages-du-site)). Quand les deux listes sont vides, la section n'existe pas.
 Rien à régler dans Ghost.
 
 ### « Les plus lus » : le tag #top
@@ -437,8 +437,8 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
 ### Vignette d'un article (image des cartes)
 
 Les **cartes** d'un article (accueil : « Derniers articles », « Les plus lus », toutes les rangées ; pages de
-tag et d'auteur ; articles liés en bas d'un article ; menu « ••• » ; page 404 ; « À lire plus tard »,
-« Reprendre la lecture » et « Mes favoris ») montrent sa **vignette** :
+tag et d'auteur ; articles liés en bas d'un article ; menu « ••• » ; page 404 ; « À lire plus tard » (accueil et page)
+et « Reprendre la lecture ») montrent sa **vignette** :
 
 1. l'**image de partage** de l'article, s'il en a une (Facebook d'abord, sinon X) ;
 2. sinon son **image à la une** (la bannière de l'en-tête de l'article) ;
@@ -480,12 +480,12 @@ image de partage, la carte serait un rectangle de couleur ; avec elle, la carte 
 
 Pour un **abonné connecté**, chaque tuile d'article porte un signet rond dans son coin supérieur (à gauche) :
 
-- sur ordinateur, il apparaît au survol ou au focus clavier de la tuile ; un article déjà gardé garde une
+- sur ordinateur, il apparaît au survol ou au focus clavier de la tuile ; un article déjà dans la liste garde une
   petite pastille pleine ;
 - sur écran tactile, il est toujours visible, en plus petit ;
-- un clic garde l'article (signet plein) ou le retire ; tous les signets du même article suivent.
+- un clic ajoute l'article à « À lire plus tard » (signet plein) ou l'en retire ; tous les signets du même article suivent.
 
-Les articles gardés remplissent « À lire plus tard » sur l'accueil et la page « Mes favoris ». Un visiteur ne
+Ces articles remplissent la liste « À lire plus tard » de l'accueil et la page du même nom. Un visiteur ne
 voit jamais les signets ; si le navigateur bloque le stockage (navigation privée stricte), les signets ne
 sont pas affichés plutôt que de faire semblant. Rien à régler dans Ghost.
 
@@ -494,12 +494,12 @@ sont pas affichés plutôt que de faire semblant. Rien à régler dans Ghost.
 ## 5. Pages du site
 
 Les pages autres que l'accueil et les articles : pages de tag, auteurs, « Tags », « Auteurs »,
-« Archives », « Mes favoris », « À propos », la page d'abonnement, les pages ordinaires et la page 404.
+« Archives », « À lire plus tard », « À propos », la page d'abonnement, les pages ordinaires et la page 404.
 Aucun fichier `routes.yaml` n'est nécessaire : tout repose sur des **pages Ghost** et des **modèles** du thème.
 
 ### Créer une page et lui donner son modèle
 
-Une page « spéciale » (archives, favoris, à propos, abonnement, tags, auteurs) est une page Ghost ordinaire,
+Une page « spéciale » (archives, « À lire plus tard », à propos, abonnement, tags, auteurs) est une page Ghost ordinaire,
 souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix :
 
 1. **Par le slug (rien d'autre à faire)** : si l'adresse de la page est exactement le slug par défaut du
@@ -510,7 +510,7 @@ souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix 
 | Page | Slug par défaut (modèle automatique) | Nom dans le menu « Template » | Ce que vous écrivez dans Ghost |
 |---|---|---|---|
 | Archives | `archives` | Archives | rien (le contenu, s'il y en a, s'affiche en introduction) |
-| Mes favoris | `favoris` | Saved Posts | rien (seul le titre sert) |
+| À lire plus tard | `favoris` | Saved Posts | rien (seul le titre sert : « À lire plus tard ») |
 | À propos | `a-propos` | About | titre, extrait, texte (voir plus bas) |
 | Abonnement | `newsletter` (ou `abonnement`, `subscribe`) | Subscribe | extrait (accroche) et une ligne légale (voir plus bas) |
 | Tous les tags | `tags` | Tags | titre, contenu ou extrait facultatif (introduction) |
@@ -520,7 +520,7 @@ souvent vide, à laquelle le thème applique un modèle. Deux façons, au choix 
 Pas à pas :
 
 1. Ghost Admin → **Pages** → **New page**.
-2. Tapez le **titre** (il devient le grand titre de la page : « Archives », « Mes favoris », « À propos »…).
+2. Tapez le **titre** (il devient le grand titre de la page : « Archives », « À lire plus tard », « À propos »…).
 3. Ouvrez les réglages de la page (icône en haut à droite) :
    - **Page URL** : le slug du tableau (`archives`, `favoris`, `a-propos`, `newsletter`, `tags`, `authors`) ;
    - ou, pour une autre adresse, **Template** → le modèle voulu ;
@@ -528,7 +528,7 @@ Pas à pas :
      auteurs).
 4. **Publish**.
 5. Pour la rendre visible : Settings → **Navigation** → ajoutez le lien (par exemple dans la navigation
-   secondaire, qui forme le pied de page et le menu « Plus » : « Archives » → `/archives/`, « Mes favoris » →
+   secondaire, qui forme le pied de page et le menu « Plus » : « Archives » → `/archives/`, « À lire plus tard » →
    `/favoris/`).
 
 > Le lien « Tout voir » de « À lire plus tard » (accueil), le bouton « Voir ma liste » de la page
@@ -676,17 +676,20 @@ précédente. La recherche de Ghost (loupe de l'en-tête) reste là pour cherche
 - **Sans JavaScript** : la barre est cachée et la liste complète reste lisible (chaque ligne porte sa date
   complète).
 
-### Mes favoris
+### La page « À lire plus tard »
 
-Réservée aux **abonnés connectés** : la grille des articles gardés avec le signet (« À lire plus tard »), du
-dernier gardé au premier, avec un bouton « Retirer » sous chaque tuile et « Tout retirer » en haut (avec
+Réservée aux **abonnés connectés** : la grille des articles ajoutés avec le signet, du
+dernier ajouté au premier, avec un bouton « Retirer » sous chaque tuile et « Tout retirer » en haut (avec
 confirmation). La liste est gardée **dans le navigateur, sur cet appareil** (elle ne suit pas l'abonné sur un
 autre appareil et disparaît si l'on efface les données du site) ; la phrase sous le titre le dit. Liste vide :
-« Aucun article enregistré pour l'instant » et le geste à faire. Stockage bloqué (navigation privée stricte) :
+« Rien à lire plus tard pour l'instant » et le geste à faire. Stockage bloqué (navigation privée stricte) :
 un message l'explique. Un **visiteur** voit une invitation à s'abonner ou à se connecter.
 
-À créer : une page `favoris` (ou le modèle **Saved Posts**), vide ; son titre (« Mes favoris ») est le grand
-titre. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent. La page demande aux moteurs de
+À créer : une page `favoris` (ou le modèle **Saved Posts**), vide ; son titre est le grand titre : donnez-lui
+le nom de la liste, **« À lire plus tard »** (partout ailleurs, le thème n'emploie que ce nom : bouton des
+articles, signets, liste de l'accueil, page d'abonnement, page « Cookies et confidentialité »). L'adresse
+reste `/favoris/` : c'est celle que visent « Tout voir » et « Voir ma liste ». Si la page existe déjà sous
+un autre titre, renommez-la (son titre seulement, pas son slug), ainsi que son lien dans la navigation. Ajoutez-la à la navigation secondaire si vous voulez un lien permanent. La page demande aux moteurs de
 recherche de ne pas l'indexer (`noindex, follow`) : sa liste est propre à chaque lecteur, il n'y a rien à référencer.
 
 ### À propos
@@ -1198,7 +1201,7 @@ cookie**. C'est aussi la liste que la page « Cookies et confidentialité » aff
 | `attibling-consent` | localStorage | thème | tous | Réponses du lecteur, par catégorie (contenus intégrés, mesure d’audience, autres ; seulement celles qui lui ont été demandées), leur version et leur date | 6 mois, puis la question revient | non : conserve le choix du lecteur |
 | `plausible_ignore` | localStorage | thème | tous | Le lecteur a désactivé « Compter mes visites » (`true`, lu par Plausible) | Jusqu'au retrait ou à l'effacement | non : conserve le choix du lecteur |
 | `attibling-reading` | localStorage | thème | abonnés | Réglages d'affichage des articles | Jusqu'à « Réinitialiser » ou l'effacement | non : personnalisation choisie |
-| `attibling-saved` | localStorage | thème | abonnés | « À lire plus tard » / « Mes favoris » (adresse, titre, image, tag, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement | non : service demandé (le lecteur enregistre) |
+| `attibling-saved` | localStorage | thème | abonnés | Liste « À lire plus tard » (adresse, titre, image, tag, durée de lecture ; 100 au plus) | Jusqu'au retrait ou à l'effacement | non : service demandé (le lecteur enregistre) |
 | `attibling-progress` | localStorage | thème | abonnés | « Reprendre la lecture » (6 articles au plus, position de lecture), noté automatiquement, désactivable | Jusqu'à la fin de la lecture, « Retirer » ou l'effacement | non selon notre lecture : fonction du compte abonné, locale, désactivable — incertain |
 | `attibling-member` | localStorage | thème | abonnés | Empreinte de l'abonné à qui appartiennent les listes et réglages ci-dessus (jamais son identifiant) : un autre abonné, ou une déconnexion (Portal, session expirée), les efface | Jusqu'à la déconnexion ou à l'effacement | non : protège les listes du compte |
 | `attibling-probe` | localStorage | thème | abonnés | Test : le stockage fonctionne-t-il ? Écrit puis effacé aussitôt | Aucune | non |
@@ -1295,7 +1298,8 @@ Qui décide, du plus fort au plus faible :
 ### En-tête, sommaire, partage
 
 - En-tête : tag principal (pastille) et deuxième tag public, titre, auteur, date, temps de lecture ;
-  pour un abonné, le bouton « À lire plus tard » (le même signet que sur les tuiles). Sans image à la une,
+  pour un abonné, le bouton « À lire plus tard » (le même signet que sur les tuiles ; une fois l'article
+  dans la liste, il indique « Dans À lire plus tard »). Sans image à la une,
   le titre s'affiche sur le fond de la page.
 - Légende de l'image à la une : celle saisie dans Ghost sous l'image (« Add a caption »).
 - Sommaire : construit automatiquement à partir des intertitres H2 et H3 ; il n'apparaît qu'à partir de deux
@@ -1760,7 +1764,7 @@ accroches des pages), *Tag image* et *Description* (tags, À propos, bannière d
 description* (phrase du bandeau), Settings → Staff (boîte auteur, pages d'auteur), Settings → Navigation
 (en-tête, menu « Plus », pied de page).
 
-**Réservé aux abonnés connectés** : signets « À lire plus tard », « Reprendre la lecture », « Mes favoris »,
+**Réservé aux abonnés connectés** : signets et page « À lire plus tard », « Reprendre la lecture »,
 réglages d'affichage, « En bref » (sauf réglage *Summary for visitors*). Leurs données restent dans le
 navigateur du lecteur.
 
@@ -1770,7 +1774,7 @@ navigateur du lecteur.
 
 | Symptôme | Cause et solution |
 |---|---|
-| La page « Archives » (ou « Mes favoris », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
+| La page « Archives » (ou « À lire plus tard », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
 | « Voir toute la série », « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `archives` ou `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
 | Les boutons « S'abonner » ou « Se connecter » ouvrent une fenêtre au lieu de la page | Le site n'a pas de page **publiée** de slug `newsletter`, `abonnement` ou `subscribe`, et le réglage **Subscribe url** est vide : créez la page ou remplissez le réglage. |
 | La fenêtre « Compte » de Ghost a d'autres couleurs que le site | Portal ne prend que la couleur d'accent : Settings → Design & branding → Accent color (voir [Ce qui passe encore par Portal](#ce-qui-passe-encore-par-portal)). |
@@ -1780,7 +1784,7 @@ navigateur du lecteur.
 | Un tag manque sur « À propos » | Slug mal tapé dans **About tags** (vérifiez dans Tags), ou tag sans article. |
 | Une icône de tag est un `#` | Aucun mot connu dans le slug : voir la liste plus haut. |
 | La bio ne s'enregistre pas | Ghost limite la bio à 250 caractères. |
-| « Mes favoris » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
+| La page « À lire plus tard » dit que le navigateur bloque la liste | Navigation privée ou données du site bloquées : rien à faire côté site. |
 | L'article « À la une » d'un tag n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
 | L'encadré de série n'apparaît pas | Le tag doit être interne (nom commençant par `#`) et commencer par `#serie-` ; il faut au moins deux parties **publiées** portant exactement le même tag. |
 | « Partie 3 sur 3 » alors que la série en compte plus | Ajoutez `total: N` dans la description du tag. |
