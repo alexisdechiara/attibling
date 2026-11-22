@@ -22,7 +22,7 @@ Hooks: #hero-wordmark (the wordmark: docking into the header, page transitions, 
         {{#foreach featured}}
           <div class="hero__slide" id="hero-slide-{{@number}}" data-hero-slide{{#unless @first}} hidden{{/unless}}>
             {{#if feature_image}}
-              <img class="hero__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 1440px) 100vw, 1440px" src="{{img_url feature_image size="l"}}" alt=""{{#if @first}} fetchpriority="high"{{else}} loading="lazy"{{/if}} decoding="async">
+              <img class="hero__image"{{> "image/srcset" image=feature_image widths="m-l-xl" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt=""{{#if @first}} fetchpriority="high"{{else}} loading="lazy"{{/if}} decoding="async">
             {{/if}}
             <span class="hero__scrim" aria-hidden="true"></span>
             <a class="hero__post" href="{{url}}" data-hero-post>

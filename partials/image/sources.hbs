@@ -1,0 +1,5 @@
+{{!-- The attributes written by image/srcset.hbs (its only caller; parameters documented there), with
+imageFormat = "webp", or false for the image's own format. --}}
+{{~#match widths "m-l-xl"}} srcset="{{img_url image size="m" format=imageFormat}} 600w, {{img_url image size="l" format=imageFormat}} 1000w, {{img_url image size="w1400" format=imageFormat}} 1400w, {{img_url image size="xl" format=imageFormat}} 2000w"
+{{~else match widths "s-m"}} srcset="{{img_url image size="s" format=imageFormat}} 300w, {{img_url image size="m" format=imageFormat}} 600w"
+{{~else}} srcset="{{img_url image size="s" format=imageFormat}} 300w, {{img_url image size="m" format=imageFormat}} 600w, {{img_url image size="l" format=imageFormat}} 1000w"{{/match}} src="{{img_url image size=srcSize format=imageFormat}}"

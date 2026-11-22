@@ -10,7 +10,7 @@ no data are left out. soloAuthor=true (post.hbs, single-author site): no link to
     <div class="author-box__inner">
       {{#if ../soloAuthor}}<span class="author-box__avatar" aria-hidden="true">{{else}}<a class="author-box__avatar" href="{{url}}" tabindex="-1" aria-hidden="true">{{/if}}
         {{#if profile_image}}
-          <img src="{{img_url profile_image size="s"}}" alt="" width="100" height="100" loading="lazy" decoding="async">
+          <img src="{{img_url profile_image size="s" format="webp"}}" alt="" width="100" height="100" loading="lazy" decoding="async">
         {{else}}
           <span>{{> "icons/user"}}</span>
         {{/if}}

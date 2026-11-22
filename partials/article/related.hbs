@@ -8,7 +8,7 @@ as the shared post tiles. Nothing when there is none.
     <section class="article-related container" aria-labelledby="related-title">
       {{> section-header title=(t "Recommended for you") id="related-title"}}
       <ul class="post-grid" role="list">
-        {{#foreach related}}<li>{{> post-tile size="s" sizes="(max-width: 767px) 92vw, 33vw"}}</li>{{/foreach}}
+        {{#foreach related}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
       </ul>
     </section>
   {{/if}}{{/get}}

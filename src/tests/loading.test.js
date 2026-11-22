@@ -3,7 +3,7 @@
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open, waitFor, sleep } from "./support/harness.js";
-import { template } from "./support/pages.js";
+import { template, home } from "./support/pages.js";
 import { article, LONG_HTML } from "./support/article.js";
 
 const PHONE = { width: 390, height: 844 };
@@ -305,5 +305,108 @@ describe("pictures of the first screen", () => {
 			assert.equal(images[0].priority, "high");
 			await dispose();
 		}
+	});
+});
+
+// Lighthouse « Improve image delivery »: every picture Ghost stores is asked for in WebP, and its sizes
+// attribute is the width of its box, so a 1× desktop screen does not download the 2000 px rendition
+describe("pictures: WebP, at the width of their box", () => {
+	before(launch);
+	after(close);
+
+	// Lighthouse's desktop screen, 1×
+	const DESKTOP = { width: 1350, height: 940 };
+	// The rendition the browser chose (the test site's img_url writes &size=<name>&format=<format>)
+	const chosen = (page, selector) =>
+		page
+			.locator(selector)
+			.first()
+			.evaluate(img => {
+				const url = img.currentSrc || img.src;
+				return `${/[?&]size=(\w+)/.exec(url)?.[1]} ${/[?&]format=(\w+)/.exec(url)?.[1]} ${Math.round(img.getBoundingClientRect().width)}`;
+			});
+	it("home: the hero and the collection banner take the 1400 px rendition on a 1350 px screen, not the 2000 px one", async () => {
+		const { page, dispose } = await open({
+			render: home({ site: { tagImage: tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}` } }),
+			viewport: DESKTOP,
+		});
+		assert.equal(await chosen(page, ".hero__image"), "w1400 webp 1242");
+		const banner = page.locator(".banner__image").first();
+		await banner.scrollIntoViewIfNeeded();
+		await waitFor(() => banner.evaluate(img => img.currentSrc !== ""));
+		assert.equal(await chosen(page, ".banner__image"), "w1400 webp 1242");
+		// Every rendition of the page is WebP
+		const formats = await page.evaluate(() =>
+			[...document.querySelectorAll("main img[srcset]")]
+				.flatMap(img => img.srcset.split(", "))
+				.filter(candidate => !/[?&]format=webp /.test(candidate)),
+		);
+		assert.deepEqual(formats, []);
+		await dispose();
+	});
+
+	it("article header: the width of its box, in the style « Carte » and in « Immersif »", async () => {
+		for (const [internal, want, wide] of [
+			// 1009 px wide on a large screen: still the 1000 px rendition
+			[[], "l webp 944", "l webp 1009"],
+			[["#immersif"], "w1400 webp 1350", "xl webp 1920"],
+		]) {
+			const card = await open({ render: article({ internal }), viewport: DESKTOP });
+			assert.equal(await chosen(card.page, "[data-article-image]"), want, internal.join());
+			await card.dispose();
+			const large = await open({ render: article({ internal }), viewport: { width: 1920, height: 1080 } });
+			assert.equal(await chosen(large.page, "[data-article-image]"), wide, internal.join());
+			await large.dispose();
+		}
+	});
+
+	it("article header: a member who chose the other style gets the picture of that style's box", async () => {
+		const { page, dispose } = await open({
+			render: article({ member: true }),
+			viewport: DESKTOP,
+			storage: { "attibling-reading": JSON.stringify({ style: "immersive" }) },
+		});
+		const picture = page.locator("[data-article-image]");
+		assert.equal(await waitFor(() => picture.evaluate(img => img.sizes === "100vw")), true);
+		assert.equal(await waitFor(async () => (await chosen(page, "[data-article-image]")) === "w1400 webp 1350"), true);
+		await dispose();
+	});
+
+	it("tag page: the header picture and the tiles do not grow with the screen beyond their box", async () => {
+		const { page, dispose } = await open({
+			render: template("tag", { site: { tagImage: tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}` } }),
+			viewport: { width: 1920, height: 1080 },
+		});
+		// 903 px wide: the 1000 px rendition (the sizes attribute said 70vw: 1344 px, the 2000 px one)
+		assert.match(await chosen(page, ".listing-hero__image"), /^l webp 90\d$/);
+		// A tile of the grid is 314 px wide (33vw: 634 px, the 1000 px rendition)
+		const tile = page.locator(".post-grid .tile__image").first();
+		await tile.scrollIntoViewIfNeeded();
+		await waitFor(() => tile.evaluate(img => img.currentSrc !== ""));
+		assert.match(await chosen(page, ".post-grid .tile__image"), /^m webp 3\d\d$/);
+		await dispose();
+	});
+
+	it("an SVG keeps its format (Ghost would rasterise it)", async () => {
+		const { page, dispose } = await open({
+			render: home({
+				site: {
+					image: (post, i) => (i % 2 ? "/content/images/2026/01/logo.svg" : "/content/images/2026/01/photo.jpg"),
+				},
+			}),
+		});
+		const sources = await page.evaluate(() =>
+			[...document.querySelectorAll("main img[srcset]")].flatMap(img =>
+				img.srcset.split(", ").map(c => c.split(" ")[0]),
+			),
+		);
+		const svg = sources.filter(url => url.includes("logo.svg"));
+		assert.ok(
+			svg.length > 0 && svg.every(url => /^\/content\/images\/size\/w\d+\/2026\/01\/logo\.svg$/.test(url)),
+			svg[0],
+		);
+		const photos = sources.filter(url => url.includes("photo.jpg"));
+		assert.ok(photos.length > 0 && photos.every(url => url.includes("/format/webp/")), photos[0]);
+		await dispose();
 	});
 });
