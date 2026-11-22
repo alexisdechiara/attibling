@@ -47,12 +47,12 @@ most recent post leads. The lead post is left out of the grid of the first page.
         {{#if lead}}
           {{#foreach lead}}
             {{> "listing/lead"}}
-            {{#match @root.pagination.total ">" 1}}{{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}{{/match}}
+            {{#match ../../pagination.total ">" 1}}{{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}{{/match}}
           {{/foreach}}
         {{else}}
           {{#foreach ../posts limit="1"}}
             {{> "listing/lead"}}
-            {{#match @root.pagination.total ">" 1}}{{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}{{/match}}
+            {{#match ../../pagination.total ">" 1}}{{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}{{/match}}
           {{/foreach}}
         {{/if}}
       {{/get}}
