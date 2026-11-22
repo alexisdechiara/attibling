@@ -420,8 +420,10 @@ Admin → Tags → le tag → champ *Slug*, par exemple `jeux-video` pour « Jeu
 - Une rangée dont le tag n'a aucun article disparaît d'elle-même. Seuls les tags publics comptent (pas les
   tags internes `#…`).
 - Sans réglage, les rangées prennent les tags les plus utilisés dans l'ordre : le thème fonctionne sur
-  n'importe quel site. Si vous fixez certaines rangées et pas d'autres, un même tag peut apparaître deux fois :
-  fixez alors les cinq.
+  n'importe quel site. Si vous ne fixez que certaines rangées, un tag fixé n'apparaît jamais deux fois : la
+  rangée sans réglage qui retomberait sur un tag que vous avez fixé ailleurs est **omise** (par exemple, avec
+  seulement *Home row 1* = `anime` alors qu'« Anime » est le 4ᵉ tag le plus utilisé, la rangée n° 4 disparaît).
+  Pour avoir cinq rangées, fixez les cinq.
 - Pour de belles rangées : donnez une **image** à vos tags (Tags → le tag → *Tag image*) pour les tuiles de
   rubriques et la bannière, et des images à la une à vos articles. **Bannière** : l'image du tag de *Home row 4*
   remplit le fond, assombrie à gauche pour que le nom reste lisible (une image large, 2000 px, sujet à droite) ;

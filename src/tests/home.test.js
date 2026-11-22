@@ -463,6 +463,30 @@ describe("rows by tag", () => {
 	});
 });
 
+describe("rows with only some tags pinned", () => {
+	before(launch);
+	after(close);
+
+	it("never show a pinned tag twice: the row that would fall back on it is left out", async () => {
+		// « Anime » is the 4th most used tag: pinned for the first row, it must not fill the 4th row too
+		const custom = { home_row_1: "anime" };
+		const { page, dispose } = await open({ render: home({ custom }) });
+		const rows = await page.$$eval(".row", sections =>
+			sections.map(s => [s.className.match(/row--(\w+)/)[1], s.querySelector("h2").textContent.trim()]),
+		);
+		assert.deepEqual(rows, [
+			["shelf", "Anime"],
+			["tags", "Sections"],
+			["posters", "VF"],
+			["list", "Actualité"],
+			["feature", "Informatique"],
+		]);
+		const ids = await page.$$eval("[id^=row-]", els => els.map(e => e.id));
+		assert.equal(new Set(ids).size, ids.length, `ids ${ids.join()}`);
+		await dispose();
+	});
+});
+
 describe("tags without posts", () => {
 	before(launch);
 	after(close);
