@@ -29,7 +29,8 @@ export const setUpHeadingLinks = content => {
 		let timer = null;
 		button.type = "button";
 		button.className = "heading-link";
-		button.setAttribute("aria-label", `${text("copyLink")} « ${title} »`);
+		// The quotes are in the translated string; a function keeps a « $& » of the title literal
+		button.setAttribute("aria-label", text("copyLink").replace("{title}", () => title));
 		button.innerHTML = `<span class="heading-link__icon">${LINK}</span><span class="heading-link__done">${CHECK}</span>`;
 		heading.append(button);
 

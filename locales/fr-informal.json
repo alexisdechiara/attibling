@@ -73,7 +73,7 @@
   "Copied": "Copié",
   "Copy": "Copier",
   "Copy the code": "Copier le code",
-  "Copy the link to the section": "Copier le lien vers la section",
+  "Copy the link to the section “{title}”": "Copier le lien vers la section « {title} »",
   "Count my visits": "Compter mes visites",
   "Cover image": "Image de couverture",
   "Customise your choices or change your mind in {link}.": "Personnalise tes choix ou change d’avis dans {link}.",
