@@ -173,10 +173,3 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 }
-
-/* Article pages on phones, until the first paint (default.hbs sets data-font-wait in <head> and lifts it
-   with the scripts): the text is set in the fallback face of Literata, so that the font files are not
-   asked for while the style sheets and the picture of the first screen are loading */
-:root[data-font-wait] {
-  --font-reading: var(--gh-font-body, "Literata Fallback", Georgia, "Times New Roman", serif);
-}

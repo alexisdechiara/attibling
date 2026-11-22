@@ -116,15 +116,6 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
           if (pr && pr.links == 'underline') root.setAttribute('data-reading-links', 'underline')
         } catch (e) {}
         {{/if}}{{/is}}
-        {{#is "post"}}
-        // Article pages on phones: the reading font (Literata: 125 KB with its italic, for a text that
-        // starts at the bottom of the first screen, under the article's picture) is asked for once the
-        // first screen is painted, so that it does not share the connection with the style sheets and
-        // that picture. Until then the text is set in its fallback face (data-font-wait,
-        // src/css/base/tokens.css); the script that starts the theme scripts, at the end of the page, lifts it. Wider screens preload it
-        // (partials/fonts.hbs).
-        if (window.matchMedia && matchMedia('(max-width: 47.99rem)').matches) root.setAttribute('data-font-wait', '')
-        {{/is}}
       })()
       // @license-end
     </script>
@@ -237,8 +228,6 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
         var scripts = document.currentScript.previousElementSibling
         var start = function () {
           if (!scripts) return
-          // Article pages on phones: the reading font may come now (see the first script of the page)
-          document.documentElement.removeAttribute('data-font-wait')
           // A copy: the browser runs the scripts of a copy it is given, not those the parser left in the template
           var copy = scripts.content.cloneNode(true)
           scripts.remove()
