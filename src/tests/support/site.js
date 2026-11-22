@@ -12,6 +12,7 @@
 //  - extra: number of generated posts appended after the real ones (older, one every 9 days), to test
 //    lists of more than 100 posts
 //  - series: true to put the internal tag #serie-test on 3 posts (indexes 3, 6 and 9)
+//  - adjust(site): a function that edits the built site (posts, tags…) before it is used
 //  - authors: number of authors with published posts (default 1, a single-author site); the others
 //    (up to 4 more) each write two posts (indexes 2n and 2n + 1 from the 3rd post), Alexis the rest
 
@@ -169,6 +170,7 @@ export const createSite = (options = {}) => {
 		extra = 0,
 		series = false,
 		authors: authorCount = 1,
+		adjust,
 	} = options;
 
 	const author = {
@@ -258,7 +260,7 @@ export const createSite = (options = {}) => {
 		})),
 	);
 
-	return {
+	const site = {
 		now: new Date(start).toISOString(),
 		posts,
 		tags,
@@ -293,6 +295,8 @@ export const createSite = (options = {}) => {
 			...settings,
 		},
 	};
+	adjust?.(site);
+	return site;
 };
 
 // The context Ghost gives index.hbs for one page of the post list.

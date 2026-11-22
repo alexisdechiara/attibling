@@ -101,6 +101,30 @@ describe("tag page", () => {
 		await dispose();
 	});
 
+	it("shows only the lead card for a tag with one post, no empty « All posts » section", async () => {
+		const onlyOne = s => {
+			s.posts = s.posts.filter(p => p.tags.some(t => t.slug === "jeux-video")).slice(0, 1);
+		};
+		for (const featured of [true, false]) {
+			const { page, dispose } = await open({ render: template("tag", { site: { adjust: onlyOne, featured } }) });
+			assert.equal(await page.locator(".listing-lead").count(), 1, `lead card (featured: ${featured})`);
+			assert.equal(await page.locator(".listing-grid").count(), 0, `no grid (featured: ${featured})`);
+			assert.equal(await page.locator("#listing-grid-title").count(), 0);
+			await dispose();
+		}
+	});
+
+	it("says « No posts » for a tag without any post", async () => {
+		const none = s => {
+			s.posts = [];
+		};
+		const { page, dispose } = await open({ render: template("tag", { site: { adjust: none } }) });
+		assert.equal(await page.locator(".listing-lead").count(), 0);
+		assert.equal(await page.locator(".listing-grid__empty").textContent(), "No posts");
+		assert.equal(await page.locator(".post-grid .tile").count(), 0);
+		await dispose();
+	});
+
 	it("shows the description when the tag has one, and no lead post on page 2", async () => {
 		const render = template("tag", { paged: true });
 		render.context.tag = { ...render.context.tag, description: "Tests, tops et actus du jeu vidéo." };

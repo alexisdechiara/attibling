@@ -545,7 +545,9 @@ la grille des autres articles (7 par page) et la pagination.
 - **Nombre d'articles** : automatique (« 24 articles avec ce tag »).
 - **Article en tête** : le plus récent des articles du tag marqués **Feature this post** (réglages de
   l'article). S'il n'y en a aucun, l'article le plus récent du tag. Il n'est pas répété dans la grille de la
-  page 1 ; les pages 2 et suivantes n'ont que la grille.
+  page 1 ; les pages 2 et suivantes n'ont que la grille. Un tag qui n'a qu'**un seul article** n'affiche que
+  cet article en tête, sans section « Tous les articles » vide dessous.
+- **Tag sans article** : l'en-tête dit « Aucun article avec ce tag » et la page affiche « Aucun article ».
 - Les tags internes (`#…`) n'ont pas de page : c'est le comportement de Ghost.
 
 ### Pages d'auteur
