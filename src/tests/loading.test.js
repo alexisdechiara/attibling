@@ -81,6 +81,82 @@ describe("theme scripts and Ghost's deferred scripts", () => {
 	});
 });
 
+// Lighthouse counts every script that ran before the first paint as blocking it (and it did, on a fast
+// connection): the theme's scripts are fetched and run once the first screen is painted
+describe("theme scripts wait for the first paint", () => {
+	before(launch);
+	after(close);
+
+	const timeline = page =>
+		page.evaluate(() => ({
+			paint: performance.getEntriesByName("first-contentful-paint")[0]?.startTime,
+			scripts: performance
+				.getEntriesByType("resource")
+				.filter(entry => entry.name.includes("/assets/js/"))
+				.map(entry => [new URL(entry.name).pathname, Math.round(entry.startTime)]),
+			early: [...document.querySelectorAll('link[rel="modulepreload"]')].map(link => link.getAttribute("href")),
+			waiting: document.querySelectorAll("template[data-theme-scripts]").length,
+		}));
+
+	it("home, article, « Tags »: no script of the theme is requested before the first paint, all of them after", async () => {
+		for (const [name, render, entry] of [
+			["home", undefined, "/assets/js/home.js"],
+			["article", article({ html: LONG_HTML }), "/assets/js/post.js"],
+			["tags", template("page-tags"), "/assets/js/tags.js"],
+		]) {
+			// Slow style sheets: the first paint comes late, long after the HTML is parsed; a slow deferred
+			// script, as Ghost's Portal: the load event comes later still
+			const { page, dispose } = await open({
+				render,
+				slow: { "/assets/css/app.css": 700 },
+				ghostDefer: { delay: 1600 },
+			});
+			const { paint, scripts, early, waiting } = await timeline(page);
+			assert.ok(paint >= 700, `${name}: painted at ${Math.round(paint)} ms`);
+			assert.deepEqual(early, [], `${name}: no modulepreload`);
+			const paths = scripts.map(([path]) => path);
+			assert.ok(paths.includes("/assets/js/app.js") && paths.includes(entry), `${name}: ${paths}`);
+			for (const [path, start] of scripts) {
+				assert.ok(
+					start >= paint,
+					`${name}: ${path} requested at ${start} ms, the first paint at ${Math.round(paint)} ms`,
+				);
+			}
+			assert.equal(waiting, 0, `${name}: the scripts left their <template>`);
+			await dispose();
+		}
+	});
+
+	it("start when the page is parsed if nothing is painted (a tab opened in the background), before the load event", async () => {
+		const { page, dispose } = await open({
+			render: article({ html: LONG_HTML }),
+			initScript: () => {
+				// No paint is ever reported
+				const Native = window.PerformanceObserver;
+				window.PerformanceObserver = class extends Native {
+					observe(options) {
+						if (options?.type !== "paint") super.observe(options);
+					}
+				};
+				document.addEventListener("DOMContentLoaded", () => (window.__parsedAt = performance.now()));
+				// post.js ran: the table of contents is there
+				window.addEventListener("load", () => (window.__tocAtLoad = !document.querySelector("[data-toc]").hidden));
+			},
+		});
+		const view = await page.evaluate(() => ({
+			parsed: window.__parsedAt,
+			scripts: performance
+				.getEntriesByType("resource")
+				.filter(entry => entry.name.includes("/assets/js/"))
+				.map(entry => entry.startTime),
+			ran: window.__tocAtLoad,
+		}));
+		assert.ok(view.scripts.length > 0 && view.scripts.every(start => start >= view.parsed - 5), JSON.stringify(view));
+		assert.equal(view.ran, true, "the load event waited for the scripts");
+		await dispose();
+	});
+});
+
 describe("nothing moves when the scripts reveal their parts", () => {
 	before(launch);
 	after(close);
