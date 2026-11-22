@@ -1,0 +1,21 @@
+{{!--
+Inside header.hbs: renders header-body.hbs with the subscription page it needs. Parameters: top (the
+parameters of header.hbs), discoverposts, discovertags (absent when their query failed). The subscription
+page comes from top (index.hbs looked it up already), is not needed for a member or with the setting
+subscribe_url, and is otherwise looked up here, once for the buttons of the header.
+--}}
+{{#with this as |sel|}}
+  {{#if @member}}
+    {{> header-body home=sel.top.home discoverposts=sel.discoverposts discovertags=sel.discovertags}}
+  {{else if @custom.subscribe_url}}
+    {{> header-body home=sel.top.home discoverposts=sel.discoverposts discovertags=sel.discovertags}}
+  {{else if sel.top.subscribePagesKnown}}
+    {{> header-body home=sel.top.home discoverposts=sel.discoverposts discovertags=sel.discovertags subscribePages=sel.top.subscribePages subscribePagesKnown=true}}
+  {{else}}
+    {{#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |subscribepages|}}
+      {{> header-body home=sel.top.home discoverposts=sel.discoverposts discovertags=sel.discovertags subscribePages=subscribepages subscribePagesKnown=true}}
+    {{else}}
+      {{> header-body home=sel.top.home discoverposts=sel.discoverposts discovertags=sel.discovertags}}
+    {{/get}}
+  {{/if}}
+{{/with}}

@@ -1,29 +1,31 @@
 {{!--
 Content of the « ••• » menu of the header (the earlier theme's submenu, in the new design): the most
 recent posts as small cards with their date, then, below them, the most used public tags as a row of
-plain bold links with « Tous les tags ». Rendered by the server (two {{#get}}, no request from the
-browser); used twice: in the desktop popover (header.hbs, #site-discover: six posts, one row on wide
-screens) and in the phone menu sheet (four posts as a list).
+plain bold links with « Tous les tags ». Rendered by header-body.hbs twice from the same data (the two
+{{#get}} of header.hbs, no request from the browser): in the desktop popover (#site-discover: six posts,
+one row on wide screens) and in the phone menu sheet (the first four posts as a list).
 Parameters:
   prefix="..."   prefix of the ids of the headings (each use needs its own)
-  count="6"      number of recent posts
+  count="6"      number of recent posts shown
+  posts          the recent posts ({{#get "posts"}} of header.hbs)
+  tags           the most used public tags, with count.posts ({{#get "tags"}} of header.hbs)
 --}}
 <section class="discover__section discover__section--posts" aria-labelledby="{{prefix}}-recent">
   <h2 class="discover__title" id="{{prefix}}-recent">{{t "Recent posts"}}</h2>
-  {{#get "posts" limit=count include="tags" as |recent|}}{{#if recent}}
+  {{#if posts}}
     <ul class="discover__posts" role="list">
-      {{#foreach recent}}<li>{{> row-item meta="tag-date"}}</li>{{/foreach}}
+      {{#foreach posts limit=count}}<li>{{> row-item meta="tag-date"}}</li>{{/foreach}}
     </ul>
-  {{/if}}{{/get}}
+  {{/if}}
 </section>
 <section class="discover__section discover__section--tags" aria-labelledby="{{prefix}}-tags">
   <div class="discover__head">
     <h2 class="discover__title" id="{{prefix}}-tags">{{t "Tags"}}</h2>
     <a class="discover__all" href="{{@site.url}}/tags/">{{t "All tags"}}{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
   </div>
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}{{#match discovertags.0.count.posts ">" 0}}
+  {{#match tags.0.count.posts ">" 0}}
     <ul class="discover__tags" role="list">
-      {{#foreach discovertags}}{{#match count.posts ">" 0}}<li><a class="discover__tag" href="{{url}}">{{name}}</a></li>{{/match}}{{/foreach}}
+      {{#foreach tags}}{{#match count.posts ">" 0}}<li><a class="discover__tag" href="{{url}}">{{name}}</a></li>{{/match}}{{/foreach}}
     </ul>
-  {{/match}}{{/get}}
+  {{/match}}
 </section>

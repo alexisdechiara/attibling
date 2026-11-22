@@ -2,7 +2,6 @@
 // contents, copy buttons, series box, « En bref », fiche de test structured data, reading progress
 // (ring, back to the top, members' « Reprendre la lecture »), the members' display settings, and Ghost's
 // comments, loaded when the reader gets near them.
-import mediumZoom from "medium-zoom";
 import {
 	setEmbedRatios,
 	adjustImageGallery,
@@ -37,7 +36,7 @@ onReady(() => {
 		setEmbedRatios,
 		adjustImageGallery,
 		managePostImages,
-		() => makeImagesZoomable(mediumZoom),
+		makeImagesZoomable,
 
 		() => setUpSummary(content, article.querySelector("[data-article-intro]")),
 		() => document.querySelectorAll("[data-series]").forEach(setUpSeries),

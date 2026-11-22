@@ -92,12 +92,12 @@
      margin keeps the row where it was */
   margin: calc(var(--space-2) - var(--space-5)) 0 0;
   padding-block: var(--space-5) var(--space-7);
-  padding-inline: max(var(--gutter), calc((100vw - var(--page-max)) / 2));
+  padding-inline: max(var(--gutter), calc((100% - var(--page-max)) / 2));
   list-style: none;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: max(var(--gutter), calc((100vw - var(--page-max)) / 2));
+  scroll-padding-inline: max(var(--gutter), calc((100% - var(--page-max)) / 2));
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

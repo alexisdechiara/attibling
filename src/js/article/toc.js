@@ -1,7 +1,7 @@
 // Table of contents (partials/article/toc.hbs) with tocbot, from the h2 and h3 of the content; shown
 // when there are at least two. Where it sits in the margin (style « Carte », wide screens: the CSS
 // makes it sticky) the disclosure is kept open; elsewhere it is a « Sommaire » button.
-import tocbot from "tocbot";
+// tocbot (14 KB) is only fetched when the table will be shown (two headings or more).
 
 // Left out of the table of contents: headings inside Ghost cards (header, signup, toggle…) are not
 // sections of the text, and an author can leave one out with the class js-toc-ignore. The rule of
@@ -15,18 +15,22 @@ export const setUpToc = (toc, content) => {
 	if (headings.length < 2) return;
 	toc.hidden = false;
 	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-	tocbot.init({
-		tocSelector: "[data-toc-list]",
-		contentSelector: "[data-article-content]",
-		headingSelector: "h2, h3",
-		ignoreSelector: IGNORED,
-		hasInnerContainers: true,
-		orderedList: false,
-		headingsOffset: 120,
-		scrollSmooth: !reducedMotion,
-		scrollSmoothOffset: -96,
-		collapseDepth: 6,
-	});
+	import("tocbot")
+		.then(({ default: tocbot }) =>
+			tocbot.init({
+				tocSelector: "[data-toc-list]",
+				contentSelector: "[data-article-content]",
+				headingSelector: "h2, h3",
+				ignoreSelector: IGNORED,
+				hasInnerContainers: true,
+				orderedList: false,
+				headingsOffset: 120,
+				scrollSmooth: !reducedMotion,
+				scrollSmoothOffset: -96,
+				collapseDepth: 6,
+			}),
+		)
+		.catch(() => {});
 
 	// In the margin the CSS makes the disclosure itself sticky (src/css/article/toc.css)
 	const inMargin = () => getComputedStyle(toc).position === "sticky";

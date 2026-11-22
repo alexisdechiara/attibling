@@ -1,0 +1,13 @@
+{{!--
+The <main> of the home page (page 1), in the order index.hbs describes. subscribePages and
+subscribePagesKnown (the subscription page, looked up once by index.hbs) reach the « S'abonner » buttons of
+the hero and of the subscription block through the context (see subscribe-href.hbs).
+--}}
+<main id="main" class="site-main home">
+  {{> "home/hero"}}
+  {{> "home/latest"}}
+  {{> "home/subscribe-promo"}}
+  {{> "home/member-lists"}}
+  {{> "home/top"}}
+  {{> "home/rows"}}
+</main>

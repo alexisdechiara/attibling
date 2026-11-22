@@ -20,6 +20,7 @@ const MIME = {
 };
 
 let browser = null;
+let scrollbarBrowser = null;
 
 const launch = async () => {
 	browser = await chromium.launch();
@@ -27,6 +28,10 @@ const launch = async () => {
 };
 
 const close = async () => {
+	if (scrollbarBrowser) {
+		await scrollbarBrowser.close();
+		scrollbarBrowser = null;
+	}
 	if (browser) {
 		await browser.close();
 		browser = null;
@@ -54,6 +59,8 @@ const close = async () => {
  *  - commentsUi: { delay, script } answers Ghost's comments-ui (COMMENTS_UI, from jsDelivr, the script of
  *    {{comments}}) after `delay` ms with the JavaScript `script`; "fail": a 404; null (default): aborted,
  *    like every other request outside the site (it is still listed in `requests`)
+ *  - classicScrollbars: true for a browser that draws classic (space-taking) scrollbars, 15 px wide;
+ *    headless Chromium otherwise hides them, which hides the bugs of a layout that counts 100vw
  *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, javaScriptEnabled: browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
@@ -78,10 +85,14 @@ const open = async (options = {}) => {
 		fail = [],
 		commentsUi = null,
 		hash = "",
+		classicScrollbars = false,
 	} = options;
 	const render = options.render || (fixture ? null : home());
 
-	const context = await browser.newContext({
+	if (classicScrollbars && !scrollbarBrowser) {
+		scrollbarBrowser = await chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"] });
+	}
+	const context = await (classicScrollbars ? scrollbarBrowser : browser).newContext({
 		colorScheme,
 		reducedMotion,
 		viewport,

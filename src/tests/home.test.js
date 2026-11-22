@@ -678,3 +678,52 @@ describe("home layout", () => {
 		await dispose();
 	});
 });
+
+describe("shelf alignment", () => {
+	before(launch);
+	after(close);
+
+	// The shelf's padding is the container's margin: it must follow the width the page really has, not the
+	// window's (100vw counts the scrollbar: ~15 px of misalignment with classic scrollbars)
+	const edges = page =>
+		page.evaluate(() => {
+			const shelf = document.querySelector(".row--shelf");
+			const container = shelf.querySelector(".container");
+			const style = getComputedStyle(container);
+			const box = container.getBoundingClientRect();
+			const tile = shelf.querySelector(".shelf__item").getBoundingClientRect();
+			return {
+				scrollbar: innerWidth - document.documentElement.clientWidth,
+				contentStart: box.left + parseFloat(style.paddingLeft),
+				contentEnd: box.right - parseFloat(style.paddingRight),
+				tileStart: tile.left,
+				tileEnd: tile.right,
+			};
+		});
+
+	// The container's margin only exceeds the gutter once the window is wider than 1440 px (--page-max)
+	it("starts the first tile at the container's content edge with classic scrollbars", async () => {
+		for (const width of [1440, 1600, 1920]) {
+			const { page, dispose } = await open({ viewport: { width, height: 900 }, classicScrollbars: true });
+			const e = await edges(page);
+			assert.ok(e.scrollbar > 0, `scrollbars take room (${e.scrollbar} px)`);
+			assert.ok(
+				Math.abs(e.tileStart - e.contentStart) < 0.5,
+				`${width}px: tile at ${e.tileStart}, container at ${e.contentStart}`,
+			);
+			await dispose();
+		}
+	});
+
+	it("ends it at the container's content edge in a right-to-left language", async () => {
+		const { page, dispose } = await open({
+			render: home({ locale: "ar" }),
+			viewport: { width: 1600, height: 900 },
+			classicScrollbars: true,
+		});
+		assert.equal(await page.evaluate(() => document.documentElement.dir), "rtl");
+		const e = await edges(page);
+		assert.ok(Math.abs(e.tileEnd - e.contentEnd) < 0.5, `tile ends at ${e.tileEnd}, container at ${e.contentEnd}`);
+		await dispose();
+	});
+});

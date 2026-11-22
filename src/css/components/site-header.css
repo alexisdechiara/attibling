@@ -34,13 +34,10 @@
 }
 
 /* The room the header takes at the top of the window: sticky parts below it (the article's table of
-   contents) follow it when it hides */
+   contents) follow it when it hides. The table of contents alone changes it (article/toc.css): a
+   custom property changed on :root would restyle the whole document at every hide and show */
 :root {
   --header-offset: var(--header-height);
-}
-
-:root:has(.site-header[data-hidden]) {
-  --header-offset: 0px;
 }
 
 .site-header__bar {

@@ -196,17 +196,40 @@ export const managePostImages = () => {
 	});
 };
 
-export const makeImagesZoomable = mediumZoom => {
-	const zoom = mediumZoom(".js-zoomable");
-
-	zoom.on("opened", () => {
-		setTimeout(() => {
-			const mediumZoomImages = document.querySelectorAll(".medium-zoom-image--opened");
-			if (mediumZoomImages.length > 1) {
-				mediumZoomImages[mediumZoomImages.length - 1].style.display = "none";
-			}
-		}, 10);
-	});
+// Zoom on the images marked js-zoomable (managePostImages). medium-zoom (9 KB) is fetched when the browser is
+// idle, or at once when a reader reaches for an image; a page without zoomable images never fetches it. A
+// click that comes before it has loaded opens the image as soon as it has.
+export const makeImagesZoomable = () => {
+	const images = [...document.querySelectorAll(".js-zoomable")];
+	if (!images.length) return;
+	let loading = null;
+	const load = () =>
+		(loading ||= import("medium-zoom").then(({ default: mediumZoom }) => {
+			const zoom = mediumZoom(".js-zoomable");
+			zoom.on("opened", () => {
+				setTimeout(() => {
+					const mediumZoomImages = document.querySelectorAll(".medium-zoom-image--opened");
+					if (mediumZoomImages.length > 1) {
+						mediumZoomImages[mediumZoomImages.length - 1].style.display = "none";
+					}
+				}, 10);
+			});
+			return zoom;
+		}));
+	const events = ["pointerover", "touchstart", "focusin", "click"];
+	const early = event => {
+		const target = event.currentTarget;
+		load()
+			.then(zoom => event.type === "click" && zoom.open({ target }))
+			.catch(() => {});
+	};
+	for (const image of images) for (const type of events) image.addEventListener(type, early);
+	// Once loaded, medium-zoom answers the clicks itself
+	const loaded = () => {
+		for (const image of images) for (const type of events) image.removeEventListener(type, early);
+	};
+	const idle = window.requestIdleCallback || (callback => setTimeout(callback, 200));
+	idle(() => load().then(loaded, () => {}), { timeout: 3000 });
 };
 
 // Text written straight into the content (an HTML card or an old import, without a <p>) would become

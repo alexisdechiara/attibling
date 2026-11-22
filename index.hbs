@@ -23,16 +23,24 @@ right after them, so its « Tout voir » link loses no post.
 {{!< default}}
 
 {{#is "home"}}
-  {{> header home=true}}
-
-  <main id="main" class="site-main home">
-    {{> "home/hero"}}
-    {{> "home/latest"}}
-    {{> "home/subscribe-promo"}}
-    {{> "home/member-lists"}}
-    {{> "home/top"}}
-    {{> "home/rows"}}
-  </main>
+  {{!-- The subscription page is looked up once for the header and the two « S'abonner » buttons of the page
+  (subscribe-href.hbs); members have no such button, and the setting subscribe_url needs no lookup. The
+  {{#get}} block changes the context: {{#with ..}} gives it back. --}}
+  {{#if @member}}
+    {{> header home=true}}
+    {{> "home/main"}}
+  {{else if @custom.subscribe_url}}
+    {{> header home=true}}
+    {{> "home/main"}}
+  {{else}}
+    {{#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |subscribepages|}}{{#with ..}}
+      {{> header home=true subscribePages=subscribepages subscribePagesKnown=true}}
+      {{> "home/main" subscribePages=subscribepages subscribePagesKnown=true}}
+    {{/with}}{{else}}
+      {{> header home=true}}
+      {{> "home/main"}}
+    {{/get}}
+  {{/if}}
 {{else}}
   {{> header}}
 

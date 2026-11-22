@@ -1,7 +1,8 @@
 {{!--
 Series box (post context), at the top of the text. A series = the published posts sharing an internal
 tag whose name starts with #serie- (slug hash-serie-…), in publication order; scheduled posts and drafts
-are not returned by Ghost, so they never show. At most 100 parts (Ghost's limit per request).
+are not returned by Ghost, so they never show. At most 100 parts (Ghost's limit per request); only the id, title and url of each part are fetched.
+The heading id carries the series tag's slug (series-name-hash-serie-…): a post in two series has two boxes.
 (Paths: inside {{#get}} ../ is the series tag and ../../ the post; inside its {{#foreach}} ../../../ is the post.) Shown when the series has at least two published parts.
 
 The tag's description gives the series name and, optionally, the planned total: « Calendrier de
@@ -14,13 +15,13 @@ Without the script the full list shows and the total is the published count.
 --}}
 {{#foreach tags visibility="internal"}}
   {{#match slug "~^" "hash-serie-"}}
-    {{#get "posts" filter="tag:{{slug}}" limit="100" order="published_at asc" as |parts pages|}}
+    {{#get "posts" filter="tag:{{slug}}" limit="100" fields="id,title,url" order="published_at asc" as |parts pages|}}
       {{#match pages.total ">" 1}}
-        <nav class="series" aria-labelledby="series-name" data-series
+        <nav class="series" aria-labelledby="series-name-{{../slug}}" data-series
           data-description="{{../description}}" data-published="{{pages.total}}"
           data-label-count="{{t "Part {n} of {total}" n="{n}" total="{total}"}}" data-label-more="{{t "% parts"}}" data-label-upcoming="{{t "% parts to come"}}">
           <div class="series__head">
-            <p class="series__heading" id="series-name">
+            <p class="series__heading" id="series-name-{{../slug}}">
               <span class="series__label">{{t "Series"}}</span>
               <span class="series__name" data-series-name>{{#match ../description "~" "total:"}}{{else}}{{../description}}{{/match}}</span>
             </p>

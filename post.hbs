@@ -29,85 +29,15 @@ and carry the strings the scripts need (copy buttons, series).
 {{#post}}
   {{> header}}
 
-  <main id="main" class="site-main article-page">
-    <article class="article{{#if feature_image}} article--has-image{{/if}}" data-article
-      data-style="{{#has tag="#immersif"}}immersive{{else}}{{#has tag="#carte"}}card{{else}}{{#match @custom.article_style "Immersive"}}immersive{{else}}card{{/match}}{{/has}}{{/has}}"
-      {{#unless @custom.summary_for_visitors}}data-summary-members{{/unless}}
-      data-url="{{url}}" data-title="{{title}}" data-image="{{> "vignette/url"}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
-      data-author="{{primary_author.name}}" data-published="{{date format="YYYY-MM-DD"}}"
-      data-copy-link="{{t "Copy the link to the section “{title}”" title="{title}"}}" data-link-copied="{{t "Link copied"}}"
-      data-copy="{{t "Copy"}}" data-copied="{{t "Copied"}}" data-copy-code="{{t "Copy the code"}}" data-code-copied="{{t "Code copied"}}"
-      style="--label-summary: &quot;{{t "In short"}}&quot;; --label-summary-author: &quot;{{t "Author's summary"}}&quot;; --label-summary-ai: &quot;{{t "AI-generated summary"}}&quot;">
-
-      {{!-- Single-author rule (docs/guide-auteur.md): no link to the author page when only one author has
-      published posts. One query of one row; the partial gets the post back as its context. --}}
-      {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}
-        {{#match authorPages.total 1}}{{> article/header @root.post soloAuthor=true}}{{else}}{{> article/header @root.post}}{{/match}}
-      {{else}}
-        {{> article/header}}
-      {{/get}}
-
-      <div class="article-body">
-        {{> article/toc}}
-
-        <div class="article-intro" data-article-intro>
-          {{> article/series}}
-          {{> article/summary-teaser}}
-        </div>
-
-        <div class="gh-content article-content js-post-content" data-article-content>
-          {{content}}
-        </div>
-
-        <footer class="article-end">
-          {{> article/dates}}
-          {{> article/series-nav}}
-          {{> article/share}}
-        </footer>
-      </div>
-
-      {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}
-        {{#match authorPages.total 1}}{{> article/author @root.post soloAuthor=true}}{{else}}{{> article/author @root.post}}{{/match}}
-      {{else}}
-        {{> article/author}}
-      {{/get}}
-
-      {{!-- Ghost's comments (comments-ui, ~250 KB from jsDelivr) load only when the reader gets near them,
-      or at once when the address or a link targets them (#ghost-comments…): src/js/article/comments.js.
-      Ghost's own {{comments}} output stays as Ghost writes it, inert inside the <template> until the script
-      copies it after #ghost-comments-root (comments-ui draws its frame in that element when it is the
-      script's previous sibling; the anchor #ghost-comments-root of Ghost's newsletter works before that).
-      data-comments-space: the height kept while loading, the comment form (a member who may comment) or
-      Ghost's « sign up / upgrade » invitation (everyone else). Without JavaScript comments-ui cannot run:
-      the <noscript> sentence says so. --}}
-      {{#if comments}}
-        <section class="article-comments container" aria-label="{{t "Member discussion"}}" data-comments
-          data-comments-space="{{#if @member}}{{#match @site.comments_access "paid"}}{{#if @member.paid}}form{{else}}invite{{/if}}{{else}}form{{/match}}{{else}}invite{{/if}}"
-          data-comments-error="{{t "The comments could not be loaded. Reload the page to try again."}}">
-          <div class="article-comments__inner js-native-comments">
-            <p class="article-comments__status" role="status" data-comments-status>{{t "Loading comments…"}}</p>
-            <div id="ghost-comments-root"></div>
-            <template data-comments-script>{{comments title=(t "Member discussion") count=true}}</template>
-            <noscript><p class="article-comments__status">{{t "Comments need JavaScript: turn it on to read and write them."}}</p></noscript>
-          </div>
-        </section>
-      {{/if}}
-    </article>
-
-    {{> article/related}}
-
-    {{!-- Reading progress ring and back to the top (CSS scroll-driven animation, post.js otherwise) --}}
-    <button type="button" class="progress-button js-scrolltop" aria-label="{{t "Scroll to top"}}" data-progress-button>
-      {{> "icons/arrow-up"}}
-      <svg class="progress-button__ring" aria-hidden="true" viewBox="0 0 100 100">
-        <circle class="progress-button__track" cx="50" cy="50" r="47" pathLength="100" />
-        <circle class="progress-button__circle js-progress" cx="50" cy="50" r="47" pathLength="100" />
-      </svg>
-    </button>
-
-    {{#if @member}}{{#if @custom.reading_settings}}{{> article/reading-settings}}{{/if}}{{/if}}
-    <p class="sr-only" aria-live="polite" data-article-live></p>
-  </main>
+  {{!-- Single-author rule (docs/guide-auteur.md): no link to the author page when only one author has
+  published posts. One query of one row for the whole article (the header and the author box read it from
+  authorPages); {{#with ..}} gives the post back as the context inside the block of {{#get}}. The block is
+  rendered for an empty result; {{else}} only when the query fails: the article shows all the same. --}}
+  {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}{{#with ..}}
+    {{> article/page authorPages=authorPages}}
+  {{/with}}{{else}}
+    {{> article/page}}
+  {{/get}}
 {{/post}}
 
 {{#contentFor "scripts"}}
