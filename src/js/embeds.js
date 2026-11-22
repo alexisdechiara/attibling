@@ -19,6 +19,19 @@ import { embeds as choices, consent, consentMode } from "./privacy/choices";
 // anything): taller than a long post or thread on any provider (about 1,500 px), short enough that an
 // embed cannot push the rest of the article out of reach. Taller content scrolls inside its frame.
 const MAX_EMBED_HEIGHT = 4000;
+// The frames that take the height their content announces: one listener for all of them, which forgets
+// a frame once it has left the page
+const fitting = new Set();
+window.addEventListener("message", event => {
+	for (const frame of fitting) {
+		if (!frame.isConnected) fitting.delete(frame);
+		else if (event.source === frame.contentWindow) {
+			const height = boundedHeight(event.data?.attiblingEmbed?.height);
+			if (height) frame.style.height = `${height}px`;
+		}
+	}
+});
+
 const boundedHeight = value =>
 	typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.min(Math.ceil(value), MAX_EMBED_HEIGHT) : 0;
 
@@ -260,13 +273,7 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			message = { markup: embed.nodes.map(node => node.outerHTML ?? node.textContent).join("") };
 		}
 		// The frame takes the height of what it shows (no ratio, no height of its own)
-		const fits = !ratio && !original;
-		const onMessage = event => {
-			if (event.source !== frame.contentWindow || !frame.isConnected) return;
-			const height = boundedHeight(event.data?.attiblingEmbed?.height);
-			if (fits && height) frame.style.height = `${height}px`;
-		};
-		window.addEventListener("message", onMessage);
+		if (!ratio && !original) fitting.add(frame);
 		frame.addEventListener(
 			"load",
 			() => {

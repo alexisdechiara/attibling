@@ -198,6 +198,30 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
+	it("listen for the frames' messages once, however many embeds are loaded", async () => {
+		const { page, dispose } = await open({
+			render: facadeOnly({ html: HTML }),
+			initScript: () => {
+				window.__messageListeners = 0;
+				const add = window.addEventListener;
+				window.addEventListener = function (type, ...rest) {
+					if (type === "message") window.__messageListeners++;
+					return add.call(this, type, ...rest);
+				};
+			},
+		});
+		await page.route("https://platform.twitter.com/**", route => route.fulfill({ contentType: "text/html", body: "<body>x</body>" }));
+		const listeners = () => page.evaluate(() => window.__messageListeners);
+		const before = await listeners();
+		for (const provider of ["youtube", "x"]) {
+			await page.locator(`[data-provider="${provider}"] [data-embed-load]`).click();
+			await page.locator("iframe[data-embed-frame]").last().waitFor();
+		}
+		assert.equal(await page.locator("iframe[data-embed-frame]").count(), 2);
+		assert.ok((await listeners()) - before <= 0, "no listener added per embed");
+		await dispose();
+	});
+
 	it("never let an embed push the article down: only a finite height, at most 4000 px", async () => {
 		// A scripted embed (its script runs in the frame page, next to the relay) and an X frame, each
 		// claiming a huge height, as a number and as a string
