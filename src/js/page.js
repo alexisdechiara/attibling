@@ -9,6 +9,7 @@ import {
 	makeImagesZoomable,
 	markPrintLinks,
 	onReady,
+	runEach,
 	wrapLooseText,
 } from "./helpers";
 
@@ -45,16 +46,18 @@ const wrapTables = content => {
 };
 
 onReady(() => {
-	document.querySelectorAll(".gh-content").forEach(content => {
-		wrapLooseText(content);
-		wrapTables(content);
-		markPrintLinks(content);
-	});
-	setEmbedRatios();
-
-	adjustImageGallery();
-	managePostImages();
-	makeImagesZoomable(mediumZoom);
+	// Each on its own (runEach): content the theme did not foresee must not cost the reader the rest
+	runEach(
+		...[...document.querySelectorAll(".gh-content")].flatMap(content => [
+			() => wrapLooseText(content),
+			() => wrapTables(content),
+			() => markPrintLinks(content),
+		]),
+		setEmbedRatios,
+		adjustImageGallery,
+		managePostImages,
+		() => makeImagesZoomable(mediumZoom),
+	);
 
 	const documentRoot = document.querySelector("[data-document]");
 	if (documentRoot) import("./document").then(({ setUpDocument }) => setUpDocument(documentRoot));

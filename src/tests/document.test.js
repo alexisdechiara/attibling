@@ -43,6 +43,46 @@ describe("reference document", () => {
 	before(launch);
 	after(close);
 
+	it("keeps the page's enhancements when a gallery image has no width and height", async () => {
+		const gallery = `<figure class="kg-card kg-gallery-card"><div class="kg-gallery-container"><div class="kg-gallery-row"><div class="kg-gallery-image"><img src="/src/tests/fixtures/pixel.svg" alt=""></div></div></div></figure>`;
+		for (const render of [
+			legal({ post: { html: gallery + HTML } }),
+			template("page", { post: { html: gallery + HTML } }),
+		]) {
+			const { page, errors, dispose } = await open({ render, viewport: WIDE });
+			await page.waitForSelector(".table-scroll");
+			if (render.template !== "page") await page.waitForSelector("[data-document-toc]:not([hidden]) .toc-link");
+			assert.equal(await page.locator(".kg-gallery-image img.js-zoomable").count(), 1);
+			assert.deepEqual(
+				errors.map(error => error.message),
+				[],
+			);
+			await dispose();
+		}
+	});
+
+	it("keeps the page's other enhancements when one of them fails, and still reports the error", async () => {
+		const frame = '<iframe width="640" height="360" src="about:blank"></iframe>';
+		const { page, errors, dispose } = await open({
+			render: legal({ post: { html: frame + HTML } }),
+			viewport: WIDE,
+			initScript: () => {
+				HTMLIFrameElement.prototype.getAttribute = () => {
+					throw new Error("broken embed");
+				};
+			},
+		});
+		await page.waitForSelector("[data-document-toc]:not([hidden]) .toc-link");
+		assert.equal(await page.locator(".table-scroll").count(), 1);
+		assert.deepEqual(
+			errors.map(error => error.message),
+			["broken embed"],
+		);
+		// dispose() fails a test on any page error: this one is the point of the test
+		errors.length = 0;
+		await dispose();
+	});
+
 	it("builds a table of contents from the h2 and h3, sticky beside the text on wide screens", async () => {
 		const { page, dispose } = await open({ render: legal(), viewport: WIDE });
 		await page.waitForSelector("[data-document-toc]:not([hidden]) .toc-link");

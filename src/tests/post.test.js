@@ -43,6 +43,48 @@ describe("article page: content", () => {
 		await dispose();
 	});
 
+	// A gallery as pasted or imported HTML gives it: the second image has no width and height attributes
+	const GALLERY_HTML = `<figure class="kg-card kg-gallery-card kg-width-wide"><div class="kg-gallery-container"><div class="kg-gallery-row"><div class="kg-gallery-image sized"><img src="/src/tests/fixtures/pixel.svg" width="1600" height="800" alt=""></div><div class="kg-gallery-image unsized"><img src="/src/tests/fixtures/pixel.svg" alt=""></div></div></div></figure>`;
+
+	it("keeps every enhancement when a gallery image has no width and height", async () => {
+		const { page, errors, dispose } = await open({ render: article({ html: GALLERY_HTML + LONG_HTML }) });
+		const state = await page.evaluate(() => ({
+			sized: document.querySelector(".kg-gallery-image.sized").style.flexGrow,
+			unsized: document.querySelector(".kg-gallery-image.unsized").style.flexGrow,
+			toc: document.querySelectorAll("[data-toc] a").length,
+			copy: document.querySelectorAll("[data-article-content] pre button, [data-article-content] .code-block button")
+				.length,
+			zoomable: document.querySelectorAll("img.js-zoomable").length > 0,
+		}));
+		assert.deepEqual(
+			errors.map(error => error.message),
+			[],
+		);
+		assert.deepEqual(state, { sized: "2", unsized: "", toc: 4, copy: 1, zoomable: true });
+		await dispose();
+	});
+
+	it("keeps the other enhancements when one of them fails, and still reports the error", async () => {
+		const { page, errors, dispose } = await open({
+			render: article({ html: MEDIA_HTML }),
+			// The embed ratios fail (they read the frames' attributes); everything after them must still run
+			initScript: () => {
+				HTMLIFrameElement.prototype.getAttribute = () => {
+					throw new Error("broken embed");
+				};
+			},
+		});
+		assert.equal(await page.locator("[data-toc] a").count(), 4, "the table of contents is built");
+		assert.equal((await page.locator("img.js-zoomable").count()) > 0, true, "images are zoomable");
+		assert.deepEqual(
+			errors.map(error => error.message),
+			["broken embed"],
+		);
+		// dispose() fails a test on any page error: this one is the point of the test
+		errors.length = 0;
+		await dispose();
+	});
+
 	it("fits video embeds to the column at their own ratio", async () => {
 		for (const width of [390, 1440]) {
 			const { page, dispose } = await open({ render: article({ html: MEDIA_HTML }), viewport: { width, height: 800 } });
