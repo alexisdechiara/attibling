@@ -23,7 +23,7 @@ most recent post leads. The lead post is left out of the grid of the first page.
     <div class="container">
       <header class="listing-hero{{#if feature_image}} listing-hero--image{{/if}}" data-tag-header>
         {{#if feature_image}}
-          <img class="listing-hero__image" srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w" sizes="(max-width: 767px) 100vw, 70vw" src="{{img_url feature_image size="l"}}" alt="" fetchpriority="high">
+          <img class="listing-hero__image"{{> "image/srcset" image=feature_image widths="m-l-xl" srcSize="l"}} sizes="(max-width: 767px) 92vw, (max-width: 1443px) 63vw, 903px" alt="" fetchpriority="high">
         {{/if}}
         <div class="listing-hero__text">
           <h1 class="listing-hero__title">{{name}}</h1>

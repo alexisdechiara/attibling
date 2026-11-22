@@ -11,10 +11,11 @@
 //    posts (and an image).
 //  - arrange(grid, seed) applies it to the grid: moves the cells into the new order and gives each one
 //    its spans for 2, 4 and 6 columns (--w2/--h2, --w4/--h4, --w6/--h6; the CSS picks by breakpoint).
-//  - prepaint(script) runs from the inline script right after the grid, before the first paint
-//    (partials/tags/prepaint.hbs). It keeps the seed of this page view in history.state, so going back
-//    to the page shows the same arrangement; a new visit or a reload draws a new one; Save-Data keeps
-//    the default.
+//  - prepaint() runs from an inline script of <head>, ahead of the style sheets (partials/tags/prepaint.hbs):
+//    as soon as the parser has built the grid, and without waiting for the style sheets as a script
+//    placed after the grid would, it arranges it and asks for the pictures of its first rows. It keeps
+//    the seed of this page view in history.state, so going back to the page shows the same
+//    arrangement; a new visit or a reload draws a new one; Save-Data keeps the default.
 //
 // No import here: the build (vite.config.mjs) inlines this file into partials/tags/prepaint.hbs.
 // src/js/tags.js imports it for the « Mélanger » button.
@@ -236,7 +237,11 @@ const cellsOf = grid => {
 	return cells.sort((a, b) => a.dataset.rank - b.dataset.rank);
 };
 
-export const arrange = (grid, seed) => {
+// first = { columns, rows, column, gap } (firstRows): the cells that start in these rows at this number
+// of columns load their pictures at once (loadFirst), each at the width of its cell: sizes="auto" (the
+// template) needs a layout, which the page does not have yet, and the browser would take the whole
+// screen's width instead
+export const arrange = (grid, seed, first) => {
 	const cells = cellsOf(grid);
 	const tags = cells.map(cell => ({
 		posts: Number(cell.dataset.posts) || 0,
@@ -244,6 +249,7 @@ export const arrange = (grid, seed) => {
 		description: Boolean(cell.querySelector(".tag-cell__description")),
 	}));
 	let visual = [];
+	let early = [];
 	for (const columns of COLUMNS) {
 		const result = layout(seed, tags, columns);
 		visual = result.order;
@@ -251,10 +257,20 @@ export const arrange = (grid, seed) => {
 			cells[index].style.setProperty(`--w${columns}`, w);
 			cells[index].style.setProperty(`--h${columns}`, h);
 		}
+		if (first?.columns === columns) early = result.cells.filter(c => c.y < first.rows);
 	}
 	grid.append(...visual.map(i => cells[i]));
 	grid.dataset.seed = seed;
 	grid.setAttribute("data-arranged", "");
+	// The largest cell first: it is the largest picture of the screen
+	early.sort((a, b) => b.w * b.h - a.w * a.h);
+	loadFirst(
+		early.map(c => {
+			const img = cells[c.index].querySelector("img");
+			if (img) img.sizes = `${Math.ceil(c.w * first.column + (c.w - 1) * first.gap)}px`;
+			return img;
+		}),
+	);
 	return seed;
 };
 
@@ -270,35 +286,87 @@ export const saveSeed = seed => {
 	history.replaceState({ ...state, [STATE_KEY]: seed }, "");
 };
 
-// The pictures of the cells on the first screen load at once, the first one first: the template has
-// them all loading="lazy", since the server cannot know which cells come first. Cells are in row-major
-// order, so the first one below the screen ends the list.
-export const loadFirstScreen = grid => {
-	let first = true;
-	for (const img of grid.querySelectorAll("img[loading=lazy]")) {
-		if (img.getBoundingClientRect().top >= window.innerHeight) break;
+// The template gives every picture loading="lazy", since the server cannot know which cells come first:
+// these ones load at once, the first of the list (if no picture was put first yet) before the others
+const loadFirst = images => {
+	let first = !document.querySelector(".tag-cell__image[fetchpriority=high]");
+	for (const img of images) {
+		if (!img) continue;
 		if (first) img.setAttribute("fetchpriority", "high");
 		first = false;
 		img.loading = "eager";
 	}
 };
 
-export const prepaint = script => {
-	const grid = script.previousElementSibling;
-	try {
-		const kept = history.state && history.state[STATE_KEY];
-		const navigation = performance.getEntriesByType("navigation")[0];
-		const saving = navigator.connection?.saveData || matchMedia("(prefers-reduced-data: reduce)").matches;
-		let seed = navigation?.type === "back_forward" && typeof kept === "number" ? kept : null;
-		if (seed === null) seed = saving ? 0 : crypto.getRandomValues(new Uint32Array(1))[0] || 1;
-		arrange(grid, seed);
-		showCount(grid);
-		// Shuffling needs something to move: not with no tag, or a single one
-		if (cellsOf(grid).length >= 2) document.querySelector("[data-tags-shuffle]")?.removeAttribute("hidden");
-		saveSeed(seed);
-	} catch {
-		// The server's order stays (CSS dense packing)
+// How many rows of the grid are on the first screen for sure, and its number of columns, before any
+// style sheet has arrived (no layout to ask, see prepaint): the numbers of src/css/tags.css (columns,
+// gap, row height) and of src/css/base/tokens.css (--gutter, --page-max), with the grid starting at
+// GRID_TOP px at most (under the site header and the page's heading). Too few rows only leaves
+// pictures to loadFirstScreen; too many would download pictures nobody sees.
+const GRID_TOP = 420;
+export const firstRows = () => {
+	const columns = matchMedia("(width >= 64rem)").matches ? 6 : matchMedia("(width >= 40rem)").matches ? 4 : 2;
+	const gap = 8 + columns;
+	const width = Math.min(innerWidth - 2 * Math.min(56, Math.max(16, innerWidth * 0.04)), 1328);
+	const column = (width - (columns - 1) * gap) / columns;
+	const row = Math.max(112, column * 0.8);
+	return { columns, column, gap, rows: Math.max(1, Math.ceil((innerHeight - GRID_TOP) / (row + gap))) };
+};
+
+// Once the page is laid out: the pictures of every cell on the first screen, whatever firstRows guessed.
+// Cells are in row-major order, so the first one below the screen ends the list.
+export const loadFirstScreen = grid => {
+	const images = [];
+	for (const img of grid.querySelectorAll("img")) {
+		if (img.getBoundingClientRect().top >= innerHeight) break;
+		if (img.loading === "lazy") images.push(img);
 	}
-	document.documentElement.removeAttribute("data-tags-arranging");
-	loadFirstScreen(grid);
+	loadFirst(images);
+};
+
+// Called from <head>. The grid does not exist yet: an observer waits for the parser to close it (something
+// follows it). The parser runs the observer before the next script of the page, and a script waits for
+// the style sheets: so the grid is arranged, and its first pictures requested, while the style sheets
+// are still on their way. Until then the grid is hidden (data-tags-arranging: no visible reshuffle) and
+// the places of the count and of « Mélanger » are kept (nothing moves when they appear).
+// Returns the function the script right after the grid calls (partials/pages/tags.hbs), once the
+// style sheets are there: it adds the pictures of the first screen that the estimate left out.
+export const prepaint = () => {
+	const root = document.documentElement;
+	let grid = null;
+	root.setAttribute("data-tags-arranging", "");
+	const run = () => {
+		if (grid) return;
+		const found = document.querySelector("[data-tag-bento]");
+		if (!found || (!found.nextSibling && document.readyState === "loading")) return;
+		grid = found;
+		observer.disconnect();
+		try {
+			const kept = history.state && history.state[STATE_KEY];
+			const navigation = performance.getEntriesByType("navigation")[0];
+			const saving = navigator.connection?.saveData || matchMedia("(prefers-reduced-data: reduce)").matches;
+			let seed = navigation?.type === "back_forward" && typeof kept === "number" ? kept : null;
+			if (seed === null) seed = saving ? 0 : crypto.getRandomValues(new Uint32Array(1))[0] || 1;
+			arrange(grid, seed, firstRows());
+			showCount(grid);
+			// Shuffling needs something to move: not with no tag, or a single one
+			if (cellsOf(grid).length >= 2) document.querySelector("[data-tags-shuffle]")?.removeAttribute("hidden");
+			saveSeed(seed);
+		} catch {
+			// The server's order stays (CSS dense packing)
+		}
+		root.removeAttribute("data-tags-arranging");
+	};
+	const observer = new MutationObserver(run);
+	observer.observe(root, { childList: true, subtree: true });
+	// A page without the grid (or cut short): nothing stays hidden
+	document.addEventListener("DOMContentLoaded", () => {
+		run();
+		observer.disconnect();
+		root.removeAttribute("data-tags-arranging");
+	});
+	return () => {
+		run();
+		if (grid) loadFirstScreen(grid);
+	};
 };

@@ -632,11 +632,9 @@ avait quittée. **« Mélanger »** tire une nouvelle disposition, avec une cour
 a demandé moins d'animations).
 Sans JavaScript, ou avec le mode « économie de données » du navigateur, la page garde l'ordre par défaut : du
 tag le plus fourni au moins fourni, le premier en grand. Il n'y a pas de réglage pour couper le hasard : si
-vous le voulez, retirez **ensemble** deux lignes de `partials/pages/tags.hbs` : le petit script
-`<script>document.documentElement.setAttribute("data-tags-arranging", "")</script>` (avant la grille) et
-`{{> "tags/prepaint"}}` (après la grille). L'ordre par défaut reste, sans « Mélanger » ni le nombre de tags
-sous le titre. N'en retirer qu'une cache toute la grille (le premier script la masque jusqu'à ce que le
-second l'ait disposée). À refaire après chaque mise à jour du thème.
+vous le voulez, retirez de `partials/pages/tags.hbs` la ligne `{{> "tags/prepaint"}}` (au début du fichier,
+dans le bloc `{{#contentFor "preload"}}`). L'ordre par défaut reste, sans « Mélanger » ni le nombre de tags
+sous le titre. À refaire après chaque mise à jour du thème.
 
 **L'aperçu au survol.** Avec une souris, laisser le pointeur environ une demi-seconde sur une case l'agrandit
 en une carte posée au-dessus des autres : image, nom, nombre d'articles, description, **les 3 derniers

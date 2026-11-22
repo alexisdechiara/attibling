@@ -66,7 +66,7 @@ const checkCards = (list, label) => {
 			`${label}: srcset of ${card.slug} uses the same picture`,
 		);
 		assert.equal(card.social, want.social, `${label}: ${card.slug} marked as a social vignette`);
-		assert.equal(card.webp, want.social, `${label}: ${card.slug} served as WebP only when social`);
+		assert.equal(card.webp, true, `${label}: ${card.slug} served as WebP`);
 	}
 };
 
@@ -101,7 +101,7 @@ describe("vignettes", () => {
 		const hero = await page.$$eval(".hero__image", imgs =>
 			imgs.map(img => ({
 				slug: new URL(img.closest("[data-hero-slide]").querySelector("a[href]").href).pathname.replaceAll("/", ""),
-				src: img.getAttribute("src").replace(/&size=\w+$/, ""),
+				src: img.getAttribute("src").replace(/&size=\w+&format=webp$/, ""),
 			})),
 		);
 		assert.ok(hero.length > 0);
@@ -148,7 +148,7 @@ describe("vignettes", () => {
 			render: template("post", { site: SITE, member: true }),
 			viewport: { width: 1440, height: 900 },
 		});
-		assert.match(await page.locator("[data-article-image]").getAttribute("src"), /photo\.svg\?1&size=xl$/);
+		assert.match(await page.locator("[data-article-image]").getAttribute("src"), /photo\.svg\?1&size=l&format=webp$/);
 		assert.match(await page.locator("[data-article]").getAttribute("data-image"), /\?tw-1&size=m&format=webp$/);
 		await page.locator(".article-header [data-bookmark]").click();
 		const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-saved")));
@@ -167,12 +167,12 @@ describe("vignettes", () => {
 		await tile.locator("[data-bookmark]").click();
 		const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("attibling-saved")));
 		const want = expected(saved[0].url.replaceAll("/", ""));
-		assert.equal(saved[0].image, `${want.src}&size=m${want.social ? "&format=webp" : ""}`);
+		assert.equal(saved[0].image, `${want.src}&size=m&format=webp`);
 		// The members' list draws it
 		await waitFor(() => page.locator("[data-member-lists] .tile__image[src]").count());
 		assert.equal(
 			await page.locator("[data-member-lists] .tile__image").first().getAttribute("src"),
-			`${want.src}&size=m${want.social ? "&format=webp" : ""}`,
+			`${want.src}&size=m&format=webp`,
 		);
 		await dispose();
 	});
@@ -203,7 +203,7 @@ describe("vignettes", () => {
 		const banner = SITE.image(null, i);
 		assert.equal(
 			look.backdrop.src,
-			banner ? `${banner}&size=s` : `${expected(look.slug).src}&size=s&format=webp`,
+			`${banner || expected(look.slug).src}&size=s&format=webp`,
 			"the banner behind, when there is one",
 		);
 		// A poster showing its feature image keeps the upright crop

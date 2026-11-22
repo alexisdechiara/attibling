@@ -17,7 +17,7 @@ Parameters:
 <article class="tile tile--{{#if size}}{{size}}{{else}}s{{/if}}{{#if ratio}} tile--ratio-{{ratio}}{{/if}}{{> "vignette/missing" noImage=" tile--no-image"}}{{#if class}} {{class}}{{/if}}" data-post-tile>
   <a class="tile__link" href="{{url}}">
     <span class="tile__media">
-      {{> "vignette/image" imgClass="tile__image" widths="s-m-l" srcSize="m" sizes=sizes defaultSizes="(max-width: 767px) 85vw, 33vw" eager=eager placeholder="tile"}}
+      {{> "vignette/image" imgClass="tile__image" widths="s-m-l" srcSize="m" sizes=sizes defaultSizes="(max-width: 633px) 92vw, 430px" eager=eager placeholder="tile"}}
     </span>
     {{#match heading "h2"}}<h2 class="tile__title">{{title}}</h2>{{else}}<h3 class="tile__title">{{title}}</h3>{{/match}}
     {{> tile-meta}}

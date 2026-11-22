@@ -4,15 +4,18 @@ Body of the « Tags » page (page-tags.hbs, custom-tags.hbs). Inside the page's 
 Heading: the page's title, the number of tags, its content (or excerpt) as an introduction, « Mélanger ».
 Then every public tag that has posts as a cell of a bento grid (partials/tags/cell.hbs), most posts first.
 Ghost returns at most 100 tags per {{#get}}: a second query covers tags 101 to 200.
-The server's order with the first cells large is the result without JavaScript. The inline script right
-after the grid (partials/tags/prepaint.hbs, built from src/js/tags/layout.js) arranges it before the
-first paint: a new arrangement on each visit, the same one when coming back. src/js/tags.js adds
+The server's order with the first cells large is the result without JavaScript. An inline script of
+<head> (partials/tags/prepaint.hbs, built from src/js/tags/layout.js; in the "preload" block, ahead of the
+style sheets) arranges the grid as soon as the parser has built it, before the first paint, and asks for
+the pictures of its first rows without waiting for the style sheets: a new arrangement on each visit,
+the same one when coming back. The script right after the grid completes the pictures of the first
+screen once the page is laid out. src/js/tags.js adds
 « Mélanger » and the previews, which list each tag's latest posts from the <template> below (the 200
 latest posts, fetched once: see docs/guide-auteur.md, « Page Tags »).
 --}}
 {{#contentFor "preload"}}
   <link rel="preload" href="{{asset "css/tags.css"}}" as="style" />
-  <link rel="modulepreload" href="{{asset "js/tags.js"}}" />
+  {{> "tags/prepaint"}}
 {{/contentFor}}
 {{#contentFor "styles"}}
   <link rel="stylesheet" type="text/css" href="{{asset "css/tags.css"}}" media="screen" />
@@ -25,9 +28,6 @@ latest posts, fetched once: see docs/guide-auteur.md, « Page Tags »).
 
 <main id="main" class="site-main tags-page" data-tags-page
   data-i18n-latest="{{t "Latest posts"}}" data-i18n-more="{{t "See the tag"}}" data-i18n-close="{{t "Close"}}">
-  {{!-- Until the inline script after the grid has arranged it, the grid is hidden (no visible reshuffle)
-  and the places of the count and of « Mélanger » are kept (nothing moves when they appear) --}}
-  <script>document.documentElement.setAttribute("data-tags-arranging", "")</script>
   <div class="container">
     {{#post}}
       <header class="tags-header">
@@ -55,7 +55,7 @@ latest posts, fetched once: see docs/guide-auteur.md, « Page Tags »).
         {{/match}}
       {{/get}}
     </ul>
-    {{> "tags/prepaint"}}
+    <script>window.attiblingTags && attiblingTags()</script>
 
     <div class="tags-empty">
       <p class="tags-empty__text">{{t "No tags found"}}</p>

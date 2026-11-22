@@ -5,7 +5,7 @@ one line above the tag's name, « Tout voir », and the tag's latest 3 posts (th
   <section class="home-section row row--banner container" aria-labelledby="row-{{../slug}}">
     <div class="banner{{#if ../feature_image}} banner--image{{else}} banner--no-image{{/if}}">
       {{#if ../feature_image}}
-        <img class="banner__image" srcset="{{img_url ../feature_image size="m"}} 600w, {{img_url ../feature_image size="l"}} 1000w, {{img_url ../feature_image size="xl"}} 2000w" sizes="100vw" src="{{img_url ../feature_image size="l"}}" alt="" loading="lazy" decoding="async">
+        <img class="banner__image"{{> "image/srcset" image=../feature_image widths="m-l-xl" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt="" loading="lazy" decoding="async">
       {{/if}}
       <div class="banner__intro">
         <p class="banner__kicker"><span>{{t "Tag"}}</span><span class="banner__dot" aria-hidden="true">·</span><span class="banner__count">{{plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</span></p>

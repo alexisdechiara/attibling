@@ -8,12 +8,13 @@ when there is one, and the feature image (the banner of the article header) othe
   4. nothing        the caller's designed no-image state (placeholder="tile" | "row")
 An image set for sharing that differs from the feature image is marked data-vignette="social": it is
 usually a composed picture with its own text, so posters show it whole (backdrop=true) and the page
-transitions do not morph it into the article header (which keeps the feature image). It is served as
-WebP (img_url format="webp": social cards are often large PNGs; Ghost converts them on the fly).
+transitions do not morph it into the article header (which keeps the feature image). Every vignette is
+served as WebP (image/srcset.hbs: Ghost converts it on the first request; social cards are often large PNGs).
 The article header and the home hero keep the feature image: they are not cards.
 Inside a post context. Parameters (named so, as a partial's parameters reach the partials it calls):
   imgClass="..."          class of the <img>
-  widths="s-m" | "s-m-l" | "m-l-xl"   srcset widths (theme image_sizes: s 300, m 600, l 1000, xl 2000)
+  widths="s-m" | "s-m-l" | "m-l-xl"   srcset widths (theme image_sizes: s 300, m 600, l 1000; "m-l-xl"
+                          adds 1400 and 2000)
   srcSize="s" | "m" | "l" fallback src size
   sizes="..."             sizes attribute (defaultSizes="..." when sizes is empty)
   eager=true              fetchpriority="high" (above the fold); priority="auto": no loading hint;
@@ -25,18 +26,18 @@ Inside a post context. Parameters (named so, as a partial's parameters reach the
 --}}
 {{~#if og_image~}}
   {{~#match og_image feature_image~}}
-    {{> "vignette/img" vignetteSrc=feature_image vignetteSocial=false vignetteFormat=false}}
+    {{> "vignette/img" vignetteSrc=feature_image vignetteSocial=false}}
   {{~else~}}
-    {{> "vignette/img" vignetteSrc=og_image vignetteSocial=true vignetteFormat="webp"}}
+    {{> "vignette/img" vignetteSrc=og_image vignetteSocial=true}}
   {{~/match~}}
 {{~else if twitter_image~}}
   {{~#match twitter_image feature_image~}}
-    {{> "vignette/img" vignetteSrc=feature_image vignetteSocial=false vignetteFormat=false}}
+    {{> "vignette/img" vignetteSrc=feature_image vignetteSocial=false}}
   {{~else~}}
-    {{> "vignette/img" vignetteSrc=twitter_image vignetteSocial=true vignetteFormat="webp"}}
+    {{> "vignette/img" vignetteSrc=twitter_image vignetteSocial=true}}
   {{~/match~}}
 {{~else if feature_image~}}
-  {{> "vignette/img" vignetteSrc=feature_image vignetteSocial=false vignetteFormat=false}}
+  {{> "vignette/img" vignetteSrc=feature_image vignetteSocial=false}}
 {{~else~}}
   {{~#match placeholder "tile"~}}
     <span class="tile__placeholder" aria-hidden="true"><span>{{title}}</span></span>

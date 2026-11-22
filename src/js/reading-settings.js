@@ -96,6 +96,18 @@ export const apply = settings => {
 	window.dispatchEvent(new CustomEvent("attibling:reading", { detail: settings }));
 };
 
+// The header picture's sizes attribute is written for the post's own style (partials/article/header.hbs,
+// the same values): in the other style, chosen here, its box is not the same (the page width in
+// « Immersif », 76 % of the card in « Carte »), and the browser would keep a rendition too small or too large
+const HEADER_SIZES = {
+	immersive: "100vw",
+	card: "(max-width: 767px) 92vw, (max-width: 1443px) 70vw, 1000px",
+};
+const sizeHeaderPicture = (article, style) => {
+	const picture = article?.querySelector("[data-article-image]");
+	if (picture && picture.sizes !== HEADER_SIZES[style]) picture.sizes = HEADER_SIZES[style];
+};
+
 // Places the panel under the gear where CSS anchor positioning is missing
 const place = (button, panel) => {
 	if (CSS.supports("position-area: bottom") || window.matchMedia("(width < 48rem)").matches) {
@@ -125,6 +137,7 @@ export const setUpReadingSettings = () => {
 	const sync = () => {
 		const base = defaults(article);
 		const style = settings.style || base.style;
+		sizeHeaderPicture(article, style);
 		const current = { ...base, width: style === "immersive" ? "l" : "m", ...settings };
 		NAMES.forEach(name => {
 			const field = form.elements[name];

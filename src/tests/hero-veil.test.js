@@ -45,14 +45,14 @@ describe("home hero veil", () => {
 		);
 		assert.ok(values, "the first two slides get their values (the second once readied in the background)");
 		const [bright, dark] = values;
-		assert.match(bright.src, /\/content\/images\/size\/w1000\/hero-bright\.png$/);
+		assert.match(bright.src, /\/content\/images\/size\/w1000\/format\/webp\/hero-bright\.png$/);
 		for (const v of [bright, dark]) {
 			for (const key of ["veil", "a", "b"]) assert.ok(Number(v[key]) > 0 && Number(v[key]) <= 0.95, `${key} ${v[key]}`);
 		}
 		assert.ok(Number(bright.veil) > Number(dark.veil), `bright ${bright.veil} > dark ${dark.veil}`);
 		assert.ok(Number(bright.a) > Number(dark.a) && Number(bright.b) > Number(dark.b), "and stronger ramps");
 		// Read from the 100px rendition, not from the picture shown
-		assert.ok(requests.some(url => url.endsWith("/content/images/size/w100/hero-bright.png")));
+		assert.ok(requests.some(url => url.endsWith("/content/images/size/w100/format/webp/hero-bright.png")));
 		await dispose();
 	});
 

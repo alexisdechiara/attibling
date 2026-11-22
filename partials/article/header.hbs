@@ -7,16 +7,23 @@ hides the cover image (display settings), the title sits on the plain page surfa
 
 soloAuthor=true (post.hbs, single-author site): the author's name and photo are not links.
 
+The picture is the page's largest element: it is requested first (fetchpriority) in WebP, at the width
+of its box (image/srcset.hbs).
+
 Stable hooks (page transitions): [data-article-image] (the picture), [data-article-title] (the h1).
 --}}
 <header class="article-header{{#unless feature_image}} article-header--no-image{{/unless}}">
   <div class="article-header__card">
     {{#if feature_image}}
       <div class="article-header__media">
+        {{!-- sizes: the picture's box in the post's own style. « Carte »: the card is the page container
+        (92vw, 1328px at most), the picture its whole width on phones and 76 % of it from 48rem
+        (src/css/article/layout.css). « Immersif »: the page width. A member who chose the other style
+        in the display settings gets the right width from src/js/reading-settings.js. --}}
         <img class="article-header__image" data-article-image
-          srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w"
-          sizes="(max-width: 767px) 100vw, 76vw"
-          src="{{img_url feature_image size="xl"}}" alt="{{#if feature_image_alt}}{{feature_image_alt}}{{/if}}" fetchpriority="high" decoding="async">
+          {{~> "image/srcset" image=feature_image widths="m-l-xl" srcSize="l"}}
+          sizes="{{#has tag="#immersif"}}100vw{{else}}{{#has tag="#carte"}}(max-width: 767px) 92vw, (max-width: 1443px) 70vw, 1000px{{else}}{{#match @custom.article_style "Immersive"}}100vw{{else}}(max-width: 767px) 92vw, (max-width: 1443px) 70vw, 1000px{{/match}}{{/has}}{{/has}}"
+          alt="{{#if feature_image_alt}}{{feature_image_alt}}{{/if}}" fetchpriority="high" decoding="async">
       </div>
     {{/if}}
 
@@ -33,7 +40,7 @@ Stable hooks (page transitions): [data-article-image] (the picture), [data-artic
       <div class="article-header__meta">
         {{#if soloAuthor}}<span class="article-header__avatar" aria-hidden="true">{{else}}<a class="article-header__avatar" href="{{primary_author.url}}" tabindex="-1" aria-hidden="true">{{/if}}
           {{#if primary_author.profile_image}}
-            <img src="{{img_url primary_author.profile_image size="xs"}}" alt="" width="40" height="40" loading="lazy" decoding="async">
+            <img src="{{img_url primary_author.profile_image size="xs" format="webp"}}" alt="" width="40" height="40" loading="lazy" decoding="async">
           {{else}}
             <span>{{> "icons/user"}}</span>
           {{/if}}

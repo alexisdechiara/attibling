@@ -2,6 +2,7 @@ import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
 import { article } from "./support/article.js";
+import { home, DEFAULT_CUSTOM } from "./support/pages.js";
 
 // Computed font-family of each element, before and after setting Ghost's custom font variables on :root
 const families = (page, selectors) =>
@@ -50,7 +51,11 @@ describe("fonts", () => {
 		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
 			els.map(el => [new URL(el.href).pathname, el.crossOrigin]),
 		);
-		assert.deepEqual(preloads, [["/assets/fonts/onest/onest-latin.woff2", "anonymous"]]);
+		// Pacifico too, with the GEEKly wordmark: the "ly" is on the first screen of every page
+		assert.deepEqual(preloads, [
+			["/assets/fonts/onest/onest-latin.woff2", "anonymous"],
+			["/assets/fonts/pacifico/pacifico-ly.woff2", "anonymous"],
+		]);
 		const faces = await page.evaluate(() =>
 			[...document.styleSheets]
 				.flatMap(sheet => [...sheet.cssRules])
@@ -77,6 +82,24 @@ describe("fonts", () => {
 		assert.match(pacifico.src, /pacifico-ly\.woff2/);
 		assert.match(pacifico.range, /U\+6C, U\+79/i);
 		assert.ok(fontRequests.includes("/assets/fonts/pacifico/pacifico-ly.woff2"), fontRequests.join());
+		assert.equal(
+			fontRequests.filter(p => p.includes("pacifico")).length,
+			1,
+			`the preloaded file is the one the wordmark uses: ${fontRequests}`,
+		);
+		await dispose();
+	});
+
+	it("do not preload Pacifico without the GEEKly wordmark", async () => {
+		const { page, requests, dispose } = await open({
+			render: home({ custom: { ...DEFAULT_CUSTOM, use_geekly_logo: false } }),
+		});
+		await page.evaluate(() => document.fonts.ready);
+		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
+			els.map(el => new URL(el.href).pathname),
+		);
+		assert.deepEqual(preloads, ["/assets/fonts/onest/onest-latin.woff2"]);
+		assert.ok(!requests.some(url => url.includes("pacifico")), "Pacifico is not downloaded");
 		await dispose();
 	});
 
@@ -95,6 +118,66 @@ describe("fonts", () => {
 		}
 	});
 
+	// Lighthouse (phone): a font the first layout asks for is requested at the highest priority, before the
+	// first paint, and counted against it (125 KB with the italic: 1 s of simulated FCP and LCP)
+	it("on phones, ask for Literata once the first screen is painted; the text waits in its fallback face", async () => {
+		const html = "<p>Un texte avec <em>de l’italique</em> dans le premier écran.</p>".repeat(30);
+		const timeline = async viewport => {
+			const { page, dispose } = await open({
+				render: article({ html }),
+				viewport,
+				// Slow style sheets: the first paint comes late; a slow deferred script (as Ghost's Portal): the
+				// page is still loading then
+				slow: { "/assets/css/app.css": 600 },
+				ghostDefer: { delay: 1500 },
+				initScript: () => {
+					window.__shift = 0;
+					new PerformanceObserver(list => {
+						for (const entry of list.getEntries()) window.__shift += entry.value;
+					}).observe({ type: "layout-shift", buffered: true });
+					// The face of the text at the first paint
+					new PerformanceObserver((_, observer) => {
+						observer.disconnect();
+						window.__early = getComputedStyle(document.querySelector(".js-post-content p")).fontFamily;
+					}).observe({ type: "paint", buffered: true });
+				},
+			});
+			await page.evaluate(() => document.fonts.ready);
+			const view = await page.evaluate(() => ({
+				paint: performance.getEntriesByName("first-contentful-paint")[0].startTime,
+				fonts: performance
+					.getEntriesByType("resource")
+					.filter(entry => entry.name.includes("/literata/"))
+					.map(entry => [entry.name.split("/").pop().split("?")[0], entry.startTime]),
+				early: window.__early,
+				family: getComputedStyle(document.querySelector(".js-post-content p")).fontFamily,
+				loaded: document.fonts.check('16px "Literata"') && document.fonts.check('italic 16px "Literata"'),
+				waiting: document.documentElement.hasAttribute("data-font-wait"),
+				shift: window.__shift,
+			}));
+			await dispose();
+			return view;
+		};
+		const phone = await timeline({ width: 390, height: 844 });
+		assert.deepEqual(phone.fonts.map(([name]) => name).sort(), ["literata-italic-latin.woff2", "literata-latin.woff2"]);
+		for (const [name, start] of phone.fonts) {
+			assert.ok(
+				start >= phone.paint,
+				`${name} requested at ${Math.round(start)} ms, first paint at ${Math.round(phone.paint)} ms`,
+			);
+		}
+		assert.match(phone.family, /^Literata, "Literata Fallback"/, "then the text is in Literata");
+		assert.equal(phone.loaded, true);
+		assert.equal(phone.waiting, false);
+		// The fallback face has Literata's metrics: the text barely moves when the font arrives
+		assert.ok(phone.shift < 0.02, `layout shift ${phone.shift.toFixed(4)}`);
+		// Wider screens: preloaded, there before the first paint, as before
+		const wide = await timeline({ width: 1280, height: 800 });
+		assert.match(wide.early, /^Literata, "Literata Fallback"/);
+		const roman = wide.fonts.find(([name]) => name === "literata-latin.woff2");
+		assert.ok(roman[1] < wide.paint, "preloaded on a wide screen");
+	});
+
 	it("load Literata from the theme on posts, roman preloaded, italic only when the text has some", async () => {
 		const { page, requests, dispose } = await open({ render: article() });
 		await page.evaluate(() => document.fonts.ready);
@@ -104,6 +187,7 @@ describe("fonts", () => {
 		assert.deepEqual(preloads, [
 			"/assets/fonts/onest/onest-latin.woff2",
 			"/assets/fonts/literata/literata-latin.woff2",
+			"/assets/fonts/pacifico/pacifico-ly.woff2",
 		]);
 		const fonts = requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname);
 		assert.ok(fonts.includes("/assets/fonts/literata/literata-latin.woff2"), fonts.join());
