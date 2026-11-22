@@ -651,9 +651,16 @@
   }
 }
 
-/* The one-time cue: the other dots ripple in turn (home.js gives each its --dot-index) */
+/* The one-time cue: the other dots ripple in turn (home.js gives each its --dot-index). The glow is the
+   dot's ::after (the fill of the current pill, hidden on the others) dressed as a lit dot, so that the
+   animation only changes opacity and scale (compositor only): animating a background or a shadow would
+   repaint every frame */
 @media (prefers-reduced-motion: no-preference) {
-  .hero__pager[data-cue] .hero__dot:not([aria-current="true"])::before {
+  .hero__pager[data-cue] .hero__dot:not([aria-current="true"])::after {
+    width: 6px;
+    height: 6px;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-on-media) 55%, transparent);
+    transform-origin: center;
     animation: hero-dot-cue 640ms cubic-bezier(0.3, 0, 0.3, 1) calc(var(--dot-index, 0) * 110ms) both;
   }
 }
@@ -671,9 +678,14 @@
 }
 
 @keyframes hero-dot-cue {
+  0%,
+  100% {
+    opacity: 0;
+    scale: 1;
+  }
+
   40% {
-    background: var(--color-on-media);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--color-on-media) 55%, transparent);
+    opacity: 1;
     scale: 1.7;
   }
 }

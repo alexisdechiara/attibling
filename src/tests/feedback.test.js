@@ -433,6 +433,21 @@ describe("hero pager", () => {
 				.map(a => a.animationName),
 		);
 		assert.ok(animated.includes("hero-dot-cue"));
+		// Only compositor properties: a background or a shadow in a keyframe repaints the page every frame
+		const properties = await page.evaluate(() => [
+			...new Set(
+				[...document.querySelectorAll("[data-hero-dot]")]
+					.flatMap(dot => dot.getAnimations({ subtree: true }))
+					.flatMap(a => a.effect.getKeyframes().flatMap(k => Object.keys(k)))
+					.filter(key => !["offset", "easing", "composite", "computedOffset"].includes(key)),
+			),
+		]);
+		assert.ok(properties.length > 0, "the dots animate");
+		assert.deepEqual(
+			properties.filter(key => !["opacity", "transform", "scale", "translate", "rotate"].includes(key)),
+			[],
+			`animated: ${properties}`,
+		);
 		await page.reload({ waitUntil: "load" });
 		await sleep(2000);
 		assert.equal(
