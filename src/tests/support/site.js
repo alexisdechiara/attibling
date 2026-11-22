@@ -11,7 +11,8 @@
 //  - settings: merged over the default site settings
 //  - extra: number of generated posts appended after the real ones (older, one every 9 days), to test
 //    lists of more than 100 posts
-//  - series: true to put the internal tag #serie-test on 3 posts (indexes 3, 6 and 9)
+//  - series: true to put the internal tag #serie-test on 3 posts (indexes 3, 6 and 9); a string instead also
+//    gives that tag this description (« Pixel & Mémoire · total: 6 »)
 //  - adjust(site): a function that edits the built site (posts, tags…) before it is used
 //  - authors: number of authors with published posts (default 1, a single-author site); the others
 //    (up to 4 more) each write two posts (indexes 2n and 2n + 1 from the 3rd post), Alexis the rest
@@ -256,6 +257,7 @@ export const createSite = (options = {}) => {
 	}).concat(
 		["#top", "#top-1", "#top-2", "#top-3", "#top-4", ...(series ? ["#serie-test"] : [])].map(name => ({
 			...slugToTag(name),
+			...(name === "#serie-test" && typeof series === "string" ? { description: series } : {}),
 			count: { posts: 1 },
 		})),
 	);

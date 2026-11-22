@@ -59,9 +59,10 @@ The page's own title is the heading; its content (optional) shows under it as an
       <p class="archives-bar__count" aria-live="polite" data-archives-count></p>
     </div>
 
-    {{!-- Names of the internal tags, for the heading of ?tag=hash-serie-… --}}
+    {{!-- Names of the internal tags, for the heading of ?tag=hash-serie-… (a series is named by its description,
+    as its box on the posts: « Pixel & Mémoire · total: 6 ») --}}
     {{#get "tags" limit="100" filter="visibility:internal"}}
-      <ul hidden data-archives-internal>{{#foreach tags visibility="internal"}}<li data-slug="{{slug}}">{{name}}</li>{{/foreach}}</ul>
+      <ul hidden data-archives-internal>{{#foreach tags visibility="internal"}}<li data-slug="{{slug}}" data-description="{{description}}">{{name}}</li>{{/foreach}}</ul>
     {{/get}}
 
     <div class="archives-filter" data-archives-filter hidden>

@@ -343,6 +343,21 @@ describe("archives page", () => {
 		assert.equal(await page.locator("[data-archives-count]").textContent(), "25 posts");
 		await dispose();
 	});
+
+	it("?tag= names a series as its box does: from the tag's description, without the « total: »", async () => {
+		const render = template("page-archives", { site: { series: "Pixel & Mémoire · total: 6" } });
+		const { page, dispose } = await open({
+			render,
+			initScript: () => history.replaceState(null, "", "?tag=hash-serie-test"),
+		});
+		await page.reload();
+		assert.equal(await page.locator("[data-archives-filter-label]").textContent(), "Series: Pixel & Mémoire");
+		assert.equal(
+			await page.locator("[data-archives-tag]").evaluate(select => select.selectedOptions[0].textContent),
+			"Pixel & Mémoire",
+		);
+		await dispose();
+	});
 });
 
 describe("« À lire plus tard » page", () => {

@@ -9,6 +9,7 @@
 // The live count says how many posts are shown; with a year chosen, buttons lead to the next and previous
 // years. The year, search and tag are kept in the address (?year=, ?q=, ?tag=) so a filtered view can be
 // shared or reloaded.
+import { parseDescription } from "./article/series";
 import { onReady } from "./helpers";
 
 const normalize = text =>
@@ -35,9 +36,9 @@ const setUpArchives = root => {
 	const kicker = root.querySelector(".archives__kicker");
 	const newer = root.querySelector("[data-archives-newer]");
 	const older = root.querySelector("[data-archives-older]");
-	const internalNames = new Map(
-		[...root.querySelectorAll("[data-archives-internal] [data-slug]")].map(li => [li.dataset.slug, li.textContent]),
-	);
+	const internal = [...root.querySelectorAll("[data-archives-internal] [data-slug]")];
+	const internalNames = new Map(internal.map(li => [li.dataset.slug, li.textContent]));
+	const internalDescriptions = new Map(internal.map(li => [li.dataset.slug, li.dataset.description]));
 	const { i18nNone, i18nOne, i18nMany, i18nAll, i18nOlder, i18nSeries, i18nTag } = root.dataset;
 
 	const data = items.map(item => ({
@@ -88,7 +89,9 @@ const setUpArchives = root => {
 		return internalNames.get(slug) || slug;
 	};
 	const isSeries = slug => slug.startsWith("hash-serie-");
+	// The name its box gives on the posts (the tag's description, without « total: N »), else the slug's words
 	const seriesName = slug =>
+		parseDescription(internalDescriptions.get(slug)).name ||
 		tagName(slug)
 			.replace(/^#serie-/i, "")
 			.replace(/-/g, " ");
