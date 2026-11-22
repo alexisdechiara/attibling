@@ -45,11 +45,14 @@ latest posts, fetched once: see docs/guide-auteur.md, « Page Tags »).
     {{/post}}
 
     <ul class="tag-bento" role="list" data-tag-bento data-i18n-one="{{t "1 tag"}}" data-i18n-many="{{t "% tags"}}">
-      {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="count.posts desc"}}
+      {{!-- A second query only when the first one is full (more than 100 public tags) --}}
+      {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="count.posts desc" as |firsttags pagination|}}
         {{#foreach tags}}{{#match count.posts ">" 0}}{{#has number="1"}}{{> "tags/cell" size="feature"}}{{else}}{{#has number="2,3"}}{{> "tags/cell" size="wide"}}{{else}}{{> "tags/cell"}}{{/has}}{{/has}}{{/match}}{{/foreach}}
-      {{/get}}
-      {{#get "tags" limit="100" page="2" include="count.posts" filter="visibility:public" order="count.posts desc"}}
-        {{#foreach tags}}{{#match count.posts ">" 0}}{{> "tags/cell"}}{{/match}}{{/foreach}}
+        {{#match pagination.pages ">" 1}}
+          {{#get "tags" limit="100" page="2" include="count.posts" filter="visibility:public" order="count.posts desc"}}
+            {{#foreach tags}}{{#match count.posts ">" 0}}{{> "tags/cell"}}{{/match}}{{/foreach}}
+          {{/get}}
+        {{/match}}
       {{/get}}
     </ul>
     {{> "tags/prepaint"}}

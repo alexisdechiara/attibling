@@ -185,7 +185,18 @@ const formatDate = (value, format, locale, timeZone = "Etc/UTC") => {
 	return format.replace(/YYYY|MMMM|MMM|MM|DD|dddd|ddd|D|HH|mm|ss|Z/g, t => tokens[t]);
 };
 
+// Every {{#get}} of the last renderTemplate call ({ resource, limit, page, filter }), to count the queries a
+// page makes: getCalls() lists them, getCalls("tags", { limit: 5 }) keeps those matching
+let gets = [];
+export const getCalls = (resource, match = {}) =>
+	gets.filter(
+		call =>
+			(!resource || call.resource === resource) &&
+			Object.entries(match).every(([key, value]) => String(call[key]) === String(value)),
+	);
+
 export const renderTemplate = (name, options = {}) => {
+	gets = [];
 	const {
 		site = createSite(),
 		context = {},
@@ -430,6 +441,7 @@ export const renderTemplate = (name, options = {}) => {
 		},
 		get(resource, opts) {
 			const { order, limit = 15, page = 1 } = opts.hash;
+			gets.push({ resource, limit: String(limit), page: String(page), filter: opts.hash.filter || "" });
 			// Like Ghost ("filter.match is not a function"), a filter must be a plain string: build it
 			// with {{path}} inside the string, never with a subexpression such as (concat ...)
 			if (opts.hash.filter !== undefined && typeof opts.hash.filter !== "string") {

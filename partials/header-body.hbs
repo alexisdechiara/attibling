@@ -1,0 +1,99 @@
+{{!--
+The markup of the header: header.hbs queries once what it needs and renders this partial inside its blocks.
+Parameters: home (see header.hbs), discoverposts and discovertags (the data of the « ••• » panel, shared by the
+desktop panel and the phone sheet), subscribePages + subscribePagesKnown (the subscription page, shared by the
+« S'abonner » buttons, see subscribe-href.hbs).
+--}}
+<header class="site-header" id="site-header"{{#if home}} data-dock="undocked"{{/if}}>
+  <div class="site-header__bar container">
+    <a class="site-header__logo" href="{{@site.url}}" data-header-logo>
+      {{> wordmark size="header"}}
+    </a>
+
+    <nav class="site-nav" aria-label="{{t "Main menu"}}">
+      <ul class="site-nav__list" role="list" data-nav-list>
+        {{navigation}}
+        <li class="site-nav__more" data-nav-more{{#unless @site.secondary_navigation}} hidden{{/unless}}>
+          <button type="button" class="nav-link site-nav__more-button" popovertarget="site-more" data-more-button>
+            {{t "More"}}{{> "icons/chevron-down"}}
+          </button>
+        </li>
+        <li class="site-nav__discover">
+          <button type="button" class="nav-link site-nav__discover-button" popovertarget="site-discover" aria-label="{{t "Recent posts and tags"}}" data-discover-button>
+            {{> "icons/dots"}}
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button type="button" class="icon-button" data-ghost-search aria-label="{{t "Open search"}}">
+        {{> "icons/search"}}
+      </button>
+      {{> theme-switch class="site-header__theme"}}
+      {{> article/settings-button}}
+      {{#if @member}}
+        <a class="icon-button site-header__account" href="#/portal/account" data-portal="account" aria-label="{{t "Account"}}">
+          {{> "icons/user"}}
+        </a>
+      {{else}}
+        {{> subscribe-link class="button button--inverse button--s site-header__subscribe"}}
+      {{/if}}
+      <button type="button" class="icon-button site-header__menu-button" popovertarget="site-menu" data-menu-button aria-label="{{t "Open menu"}}">
+        {{> "icons/menu"}}
+      </button>
+    </div>
+  </div>
+
+  {{!-- « Plus »: the main items that do not fit (moved here by app.js) and the secondary navigation --}}
+  <div class="menu-popover site-more" id="site-more" popover data-more-menu>
+    <ul class="nav-list" role="list" data-nav-overflow hidden></ul>
+    {{#if @site.secondary_navigation}}
+      {{navigation type="secondary"}}
+    {{/if}}
+  </div>
+
+  {{!-- « ••• »: six recent posts, then the tags, a panel under the bar (desktop) --}}
+  <div class="discover" id="site-discover" popover data-discover-menu>
+    <div class="discover__inner">
+      {{> header-discover prefix="discover" count="6" posts=discoverposts tags=discovertags}}
+    </div>
+  </div>
+</header>
+
+{{!-- Phones: the main navigation as a row of pills that scrolls sideways (hidden on larger screens) --}}
+<nav class="nav-pills" aria-label="{{t "Tags"}}">
+  <ul class="nav-pills__list" role="list">
+    {{navigation}}
+  </ul>
+</nav>
+
+{{!-- Phones: the menu sheet, opened by the menu button of the top bar; modal (app.js makes the page
+inert while it is open) --}}
+<div class="mobile-menu" id="site-menu" popover role="dialog" aria-modal="true" aria-label="{{t "Menu"}}" data-mobile-menu>
+  <div class="mobile-menu__head">
+    {{> wordmark size="header"}}
+    <button type="button" class="icon-button" popovertarget="site-menu" popovertargetaction="hide" data-menu-close aria-label="{{t "Close menu"}}">
+      {{> "icons/close"}}
+    </button>
+  </div>
+  <nav class="mobile-menu__nav" aria-label="{{t "Main menu"}}">
+    <ul class="nav-list" role="list">
+      {{navigation}}
+    </ul>
+    {{#if @site.secondary_navigation}}
+      {{navigation type="secondary"}}
+    {{/if}}
+  </nav>
+  <div class="mobile-menu__discover">
+    {{> header-discover prefix="menu-discover" count="4" posts=discoverposts tags=discovertags}}
+  </div>
+  <div class="mobile-menu__footer">
+    {{> theme-switch class="mobile-menu__theme"}}
+    {{#if @member}}
+      <a class="button button--ghost" href="#/portal/account" data-portal="account">{{> "icons/user"}}{{t "Account"}}</a>
+    {{else}}
+      {{> subscribe-link class="button button--inverse"}}
+    {{/if}}
+  </div>
+</div>

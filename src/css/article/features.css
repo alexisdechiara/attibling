@@ -265,9 +265,10 @@
   }
 }
 
-/* No part before the first one, none after the last one */
-.series-step--prev:has(> .series-step__current:first-child),
-.series-step--next:has(> .series-step__current:last-child) {
+/* No part before the first one, none after the last one: the step is empty (series-link.hbs only renders
+   the neighbour that shows) */
+.series-step:not(:has(> .series-step__link)),
+.series-line .series-step:not(:has(> .series-step__link)) {
   display: none;
 }
 
@@ -289,17 +290,9 @@
   }
 }
 
-/* Previous / next part: only the part right before / after the current one shows */
+/* Previous / next part: the link of the part right before / after the current one */
 .series-step__link {
-  display: none;
-}
-
-.series-step--prev .series-step__link:has(+ .series-step__current),
-.series-step--next .series-step__current + .series-step__link {
   display: inline-flex;
-}
-
-.series-step__link {
   align-items: center;
   gap: 6px;
   min-height: var(--target);

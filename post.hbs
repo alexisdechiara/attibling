@@ -29,6 +29,10 @@ and carry the strings the scripts need (copy buttons, series).
 {{#post}}
   {{> header}}
 
+  {{!-- Single-author rule (docs/guide-auteur.md): no link to the author page when only one author has
+  published posts. One query of one row for the whole article (the header and the author box read it from
+  authorPages); {{#with ..}} gives the post back as the context inside the block of {{#get}}. --}}
+  {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}{{#with ..}}
   <main id="main" class="site-main article-page">
     <article class="article{{#if feature_image}} article--has-image{{/if}}" data-article
       data-style="{{#has tag="#immersif"}}immersive{{else}}{{#has tag="#carte"}}card{{else}}{{#match @custom.article_style "Immersive"}}immersive{{else}}card{{/match}}{{/has}}{{/has}}"
@@ -39,13 +43,7 @@ and carry the strings the scripts need (copy buttons, series).
       data-copy="{{t "Copy"}}" data-copied="{{t "Copied"}}" data-copy-code="{{t "Copy the code"}}" data-code-copied="{{t "Code copied"}}"
       style="--label-summary: &quot;{{t "In short"}}&quot;; --label-summary-author: &quot;{{t "Author's summary"}}&quot;; --label-summary-ai: &quot;{{t "AI-generated summary"}}&quot;">
 
-      {{!-- Single-author rule (docs/guide-auteur.md): no link to the author page when only one author has
-      published posts. One query of one row; the partial gets the post back as its context. --}}
-      {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}
-        {{#match authorPages.total 1}}{{> article/header @root.post soloAuthor=true}}{{else}}{{> article/header @root.post}}{{/match}}
-      {{else}}
-        {{> article/header}}
-      {{/get}}
+      {{#match authorPages.total 1}}{{> article/header soloAuthor=true}}{{else}}{{> article/header}}{{/match}}
 
       <div class="article-body">
         {{> article/toc}}
@@ -66,11 +64,7 @@ and carry the strings the scripts need (copy buttons, series).
         </footer>
       </div>
 
-      {{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}
-        {{#match authorPages.total 1}}{{> article/author @root.post soloAuthor=true}}{{else}}{{> article/author @root.post}}{{/match}}
-      {{else}}
-        {{> article/author}}
-      {{/get}}
+      {{#match authorPages.total 1}}{{> article/author soloAuthor=true}}{{else}}{{> article/author}}{{/match}}
 
       {{!-- Ghost's comments (comments-ui, ~250 KB from jsDelivr) load only when the reader gets near them,
       or at once when the address or a link targets them (#ghost-comments…): src/js/article/comments.js.
@@ -108,6 +102,7 @@ and carry the strings the scripts need (copy buttons, series).
     {{#if @member}}{{#if @custom.reading_settings}}{{> article/reading-settings}}{{/if}}{{/if}}
     <p class="sr-only" aria-live="polite" data-article-live></p>
   </main>
+  {{/with}}{{/get}}
 {{/post}}
 
 {{#contentFor "scripts"}}

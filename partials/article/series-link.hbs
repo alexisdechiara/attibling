@@ -1,29 +1,45 @@
 {{!--
 « Précédent » or « Suivant » link of a series (series box and series line at the end of the article).
-Handlebars cannot look one item back or ahead, so a link is rendered for every other part and the CSS
-shows only the part right before the current one (direction="prev") or right after it ("next"); at the
-first or last part nothing shows. Parameters:
-  parts         the published parts, in order (from {{#get}})
+Handlebars cannot look one item back or ahead, so the neighbour is found with {{#foreach}} windows of two
+parts (from the part's own position, limit 2): the part after the current one is the second part of the
+window that starts at the current one; the part before it is the part whose window ends on the current
+one. Only the link that shows is rendered (at the first or last part the step is empty and the CSS hides it).
+The block parameters (opts, outer) name the partial's parameters and the part of the outer loop: ../ would
+point at the wrong context when a window starts at the very part it is looking from.
+Parameters:
+  parts         the published parts, in order (from {{#get}}), with id, title and url
   current       id of the post being read
   direction     "prev" | "next"
-  detailed=true also show the part's title under the label (series line at the end of the article)
+  detailed=true also show the part's title under the label (series line at the end of the article). The
+                link's name is then its visible text (« Suivant Titre »); without it (series box) the label
+                only is visible and aria-label gives the destination (« Suivant : Titre »).
 --}}
-<span class="series-step series-step--{{direction}}{{#if detailed}} series-step--detailed{{/if}}">
-  {{#foreach parts}}
-    {{#match id ../current}}
-      <span class="series-step__current" hidden></span>
-    {{else}}
-      {{#match ../direction "prev"}}
-        <a class="series-step__link" href="{{url}}" aria-label="{{t "Previous: {title}" title=title}}">
-          {{> "icons/arrow-left" class="icon-flip-rtl"}}
-          <span class="series-step__text"><span class="series-step__label">{{t "Previous"}}</span>{{#if ../detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
-        </a>
-      {{else}}
-        <a class="series-step__link" href="{{url}}" aria-label="{{t "Next: {title}" title=title}}">
-          <span class="series-step__text"><span class="series-step__label">{{t "Next"}}</span>{{#if ../detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
-          {{> "icons/arrow-right" class="icon-flip-rtl"}}
-        </a>
-      {{/match}}
-    {{/match}}
-  {{/foreach}}
+{{#with this as |opts|}}
+<span class="series-step series-step--{{opts.direction}}{{#if opts.detailed}} series-step--detailed{{/if}}">
+  {{~#match opts.direction "prev"~}}
+    {{~#foreach opts.parts~}}{{~#with this as |outer|~}}
+      {{~#foreach opts.parts from=@number limit="2"~}}
+        {{~#match id opts.current~}}{{~#match outer.id opts.current~}}{{~else~}}
+          <a class="series-step__link" href="{{outer.url}}" aria-label="{{t "Previous: {title}" title=outer.title}}">
+            {{> "icons/arrow-left" class="icon-flip-rtl"}}
+            <span class="series-step__text"><span class="series-step__label">{{t "Previous"}}</span>{{#if opts.detailed}}<span class="series-step__title">{{outer.title}}</span>{{/if}}</span>
+          </a>
+        {{~/match~}}{{~/match~}}
+      {{~/foreach~}}
+    {{~/with~}}{{~/foreach~}}
+  {{~else~}}
+    {{~#foreach opts.parts~}}
+      {{~#match id opts.current~}}
+        {{~#foreach opts.parts from=@number limit="2"~}}
+          {{~#match id opts.current~}}{{~else~}}
+            <a class="series-step__link" href="{{url}}" aria-label="{{t "Next: {title}" title=title}}">
+              <span class="series-step__text"><span class="series-step__label">{{t "Next"}}</span>{{#if opts.detailed}}<span class="series-step__title">{{title}}</span>{{/if}}</span>
+              {{> "icons/arrow-right" class="icon-flip-rtl"}}
+            </a>
+          {{~/match~}}
+        {{~/foreach~}}
+      {{~/match~}}
+    {{~/foreach~}}
+  {{~/match~}}
 </span>
+{{/with}}

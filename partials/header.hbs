@@ -6,6 +6,9 @@ theme switch, « S'abonner » for visitors or « Compte » for members. Phones g
 subscribe or account, menu button), a row of navigation pills under it and a menu sheet.
 The bar sticks to the top of the page; app.js sets data-scrolled once the page has scrolled, and
 data-hidden while it is out of the way after a fast scroll down.
+The markup is in header-body.hbs; this partial only runs the server queries the header needs, once each
+(the desktop panel and the phone sheet share the posts and the tags; the two « S'abonner » buttons share
+the subscription page), and passes the results down.
 
 Parameters:
   home=true   home page: the bar starts without its logo while the hero wordmark is visible and
@@ -15,96 +18,23 @@ Parameters:
 Stable hooks (other scripts rely on them): #site-header, [data-header-logo] (the logo link: the
 target of the hero wordmark for docking and page transitions), [data-ghost-search].
 --}}
-<header class="site-header" id="site-header"{{#if home}} data-dock="undocked"{{/if}}>
-  <div class="site-header__bar container">
-    <a class="site-header__logo" href="{{@site.url}}" data-header-logo>
-      {{> wordmark size="header"}}
-    </a>
-
-    <nav class="site-nav" aria-label="{{t "Main menu"}}">
-      <ul class="site-nav__list" role="list" data-nav-list>
-        {{navigation}}
-        <li class="site-nav__more" data-nav-more{{#unless @site.secondary_navigation}} hidden{{/unless}}>
-          <button type="button" class="nav-link site-nav__more-button" popovertarget="site-more" data-more-button>
-            {{t "More"}}{{> "icons/chevron-down"}}
-          </button>
-        </li>
-        <li class="site-nav__discover">
-          <button type="button" class="nav-link site-nav__discover-button" popovertarget="site-discover" aria-label="{{t "Recent posts and tags"}}" data-discover-button>
-            {{> "icons/dots"}}
-          </button>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="site-header__actions">
-      <button type="button" class="icon-button" data-ghost-search aria-label="{{t "Open search"}}">
-        {{> "icons/search"}}
-      </button>
-      {{> theme-switch class="site-header__theme"}}
-      {{> article/settings-button}}
+{{!-- A {{#get}} block changes the context: the block parameter top keeps the parameters of this partial --}}
+{{#with this as |top|}}
+  {{#get "posts" limit="6" include="tags" as |discoverposts|}}
+    {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}
       {{#if @member}}
-        <a class="icon-button site-header__account" href="#/portal/account" data-portal="account" aria-label="{{t "Account"}}">
-          {{> "icons/user"}}
-        </a>
+        {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags}}
+      {{else if @custom.subscribe_url}}
+        {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags}}
+      {{else if top.subscribePagesKnown}}
+        {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags subscribePages=top.subscribePages subscribePagesKnown=true}}
       {{else}}
-        {{> subscribe-link class="button button--inverse button--s site-header__subscribe"}}
+        {{#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |subscribepages|}}
+          {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags subscribePages=subscribepages subscribePagesKnown=true}}
+        {{else}}
+          {{> header-body home=top.home discoverposts=discoverposts discovertags=discovertags}}
+        {{/get}}
       {{/if}}
-      <button type="button" class="icon-button site-header__menu-button" popovertarget="site-menu" data-menu-button aria-label="{{t "Open menu"}}">
-        {{> "icons/menu"}}
-      </button>
-    </div>
-  </div>
-
-  {{!-- « Plus »: the main items that do not fit (moved here by app.js) and the secondary navigation --}}
-  <div class="menu-popover site-more" id="site-more" popover data-more-menu>
-    <ul class="nav-list" role="list" data-nav-overflow hidden></ul>
-    {{#if @site.secondary_navigation}}
-      {{navigation type="secondary"}}
-    {{/if}}
-  </div>
-
-  {{!-- « ••• »: six recent posts, then the tags, a panel under the bar (desktop) --}}
-  <div class="discover" id="site-discover" popover data-discover-menu>
-    <div class="discover__inner">
-      {{> header-discover prefix="discover" count="6"}}
-    </div>
-  </div>
-</header>
-
-{{!-- Phones: the main navigation as a row of pills that scrolls sideways (hidden on larger screens) --}}
-<nav class="nav-pills" aria-label="{{t "Tags"}}">
-  <ul class="nav-pills__list" role="list">
-    {{navigation}}
-  </ul>
-</nav>
-
-{{!-- Phones: the menu sheet, opened by the menu button of the top bar; modal (app.js makes the page
-inert while it is open) --}}
-<div class="mobile-menu" id="site-menu" popover role="dialog" aria-modal="true" aria-label="{{t "Menu"}}" data-mobile-menu>
-  <div class="mobile-menu__head">
-    {{> wordmark size="header"}}
-    <button type="button" class="icon-button" popovertarget="site-menu" popovertargetaction="hide" data-menu-close aria-label="{{t "Close menu"}}">
-      {{> "icons/close"}}
-    </button>
-  </div>
-  <nav class="mobile-menu__nav" aria-label="{{t "Main menu"}}">
-    <ul class="nav-list" role="list">
-      {{navigation}}
-    </ul>
-    {{#if @site.secondary_navigation}}
-      {{navigation type="secondary"}}
-    {{/if}}
-  </nav>
-  <div class="mobile-menu__discover">
-    {{> header-discover prefix="menu-discover" count="4"}}
-  </div>
-  <div class="mobile-menu__footer">
-    {{> theme-switch class="mobile-menu__theme"}}
-    {{#if @member}}
-      <a class="button button--ghost" href="#/portal/account" data-portal="account">{{> "icons/user"}}{{t "Account"}}</a>
-    {{else}}
-      {{> subscribe-link class="button button--inverse"}}
-    {{/if}}
-  </div>
-</div>
+    {{/get}}
+  {{/get}}
+{{/with}}
