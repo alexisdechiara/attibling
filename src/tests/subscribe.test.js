@@ -160,7 +160,7 @@ describe("subscription page", () => {
 			const names = await page.$$eval("[data-subscribe-panel]", panels =>
 				panels.map(panel => document.getElementById(panel.getAttribute("aria-labelledby")).textContent.trim()),
 			);
-			assert.deepEqual(names, site.settings ? ["Se connecter à Geekly"] : ["S'abonner à Geekly", "Se connecter à Geekly"]);
+			assert.deepEqual(names, site.settings ? ["Se connecter à Geekly"] : ["S’abonner à Geekly", "Se connecter à Geekly"]);
 			await dispose();
 		}
 	});
@@ -302,7 +302,7 @@ describe("subscription page", () => {
 		assert.deepEqual(await waitFor(async () => ((await view()).focus === "subscribe-name" ? view() : null)), {
 			signup: true,
 			signin: false,
-			h1: ["S'abonner à Geekly"],
+			h1: ["S’abonner à Geekly"],
 			focus: "subscribe-name",
 		});
 		await page.locator("[data-subscribe-panel=signup] [data-subscribe-switch]").click();

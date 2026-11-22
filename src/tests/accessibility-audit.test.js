@@ -215,7 +215,7 @@ describe("accessibility audit: members-only call to action", () => {
 		assert.deepEqual(
 			box.links.map(l => [l.text, l.href]),
 			[
-				["S'abonner", "/newsletter/#inscription"],
+				["S’abonner", "/newsletter/#inscription"],
 				["Se connecter", "/newsletter/#connexion"],
 			],
 		);

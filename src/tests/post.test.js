@@ -423,6 +423,17 @@ describe("article page: header, dates, author", () => {
 		await dispose();
 	});
 
+	it("gives the header image an empty alt (the h1 is next to it) unless the author wrote one", async () => {
+		const plain = await open({ render: article() });
+		assert.equal(await plain.page.locator(".article-header__image").getAttribute("alt"), "");
+		await plain.dispose();
+		const render = article();
+		render.context.post.feature_image_alt = "Capture du jeu";
+		const written = await open({ render });
+		assert.equal(await written.page.locator(".article-header__image").getAttribute("alt"), "Capture du jeu");
+		await written.dispose();
+	});
+
 	it("shows no empty « Tags » block and no recommendations for a post with internal tags only", async () => {
 		const { page, dispose } = await open({ render: article({ tags: [], internal: ["#top"] }) });
 		assert.equal(await page.locator("#article-tags-label").count(), 0, "no Tags label");

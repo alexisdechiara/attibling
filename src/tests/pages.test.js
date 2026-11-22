@@ -192,6 +192,15 @@ describe("generic page", () => {
 		assert.equal(await page.locator("h1").count(), 1, "the title stays for screen readers");
 		await dispose();
 	});
+
+	it("gives the feature image an empty alt (the title is next to it) unless the author wrote one", async () => {
+		const plain = await open({ render: template("page") });
+		assert.equal(await plain.page.locator(".page-article__image").getAttribute("alt"), "");
+		await plain.dispose();
+		const written = await open({ render: template("page", { post: { feature_image_alt: "Une illustration" } }) });
+		assert.equal(await written.page.locator(".page-article__image").getAttribute("alt"), "Une illustration");
+		await written.dispose();
+	});
 });
 
 describe("404 page", () => {

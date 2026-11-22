@@ -29,6 +29,17 @@ describe("repository", () => {
 		}
 	});
 
+	it("writes French apostrophes as ’ in the values of fr.json and fr-informal.json", () => {
+		for (const file of ["locales/fr.json", "locales/fr-informal.json"]) {
+			const straight = Object.entries(JSON.parse(read(file))).filter(([, value]) => value.includes("'"));
+			assert.deepEqual(
+				straight.map(([key]) => key),
+				[],
+				file,
+			);
+		}
+	});
+
 	it("keeps « vous » in fr.json and « tu » in fr-informal.json", () => {
 		const informal = JSON.parse(read("locales/fr-informal.json"));
 		const formal = JSON.parse(read("locales/fr.json"));

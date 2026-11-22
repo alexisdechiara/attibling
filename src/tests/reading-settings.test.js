@@ -40,6 +40,14 @@ describe("display settings: access and panel", () => {
 	before(launch);
 	after(close);
 
+	it("translate the S / M / L sizes (P / M / G in French)", async () => {
+		const { page, dispose } = await open({ render: article({ member: true }) });
+		const sizes = name => page.$$eval(`input[name=${name}]`, inputs => inputs.map(i => i.parentElement.textContent.trim()));
+		assert.deepEqual(await sizes("width"), ["P", "M", "G"]);
+		assert.deepEqual(await sizes("size"), ["P", "M", "G"]);
+		await dispose();
+	});
+
 	it("are for members only", async () => {
 		const visitor = await open({ render: article() });
 		assert.equal(await visitor.page.locator("[data-reading-button], [data-reading-settings]").count(), 0);
