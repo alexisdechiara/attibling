@@ -14,7 +14,7 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     <meta name="color-scheme" content="light dark">
     {{!-- Single-author site: the author page repeats the home's list, keep it out of search results --}}
     {{#is "author"}}{{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}{{#match authorPages.total 1}}<meta name="robots" content="noindex, follow" />{{/match}}{{/get}}{{/is}}
-    {{!-- Other pages that ask not to be indexed: {{#contentFor "robots"}} (« Mes favoris », partials/pages/saved.hbs) --}}
+    {{!-- Other pages that ask not to be indexed: {{#contentFor "robots"}} (« À lire plus tard », partials/pages/saved.hbs) --}}
     {{{block "robots"}}}
 
     {{!-- Preload assets --}}

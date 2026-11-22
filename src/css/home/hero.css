@@ -391,7 +391,7 @@
 
 /* GEEKly wordmark: the tagline is tucked tight under « GEEK », in the band of the "y" descender, and
    stops before the descender (whose leftmost point is 2.99 em from the wordmark's start: Onest 800
-   G E E K and Pacifico "l" advance, see partials/home/intro.hbs). A longer description wraps within
+   G E E K and Pacifico "l" advance, partials/wordmark.hbs). A longer description wraps within
    that width (two lines at most). Rule: the tagline's cap top sits 0.075 of the wordmark's size
    (--hero-mark) under the baseline of « GEEK » (11px at 148px): attached to the letters, never
    touching them. With text-box trimming (below) that is exact for any font. Without it, the top margin

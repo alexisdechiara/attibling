@@ -102,8 +102,7 @@ describe("repository", () => {
 				return entry.name.endsWith(".hbs") ? [file] : [];
 			});
 		const files = [
-			// default.hbs: its <head> is being reworked elsewhere; one comment there still says « Mes favoris »
-			...fs.readdirSync(REPO_ROOT).filter(file => file.endsWith(".hbs") && file !== "default.hbs"),
+			...fs.readdirSync(REPO_ROOT).filter(file => file.endsWith(".hbs")),
 			...templates("partials"),
 			"README.md",
 			"docs/guide-auteur.md",
