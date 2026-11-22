@@ -495,7 +495,7 @@ describe("home sections", () => {
 		await dispose();
 	});
 
-	it("puts the banner's count beside « Rubrique » and its tag's picture behind it", async () => {
+	it("puts the banner's count beside « Tag » and its tag's picture behind it", async () => {
 		for (const [slug, image] of [
 			["ia", true],
 			["anime", false],
@@ -521,12 +521,12 @@ describe("home sections", () => {
 			assert.equal(banner.image, image, slug);
 			assert.equal(banner.noImage, !image);
 			assert.ok(banner.sameLine && banner.countAfter && banner.aboveTitle, JSON.stringify(banner));
-			assert.match(banner.text, /^Section ?· ?\d+ posts$/);
+			assert.match(banner.text, /^Tag ?· ?\d+ posts$/);
 			await dispose();
 		}
 	});
 
-	it("uses the tags' pictures in the « Rubriques » row", async () => {
+	it("uses the tags' pictures in the « Tags » row", async () => {
 		const { page, dispose } = await open({ viewport: DESKTOP });
 		const tiles = await page.$$eval("main .tag-grid .tag-tile", els =>
 			els.map(el => ({

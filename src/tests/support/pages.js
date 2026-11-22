@@ -32,7 +32,7 @@ export const home = ({ member = false, site = {}, custom = DEFAULT_CUSTOM, pages
 	};
 };
 
-export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM } = {}) => {
+export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM, locale = "en" } = {}) => {
 	const data = createSite(site);
 	return {
 		template: "index",
@@ -41,6 +41,7 @@ export const paged = (page, { member = false, site = {}, custom = DEFAULT_CUSTOM
 		contexts: ["paged", "index"],
 		member: member ? MEMBER : null,
 		custom,
+		locale,
 	};
 };
 
@@ -83,6 +84,7 @@ export const template = (
 			post: { ...PAGE, title: "Cookies et confidentialité", updated_at: "2026-11-20T10:00:00.000Z", ...post },
 		},
 		"error-404": {},
+		error: { statusCode: 500, message: "Internal server error" },
 	};
 	for (const [custom_, page_] of [
 		["custom-tags", "page-tags"],

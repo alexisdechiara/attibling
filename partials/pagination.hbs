@@ -7,7 +7,7 @@ Pagination: Ghost's {{pagination}} helper renders this partial with page, pages,
     {{#if prev}}
       <a class="button button--ghost pagination__link" href="{{page_url prev}}" rel="prev">{{> "icons/arrow-left" class="icon-flip-rtl"}}<span>{{t "Newer posts"}}</span></a>
     {{/if}}
-    <span class="pagination__status">{{t "Page"}} {{page}} {{t "of"}} {{pages}}</span>
+    <span class="pagination__status">{{t "Page {page} of {pages}" page=page pages=pages}}</span>
     {{#if next}}
       <a class="button button--ghost pagination__link" href="{{page_url next}}" rel="next"><span>{{t "Older posts"}}</span>{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
     {{/if}}

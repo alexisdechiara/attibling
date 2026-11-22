@@ -9,6 +9,8 @@ under each tile and « Tout retirer »; an empty list shows the empty state. Whe
 blocked the unavailable note shows instead.
 Visitors: an invitation to subscribe or sign in (Portal).
 --}}
+{{!-- A list kept in the reader's own browser: nothing to index (default.hbs prints this block) --}}
+{{#contentFor "robots"}}<meta name="robots" content="noindex, follow" />{{/contentFor}}
 {{#contentFor "preload"}}
   <link rel="preload" href="{{asset "css/saved.css"}}" as="style" />
   {{#if @member}}<link rel="modulepreload" href="{{asset "js/saved.js"}}" />{{/if}}

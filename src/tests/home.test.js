@@ -467,7 +467,7 @@ describe("rows by tag", () => {
 		const { page, dispose } = await open();
 		assert.deepEqual(await rows(page), [
 			["shelf", "Jeux vidéo"],
-			["tags", "Sections"],
+			["tags", "Tags"],
 			["posters", "VF"],
 			["list", "Actualité"],
 			["banner", "Anime"],
@@ -487,12 +487,117 @@ describe("rows by tag", () => {
 		const { page, dispose } = await open({ render: home({ custom }) });
 		assert.deepEqual(await rows(page), [
 			["shelf", "Jeux vidéo"],
-			["tags", "Sections"],
+			["tags", "Tags"],
 			["posters", "Anime"],
 			["list", "Actualité"],
 			["feature", "Dossier"],
 		]);
 		await dispose();
+	});
+});
+
+describe("one wording for the same things", () => {
+	before(launch);
+	after(close);
+
+	it("empties the saved list with the same button label on the home and on « Mes favoris »", async () => {
+		const homeList = await open({ render: home({ member: true, locale: "fr" }) });
+		const onHome = await homeList.page.locator("[data-list-clear]").textContent();
+		await homeList.dispose();
+		const saved = await open({ render: template("page-favoris", { member: true, locale: "fr" }) });
+		const onSaved = await saved.page.locator("[data-saved-clear]").textContent();
+		await saved.dispose();
+		assert.equal(onHome, "Tout retirer");
+		assert.equal(onSaved, onHome);
+	});
+
+	it("calls the tags « Tags » on the home, in the header and in the banner", async () => {
+		const { page, dispose } = await open({ render: home({ locale: "fr", custom: { home_row_4: "ia" } }) });
+		assert.equal(await page.locator(".row--tags h2").textContent(), "Tags");
+		assert.equal(await page.locator("nav.nav-pills").getAttribute("aria-label"), "Tags");
+		assert.match(await page.locator(".banner__kicker").innerText(), /^Tag\s*·\s*\d+ articles$/);
+		await dispose();
+	});
+});
+
+describe("« Derniers articles » list", () => {
+	before(launch);
+	after(close);
+
+	it("labels the list of the next posts with its own name, not a button's", async () => {
+		const { page, dispose } = await open({ render: home({ locale: "fr" }) });
+		assert.equal(await page.locator(".latest__list").getAttribute("aria-label"), "Autres articles récents");
+		await dispose();
+	});
+
+	it("says « Aucun article » instead of showing an empty section on a site without posts", async () => {
+		const none = s => {
+			s.posts = [];
+		};
+		const { page, dispose } = await open({ render: home({ locale: "fr", site: { adjust: none } }) });
+		assert.equal(await page.locator(".latest .latest__empty").textContent(), "Aucun article");
+		assert.equal(await page.locator(".latest__grid").count(), 0);
+		await dispose();
+
+		const listing = await open({ render: paged(2, { locale: "fr", site: { adjust: none } }) });
+		assert.equal(await listing.page.locator(".post-grid .latest__empty").textContent(), "Aucun article");
+		await listing.dispose();
+	});
+});
+
+describe("rows with only some tags pinned", () => {
+	before(launch);
+	after(close);
+
+	it("never show a pinned tag twice: the row that would fall back on it is left out", async () => {
+		// « Anime » is the 4th most used tag: pinned for the first row, it must not fill the 4th row too
+		const custom = { home_row_1: "anime" };
+		const { page, dispose } = await open({ render: home({ custom }) });
+		const rows = await page.$$eval(".row", sections =>
+			sections.map(s => [s.className.match(/row--(\w+)/)[1], s.querySelector("h2").textContent.trim()]),
+		);
+		assert.deepEqual(rows, [
+			["shelf", "Anime"],
+			["tags", "Tags"],
+			["posters", "VF"],
+			["list", "Actualité"],
+			["feature", "Informatique"],
+		]);
+		const ids = await page.$$eval("[id^=row-]", els => els.map(e => e.id));
+		assert.equal(new Set(ids).size, ids.length, `ids ${ids.join()}`);
+		await dispose();
+	});
+});
+
+describe("tags without posts", () => {
+	before(launch);
+	after(close);
+
+	// Only the three first tags keep their posts: the six most used tags then hold three empty ones
+	const emptyTags = s => {
+		for (const tag of s.tags.filter(t => t.visibility === "public").slice(3)) tag.count = { posts: 0 };
+	};
+	const withPosts = ["Actualité", "Jeux vidéo", "VF"].sort();
+
+	it("stay out of the « Tags » tiles, the discover panel and the About page", async () => {
+		const { page, dispose } = await open({ render: home({ site: { adjust: emptyTags } }) });
+		assert.deepEqual(
+			(await page.$$eval(".tag-grid .tag-tile__name", names => names.map(n => n.textContent.trim()))).sort(),
+			withPosts,
+			"home tiles",
+		);
+		const discover = await page.$$eval(".discover__tag", links => links.map(a => a.textContent.trim()));
+		assert.deepEqual(discover.slice(0, 3).sort(), withPosts);
+		assert.equal(discover.length % 3, 0, "only the tags with posts, in each of the two panels");
+		assert.ok(discover.length > 0 && discover.every(name => withPosts.includes(name)), discover.join());
+		await dispose();
+
+		const about = await open({ render: template("page-a-propos", { site: { adjust: emptyTags } }) });
+		assert.deepEqual(
+			(await about.page.$$eval(".about-rubric__name", names => names.map(n => n.textContent.trim()))).sort(),
+			withPosts,
+		);
+		await about.dispose();
 	});
 });
 
@@ -524,6 +629,16 @@ describe("home layout", () => {
 		assert.equal(box.rows, 6);
 		assert.ok(Math.abs(box.lead - box.list) < 2, `lead ${box.lead}px, list ${box.list}px`);
 		await dispose();
+	});
+
+	it("writes « Page 2 sur N » and « 1 sur 6: titre » in French, with the number in the sentence", async () => {
+		const { page, dispose } = await open({ render: paged(2, { locale: "fr" }) });
+		assert.match(await page.locator(".pagination__status").textContent(), /^Page 2 sur \d+$/);
+		assert.match(await page.locator(".page-heading__note").textContent(), /^Page 2 sur \d+$/);
+		await dispose();
+		const hero = await open({ render: home({ locale: "fr" }) });
+		assert.match(await hero.page.locator("[data-hero-dot] .sr-only").first().textContent(), /^1 sur 6: \S/);
+		await hero.dispose();
 	});
 
 	it("shows page 2 and after as a plain grid without the hero", async () => {

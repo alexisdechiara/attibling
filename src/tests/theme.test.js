@@ -32,9 +32,9 @@ describe("theme switcher", () => {
 
 	it("names the current mode in the button's accessible name", async () => {
 		const { page, dispose } = await open({ colorScheme: "light" });
-		assert.equal(await page.getByRole("button", { name: "Switch theme Automatic theme" }).count(), 1);
+		assert.equal(await page.getByRole("button", { name: "Switch mode Automatic mode" }).count(), 1);
 		await page.locator(".site-header__theme").click();
-		assert.equal(await page.getByRole("button", { name: "Switch theme Dark theme" }).count(), 1);
+		assert.equal(await page.getByRole("button", { name: "Switch mode Dark mode" }).count(), 1);
 		await dispose();
 	});
 

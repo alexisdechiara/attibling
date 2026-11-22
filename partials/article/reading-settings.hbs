@@ -15,7 +15,7 @@ summary); default.hbs applies the saved ones before the first paint, src/css/art
 
   <form class="reading-settings__form" data-reading-form>
     <div class="reading-field">
-      <label class="reading-field__label" for="reading-theme">{{t "Theme"}}</label>
+      <label class="reading-field__label" for="reading-theme">{{t "Palette"}}</label>
       {{!-- Plain selects cannot draw the swatch inside the option: this one, over the select, follows the
       checked option (CSS :has); the customizable select draws its own and hides it --}}
       <div class="reading-select-wrap">
@@ -58,18 +58,18 @@ summary); default.hbs applies the saved ones before the first paint, src/css/art
     <fieldset class="reading-field">
       <legend class="reading-field__label">{{t "Article width"}}</legend>
       <div class="segmented segmented--3">
-        <label><input type="radio" name="width" value="s">S</label>
-        <label><input type="radio" name="width" value="m" checked>M</label>
-        <label><input type="radio" name="width" value="l">L</label>
+        <label><input type="radio" name="width" value="s">{{t "S"}}</label>
+        <label><input type="radio" name="width" value="m" checked>{{t "M"}}</label>
+        <label><input type="radio" name="width" value="l">{{t "L"}}</label>
       </div>
     </fieldset>
 
     <fieldset class="reading-field">
       <legend class="reading-field__label">{{t "Text size"}}</legend>
       <div class="segmented segmented--3">
-        <label><input type="radio" name="size" value="s">S</label>
-        <label><input type="radio" name="size" value="m" checked>M</label>
-        <label><input type="radio" name="size" value="l">L</label>
+        <label><input type="radio" name="size" value="s">{{t "S"}}</label>
+        <label><input type="radio" name="size" value="m" checked>{{t "M"}}</label>
+        <label><input type="radio" name="size" value="l">{{t "L"}}</label>
       </div>
     </fieldset>
 

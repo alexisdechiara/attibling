@@ -10,6 +10,7 @@ lead (phones: the lead, then the list). Uses the 7 posts of the home page (posts
   {{else}}
     {{> section-header title=(t "Latest posts") id="latest-title" divider=true}}
   {{/if}}
+  {{#if posts}}
   <div class="latest__grid">
     {{#foreach posts limit="1"}}
       <article class="lead{{> "vignette/missing" noImage=" lead--no-image"}}" data-post-tile>
@@ -26,11 +27,14 @@ lead (phones: the lead, then the list). Uses the 7 posts of the home page (posts
       </article>
     {{/foreach}}
     {{#if posts.[1]}}
-      <ol class="latest__list" role="list" aria-label="{{t "Previous posts"}}">
+      <ol class="latest__list" role="list" aria-label="{{t "Other recent posts"}}">
         {{#foreach posts from="2" to="7"}}
           <li>{{> row-item}}</li>
         {{/foreach}}
       </ol>
     {{/if}}
   </div>
+  {{else}}
+  <p class="latest__empty">{{t "No posts"}}</p>
+  {{/if}}
 </section>

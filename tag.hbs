@@ -1,5 +1,5 @@
 {{!--
-Tag page (« rubrique »): a dressed header (the tag's feature image, name, description, number of posts),
+Tag page: a dressed header (the tag's feature image, name, description, number of posts),
 on the first page the tag's lead post (its most recent FEATURED post, else its most recent post), then
 the grid of the other posts and the pagination.
 Falls back gracefully: no image → plain dark card; no description → no line; no featured post → the
@@ -37,22 +37,28 @@ most recent post leads. The lead post is left out of the grid of the first page.
   {{!-- The grid partial gets the page's posts as items: from inside {{#get}} and {{#foreach}} they are
   two levels up. Ghost renders the block of {{#get}} even when nothing matches (its {{else}} is only
   for a failed request): the result is tested with {{#if lead}}. --}}
+  {{!-- A tag with a single post: the lead card is all there is, so no « All posts » section under it
+  (pagination.total > 1); a tag without any post: the grid's empty state. --}}
   {{#is "paged"}}
     {{> "listing/grid" items=posts title=(t "All posts")}}
   {{else}}
-    {{#get "posts" filter="tag:{{tag.slug}}+featured:true" include="tags" limit="1" as |lead|}}
-      {{#if lead}}
-        {{#foreach lead}}
-          {{> "listing/lead"}}
-          {{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}
-        {{/foreach}}
-      {{else}}
-        {{#foreach ../posts limit="1"}}
-          {{> "listing/lead"}}
-          {{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}
-        {{/foreach}}
-      {{/if}}
-    {{/get}}
+    {{#match pagination.total ">" 0}}
+      {{#get "posts" filter="tag:{{tag.slug}}+featured:true" include="tags" limit="1" as |lead|}}
+        {{#if lead}}
+          {{#foreach lead}}
+            {{> "listing/lead"}}
+            {{#match ../../pagination.total ">" 1}}{{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}{{/match}}
+          {{/foreach}}
+        {{else}}
+          {{#foreach ../posts limit="1"}}
+            {{> "listing/lead"}}
+            {{#match ../../pagination.total ">" 1}}{{> "listing/grid" items=../../posts exclude=id title=(t "All posts")}}{{/match}}
+          {{/foreach}}
+        {{/if}}
+      {{/get}}
+    {{else}}
+      {{> "listing/grid" items=posts title=(t "All posts")}}
+    {{/match}}
   {{/is}}
   {{pagination}}
 </main>

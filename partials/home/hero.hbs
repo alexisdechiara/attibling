@@ -37,7 +37,7 @@ Hooks: #hero-wordmark (the wordmark: docking into the header, page transitions, 
           <div class="hero__pager" role="group" aria-label="{{t "Choose the featured post"}}" data-hero-pager hidden>
             {{#foreach featured}}
               <button type="button" class="hero__dot" aria-controls="hero-slide-{{@number}}"{{#if @first}} aria-current="true"{{/if}} data-hero-dot>
-                <span class="sr-only">{{@number}} {{t "of"}} {{featured.length}}: {{title}}</span>
+                <span class="sr-only">{{t "{n} of {total}" n=@number total=featured.length}}: {{title}}</span>
                 <span class="hero__dot-preview" aria-hidden="true">{{title}}</span>
               </button>
             {{/foreach}}

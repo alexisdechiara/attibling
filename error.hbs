@@ -1,0 +1,12 @@
+{{!--
+Any error other than 404 (Ghost's fallback error template: 500, 503...), in the shared error design
+(partials/error-page.hbs) with the status code Ghost gives. Ghost's own message is technical and in
+English: it is not shown. The header, the search and the latest posts work as on the 404 page.
+--}}
+
+{{!-- Ghost's meta_title gives only the site title here: « Une erreur est survenue - GEEKLY » --}}
+{{#contentFor "title"}}{{t "Something went wrong"}} - {{/contentFor}}
+
+{{!< default}}
+
+{{> "error-page" errorCode=statusCode errorTitle=(t "Something went wrong") errorText=(t "An error occurred while showing this page. Try again in a moment, or find the post you were looking for below.")}}

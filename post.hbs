@@ -35,7 +35,7 @@ and carry the strings the scripts need (copy buttons, series).
       {{#unless @custom.summary_for_visitors}}data-summary-members{{/unless}}
       data-url="{{url}}" data-title="{{title}}" data-image="{{> "vignette/url"}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
       data-author="{{primary_author.name}}" data-published="{{date format="YYYY-MM-DD"}}"
-      data-copy-link="{{t "Copy the link to the section"}}" data-link-copied="{{t "Link copied"}}"
+      data-copy-link="{{t "Copy the link to the section “{title}”" title="{title}"}}" data-link-copied="{{t "Link copied"}}"
       data-copy="{{t "Copy"}}" data-copied="{{t "Copied"}}" data-copy-code="{{t "Copy the code"}}" data-code-copied="{{t "Code copied"}}"
       style="--label-summary: &quot;{{t "In short"}}&quot;; --label-summary-author: &quot;{{t "Author's summary"}}&quot;; --label-summary-ai: &quot;{{t "AI-generated summary"}}&quot;">
 

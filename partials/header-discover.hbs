@@ -21,9 +21,9 @@ Parameters:
     <h2 class="discover__title" id="{{prefix}}-tags">{{t "Tags"}}</h2>
     <a class="discover__all" href="{{@site.url}}/tags/">{{t "All tags"}}{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
   </div>
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}{{#if discovertags}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="12" as |discovertags|}}{{#match discovertags.0.count.posts ">" 0}}
     <ul class="discover__tags" role="list">
-      {{#foreach discovertags}}<li><a class="discover__tag" href="{{url}}">{{name}}</a></li>{{/foreach}}
+      {{#foreach discovertags}}{{#match count.posts ">" 0}}<li><a class="discover__tag" href="{{url}}">{{name}}</a></li>{{/match}}{{/foreach}}
     </ul>
-  {{/if}}{{/get}}
+  {{/match}}{{/get}}
 </section>

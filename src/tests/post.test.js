@@ -445,6 +445,22 @@ describe("article page: copy buttons", () => {
 	before(launch);
 	after(close);
 
+	it("takes the quotes of the copy-link label from the translation, not from the script", async () => {
+		const html = `${LONG_HTML}<h2 id="cout">Coût $&amp; plus</h2><p>Texte.</p>`;
+		const english = await open({ render: article({ locale: "en", html }) });
+		assert.equal(
+			await english.page.locator("#deuxieme-partie .heading-link").getAttribute("aria-label"),
+			"Copy the link to the section “Deuxième partie”",
+		);
+		await english.dispose();
+		const french = await open({ render: article({ html }) });
+		assert.equal(
+			await french.page.locator("#cout .heading-link").getAttribute("aria-label"),
+			"Copier le lien vers la section « Coût $& plus »",
+		);
+		await french.dispose();
+	});
+
 	it("copies the link of a section from its heading, shows « Lien copié » for 2 seconds and announces it", async () => {
 		const { page, dispose } = await open({ render: article(), initScript: mockClipboard });
 		const heading = page.locator("#deuxieme-partie");
@@ -608,6 +624,26 @@ describe("article page: header, dates, author", () => {
 		const { page, dispose } = await open({ render });
 		const tiles = await page.$$eval(".article-related .tile__title", els => els.map(el => el.textContent));
 		assert.deepEqual(tiles, [posts[2].title]);
+		await dispose();
+	});
+
+	it("gives the header image an empty alt (the h1 is next to it) unless the author wrote one", async () => {
+		const plain = await open({ render: article() });
+		assert.equal(await plain.page.locator(".article-header__image").getAttribute("alt"), "");
+		await plain.dispose();
+		const render = article();
+		render.context.post.feature_image_alt = "Capture du jeu";
+		const written = await open({ render });
+		assert.equal(await written.page.locator(".article-header__image").getAttribute("alt"), "Capture du jeu");
+		await written.dispose();
+	});
+
+	it("shows no empty « Tags » block and no recommendations for a post with internal tags only", async () => {
+		const { page, dispose } = await open({ render: article({ tags: [], internal: ["#top"] }) });
+		assert.equal(await page.locator("#article-tags-label").count(), 0, "no Tags label");
+		assert.equal(await page.locator(".article-share__tags").count(), 0, "no empty list of tags");
+		assert.equal(await page.locator(".article-related").count(), 0, "no recommendations");
+		assert.equal(await page.locator(".article-share__links a").count(), 4, "the share links stay");
 		await dispose();
 	});
 

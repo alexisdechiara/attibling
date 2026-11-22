@@ -28,11 +28,11 @@ describe("header", () => {
 					.filter(el => getComputedStyle(el).display !== "none")
 					.map(el => el.getAttribute("aria-label") || el.innerText.trim().replace(/\s+/g, " ")),
 			);
-		assert.deepEqual(await actions(visitor.page), ["Open search", "Switch theme Automatic theme", "Subscribe"]);
+		assert.deepEqual(await actions(visitor.page), ["Open search", "Switch mode Automatic mode", "Subscribe"]);
 		await visitor.dispose();
 
 		const member = await open({ render: home({ member: true }), viewport: { width: 1440, height: 900 } });
-		assert.deepEqual(await actions(member.page), ["Open search", "Switch theme Automatic theme", "Account"]);
+		assert.deepEqual(await actions(member.page), ["Open search", "Switch mode Automatic mode", "Account"]);
 		await member.dispose();
 	});
 

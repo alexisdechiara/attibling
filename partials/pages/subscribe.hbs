@@ -78,9 +78,14 @@ newsletters, profile), back home, sign out, their tools.
 
       <div class="container subscribe-hero__inner">
         <div class="subscribe-hero__main">
+          {{!-- The page's only h1: one of its two texts shows, following the state of the hero (sign-up or
+          sign-in, src/css/newsletter.css); the two panels below are named by them (aria-labelledby) --}}
+          <h1 class="subscribe-hero__title">
+            {{#unless @site.members_invite_only}}<span class="subscribe-hero__heading subscribe-hero__heading--signup" id="subscribe-title">{{t "Subscribe to {blogtitle}" blogtitle=@site.title}}</span>{{/unless}}
+            {{#if @site.members_enabled}}<span class="subscribe-hero__heading subscribe-hero__heading--signin" id="signin-title">{{t "Sign in to {blogtitle}" blogtitle=@site.title}}</span>{{/if}}
+          </h1>
           {{#unless @site.members_invite_only}}
             <section class="subscribe-panel subscribe-panel--signup" aria-labelledby="subscribe-title" data-subscribe-panel="signup">
-              <h1 class="subscribe-hero__title" id="subscribe-title">{{t "Subscribe to {blogtitle}" blogtitle=@site.title}}</h1>
               {{#post}}
                 <p class="subscribe-hero__lead">{{#if custom_excerpt}}{{custom_excerpt}}{{else}}{{t "It's free: get the latest posts straight to your inbox and enjoy the reading tools reserved for members."}}{{/if}}</p>
               {{/post}}
@@ -117,7 +122,6 @@ newsletters, profile), back home, sign out, their tools.
 
           {{#if @site.members_enabled}}
             <section class="subscribe-panel subscribe-panel--signin" aria-labelledby="signin-title" data-subscribe-panel="signin">
-              <h1 class="subscribe-hero__title" id="signin-title">{{t "Sign in to {blogtitle}" blogtitle=@site.title}}</h1>
               <p class="subscribe-hero__lead">{{t "Enter the email address of your subscription: you will get a link to sign in, no password needed."}}</p>
               <form class="subscribe-form subscribe-form--signin" id="signin-form" data-members-form="signin" data-signin-form novalidate>
                 <div class="subscribe-form__fields">

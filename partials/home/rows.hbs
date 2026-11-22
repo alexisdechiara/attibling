@@ -2,18 +2,20 @@
 Rows by tag, under « Les plus lus ». The sequence of forms is fixed by the theme so that two
 neighbouring rows never share a form (Final-rangees-catalogue):
   1. shelf of 16:9 tiles   (row 1)          4. numbered text list, by date   (row 3)
-  2. tag tiles « Rubriques » (most used tags) 5. collection banner             (row 4)
+  2. tag tiles « Tags » (most used tags) 5. collection banner             (row 4)
   3. 2:3 posters           (row 2)          6. one large post + four          (row 5)
 Which tag fills each row: the theme setting « Home row N » (home_row_1 ... home_row_5, a tag slug,
 Ghost Admin > Settings > Design > Homepage) when it is set; otherwise the Nth most used public tag.
 A setting naming no existing public tag (e.g. "none") removes its row; a tag without posts has no row.
+A tag pinned by one row never fills another: when the Nth most used tag is pinned in a setting (any row),
+the row that would fall back on it is left out, so no tag appears twice (and every id row-<slug> is unique).
 --}}
 
 {{!-- 1. Shelf (16:9) --}}
 {{#if @custom.home_row_1}}
   {{#get "tags" filter="slug:{{@custom.home_row_1}}+visibility:public" include="count.posts" limit="1"}}{{#foreach tags}}{{> "home/row-shelf"}}{{/foreach}}{{/get}}
 {{else}}
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="1" to="1"}}{{> "home/row-shelf"}}{{/foreach}}{{/get}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="1" to="1"}}{{#match (concat "," @custom.home_row_1 "," @custom.home_row_2 "," @custom.home_row_3 "," @custom.home_row_4 "," @custom.home_row_5 ",") "~" (concat "," slug ",")}}{{else}}{{> "home/row-shelf"}}{{/match}}{{/foreach}}{{/get}}
 {{/if}}
 
 {{!-- 2. Tag tiles: the six most used public tags --}}
@@ -23,26 +25,26 @@ A setting naming no existing public tag (e.g. "none") removes its row; a tag wit
 {{#if @custom.home_row_2}}
   {{#get "tags" filter="slug:{{@custom.home_row_2}}+visibility:public" include="count.posts" limit="1"}}{{#foreach tags}}{{> "home/row-posters"}}{{/foreach}}{{/get}}
 {{else}}
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="2" to="2"}}{{> "home/row-posters"}}{{/foreach}}{{/get}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="2" to="2"}}{{#match (concat "," @custom.home_row_1 "," @custom.home_row_2 "," @custom.home_row_3 "," @custom.home_row_4 "," @custom.home_row_5 ",") "~" (concat "," slug ",")}}{{else}}{{> "home/row-posters"}}{{/match}}{{/foreach}}{{/get}}
 {{/if}}
 
 {{!-- 4. Numbered text list --}}
 {{#if @custom.home_row_3}}
   {{#get "tags" filter="slug:{{@custom.home_row_3}}+visibility:public" include="count.posts" limit="1"}}{{#foreach tags}}{{> "home/row-list"}}{{/foreach}}{{/get}}
 {{else}}
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="3" to="3"}}{{> "home/row-list"}}{{/foreach}}{{/get}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="3" to="3"}}{{#match (concat "," @custom.home_row_1 "," @custom.home_row_2 "," @custom.home_row_3 "," @custom.home_row_4 "," @custom.home_row_5 ",") "~" (concat "," slug ",")}}{{else}}{{> "home/row-list"}}{{/match}}{{/foreach}}{{/get}}
 {{/if}}
 
 {{!-- 5. Collection banner --}}
 {{#if @custom.home_row_4}}
   {{#get "tags" filter="slug:{{@custom.home_row_4}}+visibility:public" include="count.posts" limit="1"}}{{#foreach tags}}{{> "home/row-banner"}}{{/foreach}}{{/get}}
 {{else}}
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="4" to="4"}}{{> "home/row-banner"}}{{/foreach}}{{/get}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="4" to="4"}}{{#match (concat "," @custom.home_row_1 "," @custom.home_row_2 "," @custom.home_row_3 "," @custom.home_row_4 "," @custom.home_row_5 ",") "~" (concat "," slug ",")}}{{else}}{{> "home/row-banner"}}{{/match}}{{/foreach}}{{/get}}
 {{/if}}
 
 {{!-- 6. One large + four --}}
 {{#if @custom.home_row_5}}
   {{#get "tags" filter="slug:{{@custom.home_row_5}}+visibility:public" include="count.posts" limit="1"}}{{#foreach tags}}{{> "home/row-feature"}}{{/foreach}}{{/get}}
 {{else}}
-  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="5" to="5"}}{{> "home/row-feature"}}{{/foreach}}{{/get}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5"}}{{#foreach tags from="5" to="5"}}{{#match (concat "," @custom.home_row_1 "," @custom.home_row_2 "," @custom.home_row_3 "," @custom.home_row_4 "," @custom.home_row_5 ",") "~" (concat "," slug ",")}}{{else}}{{> "home/row-feature"}}{{/match}}{{/foreach}}{{/get}}
 {{/if}}

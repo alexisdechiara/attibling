@@ -132,3 +132,9 @@
     }
   }
 }
+
+/* No post at all (a new site): the section says so instead of staying empty */
+.latest__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}

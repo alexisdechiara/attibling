@@ -153,6 +153,21 @@ describe("subscription page", () => {
 
 	const fr = options => ({ ...template("page-newsletter", { pages: NEWSLETTER, ...options }), locale: "fr" });
 
+	it("has a single h1 in its markup, whichever panel shows, and names each panel by its own text", async () => {
+		for (const site of [{}, { settings: { members_invite_only: true } }]) {
+			const { page, dispose } = await open({ render: fr({ site }) });
+			assert.equal(await page.locator("h1").count(), 1, JSON.stringify(site));
+			const names = await page.$$eval("[data-subscribe-panel]", panels =>
+				panels.map(panel => document.getElementById(panel.getAttribute("aria-labelledby")).textContent.trim()),
+			);
+			assert.deepEqual(
+				names,
+				site.settings ? ["Se connecter à Geekly"] : ["S’abonner à Geekly", "Se connecter à Geekly"],
+			);
+			await dispose();
+		}
+	});
+
 	it("asks for the name (optional) then the e-mail address, with labels and autocomplete", async () => {
 		const { page, dispose } = await open({ render: fr() });
 		const fields = await page.$$eval("[data-subscribe-form] input", inputs =>
@@ -273,7 +288,7 @@ describe("subscription page", () => {
 			page.evaluate(() => ({
 				signup: Boolean(document.querySelector("[data-subscribe-panel=signup]").offsetParent),
 				signin: Boolean(document.querySelector("[data-subscribe-panel=signin]").offsetParent),
-				h1: [...document.querySelectorAll("h1")].filter(h => h.offsetParent).map(h => h.textContent.trim()),
+				h1: [...document.querySelectorAll("h1")].filter(h => h.offsetParent).map(h => h.innerText.trim()),
 				focus: document.activeElement.id,
 			}));
 		assert.deepEqual(await waitFor(async () => ((await view()).focus === "signin-email" ? view() : null)), {
@@ -290,7 +305,7 @@ describe("subscription page", () => {
 		assert.deepEqual(await waitFor(async () => ((await view()).focus === "subscribe-name" ? view() : null)), {
 			signup: true,
 			signin: false,
-			h1: ["S'abonner à Geekly"],
+			h1: ["S’abonner à Geekly"],
 			focus: "subscribe-name",
 		});
 		await page.locator("[data-subscribe-panel=signup] [data-subscribe-switch]").click();

@@ -4,6 +4,7 @@ import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
 import { template } from "./support/pages.js";
+import { renderTemplate } from "./support/ghost.js";
 
 const PHONE = { width: 390, height: 844 };
 
@@ -40,6 +41,22 @@ const focusRing = (page, selector) =>
 			((style.outlineStyle !== "none" && parseFloat(style.outlineWidth) >= 2) || style.boxShadow !== "none")
 		);
 	}, selector);
+
+describe("text direction", () => {
+	// The server's HTML itself, no script: right-to-left from the first paint
+	const htmlTag = locale => {
+		const { template: name, ...options } = template("tag", { locale });
+		return renderTemplate(name, options).match(/<html[^>]*>/)[0];
+	};
+
+	it('sets dir="rtl" on <html> for Arabic, Persian and Hebrew', () => {
+		for (const locale of ["ar", "fa", "he"]) assert.match(htmlTag(locale), /<html lang="[^"]+" dir="rtl"/, locale);
+	});
+
+	it("leaves left-to-right locales without a dir attribute", () => {
+		for (const locale of ["en", "fr", "de", "ja"]) assert.doesNotMatch(htmlTag(locale), /dir=/, locale);
+	});
+});
 
 describe("tag page", () => {
 	before(launch);
@@ -81,6 +98,30 @@ describe("tag page", () => {
 		assert.equal(view.description, false);
 		assert.equal(view.lead, "Les animes à voir en VF pour la saison d’hiver 2026", "newest post of the page");
 		assert.notEqual(view.first, view.lead);
+		await dispose();
+	});
+
+	it("shows only the lead card for a tag with one post, no empty « All posts » section", async () => {
+		const onlyOne = s => {
+			s.posts = s.posts.filter(p => p.tags.some(t => t.slug === "jeux-video")).slice(0, 1);
+		};
+		for (const featured of [true, false]) {
+			const { page, dispose } = await open({ render: template("tag", { site: { adjust: onlyOne, featured } }) });
+			assert.equal(await page.locator(".listing-lead").count(), 1, `lead card (featured: ${featured})`);
+			assert.equal(await page.locator(".listing-grid").count(), 0, `no grid (featured: ${featured})`);
+			assert.equal(await page.locator("#listing-grid-title").count(), 0);
+			await dispose();
+		}
+	});
+
+	it("says « No posts » for a tag without any post", async () => {
+		const none = s => {
+			s.posts = [];
+		};
+		const { page, dispose } = await open({ render: template("tag", { site: { adjust: none } }) });
+		assert.equal(await page.locator(".listing-lead").count(), 0);
+		assert.equal(await page.locator(".listing-grid__empty").textContent(), "No posts");
+		assert.equal(await page.locator(".post-grid .tile").count(), 0);
 		await dispose();
 	});
 
@@ -151,6 +192,15 @@ describe("generic page", () => {
 		assert.equal(await page.locator("h1").count(), 1, "the title stays for screen readers");
 		await dispose();
 	});
+
+	it("gives the feature image an empty alt (the title is next to it) unless the author wrote one", async () => {
+		const plain = await open({ render: template("page") });
+		assert.equal(await plain.page.locator(".page-article__image").getAttribute("alt"), "");
+		await plain.dispose();
+		const written = await open({ render: template("page", { post: { feature_image_alt: "Une illustration" } }) });
+		assert.equal(await written.page.locator(".page-article__image").getAttribute("alt"), "Une illustration");
+		await written.dispose();
+	});
 });
 
 describe("404 page", () => {
@@ -173,6 +223,39 @@ describe("404 page", () => {
 		assert.ok(view.focused, "the search button has the focus on arrival");
 		assert.deepEqual(view.shortcuts, ["Go to the home page", "Newsletter", "Dossier", "News"]);
 		assert.equal(view.recent, 4);
+		await dispose();
+	});
+});
+
+describe("error page (any error but 404)", () => {
+	before(launch);
+	after(close);
+
+	it("reuses the 404 design with the status code, its own title, the search and the latest posts", async () => {
+		const { page, dispose } = await open({ render: template("error", { locale: "fr" }) });
+		const view = await page.evaluate(() => ({
+			title: document.title,
+			code: document.querySelector(".error-page__code").textContent,
+			h1: document.querySelector("h1").textContent.trim(),
+			text: document.querySelector(".error-page__text").textContent.trim(),
+			search: document.querySelector(".error-page__search")?.hasAttribute("data-ghost-search"),
+			recent: document.querySelectorAll(".error-page__recent .tile").length,
+			stylesheet: Boolean(document.querySelector('link[rel=stylesheet][href$="css/404.css"]')),
+		}));
+		assert.match(view.title, /^Une erreur est survenue - /);
+		assert.equal(view.code, "500");
+		assert.equal(view.h1, "Une erreur est survenue");
+		assert.doesNotMatch(view.text, /introuvable|trouvée/);
+		assert.ok(view.search);
+		assert.equal(view.recent, 4);
+		assert.ok(view.stylesheet, "the 404 stylesheet");
+		await dispose();
+	});
+
+	it("leaves the 404 page as it was", async () => {
+		const { page, dispose } = await open({ render: template("error-404", { locale: "fr" }) });
+		assert.equal(await page.locator(".error-page__code").textContent(), "404");
+		assert.equal(await page.locator("h1").textContent(), "Page non trouvée");
 		await dispose();
 	});
 });
@@ -265,6 +348,18 @@ describe("archives page", () => {
 describe("« Mes favoris » page", () => {
 	before(launch);
 	after(close);
+
+	it("asks not to be indexed (the list lives in the reader's browser), other pages do not", async () => {
+		const robots = async render => {
+			const { page, dispose } = await open({ render });
+			const value = await page.$$eval('meta[name="robots"]', m => m.map(e => e.content));
+			await dispose();
+			return value;
+		};
+		assert.deepEqual(await robots(template("page-favoris")), ["noindex, follow"]);
+		assert.deepEqual(await robots(template("custom-saved-posts", { member: true })), ["noindex, follow"]);
+		assert.deepEqual(await robots(template("page-archives")), []);
+	});
 
 	it("draws the member's saved posts and removes them one by one or all at once", async () => {
 		const { page, dispose } = await open({

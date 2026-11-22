@@ -1,0 +1,55 @@
+{{!--
+Body of the error pages: error-404.hbs (page not found) and error.hbs (any other error: 500, 503...).
+The theme's error design: a code, a title and a line, a « Retrouver l'article » card with a large
+« Ouvrir la recherche » button (Ghost's native search, data-ghost-search; it gets the focus on arrival),
+the home link and the first sections of the main navigation, then the 4 latest posts.
+No post → « Aucun article récent trouvé ».
+Parameters:
+  errorCode="404"   the big number
+  errorTitle="..."  the h1
+  errorText="..."   the line under it
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/404.css"}}" as="style" />
+{{/contentFor}}
+
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/404.css"}}" media="screen" />
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main error-page">
+  <div class="container error-page__top">
+    <div class="error-page__intro">
+      <p class="error-page__code" aria-hidden="true">{{errorCode}}</p>
+      <h1 class="error-page__title">{{errorTitle}}</h1>
+      <p class="error-page__text">{{errorText}}</p>
+    </div>
+    <section class="error-page__card" aria-labelledby="error-find-title">
+      <h2 class="error-page__card-title" id="error-find-title">{{t "Find the post"}}</h2>
+      <p class="error-page__help">{{t "One word of the title is enough: the site search goes through every post."}}</p>
+      <button type="button" class="error-page__search" data-ghost-search autofocus>{{> "icons/search"}}<span>{{t "Open search"}}</span></button>
+      <ul class="error-page__shortcuts" role="list">
+        <li><a class="button button--inverse" href="{{@site.url}}">{{t "Go to the home page"}}</a></li>
+        {{#foreach @site.navigation}}
+          {{#match url "!=" "/"}}{{#match url "!=" @site.url}}<li class="error-page__shortcut"><a class="button" href="{{url}}">{{label}}</a></li>{{/match}}{{/match}}
+        {{/foreach}}
+      </ul>
+    </section>
+  </div>
+
+  <section class="container error-page__recent" aria-labelledby="error-recent-title">
+    {{> section-header title=(t "Recent posts") id="error-recent-title" url=@site.url divider=true}}
+    {{!-- Ghost renders the block of {{#get}} even when nothing matches: the result is tested --}}
+    {{#get "posts" limit="4" include="tags" as |recent|}}
+      {{#if recent}}
+        <ul class="post-grid error-page__grid" role="list">
+          {{#foreach recent}}<li>{{> post-tile size="s"}}</li>{{/foreach}}
+        </ul>
+      {{else}}
+        <p class="error-page__empty">{{t "No recent posts found"}}</p>
+      {{/if}}
+    {{/get}}
+  </section>
+</main>

@@ -18,6 +18,84 @@ describe("repository", () => {
 		}
 	});
 
+	it("writes the page and slide counters as whole sentences with their placeholders in all locales", () => {
+		const files = fs.readdirSync(path.join(REPO_ROOT, "locales"));
+		assert.equal(files.length, 33);
+		for (const file of files) {
+			const locale = JSON.parse(read(`locales/${file}`));
+			assert.match(locale["Page {page} of {pages}"], /\{page\}.*\{pages\}|\{pages\}.*\{page\}/, file);
+			assert.match(locale["{n} of {total}"], /\{n\}.*\{total\}|\{total\}.*\{n\}/, file);
+			assert.ok(!("of" in locale) && !("Page" in locale), `${file}: the word-by-word keys are gone`);
+		}
+	});
+
+	it("writes French apostrophes as ’ in the values of fr.json and fr-informal.json", () => {
+		for (const file of ["locales/fr.json", "locales/fr-informal.json"]) {
+			const straight = Object.entries(JSON.parse(read(file))).filter(([, value]) => value.includes("'"));
+			assert.deepEqual(
+				straight.map(([key]) => key),
+				[],
+				file,
+			);
+		}
+	});
+
+	it("uses « tag » (never « rubrique ») and keeps « thème » for the Ghost theme only", () => {
+		for (const file of ["locales/fr.json", "locales/fr-informal.json"]) {
+			const locale = JSON.parse(read(file));
+			assert.deepEqual(
+				Object.entries(locale)
+					.filter(([, value]) => /rubriques?/i.test(value))
+					.map(([key]) => key),
+				[],
+				`${file}: « rubrique »`,
+			);
+			assert.deepEqual(
+				Object.entries(locale)
+					.filter(([, value]) => /thème/i.test(value.replace(/\b(le|du|ce) thème/gi, "")))
+					.map(([key]) => key),
+				[],
+				`${file}: « thème » for something other than the Ghost theme`,
+			);
+			assert.deepEqual(
+				["Palette", "Switch mode", "Light mode", "Dark mode", "Automatic mode"].map(key => locale[key]),
+				["Palette", "Changer de mode", "Mode clair", "Mode sombre", "Mode automatique"],
+				file,
+			);
+		}
+		const english = JSON.parse(read("locales/en.json"));
+		assert.deepEqual(
+			Object.keys(english).filter(key => /^(Section|Sections|All sections|See the section|Theme)$/.test(key)),
+			[],
+			"the old « Section » and « Theme » keys are gone",
+		);
+	});
+
+	it("keeps « vous » in fr.json and « tu » in fr-informal.json", () => {
+		const informal = JSON.parse(read("locales/fr-informal.json"));
+		const formal = JSON.parse(read("locales/fr.json"));
+		// Words in -ez that are not a « vous » form
+		const allowed = new Set(["chez", "assez", "nez", "rez", "lez"]);
+		const vous = ([, value]) =>
+			/\b(vous|votre|vos)\b/i.test(value) ||
+			(value.match(/\b[\p{L}]+ez\b/giu) || []).some(word => !allowed.has(word.toLowerCase()));
+		assert.deepEqual(
+			Object.entries(informal)
+				.filter(vous)
+				.map(([key]) => key),
+			[],
+			"« vous » in fr-informal.json",
+		);
+		const tu = ([, value]) => /(^|[^\p{L}-])(tu|ton|ta|tes|toi)(?![\p{L}-])/iu.test(value);
+		assert.deepEqual(
+			Object.entries(formal)
+				.filter(tu)
+				.map(([key]) => key),
+			[],
+			"« tu » in fr.json",
+		);
+	});
+
 	it("links every anchor of the author guide to one of its headings, by GitHub's slug rule", () => {
 		// GitHub (github-slugger): the heading's text, lower case, without any character that is not a
 		// letter, mark, digit, "_", "-" or a space (« », ’, ?, :, NBSP…), each space a "-"; "-1", "-2"…

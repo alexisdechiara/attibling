@@ -2,7 +2,7 @@
 {{!-- data-member: a signed-in member, with their uuid (members-only features in the scripts, src/js/store.js;
 the script below ties the members' lists to that member);
 data-consent: the fallback consent mode of the theme setting consent_notice (src/js/privacy/choices.js) --}}
-<html lang="{{@site.locale}}"{{#if @member}} data-member="{{@member.uuid}}"{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
+<html lang="{{@site.locale}}"{{#match @site.locale "~^" "ar"}} dir="rtl"{{/match}}{{#match @site.locale "~^" "fa"}} dir="rtl"{{/match}}{{#match @site.locale "~^" "he"}} dir="rtl"{{/match}}{{#if @member}} data-member="{{@member.uuid}}"{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
   <head>
     {{!-- Document Settings --}}
     <meta charset="utf-8" />
@@ -14,6 +14,8 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
     <meta name="color-scheme" content="light dark">
     {{!-- Single-author site: the author page repeats the home's list, keep it out of search results --}}
     {{#is "author"}}{{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}{{#match authorPages.total 1}}<meta name="robots" content="noindex, follow" />{{/match}}{{/get}}{{/is}}
+    {{!-- Other pages that ask not to be indexed: {{#contentFor "robots"}} (« Mes favoris », partials/pages/saved.hbs) --}}
+    {{{block "robots"}}}
 
     {{!-- Preload assets --}}
     <link rel="preload" href="{{asset "css/app.css"}}" as="style" />

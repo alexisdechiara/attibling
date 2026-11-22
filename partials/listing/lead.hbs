@@ -1,16 +1,16 @@
 {{!--
-Lead post of a tag page (« À la une de la rubrique »): a large picture and, beside it on wide screens,
+Lead post of a tag page (« À la une de ce tag »): a large picture and, beside it on wide screens,
 the pill, title, excerpt and meta line (tag • date • reading time). One link; members get a bookmark.
 Inside a post context.
 --}}
-<section class="container listing-lead-section" aria-label="{{t "Featured in this section"}}">
+<section class="container listing-lead-section" aria-label="{{t "Featured in this tag"}}">
   <article class="listing-lead{{> "vignette/missing" noImage=" listing-lead--no-image"}}" data-post-tile>
     <a class="listing-lead__link" href="{{url}}">
       <span class="listing-lead__media">
         {{> "vignette/image" imgClass="listing-lead__image" widths="m-l-xl" srcSize="l" sizes="(max-width: 767px) 100vw, 640px" priority="auto" placeholder="tile"}}
       </span>
       <span class="listing-lead__text">
-        <span class="pill pill--soft listing-lead__pill">{{> "icons/star"}}{{t "Featured in this section"}}</span>
+        <span class="pill pill--soft listing-lead__pill">{{> "icons/star"}}{{t "Featured in this tag"}}</span>
         <h2 class="listing-lead__title">{{title}}</h2>
         <span class="listing-lead__excerpt">{{excerpt words="45"}}</span>
         <span class="meta listing-lead__meta">

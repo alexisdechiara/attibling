@@ -189,7 +189,7 @@ describe("« En bref »", () => {
 		const withSummary = await open({ render: article({ html: SUMMARY_CARD + LONG_HTML }) });
 		const s = await summary(withSummary.page);
 		assert.equal(s.shown, false);
-		assert.equal(s.teaser, "En bref Résumé réservé aux abonnés. S'abonner Se connecter");
+		assert.equal(s.teaser, "En bref Résumé réservé aux abonnés. S’abonner Se connecter");
 		await withSummary.dispose();
 
 		const without = await open({ render: article() });
