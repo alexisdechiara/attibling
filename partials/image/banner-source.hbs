@@ -1,16 +1,17 @@
 {{!--
-The <source> of the collection banner (home/row-banner.hbs) from 64rem on, where the banner is a strip about
-4.6 times wider than high (the box is 280 to 286 px high; a 16:9 picture covering it would show a third of its
-height and download three times what is seen). Ghost crops the picture itself, from its centre as the
-banner's object-fit: cover does: theme image_sizes "banner" (1400 × 304) and "banner-xl" (2000 × 435). The strip
-needs about 1316 px of width at 1× whatever the width of the screen (a narrower banner is still 280 px high), hence
-sizes="1316px": 1× takes the first, any higher density the second. An SVG keeps its own format (see image/srcset.hbs).
+The <source> of the collection banner (home/row-banner.hbs) from 64rem on, where the banner is a strip (372 px high,
+942 to 1328 px wide: about 3.6 times wider than high). A 16:9 picture covering it would show half of its height and
+download twice what is seen. Ghost crops the picture itself, from its centre as the banner's object-fit: cover does:
+theme image_sizes "banner" (1400 x 392) and "banner-xl" (2000 x 560). Covering the strip takes a picture whose width
+is 3.6 times its height, that is 1328 px at 1x whatever the width of the screen (a narrower banner is as high),
+hence sizes="1328px": 1x takes the first, any higher density the second. An SVG keeps its own format (see
+image/srcset.hbs).
 Parameters: image=... the banner's picture
 --}}
 {{~#match image "~$" ".svg"~}}
-  <source media="(min-width: 64rem)" srcset="{{img_url image size="banner"}} 1400w, {{img_url image size="banner-xl"}} 2000w" sizes="1316px">
+  <source media="(min-width: 64rem)" srcset="{{img_url image size="banner"}} 1400w, {{img_url image size="banner-xl"}} 2000w" sizes="1328px">
 {{~else match image "~$" ".SVG"~}}
-  <source media="(min-width: 64rem)" srcset="{{img_url image size="banner"}} 1400w, {{img_url image size="banner-xl"}} 2000w" sizes="1316px">
+  <source media="(min-width: 64rem)" srcset="{{img_url image size="banner"}} 1400w, {{img_url image size="banner-xl"}} 2000w" sizes="1328px">
 {{~else~}}
-  <source media="(min-width: 64rem)" srcset="{{img_url image size="banner" format="webp"}} 1400w, {{img_url image size="banner-xl" format="webp"}} 2000w" sizes="1316px">
+  <source media="(min-width: 64rem)" srcset="{{img_url image size="banner" format="webp"}} 1400w, {{img_url image size="banner-xl" format="webp"}} 2000w" sizes="1328px">
 {{~/match~}}

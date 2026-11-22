@@ -1,22 +1,25 @@
-{{!-- The sizes attribute of a rubric's picture (about/rubric.hbs, in its foreach): the width of the cell's box in the
-grid of src/css/about.css, which depends on the cell's position. One column below 40rem, two to 64rem (the first
-cell spans both), four after: the first cell is 2 × 2, the second 2 × 1, the third and the fourth 1 × 1 (the third
-spans two when it is the last), the following ones fill rows of four, except the last row, whose cells widen
-to fill it (1, 2 or 4 columns: half a row stands for them). --}}
+{{!-- The sizes attribute of a rubric's picture (about/rubric.hbs, in its foreach): the width the picture needs to cover
+the cell, in the grid of src/css/about.css, which depends on the cell's position. One column below 40rem, two to
+64rem (the first cell spans both), four after: the first cell is 2 × 2, the second 2 × 1, the third and the fourth
+1 × 1 (the third spans two when it is the last), the following ones fill rows of four, except the last row, whose
+cells widen to fill it (1, 2 or 4 columns: half a row stands for them).
+The cells are about 220 to 275 px high (a row is 9 to 13.5rem, more when the text needs it): a 16:9 picture covering
+one needs 1.78 times its height when that is more than the cell's width (max(...)): 440 px on a phone, 400 on a
+tablet, 490 for a cell of one column of a desktop grid, 800 for the large first cell (2 rows). --}}
 {{~#has number="1"~}}
-  (max-width: 1023px) 92vw, (max-width: 1443px) calc((92vw - 16px) / 2), 656px
+  (max-width: 639px) max(92vw, 440px), (max-width: 1023px) 92vw, max(calc((92vw - 16px) / 2), 800px)
 {{~else~}}
   {{~#has number="3"~}}
     {{~#if @last~}}
-      (max-width: 639px) 92vw, (max-width: 1443px) calc((92vw - 16px) / 2), 656px
+      (max-width: 639px) max(92vw, 440px), (max-width: 1023px) max(calc((92vw - 16px) / 2), 400px), (max-width: 1443px) max(calc((92vw - 16px) / 2), 490px), 656px
     {{~else~}}
-      (max-width: 639px) 92vw, (max-width: 1023px) calc((92vw - 16px) / 2), (max-width: 1443px) calc((92vw - 48px) / 4), 320px
+      (max-width: 639px) max(92vw, 440px), (max-width: 1023px) max(calc((92vw - 16px) / 2), 400px), max(calc((92vw - 48px) / 4), 490px)
     {{~/if~}}
   {{~else~}}
     {{~#has number="4"~}}
-      (max-width: 639px) 92vw, (max-width: 1023px) calc((92vw - 16px) / 2), (max-width: 1443px) calc((92vw - 48px) / 4), 320px
+      (max-width: 639px) max(92vw, 440px), (max-width: 1023px) max(calc((92vw - 16px) / 2), 400px), max(calc((92vw - 48px) / 4), 490px)
     {{~else~}}
-      (max-width: 639px) 92vw, (max-width: 1443px) calc((92vw - 16px) / 2), 656px
+      (max-width: 639px) max(92vw, 440px), (max-width: 1023px) max(calc((92vw - 16px) / 2), 400px), (max-width: 1443px) max(calc((92vw - 16px) / 2), 490px), 656px
     {{~/has~}}
   {{~/has~}}
 {{~/has~}}

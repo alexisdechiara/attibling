@@ -57,14 +57,14 @@
 			},
 			"banner": {
 				"width": 1400,
-				"height": 304
+				"height": 392
 			},
 			"xl": {
 				"width": 2000
 			},
 			"banner-xl": {
 				"width": 2000,
-				"height": 435
+				"height": 560
 			}
 		},
 		"custom": {

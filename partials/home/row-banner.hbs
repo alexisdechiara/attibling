@@ -7,7 +7,7 @@ one line above the tag's name, « Tout voir », and the tag's latest 3 posts (th
       {{#if ../feature_image}}
         <picture>
           {{> "image/banner-source" image=../feature_image}}
-          <img class="banner__image"{{> "image/srcset" image=../feature_image widths="large" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt="" loading="lazy" decoding="async">
+          <img class="banner__image"{{> "image/srcset" image=../feature_image widths="large" srcSize="l"}} sizes="(max-width: 479px) 772px, (max-width: 767px) max(92vw, 669px), max(92vw, 780px)" alt="" loading="lazy" decoding="async">
         </picture>
       {{/if}}
       <div class="banner__intro">

@@ -26,7 +26,7 @@ docs/guide-auteur.md explains how to redirect it with redirects.yaml.
     <div class="container">
       <header class="listing-hero listing-hero--author{{#if cover_image}} listing-hero--image{{/if}}">
         {{#if cover_image}}
-          <img class="listing-hero__image"{{> "image/srcset" image=cover_image widths="large" srcSize="l"}} sizes="(max-width: 767px) 92vw, (max-width: 1443px) 63vw, 903px" alt="" fetchpriority="high">
+          <img class="listing-hero__image"{{> "image/srcset" image=cover_image widths="large" srcSize="l"}} sizes="(max-width: 767px) max(92vw, 700px), (max-width: 1443px) max(63vw, 530px), 903px" alt="" fetchpriority="high">
         {{/if}}
         <div class="listing-hero__text">
           {{> author-avatar avatarClass="listing-hero__avatar"}}

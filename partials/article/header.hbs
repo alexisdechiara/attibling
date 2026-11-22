@@ -22,7 +22,7 @@ Stable hooks (page transitions): [data-article-image] (the picture), [data-artic
         in the display settings gets the right width from src/js/reading-settings.js. --}}
         <img class="article-header__image" data-article-image
           {{~> "image/srcset" image=feature_image widths="large" srcSize="l"}}
-          sizes="{{#has tag="#immersif"}}100vw{{else}}{{#has tag="#carte"}}(max-width: 767px) 92vw, (max-width: 1443px) 70vw, 1000px{{else}}{{#match @custom.article_style "Immersive"}}100vw{{else}}(max-width: 767px) 92vw, (max-width: 1443px) 70vw, 1000px{{/match}}{{/has}}{{/has}}"
+          sizes="{{#has tag="#immersif"}}100vw{{else}}{{#has tag="#carte"}}(max-width: 767px) max(92vw, 711px), (max-width: 1443px) max(70vw, 711px), 1000px{{else}}{{#match @custom.article_style "Immersive"}}100vw{{else}}(max-width: 767px) max(92vw, 711px), (max-width: 1443px) max(70vw, 711px), 1000px{{/match}}{{/has}}{{/has}}"
           alt="{{#if feature_image_alt}}{{feature_image_alt}}{{/if}}" fetchpriority="high" decoding="async">
       </div>
     {{/if}}

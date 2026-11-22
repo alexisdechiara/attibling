@@ -20,7 +20,8 @@ const PHONE = { viewport: { width: 412, height: 823 }, deviceScaleFactor: 1.75 }
 
 const tagImage = tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}`;
 
-// Every picture of each kind that the browser has chosen a rendition for: its box (CSS px), the rendition's name
+// Every picture of each kind that the browser has chosen a rendition for: its box (CSS px), whether it covers
+// the box (object-fit: cover), the ratio its markup gives (width and height attributes), the rendition's name
 // (the test site's img_url writes &size=<name>) and its sizes attribute. The page is scrolled to the bottom first
 // (loading="lazy"), then every kind is read at once. `shared`: another picture of the page has the same file, and
 // Chrome may give a picture the rendition the other one has already loaded (a bigger one of its own srcset)
@@ -43,6 +44,9 @@ const measure = async (page, kinds) => {
 					.slice(0, 12)
 					.map(img => ({
 						box: img.getBoundingClientRect().width,
+						height: img.getBoundingClientRect().height,
+						cover: getComputedStyle(img).objectFit === "cover",
+						ratio: Number(img.getAttribute("width")) / Number(img.getAttribute("height")) || null,
 						name: /[?&]size=(\w+)/.exec(img.currentSrc)?.[1],
 						sizes: img.sizes,
 						shared: [...document.images].some(other => other !== img && other.currentSrc === img.currentSrc),
@@ -53,9 +57,11 @@ const measure = async (page, kinds) => {
 };
 
 // The smallest rendition that covers box × density, and the one above it, which is as far as the browser may
-// go (a sizes attribute a hair wide, a scrollbar)
-const wanted = (box, dpr) => {
-	const need = box * dpr;
+// go (a sizes attribute a hair wide, a scrollbar). A picture that covers its box (object-fit: cover) must be as
+// wide as the box, and wide enough for its height at the picture's ratio when the box is taller than that:
+// max(width, height × ratio). A 193 × 324 cell with a 16:9 picture needs 576 px, not 193.
+const wanted = (box, height, dpr, ratio = 16 / 9) => {
+	const need = Math.max(box, height * ratio) * dpr;
 	const i = LADDER.findIndex(width => width >= need * 0.995);
 	return { need, smallest: LADDER[i] ?? LADDER.at(-1), most: LADDER[i + 1] ?? LADDER.at(-1) };
 };
@@ -123,13 +129,20 @@ describe("pictures: the smallest rendition that covers the box", () => {
 			const bad = [];
 			for (const { kind, pictures } of await measure(page, kinds)) {
 				assert.ok(pictures.length > 0, `${kind}: a picture was loaded`);
-				for (const { box, name, sizes, shared } of pictures) {
+				for (const { box, height, cover, ratio, name, sizes, shared } of pictures) {
 					const rendition = IMAGE_SIZES[name]?.width;
-					const { need, smallest, most } = wanted(box, screen.deviceScaleFactor);
+					// A crop made by Ghost has its own ratio (the banner)
+					const crop = IMAGE_SIZES[name]?.height ? IMAGE_SIZES[name].width / IMAGE_SIZES[name].height : null;
+					const { need, smallest, most } = wanted(
+						box,
+						cover ? height : 0,
+						screen.deviceScaleFactor,
+						crop || ratio || 16 / 9,
+					);
 					// Not under-sampled by more than 3%, not more than one rung over the smallest that covers
-					if (!rendition || rendition * 1.03 < need || (rendition > most && !shared)) {
+					if (!rendition || rendition * 1.03 < need || (rendition > most && !shared && cover)) {
 						bad.push(
-							`${kind}: ${Math.round(box)} px × ${screen.deviceScaleFactor} = ${Math.round(need)} px, got ${rendition} (smallest ${smallest}), sizes="${sizes}"`,
+							`${kind}: ${Math.round(box)} × ${Math.round(height)} px × ${screen.deviceScaleFactor} needs ${Math.round(need)} px, got ${rendition} (smallest ${smallest}), sizes="${sizes}"`,
 						);
 					}
 				}
@@ -170,7 +183,7 @@ describe("pictures: the thumbnails of the « ••• » panel", () => {
 			}));
 			await dispose();
 			assert.ok(box >= boxes[0] - 2 && box <= boxes[1] + 2, `${box} px wide`);
-			const { smallest, most } = wanted(box, 1);
+			const { smallest, most } = wanted(box, (box * 9) / 16, 1);
 			assert.ok(
 				IMAGE_SIZES[name].width >= smallest && IMAGE_SIZES[name].width <= most,
 				`${name} for ${Math.round(box)} px`,
@@ -180,7 +193,7 @@ describe("pictures: the thumbnails of the « ••• » panel", () => {
 });
 
 // The collection banner is a strip from 64rem on (280 px high, 1316 px wide at most): Ghost crops it (image_sizes
-// banner, 1400 × 304, and banner-xl, 2000 × 435), whatever the width of the screen; narrower than that, it is a
+// banner, 1400 × 392, and banner-xl, 2000 × 560), whatever the width of the screen; narrower than that, it is a
 // block as high as it is wide and takes the usual renditions
 describe("pictures: the collection banner", () => {
 	before(launch);
@@ -200,7 +213,7 @@ describe("pictures: the collection banner", () => {
 		return /[?&]size=([\w-]+)/.exec(url)?.[1];
 	};
 
-	it("takes the 1400 × 304 crop from 64rem on, the 2000 × 435 one on a dense screen", async () => {
+	it("takes the 1400 × 392 crop from 64rem on, the 2000 × 560 one on a dense screen", async () => {
 		assert.equal(await banner({ width: 1350, height: 940 }, 1), "banner");
 		assert.equal(await banner({ width: 1024, height: 800 }, 1), "banner");
 		assert.equal(await banner({ width: 1920, height: 1080 }, 1), "banner");
@@ -210,11 +223,31 @@ describe("pictures: the collection banner", () => {
 
 	it("takes the usual renditions of its box below 64rem", async () => {
 		assert.equal(await banner({ width: 800, height: 900 }, 1), "w800");
-		assert.equal(await banner({ width: 412, height: 823 }, 1.75), "w800");
+		// A phone's banner is 434 px high: a 16:9 picture covering it is 772 px wide, 1351 px at 1.75x
+		assert.equal(await banner({ width: 412, height: 823 }, 1.75), "w1400");
+	});
+
+	// The crop is as wide for its height as the strip it covers (372 px high, 942 to 1328 px wide: 2.5 to 3.6 times):
+	// a crop much wider would show a part of it, a taller one would have to be enlarged to cover
+	it("has the ratio of the banner's box at its widest", async () => {
+		const { page, dispose } = await open({
+			render: home({ site: { tagImage } }),
+			viewport: { width: 1440, height: 900 },
+		});
+		const box = await page
+			.locator(".banner__image")
+			.first()
+			.evaluate(el => el.getBoundingClientRect().toJSON());
+		await dispose();
+		const crop = IMAGE_SIZES.banner.width / IMAGE_SIZES.banner.height;
+		assert.ok(
+			Math.abs(crop / (box.width / box.height) - 1) < 0.1,
+			`${box.width} x ${box.height} px, crop ${crop.toFixed(2)}`,
+		);
 	});
 
 	it("declares the crops in image_sizes", () => {
-		assert.deepEqual(IMAGE_SIZES.banner, { width: 1400, height: 304 });
-		assert.deepEqual(IMAGE_SIZES["banner-xl"], { width: 2000, height: 435 });
+		assert.deepEqual(IMAGE_SIZES.banner, { width: 1400, height: 392 });
+		assert.deepEqual(IMAGE_SIZES["banner-xl"], { width: 2000, height: 560 });
 	});
 });

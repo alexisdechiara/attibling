@@ -410,7 +410,7 @@ describe("pictures: WebP, at the width of their box", () => {
 				const url = img.currentSrc || img.src;
 				return `${/[?&]size=(\w+)/.exec(url)?.[1]} ${/[?&]format=(\w+)/.exec(url)?.[1]} ${Math.round(img.getBoundingClientRect().width)}`;
 			});
-	it("home: the hero takes the 1400 px rendition on a 1350 px screen, not the 2000 px one; the collection banner, a strip, its 1400 × 304 crop", async () => {
+	it("home: the hero takes the 1400 px rendition on a 1350 px screen, not the 2000 px one; the collection banner, a strip, its 1400 × 392 crop", async () => {
 		const { page, dispose } = await open({
 			render: home({ site: { tagImage: tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}` } }),
 			viewport: DESKTOP,
@@ -515,6 +515,7 @@ describe("« Tags »: the first pictures do not wait for the style sheets", () =
 					// The rendition asked for (the test site's &size=<name>) against the box
 					wanted: /[?&]size=(\w+)/.exec(img.currentSrc)?.[1],
 					width: box.width,
+					height: box.height,
 					early: Boolean(entry) && entry.startTime < sheets - 300,
 					onScreen: box.top < innerHeight,
 					firstRow: box.top <= document.querySelector(".tag-cell").getBoundingClientRect().top + 1,
@@ -551,9 +552,13 @@ describe("« Tags »: the first pictures do not wait for the style sheets", () =
 				`only pictures of the first screen at ${viewport.width}px: ${JSON.stringify(pictures)}`,
 			);
 			// Each at the width of its cell (no layout yet for sizes="auto": not the screen's width): the smallest
-			// rendition that covers it, less the 1.5% the script allows for a scrollbar
+			// rendition that covers it (as wide as its height needs for a 16:9 picture, when the cell is tall), less the 1.5% the
+			// script allows for a scrollbar
 			for (const p of early) {
-				const smallest = [220, 300, 400, 500, 600, 800, 1000].find(w => w >= Math.ceil(p.width * 0.985)) || 1000;
+				const smallest =
+					[220, 300, 400, 500, 600, 800, 1000].find(
+						w => w >= Math.ceil(Math.max(p.width, (p.height * 16) / 9) * 0.985),
+					) || 1000;
 				assert.equal(p.wanted, IMAGE_NAME[smallest], `a ${Math.round(p.width)} px cell at ${viewport.width}px`);
 			}
 			const first = pictures.filter(p => p.priority === "high");
