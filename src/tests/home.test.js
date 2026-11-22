@@ -318,6 +318,39 @@ describe("members' lists", () => {
 		await dispose();
 	});
 
+	it("keeps the keyboard focus on the page when the last card is removed, or the list cleared", async () => {
+		const focusState = page =>
+			page.evaluate(() => ({
+				body: document.activeElement === document.body,
+				visible: document.activeElement.checkVisibility(),
+			}));
+		for (const [name, storage, act] of [
+			[
+				"remove",
+				{ "attibling-saved": JSON.stringify(SAVED) },
+				async page => {
+					await page.locator("[data-list-items] [data-remove]").focus();
+					await page.keyboard.press("Enter");
+				},
+			],
+			[
+				"clear",
+				{ "attibling-progress": JSON.stringify(PROGRESS.slice(0, 1)) },
+				async page => {
+					await page.locator("[data-list-clear]").focus();
+					await page.keyboard.press("Enter");
+				},
+			],
+		]) {
+			const { page, dispose } = await open({ render: home({ member: true }), storage });
+			await act(page);
+			await page.waitForTimeout(100);
+			assert.equal((await lists(page)).hidden, true, `${name}: the section is gone`);
+			assert.deepEqual(await focusState(page), { body: false, visible: true }, `${name}: focus kept on the page`);
+			await dispose();
+		}
+	});
+
 	it("hides when the browser storage is blocked", async () => {
 		const { page, dispose } = await open({
 			render: home({ member: true }),

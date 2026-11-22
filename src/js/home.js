@@ -222,7 +222,13 @@ const setUpMemberLists = section => {
 		const resume = lists.resume();
 		const saved = lists.saved();
 		if (!resume.length && !saved.length) {
+			// The section goes with the focus inside it: move it on (as the promo does), never to <body>
+			const hadFocus = section.contains(document.activeElement);
 			section.hidden = true;
+			if (hadFocus) {
+				const next = section.nextElementSibling?.querySelector("a, button:not([hidden])");
+				(next || document.getElementById("main"))?.focus({ preventScroll: true });
+			}
 			current = null;
 			return;
 		}
