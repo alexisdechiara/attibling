@@ -61,8 +61,7 @@ const close = async () => {
  *    like every other request outside the site (it is still listed in `requests`)
  *  - classicScrollbars: true for a browser that draws classic (space-taking) scrollbars, 15 px wide;
  *    headless Chromium otherwise hides them, which hides the bugs of a layout that counts 100vw
- *  - colorScheme, reducedMotion, viewport, deviceScaleFactor (default 1), hasTouch, isMobile, javaScriptEnabled:
- *    browser context options
+ *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, deviceScaleFactor, javaScriptEnabled: browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
  */
@@ -77,9 +76,9 @@ const open = async (options = {}) => {
 		colorScheme = "light",
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
-		deviceScaleFactor = 1,
 		hasTouch = false,
 		isMobile = false,
+		deviceScaleFactor = 1,
 		javaScriptEnabled = true,
 		pages = {},
 		ghostDefer = null,
@@ -98,9 +97,9 @@ const open = async (options = {}) => {
 		colorScheme,
 		reducedMotion,
 		viewport,
-		deviceScaleFactor,
 		hasTouch,
 		isMobile,
+		deviceScaleFactor,
 		javaScriptEnabled,
 	});
 	const page = await context.newPage();

@@ -214,13 +214,18 @@ describe("third-party embeds", () => {
 			route.fulfill({ contentType: "text/html", body: "<body>x</body>" }),
 		);
 		const listeners = () => page.evaluate(() => window.__messageListeners);
+		// The theme's scripts run after the first paint: the shared listener may come before or after this
+		// first count, and the first embed; what must not happen is one more listener per embed
 		const before = await listeners();
+		const counts = [];
 		for (const provider of ["youtube", "x"]) {
 			await page.locator(`[data-provider="${provider}"] [data-embed-load]`).click();
 			await page.locator("iframe[data-embed-frame]").last().waitFor();
+			counts.push(await listeners());
 		}
 		assert.equal(await page.locator("iframe[data-embed-frame]").count(), 2);
-		assert.ok((await listeners()) - before <= 0, "no listener added per embed");
+		assert.equal(counts[1], counts[0], "no listener added by the second embed");
+		assert.ok(counts[1] - before <= 1, "one shared listener at most");
 		await dispose();
 	});
 
