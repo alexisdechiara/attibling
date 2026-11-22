@@ -754,3 +754,46 @@ describe("article page: reading progress for « Reprendre la lecture »", () => 
 		await dispose();
 	});
 });
+
+describe("article page: scripts loaded when needed", () => {
+	before(launch);
+	after(close);
+
+	const chunks = requests => ({
+		tocbot: requests.some(url => /\/chunks\/tocbot-/.test(url)),
+		zoom: requests.some(url => /\/chunks\/medium-zoom/.test(url)),
+	});
+	const IMAGE = '<figure class="kg-card kg-image-card"><img src="/src/tests/fixtures/pixel.svg" alt="plain" width="400" height="300"></figure>';
+	const SHORT = "<p>Un texte court, sans titre ni image.</p>";
+
+	it("does not fetch tocbot nor medium-zoom for a post without headings and without zoomable images", async () => {
+		const { page, requests, dispose } = await open({ render: article({ html: SHORT }) });
+		await page.waitForTimeout(600);
+		assert.deepEqual(chunks(requests), { tocbot: false, zoom: false });
+		assert.equal(await page.locator("[data-toc]").isVisible(), false);
+		await dispose();
+	});
+
+	it("fetches tocbot only for a post with a table of contents, and medium-zoom only with zoomable images", async () => {
+		const sections = '<h2 id="a">Premier</h2><p>Texte.</p><h2 id="b">Second</h2><p>Texte.</p>';
+		const headings = await open({ render: article({ html: sections }) });
+		await waitFor(() => headings.page.evaluate(() => document.querySelectorAll("[data-toc] a").length > 0));
+		await headings.page.waitForTimeout(300);
+		assert.equal(chunks(headings.requests).tocbot, true);
+		assert.equal(chunks(headings.requests).zoom, false, "no image, no zoom");
+		await headings.dispose();
+
+		const images = await open({ render: article({ html: SHORT + IMAGE }) });
+		await waitFor(() => images.page.evaluate(() => performance.getEntriesByType("resource").length > 0));
+		await images.page.waitForTimeout(600);
+		assert.deepEqual(chunks(images.requests), { tocbot: false, zoom: true });
+		await images.dispose();
+	});
+
+	it("zooms an image clicked before medium-zoom has loaded", async () => {
+		const { page, dispose } = await open({ render: article({ html: SHORT + IMAGE }) });
+		await page.locator("img.js-zoomable").click();
+		assert.equal(await waitFor(() => page.locator(".medium-zoom-image--opened").first().isVisible()), true);
+		await dispose();
+	});
+});

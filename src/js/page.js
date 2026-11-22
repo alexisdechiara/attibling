@@ -1,7 +1,6 @@
 // Generic page (page.hbs) and reference document (pages/document.hbs): content enhancements (loose text,
 // embed ratios, galleries, zoomable images), tables that scroll sideways on narrow screens, and, on a
 // document, its table of contents, heading links and print button (document.js, loaded only there).
-import mediumZoom from "medium-zoom";
 import {
 	setEmbedRatios,
 	adjustImageGallery,
@@ -56,7 +55,7 @@ onReady(() => {
 		setEmbedRatios,
 		adjustImageGallery,
 		managePostImages,
-		() => makeImagesZoomable(mediumZoom),
+		makeImagesZoomable,
 	);
 
 	const documentRoot = document.querySelector("[data-document]");
