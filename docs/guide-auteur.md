@@ -245,8 +245,10 @@ n'y a rien à régler. Ce que le lecteur télécharge :
 - Onest et Literata sont des polices « variables » (un seul fichier pour toutes les graisses), découpées par
   alphabet : latin, latin étendu (polonais, tchèque, turc…), cyrillique, cyrillique étendu, vietnamien. Le
   navigateur ne télécharge que les morceaux dont la page a besoin : pour un site en français, Onest latin
-  (25 Ko) partout et Literata latin (79 Ko) sur les articles ; l'italique de Literata (48 Ko)
-  seulement si le texte en contient. Pacifico ne contient que les lettres « l » et « y » du logo (3 Ko) et
+  (25 Ko) partout et Literata latin (53 Ko) sur les articles ; l'italique de Literata (33 Ko)
+  seulement si le texte en contient. Literata ne garde que les « corps optiques » de 14 à 28 px (le
+  navigateur adapte le dessin des lettres à la taille du texte, 17 à 21 px dans un article) : le texte
+  s'affiche comme avant, avec des fichiers plus légers. Pacifico ne contient que les lettres « l » et « y » du logo (3 Ko) et
   n'est téléchargée que si le logo GEEKLY coloré est affiché.
 - Ces deux fichiers sont annoncés au navigateur dès le début de la page (`preload`) : le texte s'affiche tout
   de suite dans une police système ajustée aux mêmes dimensions (Arial pour Onest, Times New Roman pour

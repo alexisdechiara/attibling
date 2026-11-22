@@ -11,8 +11,14 @@ What it does, for each script subset the theme's locales need (latin, latin-ext,
 vietnamese: the 33 locale files include bg, kk, ky, ru, uk and vi; there is no Greek locale, and Arabic,
 Hebrew, Persian, Thai, Chinese, Japanese and Korean are not covered by these fonts and use system fonts):
 - keeps only the axis ranges the CSS uses, like the Google Fonts request the theme used to make: Onest
-  weights 400 to 800; Literata roman weights 400 to 650 with optical sizes 7 to 72; Literata italic
-  weight 400 (optical sizes 7 to 72). Same design, smaller files;
+  weights 400 to 800; Literata roman weights 400 to 650; Literata italic weight 400. Literata's optical
+  size axis (opsz) is limited to LITERATA_OPSZ, 14 to 28: with font-optical-sizing: auto (the default,
+  the theme never changes it) the browser sets opsz to the font size in CSS px, and the article text is
+  17, 19 or 21 px (members' size setting; sup and sub 0.83 em of it, 14.2 px at the smallest), so the
+  published design never leaves 14 to 21; 28 leaves room for a reader who raises the browser's default
+  font size (the sizes are in rem) by a third. Outside the range the browser clamps to the nearest end.
+  Measured with the rich article of src/tests/fonts.test.js, which also checks it. Same design, smaller
+  files;
 - writes one variable WOFF2 per subset and style; each @font-face has the subset's unicode-range, so a
   browser downloads a file only when the page has a character of that subset;
 - measures the fonts against the metric-compatible system fonts (Arial / Liberation Sans for Onest,
@@ -37,11 +43,15 @@ PARTIAL = os.path.join(ROOT, "partials", "fonts.hbs")
 # last and a French page never downloads latin-ext for an œ.
 SUBSETS = ["cyrillic-ext", "cyrillic", "vietnamese", "latin-ext", "latin"]
 
+# Optical sizes (px) kept in Literata, roman and italic; src/tests/fonts.test.js reads them back from the
+# fvar table of the generated files and checks that every Literata text of an article is inside
+LITERATA_OPSZ = (14, 28)
+
 # family, package file pattern, output name, CSS style, CSS weight, axis limits
 FACES = [
     ("Onest", "onest", "onest-{s}-wght-normal.woff2", "onest/onest-{s}.woff2", "normal", "400 800", {"wght": (400, 800)}),
-    ("Literata", "literata", "literata-{s}-opsz-normal.woff2", "literata/literata-{s}.woff2", "normal", "400 650", {"wght": (400, 650)}),
-    ("Literata", "literata", "literata-{s}-opsz-italic.woff2", "literata/literata-italic-{s}.woff2", "italic", "400", {"wght": 400}),
+    ("Literata", "literata", "literata-{s}-opsz-normal.woff2", "literata/literata-{s}.woff2", "normal", "400 650", {"wght": (400, 650), "opsz": LITERATA_OPSZ}),
+    ("Literata", "literata", "literata-{s}-opsz-italic.woff2", "literata/literata-italic-{s}.woff2", "italic", "400", {"wght": 400, "opsz": LITERATA_OPSZ}),
 ]
 
 # Metric-compatible system fonts, measured here on their free equivalents
@@ -111,8 +121,10 @@ def main():
     for package in ("onest", "literata"):
         shutil.copyfile(os.path.join(PACKAGES, package, "LICENSE"), os.path.join(OUT, package, "OFL.txt"))
 
-    onest_fallback = fallback_face("Onest", os.path.join(OUT, "onest", "onest-latin.woff2"))
-    literata_fallback = fallback_face("Literata", os.path.join(OUT, "literata", "literata-latin.woff2"))
+    # Measured on the packages' own files (default instance: opsz 12, wght 400), not on the limited output,
+    # whose default opsz is the lower end of LITERATA_OPSZ: the fallback stays the same whatever the range
+    onest_fallback = fallback_face("Onest", os.path.join(PACKAGES, "onest", "files", "onest-latin-wght-normal.woff2"))
+    literata_fallback = fallback_face("Literata", os.path.join(PACKAGES, "literata", "files", "literata-latin-opsz-normal.woff2"))
 
     with open(PARTIAL, "w") as f:
         f.write(
@@ -122,7 +134,7 @@ def main():
             "do not edit by hand. One variable WOFF2 per script subset: the browser only downloads the subsets\n"
             "whose characters the page uses (unicode-range). Preloaded: Onest latin everywhere, Literata latin on\n"
             "posts from 48rem (the files the first screen needs; on phones the article's picture fills the first\n"
-            "screen and comes first). The fallback faces carry metric overrides so the\n"
+            "screen and comes first). Literata keeps the optical sizes 14 to 28 px only (LITERATA_OPSZ). The fallback faces carry metric overrides so the\n"
             "text barely moves when the font arrives (font-display: swap). Ghost's custom fonts (Design > Brand >\n"
             "Typography) still win through --gh-font-heading / --gh-font-body (src/css/base/tokens.css). --}}\n"
         )
