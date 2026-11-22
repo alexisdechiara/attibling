@@ -272,7 +272,7 @@ describe("pictures of the first screen", () => {
 		await dispose();
 	});
 
-	it("« Tags »: the cells on the first screen load their pictures at once, the first one first", async () => {
+	it("« Tags »: the cells on the first screen load their pictures at once, the largest of the first rows first", async () => {
 		for (const viewport of [
 			{ width: 390, height: 560 },
 			{ width: 1440, height: 420 },
@@ -284,6 +284,7 @@ describe("pictures of the first screen", () => {
 			const images = await page.evaluate(() =>
 				[...document.querySelectorAll(".tag-cell__image")].map(img => ({
 					top: img.getBoundingClientRect().top,
+					area: img.getBoundingClientRect().width * img.getBoundingClientRect().height,
 					loading: img.loading,
 					priority: img.fetchPriority,
 				})),
@@ -302,7 +303,11 @@ describe("pictures of the first screen", () => {
 				"the others lazy",
 			);
 			assert.deepEqual(images.map(i => i.priority).filter(p => p === "high").length, 1, "one picture first");
-			assert.equal(images[0].priority, "high");
+			// The largest picture of the screen is the one Lighthouse times (LCP): a cell of two rows and two
+			// columns, when the first rows have one, is more than twice any other
+			const first = images.find(i => i.priority === "high");
+			assert.ok(first.top < viewport.height, "on the first screen");
+			assert.ok(first.area * 1.6 > images[0].area, "not smaller than the first cell");
 			await dispose();
 		}
 	});
@@ -407,6 +412,107 @@ describe("pictures: WebP, at the width of their box", () => {
 		);
 		const photos = sources.filter(url => url.includes("photo.jpg"));
 		assert.ok(photos.length > 0 && photos.every(url => url.includes("/format/webp/")), photos[0]);
+		await dispose();
+	});
+});
+
+// The « Tags » grid is arranged by a script: it must not wait for the style sheets to ask for the pictures
+// of the first screen (Lighthouse: « LCP request discovery », 2 s of load delay on a phone)
+describe("« Tags »: the first pictures do not wait for the style sheets", () => {
+	before(launch);
+	after(close);
+
+	const tagsPage = () =>
+		template("page-tags", { site: { tagImage: tag => `/src/tests/fixtures/photo.svg?tag-${tag.slug}` } });
+	const timings = page =>
+		page.evaluate(() => {
+			const entries = performance.getEntriesByType("resource");
+			const sheets = Math.max(...entries.filter(e => /\/assets\/css\//.test(e.name)).map(e => e.responseEnd));
+			const pictures = [...document.querySelectorAll(".tag-cell__image")].map(img => {
+				const entry = entries.find(e => e.name === img.currentSrc);
+				const box = img.getBoundingClientRect();
+				return {
+					// The rendition asked for (the test site's &size=s | m | l: 300, 600, 1000 px) against the box
+					wanted: { s: 300, m: 600, l: 1000 }[/[?&]size=(\w+)/.exec(img.currentSrc)?.[1]],
+					width: box.width,
+					early: Boolean(entry) && entry.startTime < sheets - 300,
+					onScreen: box.top < innerHeight,
+					firstRow: box.top <= document.querySelector(".tag-cell").getBoundingClientRect().top + 1,
+					area: Math.round(box.width * box.height),
+					priority: img.fetchPriority,
+				};
+			});
+			return { sheets, pictures };
+		});
+
+	it("the first row's pictures are requested while the style sheets are still loading, the largest first", async () => {
+		for (const viewport of [
+			PHONE,
+			{ width: 412, height: 823 },
+			{ width: 800, height: 1000 },
+			{ width: 1350, height: 940 },
+		]) {
+			const { page, dispose } = await open({
+				render: tagsPage(),
+				viewport,
+				slow: { "/assets/css/app.css": 900, "/assets/css/tags.css": 900 },
+			});
+			const { sheets, pictures } = await timings(page);
+			assert.ok(sheets >= 900, "the style sheets were slow");
+			const early = pictures.filter(p => p.early);
+			assert.ok(early.length > 0, `pictures requested before the style sheets at ${viewport.width}px`);
+			assert.ok(
+				pictures.filter(p => p.firstRow).every(p => p.early),
+				`the whole first row at ${viewport.width}px: ${JSON.stringify(pictures)}`,
+			);
+			// The estimate made without layout never reaches below the screen
+			assert.ok(
+				early.every(p => p.onScreen),
+				`only pictures of the first screen at ${viewport.width}px: ${JSON.stringify(pictures)}`,
+			);
+			// Each at the width of its cell (no layout yet for sizes="auto": not the screen's width)
+			for (const p of early) {
+				const smallest = [300, 600, 1000].find(w => w >= Math.floor(p.width)) || 1000;
+				assert.equal(p.wanted, smallest, `a ${Math.round(p.width)} px cell at ${viewport.width}px`);
+			}
+			const first = pictures.filter(p => p.priority === "high");
+			assert.equal(first.length, 1, "one picture first");
+			assert.ok(first[0].early, "requested with the first ones");
+			// A cell of two rows and two columns is more than twice any other
+			assert.ok(first[0].area * 1.6 > Math.max(...early.map(p => p.area)), "the largest of them");
+			await dispose();
+		}
+	});
+
+	it("the grid is arranged and shown at the first paint, with slow style sheets too (no reshuffle, CLS 0)", async () => {
+		const { page, dispose } = await open({
+			render: tagsPage(),
+			viewport: PHONE,
+			slow: { "/assets/css/app.css": 600, "/assets/css/tags.css": 600 },
+			initScript: () => {
+				window.__shifts = [];
+				new PerformanceObserver(list => {
+					for (const entry of list.getEntries())
+						if (entry.sources.some(s => (s.node?.parentElement || s.node)?.closest?.("main")))
+							window.__shifts.push(entry.value);
+				}).observe({ type: "layout-shift", buffered: true });
+				new PerformanceObserver((_, observer) => {
+					observer.disconnect();
+					const grid = document.querySelector("[data-tag-bento]");
+					window.__firstPaint = {
+						arranged: grid.hasAttribute("data-arranged"),
+						hidden: document.documentElement.hasAttribute("data-tags-arranging"),
+						visibility: getComputedStyle(grid).visibility,
+					};
+				}).observe({ type: "paint", buffered: true });
+			},
+		});
+		assert.deepEqual(await page.evaluate(() => window.__firstPaint), {
+			arranged: true,
+			hidden: false,
+			visibility: "visible",
+		});
+		assert.deepEqual(await page.evaluate(() => window.__shifts), []);
 		await dispose();
 	});
 });
