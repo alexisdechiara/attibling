@@ -299,8 +299,12 @@ describe("third-party embeds", () => {
 		await frame.waitFor();
 		assert.match(await frame.getAttribute("sandbox"), /allow-scripts/);
 		assert.doesNotMatch(await frame.getAttribute("sandbox"), /allow-same-origin/);
-		const inner = page.frames().find(f => f.url().includes("/assets/html/embed.html"));
-		const tries = await waitFor(() => inner.evaluate(() => document.body.dataset.tries));
+		// The frame and its body may not exist yet when the button's click resolves: look again on each try
+		const embedFrame = () => page.frames().find(f => f.url().includes("/assets/html/embed.html"));
+		const tries = await waitFor(() => embedFrame()?.evaluate(() => document.body?.dataset.tries) ?? null, {
+			timeout: 10000,
+		});
+		const inner = embedFrame();
 		const { member, ...others } = JSON.parse(tries);
 		assert.deepEqual(others, {
 			parent: "blocked",
