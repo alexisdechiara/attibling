@@ -189,9 +189,28 @@ describe("repository", () => {
 		assert.doesNotMatch(readme, /\b33 translations\b/);
 	});
 
-	it("deploy without leaving the GitHub token in the checkout", () => {
+	it("deploy without leaving the GitHub token in a checkout", () => {
 		const workflow = read(".github/workflows/deploy-theme.yml");
 		const deploy = workflow.slice(workflow.indexOf("\n  deploy:"));
-		assert.match(deploy, /uses: actions\/checkout@\S+[^\n]*\n\s+with:\n\s+persist-credentials: false\n/);
+		for (const [checkout] of deploy.matchAll(/uses: actions\/checkout@[^\n]*\n(?:\s+with:\n(?:\s{10}[^\n]*\n)*)?/g)) {
+			assert.match(checkout, /persist-credentials: false/);
+		}
+	});
+
+	it("deploys the very archive that npm run zip built and gscan checked", () => {
+		const ci = read(".github/workflows/ci.yml");
+		const build = ci.slice(ci.indexOf("\n  build:"), ci.indexOf("\n  test:"));
+		// In the CI: npm run zip, gscan on that zip, then the zip is kept as the run's artifact
+		const zip = build.indexOf("npm run zip");
+		const gscan = build.indexOf("gscan@");
+		const upload = build.search(/uses: actions\/upload-artifact@[0-9a-f]{40}/);
+		assert.ok(zip > 0 && gscan > zip && upload > gscan, "zip, then gscan, then upload");
+		assert.match(build.slice(upload), /name: theme-zip\n\s+path: attibling\.zip\n/);
+		// In the deploy: that artifact is downloaded and uploaded to Ghost as is (the action zips nothing itself)
+		const workflow = read(".github/workflows/deploy-theme.yml");
+		const deploy = workflow.slice(workflow.indexOf("\n  deploy:"));
+		assert.match(deploy, /uses: actions\/download-artifact@[0-9a-f]{40}[^\n]*\n\s+with:\n\s+name: theme-zip\n/);
+		assert.match(deploy, /uses: TryGhost\/action-deploy-theme@[0-9a-f]{40}[\s\S]*\n\s+file: attibling\.zip\n/);
+		assert.doesNotMatch(deploy, /\bexclude:/);
 	});
 });

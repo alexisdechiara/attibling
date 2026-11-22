@@ -56,6 +56,15 @@ jobs:
         run: |
           npm run zip
           npx --yes "gscan@${GSCAN_VERSION}" -z attibling.zip --v6
+      # The archive gscan has just checked is the one deploy-theme.yml uploads to the site: one zip, built
+      # once, by npm run zip (its exclusions are in package.json)
+      - name: Keep the theme archive
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: theme-zip
+          path: attibling.zip
+          if-no-files-found: error
+          retention-days: 7
 
   test:
     name: Browser tests (Chromium)

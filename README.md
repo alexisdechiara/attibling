@@ -86,7 +86,9 @@ Two jobs, in parallel, on Ubuntu with Node 22:
   `npm test`.
 
 A push to `master`/`main` runs `.github/workflows/deploy-theme.yml`: it calls the same CI workflow first and
-uploads the theme to the site only if every check passes.
+uploads the theme to the site only if every check passes. What it uploads is the very `attibling.zip` that the CI
+built with `npm run zip` and checked with gscan (kept as the run's artifact `theme-zip` for 7 days, downloadable
+from the run's page): the exclusions of that archive are only the ones of the `zip` script in `package.json`.
 
 **When « Built assets are out of date » fails**: the theme is deployed as committed (Ghost does not build
 it), so `assets/` must be rebuilt with every change to `src/`. Run `npm ci` (once) and `npm run build`, then
