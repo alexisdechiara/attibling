@@ -42,8 +42,13 @@ describe("display settings: access and panel", () => {
 
 	it("translate the S / M / L sizes (P / M / G in French)", async () => {
 		const { page, dispose } = await open({ render: article({ member: true }) });
-		const sizes = name => page.$$eval(`input[name=${name}]`, inputs => inputs.map(i => i.parentElement.textContent.trim()));
-		assert.equal(await page.locator("label[for=reading-theme]").textContent(), "Palette", "the colour list is « Palette »");
+		const sizes = name =>
+			page.$$eval(`input[name=${name}]`, inputs => inputs.map(i => i.parentElement.textContent.trim()));
+		assert.equal(
+			await page.locator("label[for=reading-theme]").textContent(),
+			"Palette",
+			"the colour list is « Palette »",
+		);
 		assert.deepEqual(await sizes("width"), ["P", "M", "G"]);
 		assert.deepEqual(await sizes("size"), ["P", "M", "G"]);
 		await dispose();

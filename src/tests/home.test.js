@@ -554,7 +554,7 @@ describe("tags without posts", () => {
 			"home tiles",
 		);
 		const discover = await page.$$eval(".discover__tag", links => links.map(a => a.textContent.trim()));
-		assert.deepEqual([...discover.slice(0, 3)].sort(), withPosts);
+		assert.deepEqual(discover.slice(0, 3).sort(), withPosts);
 		assert.equal(discover.length % 3, 0, "only the tags with posts, in each of the two panels");
 		assert.ok(discover.length > 0 && discover.every(name => withPosts.includes(name)), discover.join());
 		await dispose();

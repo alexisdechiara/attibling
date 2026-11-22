@@ -49,7 +49,7 @@ describe("text direction", () => {
 		return renderTemplate(name, options).match(/<html[^>]*>/)[0];
 	};
 
-	it("sets dir=\"rtl\" on <html> for Arabic, Persian and Hebrew", () => {
+	it('sets dir="rtl" on <html> for Arabic, Persian and Hebrew', () => {
 		for (const locale of ["ar", "fa", "he"]) assert.match(htmlTag(locale), /<html lang="[^"]+" dir="rtl"/, locale);
 	});
 
