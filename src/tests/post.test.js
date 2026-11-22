@@ -48,6 +48,8 @@ describe("article page: content", () => {
 
 	it("keeps every enhancement when a gallery image has no width and height", async () => {
 		const { page, errors, dispose } = await open({ render: article({ html: GALLERY_HTML + LONG_HTML }) });
+		// tocbot is loaded on demand: the table of contents fills a moment after the other enhancements
+		await page.locator("[data-toc] a").first().waitFor();
 		const state = await page.evaluate(() => ({
 			sized: document.querySelector(".kg-gallery-image.sized").style.flexGrow,
 			unsized: document.querySelector(".kg-gallery-image.unsized").style.flexGrow,
