@@ -64,7 +64,7 @@
 				"type": "boolean",
 				"default": true,
 				"group": "homepage",
-				"description": "Home: the GEEKly wordmark is drawn on arrival, once per visit (a fade for a logo or title)."
+				"description": "Home: the GEEKly wordmark arrives letter by letter, on the first visit only (a fade for a logo)."
 			},
 			"subscribe_url": {
 				"type": "text",

@@ -20,7 +20,7 @@ both CSS and JS) and checked by `src/tests/browser-support.test.js`.
 ### Home page
 
 ✅ Hero card with the featured posts (pager, no autoplay) and the site's wordmark
-✅ Optional coloured « GEEKly » wordmark (`use_geekly_logo`), drawn on arrival once per session (`arrival_animation`)
+✅ Optional coloured « GEEKly » wordmark (`use_geekly_logo`), which settles into the hero letter by letter on a reader's first visit only (`arrival_animation`)
 ✅ The hero wordmark docks into the header as the page scrolls (scroll-driven animation, fade fallback)
 ✅ « Derniers articles », subscription block for visitors, « Continue reading / Read later » lists for members
 ✅ « Most read » row from the `#top` / `#top-1…10` internal tags, five rows by tag in varied forms (`home_row_1…5`)
@@ -34,7 +34,7 @@ both CSS and JS) and checked by `src/tests/browser-support.test.js`.
 
 ### Pages and the rest
 
-✅ Tag, author, all tags, all authors, archives (client-side filters, more than 100 posts), saved posts,
+✅ Tag, author, all tags, all authors, archives (client-side filters, more than 100 posts), « Read later »,
 about, subscription and 404 templates
 ✅ Page transitions between pages (cross-document View Transitions, `page_transitions`) and prefetch on
 hover / focus (Speculation Rules with a `<link rel="prefetch">` fallback, off with Save-Data)

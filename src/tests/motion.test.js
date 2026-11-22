@@ -5,15 +5,28 @@ import { home, paged, template } from "./support/pages.js";
 
 const INTRO = { use_geekly_logo: true, arrival_animation: true };
 
-const introState = page =>
-	page.evaluate(() => {
-		const layer = document.querySelector("[data-intro-layer]");
-		return {
-			attribute: document.documentElement.getAttribute("data-intro"),
-			layer: layer ? getComputedStyle(layer).display : null,
-			title: getComputedStyle(document.querySelector(".hero__title")).opacity,
-		};
-	});
+const introAttribute = page => page.evaluate(() => document.documentElement.getAttribute("data-intro"));
+const introFlag = page => page.evaluate(() => localStorage.getItem("attibling-intro"));
+
+// The arrival animation's CSS animations running in the page (intro-*): [animation name, properties its keyframes change]
+const running = page =>
+	page.evaluate(() =>
+		document
+			.getAnimations()
+			.filter(animation => animation.animationName?.startsWith("intro-"))
+			.map(animation => [
+				animation.animationName,
+				[
+					...new Set(
+						animation.effect
+							.getKeyframes()
+							.flatMap(frame =>
+								Object.keys(frame).filter(key => !["offset", "computedOffset", "easing", "composite"].includes(key)),
+							),
+					),
+				].sort(),
+			]),
+	);
 
 // Layout shifts reported by the browser since the page started loading
 const shifts = page =>
@@ -29,92 +42,189 @@ const shifts = page =>
 			}),
 	);
 
+// The intro's own timer and its CSS animations held: the page stays « mid-intro » however slow the test is
+const HOLD = () => {
+	const timeout = window.setTimeout;
+	window.setTimeout = (fn, delay, ...rest) => timeout(fn, delay === 900 ? 600000 : delay, ...rest);
+	document.addEventListener("DOMContentLoaded", () => {
+		const style = document.createElement("style");
+		style.textContent = ":root[data-intro] * { animation-play-state: paused !important; }";
+		document.head.append(style);
+	});
+};
+
 describe("arrival animation", () => {
 	before(launch);
 	after(close);
 
-	it("plays over the page on the first visit of the home, then leaves no trace", async () => {
+	it("plays on the hero wordmark over the page already shown, then leaves no trace but its flag", async () => {
 		const { page, errors, dispose } = await open({
 			render: home({ custom: INTRO }),
 			viewport: { width: 1440, height: 900 },
 		});
-		let state = await introState(page);
-		assert.equal(state.attribute, "play", "started before the first paint");
-		assert.equal(state.layer, "block");
-		assert.equal(Number(state.title), 0, "the hero wordmark waits for the mark to land");
-		assert.equal(
-			await page.evaluate(() => document.querySelector("[data-intro-layer]").getAttribute("aria-hidden")),
-			"true",
-		);
-		// The content is in the page underneath the whole time
+		assert.equal(await introAttribute(page), "play", "started before the first paint");
+		assert.equal(await introFlag(page), "1", "remembered in localStorage");
+		assert.equal(await page.evaluate(() => sessionStorage.getItem("attibling-intro")), null, "not per session");
+		// No layer: the page is there and reachable from the first frame
+		assert.equal(await page.locator("[data-intro-layer], .intro").count(), 0);
 		assert.equal(await page.locator("main h1#hero-title").count(), 1);
 		assert.ok((await page.locator("main [data-post-tile], main .row-item").count()) > 5);
 
-		state = await waitFor(
-			async () => {
-				const s = await introState(page);
-				return s.attribute === null && s;
-			},
-			{ timeout: 4000 },
-		);
-		assert.ok(state, "over after about 2 s");
-		assert.deepEqual(state, { attribute: null, layer: "none", title: "1" });
-		assert.equal(await shifts(page), 0, "no layout shift");
+		const over = await waitFor(async () => (await introAttribute(page)) === null, { timeout: 4000 });
+		assert.ok(over, "over after about a second");
+		assert.deepEqual(await running(page), [], "nothing left running");
 		assert.equal(
-			await page.evaluate(() => sessionStorage.getItem("attibling-intro")),
+			await page.evaluate(() => getComputedStyle(document.querySelector("#hero-wordmark .wordmark__g")).opacity),
 			"1",
-			"remembered for the session",
 		);
+		assert.equal(await shifts(page), 0, "no layout shift");
 		assert.deepEqual(errors.map(String), []);
 		await dispose();
 	});
 
-	it("lands the mark exactly on the hero wordmark", async () => {
-		for (const width of [390, 1440]) {
-			const { page, dispose } = await open({ render: home({ custom: INTRO }), viewport: { width, height: 900 } });
+	it("animates nothing but opacity and transform, on the wordmark's letters, in under a second", async () => {
+		const { page, dispose } = await open({
+			render: home({ custom: INTRO }),
+			initScript: HOLD,
+			viewport: { width: 1440, height: 900 },
+		});
+		assert.equal(await introAttribute(page), "play");
+		const animations = await running(page);
+		assert.deepEqual(
+			animations.map(([name]) => name).sort(),
+			["intro-letter", "intro-letter", "intro-letter", "intro-letter", "intro-script", "intro-settle"],
+			"G, E, E, K, « ly », and the wordmark settling",
+		);
+		const allowed = ["opacity", "transform", "translate", "scale", "rotate"];
+		for (const [name, properties] of animations) {
+			assert.ok(properties.length > 0, name);
+			for (const property of properties) assert.ok(allowed.includes(property), `${name} animates ${property}`);
+		}
+		const facts = await page.evaluate(() => {
+			const intro = document.getAnimations().filter(animation => animation.animationName?.startsWith("intro-"));
+			const wordmark = document.getElementById("hero-wordmark");
+			const costly = [];
+			const moving = wordmark.querySelectorAll(".wordmark__letters, .wordmark__letters *");
+			for (const element of [document.querySelector(".hero__title"), wordmark, ...moving]) {
+				const style = getComputedStyle(element);
+				for (const property of ["backdropFilter", "filter", "maskImage", "clipPath", "mixBlendMode"]) {
+					if (!["none", "normal"].includes(style[property]))
+						costly.push([element.className, property, style[property]]);
+				}
+			}
+			// What is over the middle of the hero picture: the hero itself, no layer of the animation
+			const picture = document.querySelector("[data-hero] img").getBoundingClientRect();
+			const top = document.elementFromPoint(picture.left + picture.width / 2, picture.top + picture.height / 2);
+			return {
+				end: Math.max(...intro.map(animation => animation.effect.getComputedTiming().endTime)),
+				targets: intro.every(animation => animation.effect.target.closest("#hero-wordmark")),
+				costly,
+				registered: [...document.styleSheets].flatMap(sheet => {
+					try {
+						return [...sheet.cssRules]
+							.filter(rule => rule.constructor.name === "CSSPropertyRule")
+							.map(rule => rule.name);
+					} catch {
+						return [];
+					}
+				}),
+				overHero: Boolean(top?.closest("[data-hero]")),
+				picture: getComputedStyle(document.querySelector("[data-hero] img")).opacity,
+			};
+		});
+		assert.ok(facts.end <= 1000, `over in ${facts.end} ms`);
+		assert.equal(facts.targets, true, "only the hero wordmark moves");
+		assert.deepEqual(facts.costly, [], "no filter, backdrop-filter, mask, clip or blend on what moves");
+		assert.deepEqual(
+			facts.registered.filter(name => name.startsWith("--intro")),
+			[],
+			"no registered custom property is animated",
+		);
+		assert.equal(facts.overHero, true, "nothing covers the hero");
+		assert.equal(facts.picture, "1", "the hero picture (LCP) is shown from the start");
+		await dispose();
+	});
+
+	it("leaves the wordmark exactly where it is without the animation", async () => {
+		const boxes = async custom => {
+			const { page, dispose } = await open({ render: home({ custom }), viewport: { width: 1440, height: 900 } });
 			await page.evaluate(() => document.fonts.ready);
-			const gap = await page.evaluate(() => {
-				// The end of the animation, frozen
-				document
-					.getAnimations()
-					.filter(animation => animation.timeline === document.timeline)
-					.forEach(animation => {
-						animation.pause();
-						animation.currentTime = 1949;
-					});
-				const letters = document.querySelector("#hero-wordmark .wordmark__letters");
-				const unit = parseFloat(getComputedStyle(letters).fontSize) / 1000;
-				// The SVG's origin (font units, viewBox from x = -20, 3560 wide) on the start of the hero's G
-				const svg = document.querySelector(".intro__svg").getBoundingClientRect();
-				const g = document.querySelector("#hero-wordmark .wordmark__g").getBoundingClientRect();
-				return {
-					set: Boolean(document.querySelector("[data-intro-mark]").style.getPropertyValue("--intro-to")),
-					x: Math.abs(svg.left + (20 * svg.width) / 3560 - g.left),
-					size: Math.abs(svg.width / 3560 - unit) * 1000,
+			await waitFor(async () => (await introAttribute(page)) === null, { timeout: 4000 });
+			const found = await page.evaluate(() =>
+				[...document.querySelectorAll("#hero-wordmark, #hero-wordmark span, .hero__tagline")].map(element => {
+					const { x, y, width, height } = element.getBoundingClientRect();
+					return [x, y, width, height].map(n => Math.round(n * 100) / 100);
+				}),
+			);
+			await dispose();
+			return found;
+		};
+		const played = await boxes(INTRO);
+		assert.ok(played.length >= 7, "the wordmark, its letters and the tagline");
+		assert.deepEqual(played, await boxes({ use_geekly_logo: true, arrival_animation: false }));
+	});
+
+	it("plays on the first visit only: never again once the browser remembers it", async () => {
+		const { page, context, dispose } = await open({ render: home({ custom: INTRO }) });
+		assert.equal(await introAttribute(page), "play");
+		await page.reload({ waitUntil: "load" });
+		assert.equal(await introAttribute(page), null, "not on a second load");
+		assert.deepEqual(await running(page), []);
+		// Nor in another tab, later: the flag is the browser's, not the tab's
+		const tab = await context.newPage();
+		await tab.goto(page.url(), { waitUntil: "load" });
+		assert.equal(await introAttribute(tab), null, "not in a new tab");
+		await dispose();
+		// A returning reader
+		const back = await open({ render: home({ custom: INTRO }), storage: { "attibling-intro": "1" } });
+		assert.equal(await introAttribute(back.page), null);
+		assert.deepEqual(await running(back.page), []);
+		await back.dispose();
+	});
+
+	it("never plays where the browser cannot remember it (rather than on every page)", async () => {
+		for (const broken of [
+			() => {
+				Storage.prototype.setItem = () => {
+					throw new DOMException("full", "QuotaExceededError");
 				};
-			});
-			assert.equal(gap.set, true, `measured at ${width}px`);
-			assert.ok(gap.x < 1 && gap.size < 0.5, `on the hero letters at ${width}px: ${JSON.stringify(gap)}`);
+			},
+			() => {
+				Object.defineProperty(window, "localStorage", {
+					get() {
+						throw new DOMException("denied", "SecurityError");
+					},
+				});
+			},
+		]) {
+			const { page, dispose } = await open({ render: home({ custom: INTRO }), initScript: broken });
+			assert.equal(await introAttribute(page), null);
+			assert.deepEqual(await running(page), []);
+			await page.reload({ waitUntil: "load" });
+			assert.equal(await introAttribute(page), null);
 			await dispose();
 		}
 	});
 
-	it("plays once per session", async () => {
-		const { page, dispose } = await open({ render: home({ custom: INTRO }) });
-		assert.equal((await introState(page)).attribute, "play");
-		await page.reload({ waitUntil: "load" });
-		assert.deepEqual(await introState(page), { attribute: null, layer: "none", title: "1" });
+	it("is for an arrival on the site: not when coming to the home from another of its pages", async () => {
+		const { page, dispose } = await open({
+			render: template("post", { custom: INTRO }),
+			pages: { "/": home({ custom: INTRO }) },
+		});
+		await Promise.all([page.waitForURL(url => url.pathname === "/"), page.evaluate(() => location.assign("/"))]);
+		await page.waitForLoadState("load");
+		assert.equal(await page.locator("#hero-wordmark").count(), 1, "on the home");
+		assert.equal(await introAttribute(page), null);
+		assert.equal(await introFlag(page), null, "kept for the reader's next arrival");
 		await dispose();
 	});
 
-	// What the reader does reaches the page some time after Playwright sends it: under load, a wheel sent at
-	// the mouse's starting point (0, 0) was seen arriving 0.6 to 1.2 s later, once the animation had ended
-	// by itself, so a 300 ms window measured from the test's side failed now and then. Here the 2.1 s timer
-	// that ends the animation on its own is held, and the timing is read in the page: the animation switches
-	// to « skip » in the same task as the reader's event, then is gone within a few frames.
-	const HOLD_NATURAL_END = () => {
+	// What the reader does reaches the page some time after Playwright sends it (under load, up to a second
+	// later): the intro's own 900 ms timer is held, and the timing is read in the page. The animation ends
+	// in the same task as the reader's event.
+	const WATCH = () => {
 		const timeout = window.setTimeout;
-		window.setTimeout = (fn, delay, ...rest) => timeout(fn, delay === 2100 ? 600000 : delay, ...rest);
+		window.setTimeout = (fn, delay, ...rest) => timeout(fn, delay === 900 ? 600000 : delay, ...rest);
 		window.__intro = [];
 		for (const type of ["keydown", "pointerdown", "wheel"])
 			addEventListener(type, () => window.__intro.push([type, performance.now()]), true);
@@ -136,60 +246,50 @@ describe("arrival animation", () => {
 		],
 	]) {
 		it(`ends at once on ${name}`, async () => {
-			const { page, dispose } = await open({ render: home({ custom: INTRO }), initScript: HOLD_NATURAL_END });
+			const { page, dispose } = await open({ render: home({ custom: INTRO }), initScript: WATCH });
 			await sleep(200);
-			assert.equal((await introState(page)).attribute, "play", "still playing before the reader acts");
+			assert.equal(await introAttribute(page), "play", "still playing before the reader acts");
 			await act(page);
-			const state = await waitFor(
-				async () => {
-					const s = await introState(page);
-					return s.attribute === null && s;
-				},
-				{ timeout: 5000 },
-			);
-			assert.ok(state, "the animation ends");
-			assert.deepEqual([state.layer, state.title], ["none", "1"]);
+			assert.ok(await waitFor(async () => (await introAttribute(page)) === null, { timeout: 5000 }), "it ends");
+			assert.deepEqual(await running(page), [], "the wordmark is in place");
 			const log = await page.evaluate(() => window.__intro);
 			const at = what => log.find(([w]) => w === what)?.[1];
 			const trace = JSON.stringify(log);
-			assert.ok(at(type) !== undefined && at("skip") !== undefined, `the ${type} ends it: ${trace}`);
-			assert.ok(at("skip") - at(type) < 50, `« skip » with the event: ${trace}`);
-			assert.ok(log.findLast(([w]) => w === null)[1] - at("skip") < 400, `gone within a few frames: ${trace}`);
+			assert.ok(at(type) !== undefined && at(null) !== undefined, `the ${type} ends it: ${trace}`);
+			assert.ok(at(null) - at(type) < 50, `over with the event: ${trace}`);
 			await dispose();
 		});
 	}
 
 	it("never plays with reduced motion", async () => {
 		const { page, dispose } = await open({ render: home({ custom: INTRO }), reducedMotion: "reduce" });
-		assert.deepEqual(await introState(page), { attribute: null, layer: "none", title: "1" });
-		assert.equal(await page.evaluate(() => sessionStorage.getItem("attibling-intro")), null);
+		assert.equal(await introAttribute(page), null);
+		assert.deepEqual(await running(page), []);
+		assert.equal(await introFlag(page), null);
+		// Even if the attribute were there (reduced motion turned on meanwhile), nothing moves
+		await page.evaluate(() => document.documentElement.setAttribute("data-intro", "play"));
+		assert.deepEqual(await running(page), []);
 		await dispose();
 	});
 
 	it("never plays on other pages, nor when the setting is off", async () => {
 		for (const render of [paged(2, { custom: INTRO }), template("post", { custom: INTRO })]) {
 			const { page, dispose } = await open({ render });
-			assert.equal(await page.evaluate(() => document.documentElement.getAttribute("data-intro")), null);
-			assert.equal(await page.locator("[data-intro-layer]").count(), 0, render.template);
+			assert.equal(await introAttribute(page), null, render.template);
+			assert.equal(await introFlag(page), null, render.template);
 			await dispose();
 		}
 		const off = await open({ render: home({ custom: { use_geekly_logo: true, arrival_animation: false } }) });
-		assert.equal(await off.page.evaluate(() => document.documentElement.getAttribute("data-intro")), null);
-		assert.equal(await off.page.locator("[data-intro-layer]").count(), 0);
+		assert.equal(await introAttribute(off.page), null);
+		assert.equal(await introFlag(off.page), null);
+		assert.doesNotMatch(await off.page.content(), /attibling-intro/, "no script for it either");
 		await off.dispose();
 	});
 
 	it("is a short fade of the hero logo without the GEEKly wordmark", async () => {
-		const { page, dispose } = await open({ render: home({ custom: { arrival_animation: true } }) });
-		assert.equal(await page.evaluate(() => document.documentElement.getAttribute("data-intro")), "sober");
-		assert.equal(await page.locator("[data-intro-layer]").count(), 0, "no dark screen");
-		const animated = await page.evaluate(() =>
-			document
-				.querySelector(".hero__title")
-				.getAnimations()
-				.map(a => a.animationName),
-		);
-		assert.deepEqual(animated, ["intro-sober"]);
+		const { page, dispose } = await open({ render: home({ custom: { arrival_animation: true } }), initScript: HOLD });
+		assert.equal(await introAttribute(page), "sober");
+		assert.deepEqual(await running(page), [["intro-sober", ["opacity", "transform"]]]);
 		await dispose();
 	});
 });

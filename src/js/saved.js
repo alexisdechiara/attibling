@@ -1,4 +1,4 @@
-// « Mes favoris » (partials/pages/saved.hbs), members only: draws the posts saved with the bookmark
+// The « À lire plus tard » page (partials/pages/saved.hbs), members only: draws the posts saved with the bookmark
 // (src/js/store.js savedPosts: url, title, image, tag, readingTime — everything a tile needs, nothing is
 // fetched) as a grid, newest saved first, with « Retirer » under each tile and « Tout retirer ».
 // Empty list → the empty state; storage unavailable (private window, blocked data) → the note says so.

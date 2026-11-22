@@ -1,8 +1,9 @@
 {{!--
-Body of « Mes favoris » (page-favoris.hbs for the slug "favoris", custom-saved-posts.hbs for any other
-slug). Inside the page's template context. The page's title is the heading.
+Body of the « À lire plus tard » page (page-favoris.hbs for the slug "favoris", custom-saved-posts.hbs for any other
+slug). Inside the page's template context. The page's title is the heading: « À lire plus tard », the
+name of the list everywhere in the theme (the address stays /favoris/).
 
-Members: the posts they saved with the bookmark (« À lire plus tard »), kept in this browser
+Members: the posts they added with the bookmark, kept in this browser
 (src/js/store.js, localStorage "attibling-saved": address, title, image, section, reading time — enough
 to draw a tile, nothing is fetched). saved.js draws the grid from the template below, with « Retirer »
 under each tile and « Tout retirer »; an empty list shows the empty state. When the browser storage is
@@ -31,7 +32,7 @@ Visitors: an invitation to subscribe or sign in (Portal).
     {{#if @member}}
       <div class="saved__member" data-saved
         data-i18n-one="{{t "1 post, kept in this browser, on this device only."}}" data-i18n-many="{{t "% posts, kept in this browser, on this device only."}}"
-        data-i18n-minutes="{{t "% min"}}" data-i18n-remove="{{t "Remove “%” from the list"}}" data-i18n-confirm="{{t "Remove every saved post from this list?"}}">
+        data-i18n-minutes="{{t "% min"}}" data-i18n-remove="{{t "Remove “%” from the list"}}" data-i18n-confirm="{{t "Remove every post from your “Read later” list?"}}">
         <header class="saved__header">
           <div class="saved__heading">
             {{#post}}<h1 class="saved__title">{{title}}</h1>{{/post}}
@@ -44,12 +45,12 @@ Visitors: an invitation to subscribe or sign in (Portal).
 
         <section class="saved-empty" data-saved-empty hidden aria-labelledby="saved-empty-title">
           <span class="saved-empty__icon" aria-hidden="true">{{> "icons/bookmark"}}</span>
-          <h2 class="saved-empty__title" id="saved-empty-title">{{t "No saved post yet"}}</h2>
-          <p class="saved-empty__text">{{t "Hover a tile or open a post, then touch the bookmark to keep it here. The list stays in this browser, on this device."}}</p>
+          <h2 class="saved-empty__title" id="saved-empty-title">{{t "Nothing to read later yet"}}</h2>
+          <p class="saved-empty__text">{{t "Hover a tile or open a post, then touch the bookmark to add it here. The list stays in this browser, on this device."}}</p>
           <a class="button button--inverse button--l" href="{{@site.url}}">{{t "See the latest posts"}}</a>
         </section>
 
-        <p class="saved__unavailable" data-saved-unavailable hidden>{{t "Your browser does not let this site keep a list (private browsing or blocked site data): saved posts cannot be shown here."}}</p>
+        <p class="saved__unavailable" data-saved-unavailable hidden>{{t "Your browser does not let this site keep a list (private browsing or blocked site data): your “Read later” list cannot be shown here."}}</p>
 
         <template data-saved-template>
           <li class="saved-item">
@@ -72,7 +73,7 @@ Visitors: an invitation to subscribe or sign in (Portal).
       <section class="saved-visitor" aria-labelledby="saved-visitor-title">
         <span class="saved-empty__icon" aria-hidden="true">{{> "icons/bookmark"}}</span>
         {{#post}}<h1 class="saved-visitor__title" id="saved-visitor-title">{{title}}</h1>{{/post}}
-        <p class="saved-empty__text">{{t "Saved posts are a member feature: subscribe for free or sign in, then touch the bookmark of a post to read it later."}}</p>
+        <p class="saved-empty__text">{{t "“Read later” is a member feature: subscribe for free or sign in, then touch the bookmark of a post to add it to your list."}}</p>
         <div class="saved-visitor__actions">
           {{> subscribe-link class="button button--primary button--l"}}
           {{> signin-link class="button button--l"}}

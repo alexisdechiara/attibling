@@ -65,24 +65,26 @@ data-consent: the fallback consent mode of the theme setting consent_notice (src
         root.setAttribute('data-theme', theme)
         if (promo) root.setAttribute('data-promo-closed', '')
         {{#is "home"}}{{#if @custom.arrival_animation}}
-        // First page of the home: the arrival animation (partials/home/intro.hbs, src/css/home/intro.css),
-        // once per session, never with reduced motion; any click, key, wheel, touch or scroll ends it.
-        // It removes itself after 2.1 s whatever happens (the CSS animation is over by then).
+        // First page of the home: the arrival animation of the hero wordmark (src/css/home/intro.css), the
+        // first time this browser arrives on the site, then never again (localStorage "attibling-intro";
+        // without working storage it never plays, rather than on every page). Not when coming from another
+        // page of the site (that is no arrival, and the page transition already moves the logo), never with
+        // reduced motion. Any click, key, wheel, touch or scroll ends it at once; it is over in 780 ms.
         try {
-          if (!sessionStorage.getItem('attibling-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            sessionStorage.setItem('attibling-intro', '1')
+          if (
+            !localStorage.getItem('attibling-intro') &&
+            document.referrer.indexOf(location.origin + '/') &&
+            !matchMedia('(prefers-reduced-motion: reduce)').matches
+          ) {
+            localStorage.setItem('attibling-intro', '1')
             root.setAttribute('data-intro', '{{#if @custom.use_geekly_logo}}play{{else}}sober{{/if}}')
             var events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll']
             var done = function () {
               root.removeAttribute('data-intro')
-              for (var i = 0; i < events.length; i++) removeEventListener(events[i], skip, true)
+              for (var i = 0; i < events.length; i++) removeEventListener(events[i], done, true)
             }
-            var skip = function () {
-              if (root.getAttribute('data-intro') == 'play') root.setAttribute('data-intro', 'skip')
-              setTimeout(done, 160)
-            }
-            for (var i = 0; i < events.length; i++) addEventListener(events[i], skip, { capture: true, passive: true })
-            setTimeout(done, 2100)
+            for (var i = 0; i < events.length; i++) addEventListener(events[i], done, { capture: true, passive: true })
+            setTimeout(done, 900)
           }
         } catch (e) {}
         {{/if}}{{/is}}

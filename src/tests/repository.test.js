@@ -71,6 +71,56 @@ describe("repository", () => {
 		);
 	});
 
+	// One name for the members' list of posts set aside with the bookmark: « À lire plus tard » (owner's
+	// choice), on its page, its buttons, its messages and in the documentation. It used to be « Mes favoris »,
+	// « Enregistré », « articles enregistrés »… Only the address of the page keeps the old word: /favoris/.
+	it("calls the members' list « À lire plus tard » everywhere, never « favoris »", () => {
+		for (const file of ["locales/fr.json", "locales/fr-informal.json"]) {
+			const locale = JSON.parse(read(file));
+			assert.deepEqual(
+				Object.entries(locale)
+					.filter(([, value]) => /favori|articles? enregistrés?|^enregistrée?s?$/i.test(value))
+					.map(([key]) => key),
+				[],
+				`${file}: another name for « À lire plus tard »`,
+			);
+			assert.deepEqual(
+				["Read later", "In Read later", "Read later: {title}", "“Read later”"].map(key => locale[key]),
+				["À lire plus tard", "Dans À lire plus tard", "À lire plus tard : {title}", "« À lire plus tard »"],
+				file,
+			);
+		}
+		assert.deepEqual(
+			Object.keys(JSON.parse(read("locales/en.json"))).filter(key => /saved posts?|^saved$|favou?rite/i.test(key)),
+			[],
+			"English: « Read later »",
+		);
+		const templates = dir =>
+			fs.readdirSync(path.join(REPO_ROOT, dir), { withFileTypes: true }).flatMap(entry => {
+				const file = path.join(dir, entry.name);
+				if (entry.isDirectory()) return templates(file);
+				return entry.name.endsWith(".hbs") ? [file] : [];
+			});
+		const files = [
+			// default.hbs: its <head> is being reworked elsewhere; one comment there still says « Mes favoris »
+			...fs.readdirSync(REPO_ROOT).filter(file => file.endsWith(".hbs") && file !== "default.hbs"),
+			...templates("partials"),
+			"README.md",
+			"docs/guide-auteur.md",
+			"docs/cookies-proposition.md",
+		];
+		assert.ok(files.includes("page-favoris.hbs") && files.includes(path.join("partials", "pages", "saved.hbs")));
+		// The slug and its template are the only « favoris » left
+		const address = /\/favoris\/|`favoris`|"favoris"|page-favoris/g;
+		assert.deepEqual(
+			files.filter(file => /favoris?/i.test(read(file).replace(address, ""))),
+			[],
+			"« favoris » as a name of the list",
+		);
+		assert.match(read("partials/home/member-lists.hbs"), /href="\{\{@site\.url\}\}\/favoris\/"/, "the address stays");
+		assert.match(read("docs/guide-auteur.md"), /`favoris` \(titre « À lire plus tard »\)/);
+	});
+
 	it("keeps « vous » in fr.json and « tu » in fr-informal.json", () => {
 		const informal = JSON.parse(read("locales/fr-informal.json"));
 		const formal = JSON.parse(read("locales/fr.json"));

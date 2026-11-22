@@ -85,7 +85,7 @@ const listLength = key => {
 };
 
 // Before clearing `keys`: when a list of the member's would go, ask first (as « Tout retirer » of the
-// Favoris page does), saying what would be lost; nothing to ask otherwise
+// « À lire plus tard » page does), saying what would be lost; nothing to ask otherwise
 export const confirmClear = (keys, live) => {
 	const strings = live?.dataset;
 	if (!strings?.confirm) return true;

@@ -75,7 +75,7 @@ export const template = (
 		"page-abonnement": pageContext("Abonnement"),
 		"page-subscribe": pageContext("Subscribe"),
 		"page-archives": pageContext("Archives"),
-		"page-favoris": pageContext("Saved posts"),
+		"page-favoris": pageContext("Read later"),
 		"page-a-propos": pageContext("About"),
 		"page-mentions-legales": {
 			post: { ...PAGE, title: "Mentions légales", updated_at: "2026-03-14T10:00:00.000Z", ...post },

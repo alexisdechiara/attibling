@@ -1,5 +1,5 @@
 // Pages other than the home and the article: tag, author, all tags, all authors, generic page, 404,
-// archives, « Mes favoris », subscription page (« À propos »: about.test.js).
+// archives, « À lire plus tard », subscription page (« À propos »: about.test.js).
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
@@ -345,7 +345,7 @@ describe("archives page", () => {
 	});
 });
 
-describe("« Mes favoris » page", () => {
+describe("« À lire plus tard » page", () => {
 	before(launch);
 	after(close);
 

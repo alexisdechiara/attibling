@@ -1309,6 +1309,29 @@ describe("privacy: clearing leaves other scripts' keys alone", () => {
 		await dispose();
 	});
 
+	// The arrival animation's flag (default.hbs, src/css/home/intro.css): kept until cleared, so that the
+	// animation plays on the reader's first visit only; described on the page, and cleared with the rest
+	it("lists the arrival animation's flag as kept until cleared, and « Tout effacer » removes it", async () => {
+		const entry = STORAGE.find(item => item.key === "attibling-intro");
+		assert.deepEqual(
+			[entry.storage, entry.by, entry.audience, entry.lifetime],
+			["local", "theme", "all", "until-cleared"],
+		);
+		const { page, dispose } = await open({
+			render: template("page-cookies", { locale: "fr" }),
+			storage: { "attibling-intro": "1", foo: "1" },
+		});
+		const row = page.locator('tr[data-storage-key="attibling-intro"]');
+		assert.match(await row.textContent(), /déjà jouée lors de votre première visite/);
+		assert.match(await row.textContent(), /Jusqu’à l’effacement/);
+		const held = page.locator('tr[data-held-key="attibling-intro"]');
+		assert.match(await held.textContent(), /L’animation d’arrivée de l’accueil/);
+		await page.locator("[data-stored-clear]").click();
+		await held.waitFor({ state: "detached" });
+		assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), ["foo"]);
+		await dispose();
+	});
+
 	it("« Tout effacer » of the panel removes the theme's keys only", async () => {
 		const { page, dispose } = await open({ render: home(), storage: seed });
 		await openPanel(page);
