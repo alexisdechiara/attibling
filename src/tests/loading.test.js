@@ -98,11 +98,13 @@ describe("theme scripts wait for the first paint", () => {
 			waiting: document.querySelectorAll("template[data-theme-scripts]").length,
 		}));
 
-	it("home, article, « Tags »: no script of the theme is requested before the first paint, all of them after", async () => {
+	it("home, article, « Tags », archives, « À lire plus tard »: no script of the theme is requested before the first paint, all of them after", async () => {
 		for (const [name, render, entry] of [
 			["home", undefined, "/assets/js/home.js"],
 			["article", article({ html: LONG_HTML }), "/assets/js/post.js"],
 			["tags", template("page-tags"), "/assets/js/tags.js"],
+			["archives", template("page-archives"), "/assets/js/archives.js"],
+			["read later", template("page-favoris", { member: true }), "/assets/js/saved.js"],
 		]) {
 			// Slow style sheets: the first paint comes late, long after the HTML is parsed; a slow deferred
 			// script, as Ghost's Portal: the load event comes later still
