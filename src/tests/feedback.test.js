@@ -674,7 +674,7 @@ describe("header hides on a fast scroll down", () => {
 		await dispose();
 	});
 
-	it("slides away with motion, disappears at once without, and moves the sticky table of contents up", async () => {
+	it("slides away with motion and disappears at once without", async () => {
 		const normal = await open({ render: template("tag"), viewport: DESKTOP });
 		assert.match(
 			await normal.page.evaluate(() => getComputedStyle(document.getElementById("site-header")).transitionProperty),
@@ -690,12 +690,7 @@ describe("header hides on a fast scroll down", () => {
 		await sleep(50);
 		await reduced.page.evaluate(() => scrollTo(0, 1100));
 		await sleep(50);
-		assert.equal(
-			await reduced.page.evaluate(() =>
-				getComputedStyle(document.documentElement).getPropertyValue("--header-offset").trim(),
-			),
-			"0px",
-		);
+		assert.equal(await reduced.page.evaluate(() => document.getElementById("site-header").hasAttribute("data-hidden")), true);
 		await reduced.dispose();
 	});
 
@@ -754,6 +749,36 @@ describe("article table of contents", () => {
 			return b.top < shown.top - 30 && b.top >= 0 && b.bottom <= 900 && b;
 		});
 		assert.ok(higher, `higher once the header hides: ${JSON.stringify(await box())}`);
+		await dispose();
+	});
+
+	it("moves the table of contents up without restyling the page: --header-offset changes on the table only", async () => {
+		const { page, dispose } = await open({ render: article({ html: LONG }), viewport: DESKTOP });
+		await waitFor(() => page.evaluate(() => document.querySelectorAll("[data-toc-list] a").length > 10));
+		const offsets = () =>
+			page.evaluate(() => {
+				const value = el => getComputedStyle(el).getPropertyValue("--header-offset").trim();
+				return {
+					hidden: document.getElementById("site-header").hasAttribute("data-hidden"),
+					root: value(document.documentElement),
+					body: value(document.body),
+					toc: value(document.querySelector(".article-toc")),
+				};
+			});
+		const before = await offsets();
+		assert.equal(before.hidden, false);
+		assert.notEqual(before.root, "0px");
+		assert.equal(before.toc, before.root, "the table follows the header while it shows");
+		await page.evaluate(() => scrollBy(0, 400));
+		await page.evaluate(() => scrollBy(0, 400));
+		const after = await waitFor(async () => {
+			const o = await offsets();
+			return o.hidden && o;
+		});
+		assert.ok(after, "the header hides");
+		assert.equal(after.root, before.root, "not changed on :root");
+		assert.equal(after.body, before.body, "nor on the body");
+		assert.equal(after.toc, "0px", "the table sticks to the top of the window once the header is away");
 		await dispose();
 	});
 });

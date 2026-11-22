@@ -66,6 +66,13 @@
   display: none;
 }
 
+/* The header slides away on a fast scroll down (data-hidden, app.js): the table of contents, which sticks
+   under it, follows. The offset is overridden here, on the table itself, and not on :root where
+   site-header.css defines it, so that hiding the header restyles this element only. */
+:root:has(.site-header[data-hidden]) .article-toc {
+  --header-offset: 0px;
+}
+
 /* Wide screens, style « Carte »: in the margin, sticky */
 @media (width >= 75rem) {
   .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
