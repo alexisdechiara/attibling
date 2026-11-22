@@ -49,7 +49,7 @@ bar only for scripts you gate with `data-consent` (their hosts allowed by `conse
 Plausible opt-out; Google Consent Mode v2 when a Google tag is present — see
 « Cookies et confidentialité » in the guide
 ✅ Accessibility: AA contrast, visible focus, 44 px targets, skip link, `prefers-reduced-motion` respected
-✅ RTL languages; complete in English and French (formal and informal), 30 other locale files in part, the rest in English (see Localization)
+✅ RTL languages; 33 complete locale files: English and French (formal and informal) reviewed by hand, the 30 others translated with AI help (see Localization)
 
 ## Preview
 
@@ -102,9 +102,10 @@ attibling.zip --v6`, then delete `attibling.zip`.
 
 This theme has the same translations as the liebling themes with some additions of my own concerning the new features added.
 
-Complete: `en`, `fr`, `fr-informal`. The 30 other locale files below translate only the strings inherited from
-liebling (about 40 of 350); every newer string (series, reading settings, privacy, embeds…) is in English
-there, so a site in one of those languages shows those parts in English. Contributions welcome.
+Complete: `ar`, `bg`, `cs`, `de`, `de-informal`, `en`, `es`, `fa`, `fr`, `fr-informal`, `he`, `hr`, `id`, `it`, `ja`, `kk`, `ko`, `ky`, `lt`, `nl`, `pl`, `pt`, `pt-br`, `ro`, `ru`, `sk`, `sv`, `th`, `tr`, `uk`, `vi`, `zh-hans`, `zh-hant`.
+`en`, `fr` and `fr-informal` are written and reviewed by hand. The 30 other files keep the translations of
+their contributors listed below where they were right, and the strings added since (series, reading settings,
+privacy, embeds…) were translated by AI without a native speaker's review yet: corrections are welcome.
 
 * English
 * Spanish
