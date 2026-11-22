@@ -583,7 +583,8 @@ describe("« Tags »: the first pictures do not wait for the style sheets", () =
 				}).observe({ type: "paint", buffered: true });
 			},
 		});
-		assert.deepEqual(await page.evaluate(() => window.__firstPaint), {
+		// The paint may be reported after the load event
+		assert.deepEqual(await waitFor(() => page.evaluate(() => window.__firstPaint)), {
 			arranged: true,
 			hidden: false,
 			visibility: "visible",
