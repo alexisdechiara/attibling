@@ -280,7 +280,10 @@
     [main-end] minmax(0, var(--wide-extra))
     [wide-end] minmax(var(--gutter), 1fr)
     [full-end];
-  grid-template-rows: repeat(4, auto);
+  /* One row each, placed by number: table of contents (toc.css), intro, text, end. The text's row is the
+     flexible one: in the margin the table of contents spans the four rows, and a list taller than a short
+     article lengthens that row only, so it never hangs past the end of the article */
+  grid-template-rows: auto auto 1fr auto;
   margin-block-start: clamp(var(--space-7), 5vw, 72px);
   font-size: var(--article-font-size);
 
@@ -291,12 +294,14 @@
 
 .article-content {
   grid-column: full;
+  grid-row: 3;
   display: grid;
   grid-template-columns: subgrid;
 }
 
 /* Series box, « En bref » and its teaser, above the text */
 .article-intro {
+  grid-row: 2;
   display: grid;
   gap: var(--space-6);
   margin-block-end: var(--space-8);
@@ -313,6 +318,7 @@
 
 /* End of the article: dates, series line, tags and share */
 .article-end {
+  grid-row: 4;
   display: grid;
   gap: var(--space-6);
   margin-block-start: var(--space-9);

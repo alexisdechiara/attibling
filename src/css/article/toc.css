@@ -65,16 +65,15 @@
 /* Wide screens, style « Carte »: in the margin, sticky */
 @media (width >= 75rem) {
   .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
-    /* The margin column along the whole text; contain: size keeps it from stretching the rows */
+    /* The margin column along the whole article body (its four rows, layout.css): the disclosure is as
+       tall as its list and sticks inside that area, so it stops at the end of the article instead of
+       sliding over the author box and the comments. It sticks itself: a sticky list inside it would scroll
+       away with it. The offset follows the header when it hides (--header-offset, app.js) */
     z-index: 1;
     grid-column: main-end / full-end;
     grid-row: 1 / -1;
-    contain: size;
     margin: 0;
     padding-inline-start: var(--space-9);
-    /* The disclosure itself sticks: its content box is only as tall as the list, so a sticky list inside
-       it would scroll away. contain: size gives it no height of its own (it never stretches the rows; the
-       list shows past it), and the offset follows the header when it hides (--header-offset, app.js) */
     position: sticky;
     inset-block-start: calc(var(--header-offset, var(--header-height)) + var(--space-6));
     align-self: start;
@@ -109,12 +108,35 @@
   }
 }
 
-/* A wide text (L, src/css/article/reading.css) below 90rem puts the table of contents back above the
-   text as a « Sommaire » button: it does not stick there */
+/* A wide text (L, src/css/article/reading.css) leaves no room in the margin below 90rem: the table of
+   contents goes back above the text as a « Sommaire » button, and does not stick there. Same selector as
+   the rule above plus the width, so that every declaration here wins over it */
 @media (75rem <= width < 90rem) {
   :root[data-reading-width="l"]
     .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"])
     .article-toc {
     position: static;
+    grid-column: main;
+    grid-row: 1;
+    margin-block-end: var(--space-6);
+    padding: 0;
+
+    .article-toc__toggle {
+      display: inline-flex;
+    }
+
+    .article-toc__title {
+      display: none;
+    }
+
+    .article-toc__nav {
+      width: auto;
+      max-height: none;
+      margin-block-start: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      overflow: visible;
+      background: var(--color-surface);
+      box-shadow: var(--shadow-1);
+    }
   }
 }

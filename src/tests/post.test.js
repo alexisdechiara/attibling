@@ -123,6 +123,132 @@ describe("article page: content", () => {
 		await dispose();
 	});
 
+	// A long table of contents (36 entries, taller than the screen allows): sticky in the margin while the
+	// text is read, it stops at the end of the article instead of sliding over what follows
+	it("keeps the sticky table of contents inside the article: it sticks mid-text and never covers the author box or the comments", async () => {
+		const sections = Array.from(
+			{ length: 18 },
+			(_, i) =>
+				`<h2 id="section-${i}">Section ${i + 1}</h2><p>${"lecture ".repeat(90)}</p>` +
+				`<h3 id="detail-${i}">Détail ${i + 1}</h3><p>${"lecture ".repeat(90)}</p>`,
+		).join("");
+		const measure = (page, fromEnd) =>
+			page.evaluate(async fromEnd => {
+				const max = document.documentElement.scrollHeight - innerHeight;
+				window.scrollTo(0, fromEnd === null ? Math.round(max / 2) : max - fromEnd);
+				await new Promise(resolve => setTimeout(resolve, 400));
+				const box = selector => document.querySelector(selector).getBoundingClientRect();
+				const nav = box(".article-toc__nav");
+				const crosses = other => nav.bottom > other.top + 1 && nav.top < other.bottom - 1;
+				return {
+					top: Math.round(nav.top),
+					height: Math.round(nav.height),
+					pastEnd: Math.round(nav.bottom - box(".article-end").bottom),
+					overAuthor: crosses(box(".author-box")),
+					overComments: crosses(box("[data-comments]")),
+				};
+			}, fromEnd);
+		for (const custom of [{}, { reading_settings: false }]) {
+			const { page, dispose } = await open({
+				render: article({ html: sections, custom }),
+				viewport: { width: 1440, height: 900 },
+			});
+			assert.equal(await page.locator("[data-toc-list] a").count(), 36);
+			const before = await page.evaluate(() => document.querySelector(".article-body").getBoundingClientRect().height);
+			const middle = await measure(page, null);
+			assert.ok(middle.height > 600, `a tall list (${middle.height}px)`);
+			assert.ok(middle.top >= 0 && middle.top < 200, `sticks under the header mid-text (top ${middle.top}px)`);
+			for (const fromEnd of [700, 300, 0]) {
+				const end = await measure(page, fromEnd);
+				assert.ok(end.pastEnd <= 1, `${fromEnd}px from the end: ${end.pastEnd}px past the end of the article`);
+				assert.equal(end.overAuthor, false, `${fromEnd}px from the end: over the author box`);
+				assert.equal(end.overComments, false, `${fromEnd}px from the end: over the comments`);
+			}
+			// The margin column does not stretch the text: the article ends where its own content ends
+			const natural = await page.evaluate(() => {
+				document.querySelector("[data-toc]").hidden = true;
+				document.querySelector("[data-toc]").style.setProperty("display", "none", "important");
+				return document.querySelector(".article-body").getBoundingClientRect().height;
+			});
+			assert.ok(Math.abs(before - natural) <= 1, `the table of contents adds ${before - natural}px to the article`);
+			await dispose();
+		}
+	});
+
+	it("gives a short article with a longer table of contents the room for it, without covering what follows", async () => {
+		// An HTML card that lays its sections out in columns: 24 headings in a few short rows
+		const html = `<div style="display: flex; flex-wrap: wrap; gap: 8px">${Array.from(
+			{ length: 24 },
+			(_, i) => `<h3 id="s-${i}" style="margin: 0; font-size: 14px">Section ${i + 1}</h3>`,
+		).join("")}</div>`;
+		const { page, dispose } = await open({ render: article({ html }), viewport: { width: 1440, height: 1200 } });
+		assert.equal(await page.locator("[data-toc-list] a").count(), 24);
+		const result = await page.evaluate(() => {
+			const box = selector => document.querySelector(selector).getBoundingClientRect();
+			const nav = box(".article-toc__nav");
+			return {
+				// The text itself, not its row (which the list lengthens)
+				longer: nav.height > box("[data-article-content] > :last-child").bottom - box("[data-article-content]").top,
+				pastEnd: nav.bottom - box(".article-end").bottom,
+				author: box(".author-box").top - nav.bottom,
+			};
+		});
+		assert.equal(result.longer, true, "the list is longer than the text");
+		assert.ok(result.pastEnd <= 1, `${result.pastEnd}px past the end of the article`);
+		assert.ok(result.author >= 0, "above the author box");
+		await dispose();
+	});
+
+	it("puts the table of contents back above a wide text (L) below 90rem, as a « Sommaire » button that opens", async () => {
+		const { page, dispose } = await open({
+			render: article({ member: true }),
+			storage: { "attibling-reading": JSON.stringify({ width: "l" }) },
+			viewport: { width: 1300, height: 900 },
+		});
+		await page.waitForTimeout(100);
+		const state = () =>
+			page.evaluate(() => {
+				const box = selector => document.querySelector(selector).getBoundingClientRect();
+				const text = box("[data-article-content] > p");
+				const toc = box("[data-toc]");
+				const end = box(".article-end");
+				const nav = box(".article-toc__nav");
+				return {
+					width: document.documentElement.dataset.readingWidth,
+					position: getComputedStyle(document.querySelector("[data-toc]")).position,
+					open: document.querySelector("[data-toc]").open,
+					toggle: getComputedStyle(document.querySelector(".article-toc__toggle")).display,
+					inColumn: Math.abs(toc.left - text.left) < 1 && toc.right <= text.right + 1,
+					aboveText: toc.bottom <= text.top && toc.height > 0,
+					listInColumn: nav.left >= text.left - 1 && nav.right <= text.right + 1,
+					endInColumn: Math.abs(end.left - text.left) < 1,
+				};
+			});
+		assert.deepEqual(await state(), {
+			width: "l",
+			position: "static",
+			open: false,
+			toggle: "inline-flex",
+			inColumn: true,
+			aboveText: true,
+			listInColumn: true,
+			endInColumn: true,
+		});
+		await page.locator(".article-toc__toggle").click();
+		assert.deepEqual(await state(), {
+			width: "l",
+			position: "static",
+			open: true,
+			toggle: "inline-flex",
+			inColumn: true,
+			aboveText: true,
+			listInColumn: true,
+			endInColumn: true,
+		});
+		assert.equal(await page.locator("[data-toc-list] a").first().isVisible(), true);
+		await dispose();
+	});
+
 	it("has no table of contents with fewer than two headings", async () => {
 		const { page, dispose } = await open({
 			render: article({ html: "<p>Court.</p><h2 id='seul'>Seul</h2><p>Fin.</p>" }),
