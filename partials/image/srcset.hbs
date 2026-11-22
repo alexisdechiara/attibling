@@ -7,8 +7,10 @@ times slower (a first request can pass its 10 s limit on a small server). An SVG
 (Unsplash: its own size and format parameters).
 Parameters (named so, as a partial's parameters reach the partials it calls):
   image=...               the image (feature_image, cover_image…); the caller checks that there is one
-  widths="s-m" | "s-m-l" | "m-l-xl"   srcset widths, theme image_sizes (package.json): s 300, m 600,
-                          l 1000, w1400 1400 and xl 2000 (both in "m-l-xl")
+  widths="small" | "medium" | "large"   srcset widths, theme image_sizes (package.json), for a box of up
+                          to about 350 px (220 300 400 500 600 800 1000), 300 to 700 px (300 400 500 600 800 1000
+                          1400) or more (600 800 1000 1400 2000): the browser takes the smallest one that
+                          covers the box at the screen's density, so the steps are 1.5× at most
   srcSize="s" | "m" | "l" | "xl"      size of the fallback src
 Output: ` srcset="…" src="…"` (with the leading space); the caller writes sizes.
 --}}

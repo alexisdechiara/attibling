@@ -16,7 +16,7 @@ lead (phones: the lead, then the list). Uses the 7 posts of the home page (posts
       <article class="lead{{> "vignette/missing" noImage=" lead--no-image"}}" data-post-tile>
         <a class="lead__link" href="{{url}}">
           <span class="lead__media">
-            {{> "vignette/image" imgClass="lead__image" widths="m-l-xl" srcSize="l" sizes="(max-width: 767px) 100vw, 860px" priority="auto" placeholder="tile"}}
+            {{> "vignette/image" imgClass="lead__image" widths="large" srcSize="l" sizes="(max-width: 1023px) 92vw, (max-width: 1443px) calc(92vw - clamp(340px, 30vw, 420px) - 48px), 860px" priority="auto" placeholder="tile"}}
           </span>
           <h3 class="lead__title">{{title}}</h3>
           <span class="lead__kicker"><span class="pill">{{t "New"}}</span>{{#if primary_tag}}<span class="lead__tag">{{primary_tag.name}}</span>{{/if}}</span>

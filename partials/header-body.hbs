@@ -56,7 +56,7 @@ desktop panel and the phone sheet), subscribePages + subscribePagesKnown (the su
   {{!-- « ••• »: six recent posts, then the tags, a panel under the bar (desktop) --}}
   <div class="discover" id="site-discover" popover data-discover-menu>
     <div class="discover__inner">
-      {{> header-discover prefix="discover" count="6" posts=discoverposts tags=discovertags}}
+      {{> header-discover prefix="discover" count="6" posts=discoverposts tags=discovertags rowSizes="(max-width: 1151px) calc(30.6vw - 34px), (max-width: 1440px) calc(15.7vw - 31px), 194px"}}
     </div>
   </div>
 </header>
@@ -86,7 +86,7 @@ inert while it is open) --}}
     {{/if}}
   </nav>
   <div class="mobile-menu__discover">
-    {{> header-discover prefix="menu-discover" count="4" posts=discoverposts tags=discovertags}}
+    {{> header-discover prefix="menu-discover" count="4" posts=discoverposts tags=discovertags rowSizes="96px"}}
   </div>
   <div class="mobile-menu__footer">
     {{> theme-switch class="mobile-menu__theme"}}

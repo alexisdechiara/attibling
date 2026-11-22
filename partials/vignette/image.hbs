@@ -13,8 +13,7 @@ served as WebP (image/srcset.hbs: Ghost converts it on the first request; social
 The article header and the home hero keep the feature image: they are not cards.
 Inside a post context. Parameters (named so, as a partial's parameters reach the partials it calls):
   imgClass="..."          class of the <img>
-  widths="s-m" | "s-m-l" | "m-l-xl"   srcset widths (theme image_sizes: s 300, m 600, l 1000; "m-l-xl"
-                          adds 1400 and 2000)
+  widths="small" | "medium" | "large"   srcset widths (image/srcset.hbs)
   srcSize="s" | "m" | "l" fallback src size
   sizes="..."             sizes attribute (defaultSizes="..." when sizes is empty)
   eager=true              fetchpriority="high" (above the fold); priority="auto": no loading hint;

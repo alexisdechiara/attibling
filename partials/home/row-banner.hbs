@@ -5,7 +5,10 @@ one line above the tag's name, « Tout voir », and the tag's latest 3 posts (th
   <section class="home-section row row--banner container" aria-labelledby="row-{{../slug}}">
     <div class="banner{{#if ../feature_image}} banner--image{{else}} banner--no-image{{/if}}">
       {{#if ../feature_image}}
-        <img class="banner__image"{{> "image/srcset" image=../feature_image widths="m-l-xl" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt="" loading="lazy" decoding="async">
+        <picture>
+          {{> "image/banner-source" image=../feature_image}}
+          <img class="banner__image"{{> "image/srcset" image=../feature_image widths="large" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt="" loading="lazy" decoding="async">
+        </picture>
       {{/if}}
       <div class="banner__intro">
         <p class="banner__kicker"><span>{{t "Tag"}}</span><span class="banner__dot" aria-hidden="true">·</span><span class="banner__count">{{plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</span></p>
@@ -16,7 +19,7 @@ one line above the tag's name, « Tout voir », and the tag's latest 3 posts (th
         {{#foreach rowposts}}
           <li>
             <a class="banner__post" href="{{url}}">
-              {{> "vignette/image" imgClass="banner__post-image" widths="s-m" srcSize="s" sizes="(max-width: 767px) 85vw, 280px"}}
+              {{> "vignette/image" imgClass="banner__post-image" widths="small" srcSize="s" sizes="(max-width: 767px) 85vw, (max-width: 1023px) calc((92vw - 72px) / 3), (max-width: 1443px) calc((92vw - 512px) / 3), 272px"}}
               <span class="banner__post-title">{{title}}</span>
             </a>
           </li>

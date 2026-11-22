@@ -61,7 +61,8 @@ const close = async () => {
  *    like every other request outside the site (it is still listed in `requests`)
  *  - classicScrollbars: true for a browser that draws classic (space-taking) scrollbars, 15 px wide;
  *    headless Chromium otherwise hides them, which hides the bugs of a layout that counts 100vw
- *  - colorScheme, reducedMotion, viewport, hasTouch, isMobile, javaScriptEnabled: browser context options
+ *  - colorScheme, reducedMotion, viewport, deviceScaleFactor (default 1), hasTouch, isMobile, javaScriptEnabled:
+ *    browser context options
  *  - pages: { "/path/": render options } other rendered pages the test navigates to; the key "*" serves
  *    every other path that is not a file of the repository (e.g. a post opened from a tile)
  */
@@ -76,6 +77,7 @@ const open = async (options = {}) => {
 		colorScheme = "light",
 		reducedMotion = "no-preference",
 		viewport = { width: 1280, height: 800 },
+		deviceScaleFactor = 1,
 		hasTouch = false,
 		isMobile = false,
 		javaScriptEnabled = true,
@@ -96,6 +98,7 @@ const open = async (options = {}) => {
 		colorScheme,
 		reducedMotion,
 		viewport,
+		deviceScaleFactor,
 		hasTouch,
 		isMobile,
 		javaScriptEnabled,
@@ -170,10 +173,10 @@ const open = async (options = {}) => {
 			return route.fulfill({ status: 200, contentType: "application/javascript", body: commentsUi.script });
 		}
 
-		// Images stored by Ghost and their resized renditions (/content/images/size/wN/[format/F/]…): the
+		// Images stored by Ghost and their resized renditions (/content/images/size/wN[hM]/[format/F/]…): the
 		// file of the same name in tests/fixtures/images, whatever the size
 		if (url.origin === SITE && url.pathname.startsWith("/content/images/")) {
-			const name = url.pathname.replace(/^\/content\/images\/(size\/w\d+\/)?(format\/\w+\/)?/, "");
+			const name = url.pathname.replace(/^\/content\/images\/(size\/w\d+(h\d+)?\/)?(format\/\w+\/)?/, "");
 			const file = path.join(REPO_ROOT, "src", "tests", "fixtures", "images", path.basename(name));
 			if (!fs.existsSync(file)) return route.fulfill({ status: 404, body: "not found" });
 			return route.fulfill({

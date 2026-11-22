@@ -1,7 +1,7 @@
 {{!-- Home hero without a featured post: the site cover image (Settings > Design), or a plain dark card --}}
 <span class="hero__slide hero__slide--static">
   {{#if @site.cover_image}}
-    <img class="hero__image"{{> "image/srcset" image=@site.cover_image widths="m-l-xl" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt="" fetchpriority="high" decoding="async">
+    <img class="hero__image"{{> "image/srcset" image=@site.cover_image widths="large" srcSize="l"}} sizes="(max-width: 1443px) 92vw, 1328px" alt="" fetchpriority="high" decoding="async">
   {{/if}}
   <span class="hero__scrim" aria-hidden="true"></span>
 </span>

@@ -7,6 +7,7 @@ one row on wide screens) and in the phone menu sheet (the first four posts as a 
 Parameters:
   prefix="..."   prefix of the ids of the headings (each use needs its own)
   count="6"      number of recent posts shown
+  rowSizes="..."  sizes attribute of the posts' pictures: the width of their box (default: a compact row's, see row-item.hbs)
   posts          the recent posts ({{#get "posts"}} of header.hbs)
   tags           the most used public tags, with count.posts ({{#get "tags"}} of header.hbs)
 --}}
@@ -14,7 +15,7 @@ Parameters:
   <h2 class="discover__title" id="{{prefix}}-recent">{{t "Recent posts"}}</h2>
   {{#if posts}}
     <ul class="discover__posts" role="list">
-      {{#foreach posts limit=count}}<li>{{> row-item meta="tag-date"}}</li>{{/foreach}}
+      {{#foreach posts limit=count}}<li>{{> row-item meta="tag-date" sizes=../rowSizes}}</li>{{/foreach}}
     </ul>
   {{/if}}
 </section>

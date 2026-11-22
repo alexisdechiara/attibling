@@ -237,10 +237,15 @@ const cellsOf = grid => {
 	return cells.sort((a, b) => a.dataset.rank - b.dataset.rank);
 };
 
+// A vertical scrollbar, which the page has not got yet when the estimate is made, narrows the grid by up to
+// 1.2% (15 px at 1350 px): a cell of 399.7 px that asked for 405 would get the next rendition up for the
+// sake of 5 px, so the width asked for is 1.5% under the estimate (a picture 1.5% too small is not seen)
+const SCROLLBAR_ALLOWANCE = 0.985;
+
 // first = { columns, rows, column, gap } (firstRows): the cells that start in these rows at this number
 // of columns load their pictures at once (loadFirst), each at the width of its cell: sizes="auto" (the
 // template) needs a layout, which the page does not have yet, and the browser would take the whole
-// screen's width instead
+// screen's width instead (SCROLLBAR_ALLOWANCE: a hair under the estimate)
 export const arrange = (grid, seed, first) => {
 	const cells = cellsOf(grid);
 	const tags = cells.map(cell => ({
@@ -267,7 +272,7 @@ export const arrange = (grid, seed, first) => {
 	loadFirst(
 		early.map(c => {
 			const img = cells[c.index].querySelector("img");
-			if (img) img.sizes = `${Math.ceil(c.w * first.column + (c.w - 1) * first.gap)}px`;
+			if (img) img.sizes = `${Math.ceil((c.w * first.column + (c.w - 1) * first.gap) * SCROLLBAR_ALLOWANCE)}px`;
 			return img;
 		}),
 	);

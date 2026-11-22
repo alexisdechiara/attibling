@@ -3,11 +3,12 @@ Compact row item: a small 16:9 thumbnail (the post's vignette, see vignette/imag
 row is one link. Used for the stack next to the lead card of « Derniers articles ». Use inside a post
 context, in a list item.
 Parameters:
+  sizes="..."   sizes attribute of the picture (default: the box of the stack beside the lead, 104 to 152 px wide)
   meta="tag-date" (default) | "tag-time" | "time" | "date-time" | "none"   (see tile-meta.hbs)
 --}}
 <a class="row-item" href="{{url}}">
   <span class="row-item__media">
-    {{> "vignette/image" imgClass="row-item__image" widths="s-m" srcSize="s" sizes="152px" placeholder="row"}}
+    {{> "vignette/image" imgClass="row-item__image" widths="small" srcSize="s" sizes=sizes defaultSizes="clamp(104px, 28vw, 152px)" placeholder="row"}}
   </span>
   <span class="row-item__text">
     <span class="row-item__title">{{title}}</span>
