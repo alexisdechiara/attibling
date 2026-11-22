@@ -144,6 +144,14 @@
   --text-5xl: 2.375rem; /* 38: lead card title */
   --text-6xl: 3rem; /* 48: banner title */
 
+  /* Title of a page (the h1 of tag, author, tags, authors, archives, saved, about, subscription, generic and
+     legal pages, « All posts » page 2+): one size, weight, tracking and leading everywhere. The title of an
+     article has its own, larger scale (article/layout.css); the 404 keeps its title under the big number. */
+  --h1-size: clamp(2.25rem, 1.4rem + 2.8vw, 3.5rem); /* 36 on phones, 56 from about 1060px */
+  --h1-weight: var(--weight-black);
+  --h1-tracking: -0.03em;
+  --h1-leading: 1.05;
+
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;

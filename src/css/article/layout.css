@@ -325,6 +325,16 @@
   font-size: var(--text-base);
 }
 
+/* Widths of the end of the article. What is read (text, dates, series line, share, call to action, author
+   box, comments) sits in the text column, the width of --measure (the « Largeur » setting changes it for
+   all of them): the same start and width as the text at every screen width. « Recommandé pour vous » is a
+   grid of tiles, so it keeps the page width of every other grid of the site (the header card, the home
+   rows). The author box and the comments leave .container's cap (max-width: none) so that the column
+   can be wider than the page width, as the text is in the Immersive style; --column is its width. */
+.article {
+  --column: min(var(--measure), 100%);
+}
+
 /* Author box ------------------------------------------------------------------------------- */
 .author-box {
   margin-block-start: var(--space-11);
@@ -335,7 +345,7 @@
 .author-box__inner {
   display: flex;
   gap: var(--space-7);
-  width: min(100%, 800px);
+  width: var(--column);
   margin-inline: auto;
   padding-block: var(--space-9);
 
@@ -417,12 +427,13 @@
 
 /* Comments (Ghost's native comments draw their own frame) ----------------------------------- */
 .article-comments {
+  max-width: none;
   padding-block: var(--space-10) var(--space-4);
 }
 
 .article-comments__inner {
   position: relative;
-  width: min(100%, 864px);
+  width: var(--column);
   margin-inline: auto;
 }
 
