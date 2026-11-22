@@ -118,6 +118,66 @@ describe("fonts", () => {
 		}
 	});
 
+	// Lighthouse (phone): a font the first layout asks for is requested at the highest priority, before the
+	// first paint, and counted against it (125 KB with the italic: 1 s of simulated FCP and LCP)
+	it("on phones, ask for Literata once the first screen is painted; the text waits in its fallback face", async () => {
+		const html = "<p>Un texte avec <em>de l’italique</em> dans le premier écran.</p>".repeat(30);
+		const timeline = async viewport => {
+			const { page, dispose } = await open({
+				render: article({ html }),
+				viewport,
+				// Slow style sheets: the first paint comes late; a slow deferred script (as Ghost's Portal): the
+				// page is still loading then
+				slow: { "/assets/css/app.css": 600 },
+				ghostDefer: { delay: 1500 },
+				initScript: () => {
+					window.__shift = 0;
+					new PerformanceObserver(list => {
+						for (const entry of list.getEntries()) window.__shift += entry.value;
+					}).observe({ type: "layout-shift", buffered: true });
+					// The face of the text at the first paint
+					new PerformanceObserver((_, observer) => {
+						observer.disconnect();
+						window.__early = getComputedStyle(document.querySelector(".js-post-content p")).fontFamily;
+					}).observe({ type: "paint", buffered: true });
+				},
+			});
+			await page.evaluate(() => document.fonts.ready);
+			const view = await page.evaluate(() => ({
+				paint: performance.getEntriesByName("first-contentful-paint")[0].startTime,
+				fonts: performance
+					.getEntriesByType("resource")
+					.filter(entry => entry.name.includes("/literata/"))
+					.map(entry => [entry.name.split("/").pop().split("?")[0], entry.startTime]),
+				early: window.__early,
+				family: getComputedStyle(document.querySelector(".js-post-content p")).fontFamily,
+				loaded: document.fonts.check('16px "Literata"') && document.fonts.check('italic 16px "Literata"'),
+				waiting: document.documentElement.hasAttribute("data-font-wait"),
+				shift: window.__shift,
+			}));
+			await dispose();
+			return view;
+		};
+		const phone = await timeline({ width: 390, height: 844 });
+		assert.deepEqual(phone.fonts.map(([name]) => name).sort(), ["literata-italic-latin.woff2", "literata-latin.woff2"]);
+		for (const [name, start] of phone.fonts) {
+			assert.ok(
+				start >= phone.paint,
+				`${name} requested at ${Math.round(start)} ms, first paint at ${Math.round(phone.paint)} ms`,
+			);
+		}
+		assert.match(phone.family, /^Literata, "Literata Fallback"/, "then the text is in Literata");
+		assert.equal(phone.loaded, true);
+		assert.equal(phone.waiting, false);
+		// The fallback face has Literata's metrics: the text barely moves when the font arrives
+		assert.ok(phone.shift < 0.02, `layout shift ${phone.shift.toFixed(4)}`);
+		// Wider screens: preloaded, there before the first paint, as before
+		const wide = await timeline({ width: 1280, height: 800 });
+		assert.match(wide.early, /^Literata, "Literata Fallback"/);
+		const roman = wide.fonts.find(([name]) => name === "literata-latin.woff2");
+		assert.ok(roman[1] < wide.paint, "preloaded on a wide screen");
+	});
+
 	it("load Literata from the theme on posts, roman preloaded, italic only when the text has some", async () => {
 		const { page, requests, dispose } = await open({ render: article() });
 		await page.evaluate(() => document.fonts.ready);
