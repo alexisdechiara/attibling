@@ -2,7 +2,7 @@
 {{!-- data-member: a signed-in member, with their uuid (members-only features in the scripts, src/js/store.js;
 the script below ties the members' lists to that member);
 data-consent: the fallback consent mode of the theme setting consent_notice (src/js/privacy/choices.js) --}}
-<html lang="{{@site.locale}}"{{#if @member}} data-member="{{@member.uuid}}"{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
+<html lang="{{@site.locale}}"{{#match @site.locale "~^" "ar"}} dir="rtl"{{/match}}{{#match @site.locale "~^" "fa"}} dir="rtl"{{/match}}{{#match @site.locale "~^" "he"}} dir="rtl"{{/match}}{{#if @member}} data-member="{{@member.uuid}}"{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
   <head>
     {{!-- Document Settings --}}
     <meta charset="utf-8" />

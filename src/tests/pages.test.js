@@ -4,6 +4,7 @@ import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/
 import assert from "node:assert/strict";
 import { launch, close, open } from "./support/harness.js";
 import { template } from "./support/pages.js";
+import { renderTemplate } from "./support/ghost.js";
 
 const PHONE = { width: 390, height: 844 };
 
@@ -40,6 +41,22 @@ const focusRing = (page, selector) =>
 			((style.outlineStyle !== "none" && parseFloat(style.outlineWidth) >= 2) || style.boxShadow !== "none")
 		);
 	}, selector);
+
+describe("text direction", () => {
+	// The server's HTML itself, no script: right-to-left from the first paint
+	const htmlTag = locale => {
+		const { template: name, ...options } = template("tag", { locale });
+		return renderTemplate(name, options).match(/<html[^>]*>/)[0];
+	};
+
+	it("sets dir=\"rtl\" on <html> for Arabic, Persian and Hebrew", () => {
+		for (const locale of ["ar", "fa", "he"]) assert.match(htmlTag(locale), /<html lang="[^"]+" dir="rtl"/, locale);
+	});
+
+	it("leaves left-to-right locales without a dir attribute", () => {
+		for (const locale of ["en", "fr", "de", "ja"]) assert.doesNotMatch(htmlTag(locale), /dir=/, locale);
+	});
+});
 
 describe("tag page", () => {
 	before(launch);
