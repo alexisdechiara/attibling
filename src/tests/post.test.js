@@ -763,7 +763,8 @@ describe("article page: scripts loaded when needed", () => {
 		tocbot: requests.some(url => /\/chunks\/tocbot-/.test(url)),
 		zoom: requests.some(url => /\/chunks\/medium-zoom/.test(url)),
 	});
-	const IMAGE = '<figure class="kg-card kg-image-card"><img src="/src/tests/fixtures/pixel.svg" alt="plain" width="400" height="300"></figure>';
+	const IMAGE =
+		'<figure class="kg-card kg-image-card"><img src="/src/tests/fixtures/pixel.svg" alt="plain" width="400" height="300"></figure>';
 	const SHORT = "<p>Un texte court, sans titre ni image.</p>";
 
 	it("does not fetch tocbot nor medium-zoom for a post without headings and without zoomable images", async () => {

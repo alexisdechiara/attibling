@@ -29,7 +29,8 @@ describe("header queries", () => {
 		const rows = part => [...part.split('class="discover__posts"')[1].split("</ul>")[0].matchAll(/<li>/g)].length;
 		assert.equal(rows(panel), 6);
 		assert.equal(rows(sheet), 4);
-		const firstFour = part => [...part.split('class="discover__posts"')[1].matchAll(/href="([^"]+)"/g)].slice(0, 4).map(m => m[1]);
+		const firstFour = part =>
+			[...part.split('class="discover__posts"')[1].matchAll(/href="([^"]+)"/g)].slice(0, 4).map(m => m[1]);
 		assert.deepEqual(firstFour(sheet), firstFour(panel));
 	});
 
@@ -46,7 +47,9 @@ describe("home queries", () => {
 		const options = home({ pages: [{ slug: "abonnement", url: "/abonnement/" }] });
 		const html = render(options);
 		assert.equal(lookups(), 1);
-		const hrefs = [...html.matchAll(/href="(\/abonnement\/#(?:inscription|connexion))" data-subscribe-page/g)].map(m => m[1]);
+		const hrefs = [...html.matchAll(/href="(\/abonnement\/#(?:inscription|connexion))" data-subscribe-page/g)].map(
+			m => m[1],
+		);
 		// header (desktop + sheet), hero, block (subscribe + sign-in)
 		assert.deepEqual(hrefs, [
 			"/abonnement/#inscription",

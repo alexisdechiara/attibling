@@ -705,7 +705,10 @@ describe("header hides on a fast scroll down", () => {
 		await sleep(50);
 		await reduced.page.evaluate(() => scrollTo(0, 1100));
 		await sleep(50);
-		assert.equal(await reduced.page.evaluate(() => document.getElementById("site-header").hasAttribute("data-hidden")), true);
+		assert.equal(
+			await reduced.page.evaluate(() => document.getElementById("site-header").hasAttribute("data-hidden")),
+			true,
+		);
 		await reduced.dispose();
 	});
 
