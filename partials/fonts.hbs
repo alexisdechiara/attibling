@@ -4,7 +4,7 @@ src/fonts/build-fonts.py from @fontsource-variable/onest and /literata (OFL-1.1,
 do not edit by hand. One variable WOFF2 per script subset: the browser only downloads the subsets
 whose characters the page uses (unicode-range). Preloaded: Onest latin everywhere, Literata latin on
 posts from 48rem (the files the first screen needs; on phones the article's picture fills the first
-screen and comes first). The fallback faces carry metric overrides so the
+screen and comes first). Literata keeps the optical sizes 14 to 28 px only (LITERATA_OPSZ). The fallback faces carry metric overrides so the
 text barely moves when the font arrives (font-display: swap). Ghost's custom fonts (Design > Brand >
 Typography) still win through --gh-font-heading / --gh-font-body (src/css/base/tokens.css). --}}
 <link rel="preload" href="{{asset "fonts/onest/onest-latin.woff2"}}" as="font" type="font/woff2" crossorigin>
