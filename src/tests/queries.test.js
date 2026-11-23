@@ -22,6 +22,20 @@ describe("header queries", () => {
 		assert.equal(html.match(/class="discover__tags"/g).length, 2, "the tags still show in the panel and the sheet");
 	});
 
+	it("asks the pool of recommendations once, for members only", () => {
+		const visitor = render(template("post"));
+		assert.equal(count("posts", { limit: 24 }), 0, "no pool for a visitor");
+		assert.ok(!visitor.includes("data-discover-pool"));
+		const member = render(template("post", { member: true }));
+		assert.equal(count("posts", { limit: 24 }), 1, "one query for the panel and the sheet");
+		assert.equal(member.match(/<template data-discover-pool>/g).length, 1);
+		assert.equal(
+			member.match(/data-recommended="Recommended for you"/g).length,
+			2,
+			"the heading of the panel and of the sheet",
+		);
+	});
+
 	it("shows six posts in the desktop panel and the first four of them in the phone sheet", () => {
 		const html = render(template("post"));
 		const panel = html.split('id="site-discover"')[1].split("</header>")[0];

@@ -479,7 +479,11 @@
   border-radius: var(--radius-l);
   background: var(--color-surface);
   color: var(--color-text);
-  box-shadow: var(--shadow-popover);
+  /* The popover shadow, pulled down so that it stays within the gap under the bar (the margin above):
+     a shadow that reached the bar was cut off along its edge in Firefox */
+  box-shadow:
+    0 2px 6px var(--shadow-color-3),
+    0 18px 32px -8px var(--shadow-color-2);
   opacity: 0;
   translate: -50% -8px;
   transition:
@@ -524,16 +528,20 @@
   gap: var(--space-6);
 }
 
+/* One line: the word « Tags », the tags, then « Tous les tags » pushed to the far end */
 .discover__head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0 var(--space-4);
-  margin-block-end: var(--space-1);
+  gap: 0 var(--space-6);
 
+  /* The word is set apart from the links it names: a hairline after it, as tall as a line of text */
   .discover__title {
+    flex: none;
     margin: 0;
+    padding-inline-end: var(--space-6);
+    border-inline-end: 1px solid var(--color-border);
+    line-height: 1.5rem;
   }
 }
 
@@ -594,13 +602,25 @@
   }
 }
 
-/* Tags: a row of plain bold links that wraps (no pills) */
+/* Tags: plain links (no pills), lighter than the word « Tags » beside them. In the desktop panel they
+   keep to one line: a tag that does not fit wraps out of sight, « Tous les tags » lists them all */
 .discover__tags {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
   gap: 0 var(--space-6);
+  min-width: 0;
   margin: 0;
   padding: 0;
+}
+
+.discover .discover__head {
+  flex-wrap: nowrap;
+}
+
+.discover .discover__tags {
+  max-height: var(--target);
+  overflow: hidden;
 }
 
 .discover__tag {
@@ -610,7 +630,7 @@
   border-radius: 4px;
   color: var(--color-text);
   font-size: var(--text-nav);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-medium);
   text-decoration-color: transparent;
   text-underline-offset: 4px;
   transition:
@@ -626,8 +646,11 @@
 
 .discover__all {
   display: inline-flex;
+  flex: none;
   align-items: center;
   gap: 6px;
+  margin-inline-start: auto;
+  white-space: nowrap;
   min-height: var(--target);
   color: var(--color-accent);
   font-size: var(--text-m);

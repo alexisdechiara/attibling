@@ -1,5 +1,5 @@
-// The owner's feedback on the header and footer: the « ••• » panel (six recent posts, then the tags as
-// plain bold links), compact rows that lift as one block, pages set in the site's font, the redone
+// The owner's feedback on the header and footer: the « ••• » panel (six recent posts, or recommendations
+// for a member, then one line: the word « Tags », the tags as plain lighter links, « Tous les tags »), compact rows that lift as one block, pages set in the site's font, the redone
 // footer, and the colour of the wordmark's "ly" (and of a site logo drawn for dark backgrounds) on
 // every page, in every theme mode and system scheme.
 import { describe, it, beforeAll as before, afterAll as after } from "vite-plus/test";
@@ -51,13 +51,38 @@ describe("« ••• » panel", () => {
 				tagBackground: style.backgroundColor,
 				tagRadius: parseFloat(style.borderTopLeftRadius),
 				tagWeight: Number(style.fontWeight),
+				titleWeight: Number(
+					getComputedStyle(panel.querySelector(".discover__section--tags .discover__title")).fontWeight,
+				),
+				// The word « Tags », every tag and « Tous les tags »: the middle of each box, to tell one line from two
+				tagLine: [
+					panel.querySelector(".discover__section--tags .discover__title"),
+					...panel.querySelectorAll(".discover__tag"),
+					panel.querySelector(".discover__all"),
+				]
+					.map(el => el.getBoundingClientRect())
+					.filter(box => box.width > 0)
+					.map(box => Math.round(box.top + box.height / 2)),
+				tagsHeight: panel.querySelector(".discover__section--tags").getBoundingClientRect().height,
+				// How far each layer of the shadow reaches above the panel (blur + spread - vertical offset), and
+				// the gap between the bar and the panel
+				shadowUp: getComputedStyle(panel)
+					.boxShadow.split(/,(?![^(]*\))/)
+					.map(layer =>
+						layer
+							.replace(/(rgba?|color)\([^)]*\)/, "")
+							.match(/-?[\d.]+px/g)
+							.map(parseFloat),
+					)
+					.map(([, y, blur = 0, spread = 0]) => blur + spread - y),
+				gap: panel.getBoundingClientRect().top - document.getElementById("site-header").getBoundingClientRect().bottom,
 				tagHeight: tag.getBoundingClientRect().height,
 				all: panel.querySelector(".discover__all")?.getAttribute("href"),
 				overflow: panel.scrollWidth > panel.clientWidth + 1,
 			};
 		});
 
-	it("shows six recent posts in one row, then the tags as plain bold links (1440px)", async () => {
+	it("shows six recent posts in one row, then « Tags » and the tags on one line, the tags lighter (1440px)", async () => {
 		const { page, dispose } = await openPanel(DESKTOP);
 		const l = await layout(page);
 		assert.equal(l.count, 6);
@@ -65,10 +90,123 @@ describe("« ••• » panel", () => {
 		assert.equal(l.tagsBelow, true, "the tags come below the posts");
 		assert.equal(l.tagBackground, "rgba(0, 0, 0, 0)", "no pill background");
 		assert.ok(l.tagRadius <= 4, "no pill shape");
-		assert.ok(l.tagWeight >= 600, "bold");
+		assert.ok(l.titleWeight >= 600, "the word « Tags » stays bold");
+		assert.ok(l.tagWeight < l.titleWeight, "the tags are lighter than the word « Tags »");
+		assert.ok(l.tagLine.length >= 4, "the word, the tags and « Tous les tags »");
+		assert.ok(Math.max(...l.tagLine) - Math.min(...l.tagLine) <= 4, `one line (${l.tagLine})`);
+		assert.ok(l.tagsHeight <= 48, `no empty line above the tags (${l.tagsHeight}px)`);
+		assert.ok(
+			l.gap > 0 && Math.max(...l.shadowUp) <= l.gap,
+			`the shadow stays under the bar, which cut it off (${l.shadowUp} px up, ${l.gap} px of gap)`,
+		);
 		assert.ok(l.tagHeight >= 44, "44 px target");
 		assert.match(l.all, /\/tags\/$/);
 		assert.equal(l.overflow, false);
+		await dispose();
+	});
+
+	const menu = page =>
+		page.evaluate(() => {
+			const panel = document.querySelector("[data-discover-menu]");
+			const sheet = document.querySelector("[data-mobile-menu] .mobile-menu__discover");
+			const read = root => ({
+				title: root.querySelector("[data-discover-title]").textContent.trim(),
+				posts: [...root.querySelectorAll(".discover__posts > li")].map(li => ({
+					url: new URL(li.querySelector("a").href).pathname,
+					tag: li.querySelector(".meta__tag")?.textContent.trim() || "",
+				})),
+			});
+			const pool = document.querySelector("[data-discover-pool]");
+			return {
+				panel: read(panel),
+				sheet: read(sheet),
+				pool:
+					pool &&
+					[...pool.content.querySelectorAll("li")].map(li => ({
+						url: new URL(li.querySelector("a").href, location.href).pathname,
+						tag: li.querySelector(".meta__tag")?.textContent.trim() || "",
+					})),
+			};
+		});
+
+	it("keeps the recent posts for a visitor, and for a member who has read nothing yet", async () => {
+		const visitor = await open({
+			viewport: DESKTOP,
+			storage: {
+				"attibling-progress": JSON.stringify([{ url: "/x/", title: "x", tag: "Anime", progress: 0.5, updatedAt: 1 }]),
+			},
+		});
+		const seen = await menu(visitor.page);
+		assert.equal(seen.pool, null, "no pool is rendered for a visitor");
+		assert.equal(seen.panel.title, "Recent posts");
+		await visitor.dispose();
+
+		const member = await open({ viewport: DESKTOP, render: home({ member: true }) });
+		await sleep(300);
+		const fresh = await menu(member.page);
+		assert.ok(fresh.pool.length > 6, "a member gets a pool of posts to pick from");
+		assert.equal(fresh.panel.title, "Recent posts");
+		assert.deepEqual(fresh.panel.posts, seen.panel.posts, "the same six recent posts");
+		await member.dispose();
+	});
+
+	it("recommends to a member posts of the tags they read, without the posts of their lists", async () => {
+		const probe = await open({ viewport: DESKTOP, render: home({ member: true }) });
+		const { pool, panel: recent } = await menu(probe.page);
+		await probe.dispose();
+		// A tag with several posts in the pool; its newest post is the one being read
+		const tag = pool.map(p => p.tag).find(t => t && pool.filter(p => p.tag === t).length >= 3);
+		assert.ok(tag, "the fixture has a tag with three posts");
+		const reading = pool.find(p => p.tag === tag);
+		const others = pool.filter(p => p.tag === tag && p.url !== reading.url);
+
+		const { page, errors, dispose } = await open({
+			viewport: DESKTOP,
+			render: home({ member: true }),
+			storage: {
+				"attibling-progress": JSON.stringify([
+					{ url: reading.url, title: "t", tag, progress: 0.5, updatedAt: Date.now() },
+				]),
+			},
+		});
+		const state = await waitFor(async () => {
+			const s = await menu(page);
+			return s.panel.title === "Recommended for you" && s;
+		});
+		assert.ok(state, "the heading says the posts are recommended");
+		assert.equal(state.panel.posts.length, 6, "still six posts in the panel");
+		assert.equal(state.sheet.posts.length, 4, "and four in the phone sheet");
+		assert.equal(state.sheet.title, "Recommended for you");
+		const shown = Math.min(others.length, 6);
+		assert.deepEqual(
+			state.panel.posts.slice(0, shown).map(p => p.url),
+			others.slice(0, shown).map(p => p.url),
+			"the posts of the tag come first, newest first",
+		);
+		assert.ok(!state.panel.posts.some(p => p.url === reading.url), "not the post being read");
+		assert.notDeepEqual(state.panel.posts, recent.posts);
+		assert.equal(new Set(state.panel.posts.map(p => p.url)).size, 6, "no post twice");
+		// The pictures of the posts taken from the pool are asked at the size of their box
+		await page.locator("[data-discover-button]").click();
+		await sleep(400);
+		const pictures = await page.$$eval("[data-discover-menu] .discover__posts img", imgs =>
+			imgs.map(img => ({ sizes: img.getAttribute("sizes") })),
+		);
+		assert.ok(pictures.length > 0 && pictures.every(p => p.sizes?.includes("194px")), "the sizes of the panel");
+		assert.deepEqual(errors.map(String), []);
+		await dispose();
+	});
+
+	it("keeps the recent posts when nothing else carries the tags the member read", async () => {
+		const { page, dispose } = await open({
+			viewport: DESKTOP,
+			render: home({ member: true }),
+			storage: {
+				"attibling-saved": JSON.stringify([{ url: "/gone/", title: "t", tag: "A tag no post has", savedAt: 1 }]),
+			},
+		});
+		await sleep(400);
+		assert.equal((await menu(page)).panel.title, "Recent posts");
 		await dispose();
 	});
 

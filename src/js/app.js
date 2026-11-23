@@ -5,6 +5,7 @@ import { setUpTransitions } from "./transitions";
 import { setUpPortalLinks } from "./portal-links";
 import { setUpLogoInk } from "./logo-ink";
 import { setUpPrivacy } from "./privacy";
+import { setUpRecommendations } from "./recommendations";
 
 // Before Ghost's Portal script binds its links: sign-up / sign-in go to the theme's page (portal-links.js)
 setUpPortalLinks();
@@ -171,6 +172,8 @@ onReady(() => {
 	setUpBookmarks();
 	setUpTransitions();
 	setUpPrefetch();
+	// Members: the « ••• » menu recommends posts by what they read (the pool is rendered for them only)
+	setUpRecommendations();
 
 	if (header) {
 		placeAnnouncementBar(header);

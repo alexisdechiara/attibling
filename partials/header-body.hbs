@@ -59,6 +59,13 @@ desktop panel and the phone sheet), subscribePages + subscribePagesKnown (the su
       {{> header-discover prefix="discover" count="6" posts=discoverposts tags=discovertags rowSizes="(max-width: 1151px) calc(30.6vw - 34px), (max-width: 1440px) calc(15.7vw - 31px), 194px"}}
     </div>
   </div>
+  {{!-- Members: the posts recommendations.js picks from, by the tags of what they read (their lists stay in
+  their browser). Inert in a <template>: no picture loads until a post is shown. One more query, members only. --}}
+  {{#if @member}}
+    {{#get "posts" limit="24" include="tags" as |pool|}}
+      <template data-discover-pool>{{#foreach pool}}<li>{{> row-item meta="tag-date"}}</li>{{/foreach}}</template>
+    {{/get}}
+  {{/if}}
 </header>
 
 {{!-- Phones: the main navigation as a row of pills that scrolls sideways (hidden on larger screens) --}}

@@ -174,10 +174,19 @@ secondaire ni lien en trop, le bouton « Plus » n'apparaît pas.
 À côté de « Plus », le bouton **« ••• »** (celui de l'ancien thème) ouvre un panneau sous la barre, rangé
 comme le sous-menu de l'ancien thème : en haut, les **6 derniers articles** en petites cartes (vignette, titre,
 tag et date ; une rangée de six sur grand écran, trois par rangée sur un écran plus étroit), puis,
-**en dessous**, le titre « Tags » avec « Tous les tags » (page `/tags/`) et les **12 tags** les plus
-utilisés en **simples liens en gras** à la suite, sans pastilles. Il se remplit tout seul : rien à régler.
+**en dessous**, sur **une seule ligne** : le mot « Tags » en gras, les tags les plus utilisés en **simples
+liens d'une graisse plus légère**, sans pastilles (12 au plus ; ceux qui ne tiennent pas sur la ligne ne
+sont pas affichés), et « Tous les tags » (page `/tags/`) au bout. Il se remplit tout seul : rien à régler.
 Échap ou un clic à côté le ferme. Sur téléphone, le même contenu est en bas du menu (bouton trois traits) :
-les 4 derniers articles en liste, puis les tags.
+les 4 derniers articles en liste, puis les tags, qui passent à la ligne.
+
+Pour un **abonné connecté**, les derniers articles laissent la place à **« Recommandé pour vous »** dès que
+son navigateur connaît ses lectures : les articles de « Reprendre la lecture » et de « À lire plus tard »
+donnent les tags qu'il lit, et le panneau montre d'abord les articles récents de ces tags (parmi les 24
+derniers articles du site), sans ceux de ses listes ni l'article affiché ; des articles récents complètent
+la rangée. Le choix se fait dans le navigateur, rien n'est envoyé. Sans lecture connue (listes vides,
+« Retenir où je m'arrête » désactivé), le panneau garde les derniers articles. Un article lu jusqu'au bout
+quitte « Reprendre la lecture » : il ne compte donc plus, et peut être proposé à nouveau.
 
 Sur téléphone : la navigation principale devient une rangée de pastilles qui défile sous la barre, et le
 bouton menu (trois traits) ouvre un panneau avec toute la navigation, le changement de mode et
