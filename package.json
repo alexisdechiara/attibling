@@ -202,7 +202,13 @@
 		"zip": "zip -r attibling.zip . -x '.*' '.*/*' 'node_modules/*' 'src/*' 'docs/*' 'README.md' 'PRODUCT.md' 'CLAUDE.md' 'attibling.zip' 'package-lock.json' 'vite.config.mjs'",
 		"deploy": "vp run build && vp run zip && node src/deploy/index.js",
 		"order-locales": "node src/order-locales.js",
-		"ghost": "docker compose -f src/docker-compose.yml up"
+		"ghost": "docker compose -f src/docker-compose.yml up",
+		"demo:install": "bash src/demo/install.sh",
+		"demo:start": "bash src/demo/start.sh",
+		"demo:stop": "bash src/demo/stop.sh",
+		"demo:sync": "bash src/demo/sync-theme.sh",
+		"demo:images": "bash src/demo/images.sh",
+		"demo:seed": "node src/demo/seed.mjs"
 	},
 	"dependencies": {
 		"medium-zoom": "^1.1.0",
