@@ -74,6 +74,14 @@ class="fiche-test">`, Review structured data), `#mis-a-jour`, the author box and
 the arrival animation, page transitions and prefetch; and it ends with a reference of every setting and
 convention and a troubleshooting table.
 
+### Local demo (French)
+
+[`src/demo/README.md`](src/demo/README.md) explains how to run the theme on your own computer, on a local Ghost 6.78
+filled with realistic invented French content (30 posts, 2 authors, tags, series, review cards, pages, GEEKLY's theme
+settings): with Docker (`npm run ghost`), or without it (`npm run demo:install`, then `demo:start`, `demo:images`,
+`demo:seed`). Everything the demo creates lives outside the repository, nothing in `src/demo` ships in
+`attibling.zip`, and Ghost never contacts another site.
+
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on every pull request and every push to a branch other than `master`/`main`.
