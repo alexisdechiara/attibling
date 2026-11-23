@@ -311,9 +311,10 @@ Le bandeau montre, sur l'image de l'article, le logo, la description du site (Se
 description*, par exemple « L'actu geek, tech et pop ») et, pour un visiteur, le bouton « S'abonner ». Avec le
 logo GEEKLY coloré (grand : 148 px sur un écran large, il occupe un peu moins de la moitié gauche du bandeau), la description
 se glisse **juste sous « GEEK », collée aux lettres, à gauche de la boucle du « y »** : gardez-la courte (une
-ligne ; plus longue, elle passe sur deux lignes au plus dans la largeur de « GEEK »). À droite : la
-pastille « À la une », le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article
-est rempli), son tag et son temps de lecture. **Seul ce groupe à droite est un lien** vers l'article (il
+ligne ; plus longue, elle passe sur deux lignes au plus dans la largeur de « GEEK »). À droite : deux
+pastilles côte à côte — le **tag principal** de l'article, en verre sombre, puis « À la une » à sa droite —,
+le titre de l'article, son extrait (sur ordinateur, quand le champ *Excerpt* de l'article est rempli) et
+son temps de lecture (le tag n'y est plus répété). **Seul ce groupe à droite est un lien** vers l'article (il
 s'éclaire au survol) : le logo, la description et le fond de l'image ne mènent nulle part.
 
 **Pour choisir l'article affiché** : dans l'éditeur de l'article → panneau des réglages → cochez

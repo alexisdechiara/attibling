@@ -316,6 +316,13 @@
   }
 }
 
+/* The post's tag, then « À la une » */
+.hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .hero__post-meta {
   color: var(--color-on-media-muted);
   font-size: var(--text-s);

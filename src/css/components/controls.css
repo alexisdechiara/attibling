@@ -154,6 +154,13 @@
   color: var(--color-media-ink);
 }
 
+/* A second pill beside the first, on an image: dark glass, so that the light one stays the main label */
+.pill--on-media.pill--quiet {
+  background: color-mix(in srgb, var(--color-media-ink) 62%, transparent);
+  color: var(--color-on-media);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-on-media) 28%, transparent);
+}
+
 /* Meta line: « Jeux vidéo • 5 min », « 19 févr. 2026 • 4 min de lecture » */
 .meta {
   display: flex;

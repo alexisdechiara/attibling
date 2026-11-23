@@ -394,7 +394,7 @@ describe("hero", () => {
 			assert.equal(hits.post, true, "the post's group is");
 			assert.deepEqual(
 				hits.parts.filter(p => p !== "hero__post-excerpt"),
-				["pill", "hero__post-title", "hero__post-meta"],
+				["hero__pills", "hero__post-title", "hero__post-meta"],
 			);
 			await dispose();
 		}

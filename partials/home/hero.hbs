@@ -3,8 +3,8 @@ Home hero « E2 »: a rounded card whose background is the feature image of the 
 post: always the feature image (the banner, as in the article header), never the post's vignette
 (vignette/image.hbs) — an image set for sharing usually carries its own text, which would collide with
 the hero's (owner's decision). Left: the wordmark (the page's h1), the site description tucked under it (to the left of the
-"y" of the GEEKly wordmark) and, for visitors, « S'abonner ». Right: that post's « À la une » pill,
-title, excerpt (desktop, when the post has a custom excerpt) and tag • reading time: only this group
+"y" of the GEEKly wordmark) and, for visitors, « S'abonner ». Right: that post's two pills (its tag, quieter,
+to the left of « À la une »), title, excerpt (desktop, when the post has a custom excerpt) and reading time: only this group
 is the post's link; the picture, the left block and the empty background are not.
 With several featured posts (up to 6), a pager (vertical on the right edge on desktop, horizontal at
 the bottom on phones) switches the post shown (home.js; without JavaScript the first post stays).
@@ -26,10 +26,10 @@ Hooks: #hero-wordmark (the wordmark: docking into the header, page transitions, 
             {{/if}}
             <span class="hero__scrim" aria-hidden="true"></span>
             <a class="hero__post" href="{{url}}" data-hero-post>
-              <span class="pill pill--on-media">{{t "Featured"}}</span>
+              <span class="hero__pills">{{#if primary_tag}}<span class="pill pill--on-media pill--quiet">{{primary_tag.name}}</span>{{/if}}<span class="pill pill--on-media">{{t "Featured"}}</span></span>
               <span class="hero__post-title">{{title}}</span>
               {{#if custom_excerpt}}<span class="hero__post-excerpt">{{custom_excerpt}}</span>{{/if}}
-              <span class="hero__post-meta">{{#if primary_tag}}{{primary_tag.name}} • {{/if}}{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
+              <span class="hero__post-meta">{{reading_time minute=(t "1 min read") minutes=(t "% min read")}}</span>
             </a>
           </div>
         {{/foreach}}

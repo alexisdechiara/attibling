@@ -36,6 +36,31 @@ describe("home hero", () => {
 		}
 	});
 
+	it("labels the post with its tag, then « À la une » to its right; the tag is not said twice", async () => {
+		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
+		const slide = await page.evaluate(() => {
+			const post = document.querySelector("[data-hero-slide]:not([hidden]) [data-hero-post]");
+			const pills = [...post.querySelectorAll(".hero__pills .pill")];
+			const boxes = pills.map(p => p.getBoundingClientRect());
+			return {
+				pills: pills.map(p => p.textContent.trim()),
+				quiet: pills.map(p => p.classList.contains("pill--quiet")),
+				sameLine: Math.abs(boxes[0].top - boxes[1].top) < 2,
+				tagFirst: boxes[0].right <= boxes[1].left,
+				backgrounds: pills.map(p => getComputedStyle(p).backgroundColor),
+				meta: post.querySelector(".hero__post-meta").textContent.trim(),
+			};
+		});
+		assert.equal(slide.pills.length, 2);
+		assert.equal(slide.pills[1], "Featured");
+		assert.ok(slide.pills[0] && slide.pills[0] !== "Featured", "the post's tag");
+		assert.deepEqual(slide.quiet, [true, false], "the tag is the quieter of the two");
+		assert.ok(slide.sameLine && slide.tagFirst, "the tag sits to the left of « À la une »");
+		assert.notEqual(slide.backgrounds[0], slide.backgrounds[1]);
+		assert.ok(!slide.meta.includes(slide.pills[0]), `the meta line keeps the reading time only (${slide.meta})`);
+		await dispose();
+	});
+
 	it("names each dot and moves between them with the arrow keys", async () => {
 		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
 		const first = page.locator("[data-hero-dot]").first();
