@@ -62,7 +62,10 @@
     letter-spacing: -0.015em;
     text-align: start;
     hyphens: manual;
-    scroll-margin-top: calc(var(--header-height) + var(--space-6));
+    /* The page already keeps the height of the bar clear (scroll-padding-top, global.css): only a little
+       air is added here. With the bar's height counted twice, a link of the table of contents left its
+       heading 184 px down, below the line where the table takes it for the current one */
+    scroll-margin-top: var(--space-2);
   }
 
   > h2 {

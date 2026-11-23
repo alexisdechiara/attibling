@@ -24,6 +24,10 @@ export const setUpToc = (toc, content) => {
 				ignoreSelector: IGNORED,
 				hasInnerContainers: true,
 				orderedList: false,
+				// A heading is the current one once it is within 120 px (+10) of the top. A link of the table must
+				// bring its heading above that line, or the entry before it stays the highlighted one: tocbot
+				// scrolls it to 96 px, and so does the browser when it then focuses the heading (the page's
+				// scroll-padding-top plus the heading's scroll-margin-top, src/css/article/content.css)
 				headingsOffset: 120,
 				scrollSmooth: !reducedMotion,
 				scrollSmoothOffset: -96,

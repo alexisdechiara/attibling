@@ -136,6 +136,42 @@ describe("article page: content", () => {
 		assert.equal((await measure(390)).align, "start");
 	});
 
+	it("highlights the entry of the table of contents that was just chosen, its heading clear of the bar", async () => {
+		for (const reducedMotion of ["no-preference", "reduce"]) {
+			const { page, dispose } = await open({
+				render: article({ html: LONG_HTML }),
+				viewport: { width: 1440, height: 900 },
+				reducedMotion,
+			});
+			await page.locator("[data-toc-list] a").first().waitFor();
+			const count = await page.locator("[data-toc-list] a").count();
+			// Neither the first entry (the page starts on it) nor the last ones (the page ends before them)
+			for (const index of [2, Math.floor(count / 2)]) {
+				const link = page.locator("[data-toc-list] a").nth(index);
+				const id = decodeURIComponent((await link.getAttribute("href")).slice(1));
+				await link.click();
+				const landed = await waitFor(
+					() =>
+						page.evaluate(target => {
+							const active = document.querySelector("[data-toc-list] .is-active-link");
+							const top = document.getElementById(target).getBoundingClientRect().top;
+							const settled = Math.abs(top - (window.__top ?? -1)) < 1;
+							window.__top = top;
+							return settled && { top, active: decodeURIComponent(active?.getAttribute("href").slice(1) || "") };
+						}, id),
+					{ timeout: 4000, interval: 150 },
+				);
+				assert.ok(landed, `the page settles on entry ${index} (${reducedMotion})`);
+				assert.equal(landed.active, id, `the chosen entry is the highlighted one (${reducedMotion})`);
+				assert.ok(
+					landed.top >= 72 && landed.top <= 130,
+					`its heading is just under the bar (${Math.round(landed.top)} px)`,
+				);
+			}
+			await dispose();
+		}
+	});
+
 	it("builds the table of contents from the h2 and h3: in the margin on wide screens, a button on phones", async () => {
 		const { page, dispose } = await open({ render: article(), viewport: { width: 1440, height: 900 } });
 		const links = await page.$$eval("[data-toc-list] a", nodes =>
