@@ -8,5 +8,18 @@ services:
       NODE_ENV: development
       database__client: sqlite3
       database__connection__filename: content/data/ghost.db
+      url: http://localhost:2368
+      # Safety (src/demo/README.md): the same keys as src/demo/lib/safety.mjs, so that a Ghost used with the
+      # demo seed never contacts anything outside this computer and never sends a mail.
+      privacy__useTinfoil: "true"
+      privacy__useUpdateCheck: "false"
+      privacy__useGravatar: "false"
+      privacy__useRpcPing: "false"
+      mail__transport: stub
+      security__staffDeviceVerification: "false"
+      updateCheck__url: http://127.0.0.1:9/disabled
+      gravatar__url: http://127.0.0.1:9/disabled/{hash}
+      remoteFlags__enabled: "false"
+      services__recommendations__enabled: "false"
     ports:
       - 2368:2368
