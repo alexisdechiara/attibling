@@ -123,21 +123,27 @@ export const setUpSlider = slider => {
 	const forward = () => (getComputedStyle(track).direction === "rtl" ? -1 : 1);
 	// The slide a button is scrolling to: a click while the strip is still moving goes on from it
 	let target = null;
+	// How far the strip scrolls, and where a slide starts: the last one stops at the end of the strip,
+	// which is less than a full width further when only a few tiles stick out
+	const end = () => Math.max(track.scrollWidth - track.clientWidth, 0);
+	const offset = index => Math.min(index * track.clientWidth, end());
 	const update = () => {
 		const position = Math.abs(track.scrollLeft);
 		const focused = document.activeElement;
-		if (target !== null && Math.abs(position - target * track.clientWidth) < 2) target = null;
+		if (target !== null && Math.abs(position - offset(target)) < 2) target = null;
 		prev.disabled = position < 1;
 		next.disabled = position + track.clientWidth > track.scrollWidth - 1;
 		// Do not leave keyboard focus on a button that has just been disabled
 		if (focused?.disabled && (focused === prev || focused === next)) (focused === prev ? next : prev).focus();
 	};
 	const go = steps => {
-		const last = Math.round(track.scrollWidth / track.clientWidth) - 1;
-		const current = target ?? Math.round(Math.abs(track.scrollLeft) / track.clientWidth);
-		target = Math.min(Math.max(current + steps, 0), last);
+		// Whatever sticks out past a full width is one more slide, however little it is
+		const last = Math.ceil((end() - 1) / track.clientWidth);
+		const position = Math.abs(track.scrollLeft);
+		const current = target ?? (position > end() - 2 ? last : Math.round(position / track.clientWidth));
+		target = Math.min(Math.max(current + steps, 0), Math.max(last, 0));
 		track.scrollTo({
-			left: target * track.clientWidth * forward(),
+			left: offset(target) * forward(),
 			behavior: reducedMotion.matches ? "instant" : "smooth",
 		});
 	};

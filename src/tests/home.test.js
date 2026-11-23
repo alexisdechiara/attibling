@@ -476,6 +476,36 @@ describe("rows by tag", () => {
 		await dispose();
 	});
 
+	it("scrolls a shelf to its end with « next », even when less than half a screen is left to show", async () => {
+		const { page, dispose } = await open({ viewport: { width: 1440, height: 900 } });
+		const shelf = page.locator("[data-shelf]").first();
+		// Leaves a short overflow: the tiles that stick out by less than half the width of the strip
+		const overflow = await shelf.evaluate(el => {
+			const track = el.querySelector(".js-slider-track");
+			const left = () => track.scrollWidth - track.clientWidth;
+			while (track.children.length > 1 && left() > track.clientWidth * 0.4) track.lastElementChild.remove();
+			window.dispatchEvent(new Event("resize"));
+			return { left: left(), half: track.clientWidth / 2 };
+		});
+		assert.ok(overflow.left > 1 && overflow.left < overflow.half, `a short overflow (${overflow.left}px)`);
+		const state = () =>
+			shelf.evaluate(el => {
+				const track = el.querySelector(".js-slider-track");
+				return {
+					atEnd: Math.abs(track.scrollLeft) + track.clientWidth > track.scrollWidth - 2,
+					atStart: Math.abs(track.scrollLeft) < 2,
+					next: el.querySelector(".js-slider-next").disabled,
+				};
+			});
+		assert.ok(await waitFor(async () => !(await state()).next), "« next » is offered while tiles stick out");
+		await shelf.locator(".js-slider-next").click();
+		assert.ok(await waitFor(async () => (await state()).atEnd), "« next » shows the tiles that stuck out");
+		assert.ok(await waitFor(async () => (await state()).next), "« next » is off at the end");
+		await shelf.locator(".js-slider-prev").click();
+		assert.ok(await waitFor(async () => (await state()).atStart), "« previous » comes back to the start");
+		await dispose();
+	});
+
 	it("use the tags pinned in the settings, and drop a row whose tag does not exist", async () => {
 		const custom = {
 			home_row_1: "jeux-video",
