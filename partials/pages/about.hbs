@@ -1,0 +1,118 @@
+{{!--
+Body of « À propos » (page-a-propos.hbs for the slug "a-propos", custom-about.hbs for any other slug).
+Inside the page's template context. Nothing personal is written in the theme: everything comes from Ghost.
+  - Opening: the page's title, then its excerpt (« Extrait » in the page settings) as the lead sentence.
+  - One bento block, in reading order (the DOM order is the visual order at every width):
+    1. the rubrics (tags), one cell each, linking to the tag page: name, description (Ghost Admin > Tags),
+       number of posts, the tag's image behind a scrim or a tinted surface with the rubric's icon
+       (partials/about/tag-icon.hbs). Which tags: the « About page sections » setting (slugs separated by
+       commas, up to 12), else the 6 most used public tags. Most posts first; the first cell is the
+       largest (src/css/about.css arranges 1 to 12 cells without holes);
+    2. the page's own text (the Ghost editor), as a text cell. An HTML card <ul class="about-links"> in
+       it is moved by about.js into « Suivre le blog »;
+    3. « Qui écrit »: the authors with published posts (avatar, name, bio, location, website). On a
+       single-author site the name is not a link (docs/guide-auteur.md, « Un seul auteur »);
+    4. the number of posts and the year of the first one (real data, one query);
+    5. « Suivre le blog »: the site's social accounts (Settings > General > Social accounts), the RSS
+       feed, the author's extra links (about-links card), « S'abonner » for visitors.
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/about.css"}}" as="style" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/about.css"}}" media="screen" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" async src="{{asset "js/about.js"}}"></script>
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main about">
+  <div class="container about__inner">
+    {{#post}}
+      <header class="about__header">
+        <h1 class="about__title">{{title}}</h1>
+        {{#if custom_excerpt}}<p class="about__lead">{{custom_excerpt}}</p>{{/if}}
+      </header>
+    {{/post}}
+
+    <div class="about-bento">
+      <section class="about-bento__rubrics" aria-labelledby="about-rubrics-title">
+        <h2 class="sr-only" id="about-rubrics-title">{{t "What you'll find here"}}</h2>
+        <ul class="about-rubrics" role="list">
+          {{#if @custom.about_tags}}
+            {{#get "tags" filter="slug:[{{@custom.about_tags}}]+visibility:public" include="count.posts" order="count.posts desc" limit="12"}}
+              {{#foreach tags}}{{#match count.posts ">" 0}}{{> "about/rubric"}}{{/match}}{{/foreach}}
+            {{/get}}
+          {{else}}
+            {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="6"}}
+              {{#foreach tags}}{{#match count.posts ">" 0}}{{> "about/rubric"}}{{/match}}{{/foreach}}
+            {{/get}}
+          {{/if}}
+        </ul>
+      </section>
+
+      {{#post}}
+        {{#if html}}
+          <div class="about-note" data-about-note>
+            <div class="about-note__text page-content gh-content">{{content}}</div>
+          </div>
+        {{/if}}
+      {{/post}}
+
+      <div class="about-bento__people">
+        {{#get "authors" limit="12" include="count.posts" order="count.posts desc" as |aboutAuthors authorPages|}}
+          <section class="about-cell about-author{{#match authorPages.total ">" 1}} about-author--many{{/match}}" aria-labelledby="about-authors-title">
+            <h2 class="sr-only" id="about-authors-title">{{t "Who writes"}}</h2>
+            <ul class="about-author__list" role="list">
+              {{#foreach aboutAuthors}}
+                <li class="about-author__item">
+                  {{> author-avatar avatarClass="about-author__avatar"}}
+                  <div class="about-author__body">
+                    {{!-- Single-author rule: no link to the author page when only one author has published posts --}}
+                    <h3 class="about-author__name">{{#match authorPages.total 1}}{{name}}{{else}}<a href="{{url}}">{{name}}</a>{{/match}}</h3>
+                    {{#if bio}}<p class="about-author__bio">{{bio}}</p>{{/if}}
+                    {{#has any="location, website"}}
+                      <p class="about-author__meta">
+                        {{#if location}}<span class="about-author__fact">{{> "icons/map-pin"}}{{location}}</span>{{/if}}
+                        {{#if website}}<a class="about-author__fact about-author__website" href="{{website}}" target="_blank" rel="noopener">{{> "icons/link"}}{{t "Website"}}</a>{{/if}}
+                      </p>
+                    {{/has}}
+                  </div>
+                </li>
+              {{/foreach}}
+            </ul>
+          </section>
+        {{/get}}
+
+        {{#get "posts" limit="1" fields="id,published_at" order="published_at asc" as |firstPosts postPages|}}
+          {{#foreach firstPosts}}
+            <p class="about-cell about-facts">
+              <span class="about-facts__number">{{postPages.total}}</span>
+              <span class="about-facts__text">{{plural postPages.total empty="" singular=(t "post published since {year}" year=(date published_at format="YYYY")) plural=(t "posts published since {year}" year=(date published_at format="YYYY"))}}</span>
+            </p>
+          {{/foreach}}
+        {{/get}}
+
+        <section class="about-cell about-follow" aria-labelledby="about-follow-title">
+          <h2 class="about-follow__title" id="about-follow-title">{{t "Follow the blog"}}</h2>
+          <ul class="about-follow__list" role="list" data-about-follow>
+            {{#if @site.twitter}}<li><a class="icon-button about-follow__icon" href="{{social_url type="twitter"}}" target="_blank" rel="noopener" aria-label="X">{{> "icons/x"}}</a></li>{{/if}}
+            {{#if @site.facebook}}<li><a class="icon-button about-follow__icon" href="{{social_url type="facebook"}}" target="_blank" rel="noopener" aria-label="Facebook">{{> "icons/facebook"}}</a></li>{{/if}}
+            {{#if @site.linkedin}}<li><a class="icon-button about-follow__icon" href="{{social_url type="linkedin"}}" target="_blank" rel="noopener" aria-label="LinkedIn">{{> "icons/linkedin"}}</a></li>{{/if}}
+            {{#if @site.bluesky}}<li><a class="icon-button about-follow__icon" href="{{social_url type="bluesky"}}" target="_blank" rel="noopener" aria-label="Bluesky">{{> "icons/bluesky"}}</a></li>{{/if}}
+            {{#if @site.threads}}<li><a class="icon-button about-follow__icon" href="{{social_url type="threads"}}" target="_blank" rel="noopener" aria-label="Threads">{{> "icons/threads"}}</a></li>{{/if}}
+            {{#if @site.mastodon}}<li><a class="icon-button about-follow__icon" href="{{social_url type="mastodon"}}" target="_blank" rel="noopener" aria-label="Mastodon">{{> "icons/mastodon"}}</a></li>{{/if}}
+            {{#if @site.tiktok}}<li><a class="icon-button about-follow__icon" href="{{social_url type="tiktok"}}" target="_blank" rel="noopener" aria-label="TikTok">{{> "icons/tiktok"}}</a></li>{{/if}}
+            {{#if @site.youtube}}<li><a class="icon-button about-follow__icon" href="{{social_url type="youtube"}}" target="_blank" rel="noopener" aria-label="YouTube">{{> "icons/youtube"}}</a></li>{{/if}}
+            {{#if @site.instagram}}<li><a class="icon-button about-follow__icon" href="{{social_url type="instagram"}}" target="_blank" rel="noopener" aria-label="Instagram">{{> "icons/instagram"}}</a></li>{{/if}}
+            <li><a class="icon-button about-follow__icon" href="{{@site.url}}/rss/" aria-label="{{t "RSS feed"}}">{{> "icons/rss"}}</a></li>
+          </ul>
+          <ul class="about-links about-follow__links" role="list" data-about-links></ul>
+          {{#unless @member}}{{> subscribe-link class="button button--primary about-follow__subscribe"}}{{/unless}}
+        </section>
+      </div>
+    </div>
+  </div>
+</main>

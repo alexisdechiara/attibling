@@ -1,0 +1,72 @@
+/* Generic page (page.hbs) and reference document (pages/document.hbs), on top of app.css: a calm
+   reading column; the document adds its header, table of contents and heading links. Printing:
+   print.css (loaded with media="print"). */
+@import "./pages/content.css";
+@import "./article/links.css";
+@import "./article/members-cta.css";
+@import "./components/toc.css";
+@import "./components/heading-link.css";
+@import "./pages/document.css";
+
+/* Measure of the text: 31 ems of the text size (17px), about 65 to 69 characters per line in Onest
+   (0.45 em per character on average); the header follows the same column */
+.page-main {
+  --page-measure: calc(31 * 1.0625rem);
+
+  .page-content {
+    --column: var(--page-measure);
+  }
+}
+
+.page-article {
+  padding-block: var(--space-8) var(--space-9);
+
+  @media (width >= 48rem) {
+    padding-block-start: var(--space-11);
+  }
+}
+
+.page-article__header {
+  width: min(var(--page-measure), calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+}
+
+.page-article__title {
+  font-size: var(--h1-size);
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+  line-height: var(--h1-leading);
+}
+
+.page-article__excerpt {
+  margin-block-start: var(--space-4);
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--text-xl);
+  line-height: 1.55;
+}
+
+.page-article__figure {
+  width: min(65rem, calc(100% - 2 * var(--gutter)));
+  margin: var(--space-8) auto 0;
+
+  img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: cover;
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-1);
+  }
+
+  figcaption {
+    margin-block-start: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-m);
+    text-align: center;
+  }
+}
+
+.page-article__header + .page-content,
+.page-article__figure + .page-content {
+  margin-block-start: var(--space-8);
+}

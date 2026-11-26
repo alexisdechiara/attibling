@@ -1,0 +1,14 @@
+{{!--
+« S'abonner » link: to the theme's subscription page (its sign-up form), found as subscribe-href.hbs
+says (the subscribe_url setting, else a page with the slug newsletter / abonnement / subscribe), Ghost's
+Portal sign-up only when the site has no such page.
+Shown only when members are enabled and sign-up is open; render it inside {{#unless @member}}.
+Parameters:
+  class="..."   classes of the link (default "button button--inverse")
+  label="..."   link text (default the translation of "Subscribe")
+--}}
+{{#if @site.members_enabled}}
+  {{#unless @site.members_invite_only}}
+    <a class="{{#if class}}{{class}}{{else}}button button--inverse{{/if}}" {{> subscribe-href signin=false}}>{{#if label}}{{label}}{{else}}{{t "Subscribe"}}{{/if}}</a>
+  {{/unless}}
+{{/if}}

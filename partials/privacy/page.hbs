@@ -1,0 +1,47 @@
+{{!--
+What the theme appends to the text of the « Cookies et confidentialité » page (page-cookies.hbs,
+page-confidentialite.hbs, custom-privacy.hbs through pages/document.hbs privacy=true), inside the
+reading column, after what the author wrote: three sections that are always true for this browser and
+this theme, so the author's text does not have to list them (docs/cookies-proposition.md).
+  1. « Dans ce navigateur, en ce moment »: what this browser holds for the site, read when the page
+     opens (src/js/privacy/controls.js), with « Effacer » per item and « Tout effacer »; the Ghost sign-in
+     cookie, which scripts cannot read, in a sentence (sign out / account links for members).
+  2. « Vos choix »: the same switches as the preferences panel (privacy/controls.hbs), every embed
+     service listed.
+  3. « Tout ce que le site peut garder »: the full list (privacy/stored.hbs), rendered by the theme.
+Without JavaScript: sections 1 and 2 say that they need it; section 3 is complete.
+--}}
+<section class="privacy-page" data-privacy-page aria-labelledby="privacy-now">
+  <h2 id="privacy-now">{{t "In this browser, right now"}}</h2>
+  <div class="privacy-stored" data-privacy-stored>
+    <p class="privacy-page__nojs" data-privacy-nojs>{{t "This list needs JavaScript: it reads what your browser holds for this site."}}</p>
+    <div class="table-scroll table-scroll--stack" hidden data-privacy-js>
+      <table role="table" data-privacy-held hidden
+        data-clear="{{t "Clear"}}" data-clear-one="{{t "Clear %"}}" data-one="{{t "1 item"}}" data-many="{{t "% items"}}" data-empty="{{t "empty"}}" data-off="{{t "(off)"}}" data-unknown="{{t "Not described by the theme (added by another script)"}}">
+        <thead role="rowgroup">
+          <tr role="row"><th role="columnheader" scope="col">{{t "Name"}}</th><th role="columnheader" scope="col">{{t "Purpose"}}</th><th role="columnheader" scope="col">{{t "Content"}}</th><th role="columnheader" scope="col"><span class="sr-only">{{t "Action"}}</span></th></tr>
+        </thead>
+        <tbody role="rowgroup"></tbody>
+      </table>
+    </div>
+    <p class="privacy-page__empty" data-stored-empty tabindex="-1" hidden>{{t "Nothing: this site keeps nothing in this browser."}}</p>
+    <button type="button" class="button privacy-clear" data-stored-clear hidden>{{> "icons/reset"}}<span>{{t "Clear all"}}</span></button>
+    {{#if @member}}
+      <p class="privacy-page__cookie">{{t "You are signed in: Ghost keeps the ghost-members-ssr cookie (and its signature, .sig) to keep you signed in, for 6 months at most. Scripts cannot read it; it goes away when you sign out."}}</p>
+      <p class="privacy-page__links"><a href="#/portal/account" data-portal="account">{{t "Your account"}}</a> · <a href="#" data-members-signout>{{t "Sign out"}}</a></p>
+      <p class="privacy-page__cookie">{{t "Your “Read later” and “Continue reading” lists and your display settings are kept in this browser, not in your account. They are cleared when you sign out, or when someone else signs in on this browser."}}</p>
+    {{else}}
+      <p class="privacy-page__cookie">{{t "You are not signed in: Ghost has set no sign-in cookie in this browser."}}</p>
+    {{/if}}
+  </div>
+
+  <h2 id="privacy-choices">{{t "Your choices"}}</h2>
+  <p class="privacy-page__nojs" data-privacy-nojs>{{t "These switches need JavaScript. Without it, no embedded content is ever loaded."}}</p>
+  <div class="privacy-page__controls" hidden data-privacy-js>
+    {{> "privacy/controls" page=true}}
+  </div>
+
+  <h2 id="privacy-all">{{t "Everything the site may keep in your browser"}}</h2>
+  <p>{{t "Nothing in this list leaves your browser, except the Ghost items marked as sent when you subscribe. The theme itself sets no cookie."}}</p>
+  {{> "privacy/stored"}}
+</section>

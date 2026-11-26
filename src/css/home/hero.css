@@ -1,0 +1,698 @@
+/** Home hero « E2 » (partials/home/hero.hbs) */
+
+.hero {
+  padding-block-start: var(--space-2);
+}
+
+.hero__card {
+  position: relative;
+  isolation: isolate;
+  height: 540px;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--color-media);
+  color: var(--color-on-media);
+  box-shadow: var(--shadow-1);
+  /* Everything inside follows the dark tokens, whatever the page's mode */
+  color-scheme: dark;
+  --color-focus: var(--color-focus-on-media);
+
+  @media (width >= 64rem) {
+    height: 480px;
+  }
+}
+
+.hero__slide {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  color: inherit;
+  transition:
+    opacity var(--duration-l) ease,
+    visibility 0s;
+
+  /* Slides switched off by home.js: faded out and out of reach (inert) */
+  &[inert] {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--duration-l) ease,
+      visibility 0s var(--duration-l);
+  }
+
+  /* The slide just shown: its post's text rises in (home.js sets data-entering for one change) */
+  &[data-entering] .hero__post > * {
+    animation: hero-post-in 520ms var(--ease-out) both;
+  }
+
+  &[data-entering] .hero__post > :nth-child(2) {
+    animation-delay: 50ms;
+  }
+
+  &[data-entering] .hero__post > :nth-child(n + 3) {
+    animation-delay: 100ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &[data-entering] .hero__post > * {
+      animation-name: hero-post-fade;
+    }
+  }
+}
+
+@keyframes hero-post-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes hero-post-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.hero__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The shade over the picture: one light, even veil, plus two wide ramps that deepen it towards the
+   text, never a shape: from the top (the wordmark) and the bottom (the post) on phones and tablets,
+   from the inline start (the wordmark) and the inline end (the post) on desktop. Each ramp holds its
+   strength over its text, then falls off over hundreds of pixels as 1 - smootherstep, whose slope is
+   zero where it starts and where it ends, so neither end can be seen (a plain linear stop shows a line).
+   No shadow on the letters. Three strengths, per slide: --hero-veil, --hero-ramp-a (towards the
+   wordmark) and --hero-ramp-b (towards the post). src/js/hero-veil.js sets them from the picture's
+   brightness under each text block, aiming at the targets below; these are the values without it
+   (no JavaScript, a picture from another origin, the static hero). */
+.hero {
+  --hero-veil: 0.34;
+  --hero-ramp-a: 0.6;
+  --hero-ramp-b: 0.7;
+  /* Read once by src/js/hero-veil.js:
+     --hero-target-a / -b  the backdrop luminance each block must come down to (0.161 is 4.5:1 for
+                           white text, 0.048 is 3:1 for the blue G)
+     --hero-reach-a / -b   the ramp's strength at the far edge of its text block (share of its peak)
+     --hero-veil-k         the share of the larger need carried by the even veil (the rest by the ramps)
+     --hero-floor          the least shade each block gets (thin bright detail can vanish in the
+                           100px sample the script reads) */
+  --hero-target-a: 0.24;
+  --hero-target-b: 0.18;
+  --hero-reach-a: 1;
+  --hero-reach-b: 0.68;
+  --hero-veil-k: 0.4;
+  --hero-floor: 0.25;
+
+  @media (width >= 64rem) {
+    --hero-reach-b: 1;
+  }
+}
+
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 100%), transparent) 60%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 99.8%), transparent) 62.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 98.4%), transparent) 65%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 95.1%), transparent) 67.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 89.6%), transparent) 70%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 82%), transparent) 72.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 72.5%), transparent) 75%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 61.6%), transparent) 77.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 50%), transparent) 80%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 38.4%), transparent) 82.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 27.5%), transparent) 85%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 18%), transparent) 87.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 10.4%), transparent) 90%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 4.9%), transparent) 92.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 1.6%), transparent) 95%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0.2%), transparent) 97.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0%), transparent) 100%
+      )
+      top / 100% 80% no-repeat,
+    linear-gradient(
+        0deg,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 100%), transparent) 50%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 99.8%), transparent) 53.1%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 98.4%), transparent) 56.3%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 95.1%), transparent) 59.4%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 89.6%), transparent) 62.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 82%), transparent) 65.6%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 72.5%), transparent) 68.8%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 61.6%), transparent) 71.9%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 50%), transparent) 75%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 38.4%), transparent) 78.1%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 27.5%), transparent) 81.3%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 18%), transparent) 84.4%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 10.4%), transparent) 87.5%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 4.9%), transparent) 90.6%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 1.6%), transparent) 93.8%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0.2%), transparent) 96.9%,
+        color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0%), transparent) 100%
+      )
+      bottom / 100% 62% no-repeat,
+    color-mix(in srgb, var(--color-media) calc(var(--hero-veil) * 100%), transparent);
+
+  @media (width >= 64rem) {
+    background:
+      linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 100%), transparent) 40%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 99.8%), transparent) 43.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 98.4%), transparent) 47.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 95.1%), transparent) 51.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 89.6%), transparent) 55%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 82%), transparent) 58.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 72.5%), transparent) 62.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 61.6%), transparent) 66.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 50%), transparent) 70%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 38.4%), transparent) 73.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 27.5%), transparent) 77.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 18%), transparent) 81.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 10.4%), transparent) 85%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 4.9%), transparent) 88.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 1.6%), transparent) 92.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0.2%), transparent) 96.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-a) * 0%), transparent) 100%
+        )
+        left / 80% 100% no-repeat,
+      linear-gradient(
+          270deg,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 100%), transparent) 42%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 99.8%), transparent) 45.6%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 98.4%), transparent) 49.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 95.1%), transparent) 52.9%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 89.6%), transparent) 56.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 82%), transparent) 60.1%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 72.5%), transparent) 63.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 61.6%), transparent) 67.4%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 50%), transparent) 71%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 38.4%), transparent) 74.6%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 27.5%), transparent) 78.3%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 18%), transparent) 81.9%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 10.4%), transparent) 85.5%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 4.9%), transparent) 89.1%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 1.6%), transparent) 92.8%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0.2%), transparent) 96.4%,
+          color-mix(in srgb, var(--color-media) calc(var(--hero-ramp-b) * 0%), transparent) 100%
+        )
+        right / 82% 100% no-repeat,
+      color-mix(in srgb, var(--color-media) calc(var(--hero-veil) * 100%), transparent);
+  }
+
+  /* Drawn for left-to-right; mirrored as a whole for right-to-left */
+  &:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}
+
+/* The featured post, the only link of a slide (pill, title, excerpt, meta): bottom half on phones,
+   vertically centred at the inline end on desktop. Its padding is the room of the hover panel: a
+   soft glass card that lifts a little (no lift with reduced motion). */
+.hero__post {
+  --hero-post-pad: 14px;
+  position: absolute;
+  inset-inline: calc(20px - var(--hero-post-pad));
+  inset-block-start: 71%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--hero-post-pad);
+  border-radius: var(--radius-l);
+  color: inherit;
+  translate: 0 -50%;
+  transition:
+    background-color var(--duration-m) ease,
+    box-shadow var(--duration-m) ease,
+    transform var(--duration-m) var(--ease-out);
+
+  .pill {
+    margin-block-end: var(--space-2);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--color-media) 42%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-on-media) 14%, transparent),
+      0 12px 32px rgb(0 0 0 / 0.28);
+    transform: translateY(-3px);
+  }
+
+  &:focus-visible {
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:hover,
+    &:focus-visible {
+      transform: none;
+    }
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    &:hover,
+    &:focus-visible {
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+  }
+
+  @media (width >= 64rem) {
+    --hero-post-pad: 18px;
+    inset-inline: auto calc(96px - var(--hero-post-pad));
+    inset-block-start: 50%;
+    width: calc(clamp(260px, 31%, 440px) + 2 * var(--hero-post-pad));
+    align-items: flex-end;
+    gap: 10px;
+    text-align: end;
+
+    .pill {
+      margin: 0;
+    }
+  }
+}
+
+/* The post's own excerpt (custom excerpt only), desktop, two lines at most */
+.hero__post-excerpt {
+  display: none;
+
+  @media (width >= 64rem) {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--color-on-media-muted);
+    font-size: var(--text-base);
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+.hero__post-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-heavy);
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+
+  /* A little smaller where the column is narrow (the wordmark takes more room): 28px at 1024px, 30px
+     at 1280px, 32px from 1510px */
+  @media (width >= 64rem) {
+    font-size: clamp(1.75rem, 1.15rem + 0.9vw, var(--text-4xl));
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* The post's tag, then « À la une » */
+.hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.hero__post-meta {
+  color: var(--color-on-media-muted);
+  font-size: var(--text-s);
+  font-weight: var(--weight-medium);
+
+  @media (width >= 64rem) {
+    font-size: var(--text-m);
+  }
+}
+
+/* Wordmark, tagline and « S'abonner »: top part, centred on phones; inline start, vertically
+   centred on desktop. The block is not a link (clicking it does nothing); only its button is. */
+.hero__brand {
+  /* The hero wordmark's size; the tagline is laid out from it. The GEEKly wordmark is 3.5 times as
+     wide as its size (G to the "y" tail): 68px on a 390px phone (62px at 320px), 82px at 768px, then
+     on desktop it grows with the window (112px at 1024px, 134px at 1280px, 148px from 1445px), leaving
+     the picture room between it and the post. */
+  --hero-mark: clamp(62px, 17.5vw, 80px);
+  position: absolute;
+  inset-inline: 20px;
+  inset-block-start: 27%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-50%);
+  pointer-events: none;
+
+  a,
+  button {
+    pointer-events: auto;
+  }
+
+  @media (width >= 48rem) {
+    --hero-mark: clamp(80px, 10.7vw, 96px);
+  }
+
+  @media (width >= 64rem) {
+    --hero-mark: clamp(104px, 8.65vw + 23px, 148px);
+    inset-inline: 56px auto;
+    inset-block-start: 50%;
+    max-width: 50%;
+    align-items: flex-start;
+  }
+}
+
+/* The wordmark and the tagline as one block: centred as a whole on phones, the tagline always starting
+   at the wordmark's inline start edge */
+.hero__lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  text-align: start;
+}
+
+.hero__title {
+  margin: 0;
+  line-height: 1;
+}
+
+.hero__tagline {
+  max-width: 100%;
+  margin-block-start: var(--space-3);
+  font-family: var(--font-heading);
+  /* A real line of text beside the wordmark: 0.19 of its size (28px at 1440px, 21px at 1024px),
+     never under 15px */
+  font-size: clamp(0.9375rem, 0.19 * var(--hero-mark), 1.75rem);
+  font-weight: var(--weight-strong);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* GEEKly wordmark: the tagline is tucked tight under « GEEK », in the band of the "y" descender, and
+   stops before the descender (whose leftmost point is 2.99 em from the wordmark's start: Onest 800
+   G E E K and Pacifico "l" advance, partials/wordmark.hbs). A longer description wraps within
+   that width (two lines at most). Rule: the tagline's cap top sits 0.075 of the wordmark's size
+   (--hero-mark) under the baseline of « GEEK » (11px at 148px): attached to the letters, never
+   touching them. With text-box trimming (below) that is exact for any font. Without it, the top margin
+   is derived from the line boxes of the self-hosted faces: the wordmark's box reaches 0.617 of its
+   size below the baseline (the line box of the Pacifico "ly" subset with its descender room), and the
+   tagline's cap top is 0.263 em below its own top (Onest, line height 1.25). */
+/* A logo image or the plain title: the usual stacking, centred on phones */
+@media (width < 64rem) {
+  .hero__brand:not(.hero__brand--geekly) .hero__lockup {
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Clear of the "y" descender, which hangs below the tagline */
+  .hero__brand--geekly .hero__subscribe {
+    margin-block-start: calc(var(--space-5) + var(--hero-mark) * 0.1);
+  }
+}
+
+.hero__brand--geekly .hero__tagline {
+  max-width: calc(var(--hero-mark) * 2.78);
+  margin-block-start: calc(var(--hero-mark) * -0.542 - 0.263em);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* Where text-box trimming exists, the placement no longer depends on any font's line box: the title's
+   box ends exactly on the letters' alphabetic baseline (the "y" descender overflows it), the tagline's
+   box starts exactly at its cap height, and the gap between the two is simply 0.075 of the wordmark's
+   size. It is the same with Onest and with « Onest Fallback » during the swap, and whatever the
+   vertical metrics of the Pacifico file. */
+@supports (text-box: trim-both cap alphabetic) {
+  .hero__brand--geekly .hero__title {
+    text-box: trim-end cap alphabetic;
+  }
+
+  .hero__brand--geekly .hero__tagline {
+    margin-block-start: calc(var(--hero-mark) * 0.075);
+    text-box: trim-start cap alphabetic;
+  }
+}
+
+.hero__subscribe {
+  margin-block-start: var(--space-5);
+
+  @media (width < 64rem) {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Pager: a column of dots on the inline end edge (desktop), a row at the bottom (phones) */
+.hero__pager {
+  position: absolute;
+  inset-block-end: 14px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-scrim-strong);
+  transform: translateX(-50%);
+
+  @media (width >= 64rem) {
+    inset-block: 50% auto;
+    left: auto;
+    inset-inline-end: 28px;
+    flex-direction: column;
+    padding: var(--space-2) var(--space-1);
+    background: var(--color-scrim);
+    transform: translateY(-50%);
+  }
+}
+
+/* Dots. They say they are clickable: they grow and glow under the pointer and shrink when pressed;
+   the current one is a pill that fills when it becomes current; on desktop, hovering or focusing a
+   dot previews the title of its post. Once per session, when the hero first shows, the other dots
+   ripple one after the other (home.js sets data-cue on the pager for 1.6 s). The hero never moves on
+   its own. Reduced motion: no ripple, no fill, colour changes only. */
+.hero__dot {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  /* A 44px target (a 28px look: the extra 8px on each side go past the pill, on the image) */
+  width: var(--target);
+  height: var(--target);
+  margin-block: -8px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  cursor: pointer;
+
+  /* The dot, and in the current pill its track */
+  &::before {
+    content: "";
+    grid-area: 1 / 1;
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-pager-dot);
+    transition:
+      width var(--duration-m) var(--ease-out),
+      height var(--duration-m) var(--ease-out),
+      scale var(--duration-s) var(--ease-out),
+      background-color var(--duration-m) ease,
+      box-shadow var(--duration-m) ease;
+  }
+
+  /* The fill of the current pill */
+  &::after {
+    content: "";
+    grid-area: 1 / 1;
+    width: 22px;
+    height: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-on-media);
+    opacity: 0;
+    scale: 0 1;
+    transform-origin: left center;
+  }
+
+  &:dir(rtl)::after {
+    transform-origin: right center;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    background: var(--color-on-media);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--color-on-media) 16%, transparent),
+      0 0 12px color-mix(in srgb, var(--color-on-media) 45%, transparent);
+    scale: 1.5;
+  }
+
+  &:active::before {
+    scale: 0.85;
+  }
+
+  &[aria-current="true"] {
+    width: calc(var(--target) + 6px);
+
+    &::before {
+      width: 22px;
+      background: color-mix(in srgb, var(--color-on-media) 38%, transparent);
+      box-shadow: none;
+      scale: 1;
+    }
+
+    &::after {
+      opacity: 1;
+      scale: 1 1;
+      animation: hero-dot-fill 480ms var(--ease-out) both;
+    }
+  }
+
+  @media (width >= 64rem) {
+    margin-block: 0;
+    margin-inline: -8px;
+
+    &[aria-current="true"] {
+      width: var(--target);
+      height: calc(var(--target) + 8px);
+
+      &::before {
+        width: 6px;
+        height: 24px;
+      }
+    }
+
+    &::after {
+      width: 6px;
+      height: 24px;
+      scale: 1 0;
+      transform-origin: center top;
+    }
+
+    &[aria-current="true"]::after {
+      scale: 1 1;
+      animation-name: hero-dot-fill-vertical;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      transition:
+        background-color var(--duration-m) ease,
+        box-shadow var(--duration-m) ease;
+    }
+
+    &:hover::before,
+    &:focus-visible::before,
+    &:active::before {
+      scale: 1;
+    }
+
+    &[aria-current="true"]::after {
+      animation: none;
+    }
+  }
+}
+
+/* The title of a dot's post, beside the vertical pager (desktop pointers only) */
+.hero__dot-preview {
+  display: none;
+}
+
+@media (width >= 64rem) and (hover: hover) {
+  .hero__dot-preview {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: calc(100% + 14px);
+    display: block;
+    max-width: 280px;
+    padding: 7px 12px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--color-media) 78%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-on-media) 12%, transparent),
+      0 8px 24px rgb(0 0 0 / 0.3);
+    color: var(--color-on-media);
+    font-size: var(--text-s);
+    font-weight: var(--weight-semibold);
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    translate: 6px -50%;
+    transition:
+      opacity var(--duration-s) ease,
+      translate var(--duration-m) var(--ease-out);
+
+    &:dir(rtl) {
+      translate: -6px -50%;
+    }
+  }
+
+  /* Escape hides it (home.js sets data-preview-hidden until the pointer leaves or the focus moves) */
+  .hero__pager:not([data-preview-hidden])
+    .hero__dot:is(:hover, :focus-visible):not([aria-current="true"])
+    .hero__dot-preview {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__dot-preview,
+    .hero__dot-preview:dir(rtl) {
+      translate: 0 -50%;
+    }
+  }
+}
+
+/* The one-time cue: the other dots ripple in turn (home.js gives each its --dot-index). The glow is the
+   dot's ::after (the fill of the current pill, hidden on the others) dressed as a lit dot, so that the
+   animation only changes opacity and scale (compositor only): animating a background or a shadow would
+   repaint every frame */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__pager[data-cue] .hero__dot:not([aria-current="true"])::after {
+    width: 6px;
+    height: 6px;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-on-media) 55%, transparent);
+    transform-origin: center;
+    animation: hero-dot-cue 640ms cubic-bezier(0.3, 0, 0.3, 1) calc(var(--dot-index, 0) * 110ms) both;
+  }
+}
+
+@keyframes hero-dot-fill {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes hero-dot-fill-vertical {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes hero-dot-cue {
+  0%,
+  100% {
+    opacity: 0;
+    scale: 1;
+  }
+
+  40% {
+    opacity: 1;
+    scale: 1.7;
+  }
+}

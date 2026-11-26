@@ -1,0 +1,202 @@
+{{!--
+Body of the subscription page: page-newsletter.hbs (slug "newsletter"), page-abonnement.hbs ("abonnement"),
+page-subscribe.hbs ("subscribe"), or custom-subscribe.hbs for any other slug (then point the « Subscribe
+page URL » setting at it). Every « S'abonner » and « Se connecter » button of the theme leads here
+(partials/subscribe-href.hbs). Inside the page's template context. The page follows the site's light or
+dark mode, like every other page.
+
+Visitors: an opening section straight in the page (no card), at least the first screen tall (100svh minus
+the header), its content centred, in one of two states:
+  - sign-up (default, #inscription): title « S'abonner à <site> », lead = the page's excerpt, else the
+    theme's sentence; Ghost's native form (data-members-form="subscribe") with the name (optional,
+    data-members-name) then the e-mail address; the page's own content (the Ghost editor: a consent or
+    legal line) under it; « Déjà abonné ? Se connecter ».
+  - sign-in (#connexion): Ghost's native sign-in form (data-members-form="signin"): the e-mail address,
+    then Ghost e-mails a sign-in link; « Pas encore abonné ? S'abonner ».
+  The two anchors sit at the top of the section: CSS shows the state of the :target, newsletter.js also
+  writes it in data-state and focuses the first field. Ghost adds the classes loading / success / error
+  on a form and writes its error message in [data-members-error].
+  Beside them: what a subscription brings (each feature: a title on one line, two lines of text at most).
+  Then the questions (<details>).
+Members: « Vous êtes abonné », their address, « Gérer mon compte » (Ghost's Portal account window: e-mails,
+newsletters, profile), back home, sign out, their tools.
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/newsletter.css"}}" as="style" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/newsletter.css"}}" media="screen" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" async src="{{asset "js/newsletter.js"}}"></script>
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main subscribe{{#if @member}} subscribe--member{{/if}}">
+  {{#if @member}}
+    <section class="subscribe-hero subscribe-hero--member" aria-labelledby="subscribe-member-title">
+      <div class="container subscribe-member">
+        <p class="subscribe-member__status">{{> "icons/check-circle"}}{{t "Subscribed!"}}</p>
+        <h1 class="subscribe-member__title" id="subscribe-member-title">{{t "You're subscribed to {blogtitle}" blogtitle=@site.title}}</h1>
+        <p class="subscribe-member__text">{{t "Signed in as"}} <strong>{{@member.email}}</strong>. {{t "Manage your emails and your profile from your account."}}</p>
+        <div class="subscribe-member__actions">
+          <a class="button button--primary button--l" href="#/portal/account" data-portal="account">{{> "icons/user"}}{{t "Manage my account"}}</a>
+          <a class="button button--l" href="{{@site.url}}">{{t "Back to home"}}</a>
+          <a class="subscribe-member__signout" href="javascript:" data-members-signout>{{t "Sign out"}}</a>
+        </div>
+
+        <h2 class="subscribe-member__heading">{{t "Your member tools"}}</h2>
+        <ul class="subscribe-tools" role="list">
+          <li class="subscribe-tools__item">
+            <span class="subscribe-tools__icon" aria-hidden="true">{{> "icons/bookmark"}}</span>
+            <span class="subscribe-tools__text"><b>{{t "“Read later”"}}</b>{{t "Set posts aside and come back to them whenever you like."}}</span>
+            <a class="button button--s subscribe-tools__action" href="{{@site.url}}/favoris/">{{t "See my list"}}</a>
+          </li>
+          <li class="subscribe-tools__item">
+            <span class="subscribe-tools__icon" aria-hidden="true">{{> "icons/clock"}}</span>
+            <span class="subscribe-tools__text"><b>{{t "Continue reading"}}</b>{{t "Pick a post up where you left it."}}</span>
+          </li>
+          <li class="subscribe-tools__item">
+            <span class="subscribe-tools__icon" aria-hidden="true">{{> "icons/sliders"}}</span>
+            <span class="subscribe-tools__text"><b>{{t "Reading settings"}}</b>{{t "Font, spacing, alignment: read your way."}}</span>
+          </li>
+          {{#match @site.comments_access "all"}}
+            <li class="subscribe-tools__item">
+              <span class="subscribe-tools__icon" aria-hidden="true">{{> "icons/comment"}}</span>
+              <span class="subscribe-tools__text"><b>{{t "Comment on posts"}}</b>{{t "Share your opinion under every post."}}</span>
+            </li>
+          {{/match}}
+        </ul>
+      </div>
+    </section>
+  {{else}}
+    <section class="subscribe-hero{{#if @site.members_invite_only}} subscribe-hero--signin-only{{/if}}" data-subscribe-hero>
+      {{!-- Targets of #inscription / #connexion, at the top of the section (no jump down the page) --}}
+      <span class="subscribe-hero__anchor" id="inscription"></span>
+      <span class="subscribe-hero__anchor" id="connexion"></span>
+
+      <div class="container subscribe-hero__inner">
+        <div class="subscribe-hero__main">
+          {{!-- The page's only h1: one of its two texts shows, following the state of the hero (sign-up or
+          sign-in, src/css/newsletter.css); the two panels below are named by them (aria-labelledby) --}}
+          <h1 class="subscribe-hero__title">
+            {{#unless @site.members_invite_only}}<span class="subscribe-hero__heading subscribe-hero__heading--signup" id="subscribe-title">{{t "Subscribe to {blogtitle}" blogtitle=@site.title}}</span>{{/unless}}
+            {{#if @site.members_enabled}}<span class="subscribe-hero__heading subscribe-hero__heading--signin" id="signin-title">{{t "Sign in to {blogtitle}" blogtitle=@site.title}}</span>{{/if}}
+          </h1>
+          {{#unless @site.members_invite_only}}
+            <section class="subscribe-panel subscribe-panel--signup" aria-labelledby="subscribe-title" data-subscribe-panel="signup">
+              {{#post}}
+                <p class="subscribe-hero__lead">{{#if custom_excerpt}}{{custom_excerpt}}{{else}}{{t "It's free: get the latest posts straight to your inbox and enjoy the reading tools reserved for members."}}{{/if}}</p>
+              {{/post}}
+
+              {{#if @site.members_enabled}}
+                <form class="subscribe-form" id="subscribe-form" data-members-form="subscribe" data-subscribe-form novalidate>
+                  <div class="subscribe-form__fields">
+                    <p class="subscribe-field">
+                      <label class="subscribe-field__label" for="subscribe-name">{{t "Your name"}} <span class="subscribe-field__optional">({{t "optional"}})</span></label>
+                      <input class="subscribe-field__input" id="subscribe-name" type="text" name="name" autocomplete="name" maxlength="191" data-members-name>
+                    </p>
+                    <p class="subscribe-field">
+                      <label class="subscribe-field__label" for="subscribe-email">{{t "Your email address"}}</label>
+                      <input class="subscribe-field__input" id="subscribe-email" type="email" name="email" autocomplete="email" required aria-describedby="subscribe-error" data-empty="{{t "Please enter your email address"}}" data-invalid="{{t "Please enter a valid email address"}}" data-members-email>
+                    </p>
+                    <button class="button button--primary button--l subscribe-form__button" type="submit"><span class="subscribe-form__spinner" aria-hidden="true"></span><span>{{t "Subscribe"}}</span></button>
+                  </div>
+                  <div class="subscribe-form__success" tabindex="-1" data-form-success>
+                    {{> "icons/check-circle"}}
+                    <p><b>{{t "Great! You've successfully signed up."}}</b> {{t "Now check your inbox and click the link to confirm your subscription."}}</p>
+                  </div>
+                  <p class="subscribe-form__error" id="subscribe-error" role="alert"><span data-members-error></span><span class="subscribe-form__error-default">{{t "Please enter a valid email address"}}</span></p>
+                  <p class="subscribe-form__hint">{{t "No payment · one-click unsubscribe from every email"}}</p>
+                </form>
+              {{/if}}
+              {{#post}}
+                {{#if html}}<div class="subscribe-hero__notes">{{content}}</div>{{/if}}
+              {{/post}}
+              {{#if @site.members_enabled}}
+                <p class="subscribe-hero__switch">{{t "Already a member?"}} <a href="#connexion" data-subscribe-switch>{{t "Login"}}</a></p>
+              {{/if}}
+            </section>
+          {{/unless}}
+
+          {{#if @site.members_enabled}}
+            <section class="subscribe-panel subscribe-panel--signin" aria-labelledby="signin-title" data-subscribe-panel="signin">
+              <p class="subscribe-hero__lead">{{t "Enter the email address of your subscription: you will get a link to sign in, no password needed."}}</p>
+              <form class="subscribe-form subscribe-form--signin" id="signin-form" data-members-form="signin" data-signin-form novalidate>
+                <div class="subscribe-form__fields">
+                  <p class="subscribe-field">
+                    <label class="subscribe-field__label" for="signin-email">{{t "Your email address"}}</label>
+                    <input class="subscribe-field__input" id="signin-email" type="email" name="email" autocomplete="email" required aria-describedby="signin-error" data-empty="{{t "Please enter your email address"}}" data-invalid="{{t "Please enter a valid email address"}}" data-members-email>
+                  </p>
+                  <button class="button button--primary button--l subscribe-form__button" type="submit"><span class="subscribe-form__spinner" aria-hidden="true"></span><span>{{t "Send me a sign-in link"}}</span></button>
+                </div>
+                <div class="subscribe-form__success" tabindex="-1" data-form-success>
+                  {{> "icons/check-circle"}}
+                  <p><b>{{t "Check your inbox!"}}</b> {{t "If this address is subscribed, a sign-in link is on its way: click it to sign in."}}</p>
+                </div>
+                <p class="subscribe-form__error" id="signin-error" role="alert"><span data-members-error></span><span class="subscribe-form__error-default">{{t "Please enter a valid email address"}}</span></p>
+              </form>
+              {{#unless @site.members_invite_only}}
+                <p class="subscribe-hero__switch">{{t "Not a member yet?"}} <a href="#inscription" data-subscribe-switch>{{t "Subscribe"}}</a></p>
+              {{/unless}}
+            </section>
+          {{/if}}
+        </div>
+
+        <div class="subscribe-hero__benefits">
+          <h2 class="sr-only">{{t "What a subscription brings"}}</h2>
+          <ul class="subscribe-benefits subscribe-benefits--main" role="list">
+            <li class="subscribe-benefit subscribe-benefit--main">
+              <span class="subscribe-benefit__icon" aria-hidden="true">{{> "icons/mail"}}</span>
+              <span class="subscribe-benefit__body"><b class="subscribe-benefit__title">{{t "New posts by email"}}</b><span class="subscribe-benefit__text">{{t "The newsletter: every new post lands in your inbox."}}</span></span>
+            </li>
+          </ul>
+          <h3 class="subscribe-hero__tools-title">{{t "And on the site, reading tools"}}</h3>
+          <ul class="subscribe-benefits" role="list">
+            <li class="subscribe-benefit">
+              <span class="subscribe-benefit__icon" aria-hidden="true">{{> "icons/summary"}}</span>
+              <span class="subscribe-benefit__body"><b class="subscribe-benefit__title">{{t "“In short”"}}</b><span class="subscribe-benefit__text">{{t "A summary at the top of long posts."}}</span></span>
+            </li>
+            <li class="subscribe-benefit">
+              <span class="subscribe-benefit__icon" aria-hidden="true">{{> "icons/bookmark"}}</span>
+              <span class="subscribe-benefit__body"><b class="subscribe-benefit__title">{{t "“Read later”"}}</b><span class="subscribe-benefit__text">{{t "Set posts aside and come back to them whenever you like."}}</span></span>
+            </li>
+            <li class="subscribe-benefit">
+              <span class="subscribe-benefit__icon" aria-hidden="true">{{> "icons/clock"}}</span>
+              <span class="subscribe-benefit__body"><b class="subscribe-benefit__title">{{t "Continue reading"}}</b><span class="subscribe-benefit__text">{{t "Pick a post up where you left it."}}</span></span>
+            </li>
+            <li class="subscribe-benefit">
+              <span class="subscribe-benefit__icon" aria-hidden="true">{{> "icons/sliders"}}</span>
+              <span class="subscribe-benefit__body"><b class="subscribe-benefit__title">{{t "Reading settings"}}</b><span class="subscribe-benefit__text">{{t "Font, spacing, alignment: read your way."}}</span></span>
+            </li>
+            {{#match @site.comments_access "all"}}
+              <li class="subscribe-benefit">
+                <span class="subscribe-benefit__icon" aria-hidden="true">{{> "icons/comment"}}</span>
+                <span class="subscribe-benefit__body"><b class="subscribe-benefit__title">{{t "Comment on posts"}}</b><span class="subscribe-benefit__text">{{t "Share your opinion under every post."}}</span></span>
+              </li>
+            {{/match}}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="container subscribe-faq" aria-labelledby="subscribe-faq-title">
+      <h2 class="subscribe-faq__title" id="subscribe-faq-title">{{t "Frequently asked questions"}}</h2>
+      <div class="subscribe-faq__list">
+        <details class="subscribe-faq__item">
+          <summary>{{t "Is it really free?"}}{{> "icons/chevron-down"}}</summary>
+          <p>{{t "Yes. No means of payment is asked for."}}</p>
+        </details>
+        <details class="subscribe-faq__item">
+          <summary>{{t "Do I need a password?"}}{{> "icons/chevron-down"}}</summary>
+          <p>{{t "No. To sign in, you get a link by email: one click and you are in."}}</p>
+        </details>
+        <details class="subscribe-faq__item">
+          <summary>{{t "How do I unsubscribe?"}}{{> "icons/chevron-down"}}</summary>
+          <p>{{t "Every email ends with an unsubscribe link. You can also manage your emails from your account at any time."}}</p>
+        </details>
+      </div>
+    </section>
+  {{/if}}
+</main>

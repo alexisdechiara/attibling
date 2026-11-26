@@ -1,0 +1,36 @@
+{{!--
+Content of the « ••• » menu of the header (the earlier theme's submenu, in the new design): the most
+recent posts as small cards with their date, then, below them, one line: the bold word « Tags », the most
+used public tags as plain links of a lighter weight, and « Tous les tags ». Rendered by header-body.hbs
+twice from the same data (the two {{#get}} of header.hbs, no request from the browser): in the desktop
+popover (#site-discover: six posts, one row on wide screens) and in the phone menu sheet (the first four
+posts as a list).
+Members: recommendations.js may replace the recent posts with posts of the tags they read, taken from the
+pool of header-body.hbs ([data-discover-pool]); the heading then takes its data-recommended text.
+Script hooks: [data-discover-posts] (data-count: how many posts it shows), [data-discover-title].
+Parameters:
+  prefix="..."   prefix of the ids of the headings (each use needs its own)
+  count="6"      number of recent posts shown
+  rowSizes="..."  sizes attribute of the posts' pictures: the width of their box (default: a compact row's, see row-item.hbs)
+  posts          the recent posts ({{#get "posts"}} of header.hbs)
+  tags           the most used public tags, with count.posts ({{#get "tags"}} of header.hbs)
+--}}
+<section class="discover__section discover__section--posts" aria-labelledby="{{prefix}}-recent">
+  <h2 class="discover__title" id="{{prefix}}-recent" data-discover-title{{#if @member}} data-recommended="{{t "Recommended for you"}}"{{/if}}>{{t "Recent posts"}}</h2>
+  {{#if posts}}
+    <ul class="discover__posts" role="list" data-discover-posts data-count="{{count}}" data-sizes="{{rowSizes}}">
+      {{#foreach posts limit=count}}<li>{{> row-item meta="tag-date" sizes=../rowSizes}}</li>{{/foreach}}
+    </ul>
+  {{/if}}
+</section>
+<section class="discover__section discover__section--tags" aria-labelledby="{{prefix}}-tags">
+  <div class="discover__head">
+    <h2 class="discover__title" id="{{prefix}}-tags">{{t "Tags"}}</h2>
+    {{#match tags.0.count.posts ">" 0}}
+      <ul class="discover__tags" role="list">
+        {{#foreach tags}}{{#match count.posts ">" 0}}<li><a class="discover__tag" href="{{url}}">{{name}}</a></li>{{/match}}{{/foreach}}
+      </ul>
+    {{/match}}
+    <a class="discover__all" href="{{@site.url}}/tags/">{{t "All tags"}}{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
+  </div>
+</section>

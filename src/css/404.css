@@ -1,0 +1,115 @@
+/* Page not found (error-404.hbs), on top of app.css */
+
+.error-page__top {
+  display: grid;
+  gap: var(--space-7);
+  align-items: center;
+  padding-block: var(--space-8) var(--space-9);
+
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 600px);
+    gap: var(--space-10);
+    padding-block: var(--space-11) var(--space-10);
+  }
+}
+
+.error-page__code {
+  font-family: var(--font-heading);
+  font-size: clamp(5rem, 3rem + 8vw, 8.5rem);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+.error-page__title {
+  margin-block-start: var(--space-6);
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: -0.02em;
+}
+
+.error-page__text {
+  max-width: 30rem;
+  margin-block-start: var(--space-3);
+  color: var(--color-text-secondary);
+  font-size: var(--text-l);
+  line-height: 1.55;
+}
+
+.error-page__card {
+  padding: var(--space-6);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+
+  @media (width >= 48rem) {
+    padding: var(--space-7);
+  }
+}
+
+.error-page__card-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.error-page__help {
+  margin-block-start: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--text-nav);
+  line-height: 1.5;
+}
+
+/* Looks like a search field, is a button that opens Ghost's search */
+.error-page__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  margin-block-start: var(--space-5);
+  padding-inline: var(--space-5);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--text-l);
+  text-align: start;
+  cursor: pointer;
+
+  .icon {
+    font-size: 1.25rem;
+    color: var(--color-text);
+  }
+
+  &:hover {
+    border-color: var(--color-text-secondary);
+    color: var(--color-text);
+  }
+}
+
+.error-page__shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.error-page__shortcuts .button {
+  padding-inline: var(--space-4);
+}
+
+/* The home link and at most three sections of the navigation */
+.error-page__shortcut:nth-child(n + 5) {
+  display: none;
+}
+
+.error-page__recent {
+  padding-block-end: var(--space-6);
+}
+
+.error-page__empty {
+  color: var(--color-text-secondary);
+}

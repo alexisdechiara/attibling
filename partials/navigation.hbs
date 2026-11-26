@@ -1,20 +1,19 @@
 {{!--
-This navigation template is shared across all the pages.
-Also it includes the big submenu.
+Ghost's {{navigation}} helper renders this partial with the site's navigation (Settings > Navigation).
+- Primary ({{navigation}}): list items only, so the caller owns the <ul> (the header adds its « Plus »
+  item to the same list). Used in the header bar, the mobile pills row and the mobile menu.
+- Secondary ({{navigation type="secondary"}}): a complete list. Used in the « Plus » popover, the
+  mobile menu and the footer.
+The current page's link carries aria-current="page".
 --}}
-
 {{#if isSecondary}}
-  <ul class="m-secondary-menu">
+  <ul class="nav-list nav-list--secondary" role="list">
     {{#foreach navigation}}
-      <li class="nav-{{slug}}{{#if current}} nav-current{{/if}}">
-        <a href="{{url absolute="true"}}">{{label}}</a>
-      </li>
+      <li class="nav-item nav-{{slug}}"><a class="nav-link" href="{{url absolute="true"}}"{{#if current}} aria-current="page"{{/if}}>{{label}}</a></li>
     {{/foreach}}
   </ul>
 {{else}}
   {{#foreach navigation}}
-    <li class="nav-{{slug}}{{#if current}} nav-current{{/if}}">
-      <a href="{{url absolute="true"}}">{{label}}</a>
-    </li>
+    <li class="nav-item nav-{{slug}}" data-nav-item><a class="nav-link" href="{{url absolute="true"}}"{{#if current}} aria-current="page"{{/if}}>{{label}}</a></li>
   {{/foreach}}
 {{/if}}

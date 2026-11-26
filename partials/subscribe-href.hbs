@@ -1,0 +1,42 @@
+{{~!--
+The href (and hooks) of a link to the theme's subscription page: « S'abonner » by default, « Se connecter »
+with signin=true. The destination, in this order:
+  1. the theme setting subscribe_url (Ghost Admin > Settings > Design > Site wide), e.g. /newsletter/;
+  2. else a published page whose slug is newsletter, abonnement or subscribe (the theme dresses these
+     slugs as its subscription page: page-newsletter.hbs, page-abonnement.hbs, page-subscribe.hbs);
+     Handlebars cannot remember a result, so a link looks the page up itself ({{#get}}, one query per
+     link) unless its caller already did: a template that shows several links runs that query once and
+     passes subscribePages=(the result) subscribePagesKnown=true down to the partials with the links
+     (header.hbs, home/hero.hbs and home/subscribe-promo.hbs do);
+  3. else Ghost's Portal window (#/portal/signup, #/portal/signin): a site without the page keeps a
+     working button.
+A link to the page ends with #inscription (the sign-up form) or #connexion (the sign-in form): the page
+opens in that state, its first field focused. It carries data-subscribe-page, which app.js reads to send
+the other Portal sign-up / sign-in links of the page (e.g. typed in a post) to the same page.
+Usage, inside an <a> tag:  <a class="…" {{> subscribe-href signin=false}}>  /  {{> subscribe-href signin=true}}
+--~}}
+{{~#if signin~}}
+  {{~#if @custom.subscribe_url~}}
+    href="{{@custom.subscribe_url}}#connexion" data-subscribe-page
+  {{~else if subscribePagesKnown~}}
+    {{~> subscribe-href-pick found=subscribePages fragment="#connexion" portal="signin"~}}
+  {{~else~}}
+    {{~#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |found|~}}
+      {{~> subscribe-href-pick found=found fragment="#connexion" portal="signin"~}}
+    {{~else~}}
+      href="#/portal/signin" data-portal="signin"
+    {{~/get~}}
+  {{~/if~}}
+{{~else~}}
+  {{~#if @custom.subscribe_url~}}
+    href="{{@custom.subscribe_url}}#inscription" data-subscribe-page
+  {{~else if subscribePagesKnown~}}
+    {{~> subscribe-href-pick found=subscribePages fragment="#inscription" portal="signup"~}}
+  {{~else~}}
+    {{~#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |found|~}}
+      {{~> subscribe-href-pick found=found fragment="#inscription" portal="signup"~}}
+    {{~else~}}
+      href="#/portal/signup" data-portal="signup"
+    {{~/get~}}
+  {{~/if~}}
+{{~/if~}}

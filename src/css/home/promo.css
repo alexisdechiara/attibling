@@ -1,0 +1,194 @@
+/** Subscription block, visitors only (partials/home/subscribe-promo.hbs) */
+
+.promo {
+  margin-block-start: var(--space-9);
+
+  @media (width >= 48rem) {
+    margin-block-start: var(--space-10);
+  }
+}
+
+/* Closed for good (default.hbs reads the choice before the first paint) */
+:root[data-promo-closed] .promo {
+  display: none;
+}
+
+.promo__card {
+  position: relative;
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+    gap: var(--space-10);
+    padding: var(--space-10) var(--space-9) var(--space-8);
+  }
+}
+
+.promo__close {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-end: 10px;
+  color: var(--color-text-secondary);
+}
+
+.promo__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.promo__title {
+  margin-inline-end: var(--space-8);
+  font-size: 1.5rem;
+  font-weight: var(--weight-heavy);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+
+  @media (width >= 48rem) {
+    margin-block-start: 14px;
+    font-size: var(--text-4xl);
+  }
+}
+
+.promo__text {
+  margin-block-start: var(--space-3);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.55;
+
+  @media (width >= 48rem) {
+    font-size: var(--text-l);
+  }
+}
+
+.promo__subscribe {
+  margin-block-start: var(--space-6);
+
+  @media (width < 64rem) {
+    order: 3;
+    width: 100%;
+    /* A long label (« S’abonner gratuitement ») wraps rather than widen the card at 320 px */
+    padding-block: var(--space-2);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+  }
+}
+
+.promo__signin {
+  margin-block-start: 14px;
+  color: var(--color-text-secondary);
+  font-size: var(--text-nav);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    color: var(--color-accent);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    text-underline-offset: 3px;
+
+    /* Blue is enough at rest; underlined on hover and keyboard focus */
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
+    }
+  }
+
+  @media (width < 64rem) {
+    order: 4;
+    align-self: center;
+  }
+}
+
+.promo__benefits {
+  display: grid;
+  /* minmax(0, …): a long benefit name is cut, it does not widen the list (320 px, WCAG 1.4.10) */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (width >= 48rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-7);
+  }
+
+  li {
+    display: flex;
+    gap: 14px;
+    color: var(--color-text-secondary);
+    font-size: var(--text-nav);
+    line-height: 1.6;
+  }
+}
+
+/* A benefit: its name on one line (cut with an ellipsis if need be), its explanation on two lines at
+   most, at every width and in every language */
+.promo__benefit {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.promo__benefit-title {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: var(--weight-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.promo__benefit-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* Phones: the button and the sign-in link go under the benefits */
+@media (width < 64rem) {
+  .promo__card {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  .promo__intro {
+    display: contents;
+  }
+
+  .promo__title,
+  .promo__text {
+    grid-column: 1;
+  }
+
+  .promo__benefits {
+    order: 2;
+    margin-block-start: var(--space-6);
+  }
+
+  .promo__signin {
+    margin-block-start: var(--space-2);
+  }
+}
+
+.promo__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 1.25rem;
+}

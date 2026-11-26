@@ -1,0 +1,3 @@
+{{!-- Posts of a {{#get "posts" include="tags"}} for the previews of the « Tags » page (partials/pages/tags.hbs):
+one row per post with the slugs of its public tags. --}}
+{{#foreach posts}}<li data-tags="{{#foreach tags}}{{slug}} {{/foreach}}"><a href="{{url}}">{{title}}</a><time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time><span>{{reading_time minute=(t "1 min") minutes=(t "% min")}}</span></li>{{/foreach}}

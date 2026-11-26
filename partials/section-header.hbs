@@ -1,0 +1,19 @@
+{{!--
+Section header: the section title (h2), an optional note (« 23 articles », « du plus récent au plus
+ancien ») and an optional « Tout voir » link.
+Parameters:
+  title="..."      heading text (required)
+  id="..."         id of the heading (for aria-labelledby on the section)
+  titleUrl="..."   link the title itself (rows of a tag link to the tag page)
+  note="..."       small text after the title
+  url="..."        « Tout voir » target; the link names its section for screen readers
+  urlLabel="..."   link text instead of « Tout voir » (e.g. (t "All tags"))
+  divider=true     a line under the header and the link at the end (« Derniers articles »)
+--}}
+<div class="section-header{{#if divider}} section-header--divider{{/if}}">
+  <h2 class="section-header__title"{{#if id}} id="{{id}}"{{/if}}>{{#if titleUrl}}<a href="{{titleUrl}}">{{title}}</a>{{else}}{{title}}{{/if}}</h2>
+  {{#if note}}<span class="section-header__note">{{note}}</span>{{/if}}
+  {{#if url}}
+    <a class="section-header__more" href="{{url}}">{{#if urlLabel}}{{urlLabel}}{{else}}{{t "See all"}}{{/if}}<span class="sr-only"> ({{title}})</span>{{> "icons/chevron-right" class="icon-flip-rtl"}}</a>
+  {{/if}}
+</div>

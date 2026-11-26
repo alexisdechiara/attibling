@@ -1,0 +1,29 @@
+{{!--
+Wordmark: the site's name as a logo.
+- With the "Use GEEKLY logo" setting (use_geekly_logo): the letters G E E K in the site's colours and
+  "ly" in Pacifico (black on light surfaces, white on dark ones and on images). The letters are
+  decorative: assistive technologies read the site title instead.
+- Otherwise the site logo image (Settings > Design > Brand), with the "Dark mode logo" setting
+  (dark_mode_logo) shown in dark mode and on images when it is set;
+- otherwise the site title as text.
+Parameters:
+  size="hero" | "header" | "footer"   (default "header")
+  onMedia=true   drawn over an image or a dark surface (the hero): white "ly", dark-mode logo
+  id="..."       id of the wordmark element (the hero gives "hero-wordmark", a stable hook for
+                 the docking and the page transitions)
+--}}
+{{#if @custom.use_geekly_logo}}
+  <span class="wordmark wordmark--geekly wordmark--{{#if size}}{{size}}{{else}}header{{/if}}{{#if onMedia}} wordmark--on-media{{/if}}"{{#if id}} id="{{id}}"{{/if}} data-wordmark>
+    <span class="sr-only">{{@site.title}}</span>
+    <span class="wordmark__letters" aria-hidden="true"><span class="wordmark__g">G</span><span class="wordmark__e1">E</span><span class="wordmark__e2">E</span><span class="wordmark__k">K</span><span class="wordmark__script">ly</span></span>
+  </span>
+{{else if @site.logo}}
+  <span class="wordmark wordmark--logo wordmark--{{#if size}}{{size}}{{else}}header{{/if}}{{#if onMedia}} wordmark--on-media{{/if}}"{{#if id}} id="{{id}}"{{/if}} data-wordmark>
+    <img class="wordmark__image{{#if @custom.dark_mode_logo}} wordmark__image--light{{/if}}" src="{{img_url @site.logo size="s"}}" alt="{{@site.title}}">
+    {{#if @custom.dark_mode_logo}}
+      <img class="wordmark__image wordmark__image--dark" src="{{img_url @custom.dark_mode_logo size="s"}}" alt="{{@site.title}}">
+    {{/if}}
+  </span>
+{{else}}
+  <span class="wordmark wordmark--text wordmark--{{#if size}}{{size}}{{else}}header{{/if}}{{#if onMedia}} wordmark--on-media{{/if}}"{{#if id}} id="{{id}}"{{/if}} data-wordmark>{{@site.title}}</span>
+{{/if}}

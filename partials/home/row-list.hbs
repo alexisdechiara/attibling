@@ -1,0 +1,19 @@
+{{!-- Home row « list »: the tag's latest 6 posts as a numbered text list (newest first, and the note says so), three columns on desktop. Tag context (rows.hbs). --}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="6" as |rowposts|}}{{#if rowposts}}
+  <section class="home-section row row--list container" aria-labelledby="row-{{../slug}}">
+    {{> section-header title=../name titleUrl=../url id=(concat "row-" ../slug) note=(t "newest first") url=../url}}
+    <ol class="text-list" role="list">
+      {{#foreach rowposts}}
+        <li class="text-list__item">
+          <a class="text-list__link" href="{{url}}">
+            <span class="text-list__number" aria-hidden="true">{{@number}}</span>
+            <span class="text-list__text">
+              <span class="text-list__title">{{title}}</span>
+              {{> tile-meta meta="time"}}
+            </span>
+          </a>
+        </li>
+      {{/foreach}}
+    </ol>
+  </section>
+{{/if}}{{/get}}

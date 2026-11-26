@@ -1,0 +1,79 @@
+/** Page transitions (cross-document View Transitions). They only run where the browser supports them,
+   when the « Page transitions » setting is on (default.hbs adds @view-transition { navigation: auto }
+   inside prefers-reduced-motion: no-preference) — otherwise none of this applies.
+
+   Pairs (the same name on the page left and on the page opened):
+     vt-media   the followed tile's picture (named on click by src/js/transitions.js) → the article
+                header's picture [data-article-image]
+     vt-tag     the followed tag tile (src/js/transitions.js) → the tag page's header [data-tag-header]
+     vt-logo    the hero wordmark of the home page while the header shows no logo, else the header
+                logo → the header logo of the page opened
+     vt-header  the sticky header stays in place instead of fading
+   Everything else cross-fades calmly. An element without a partner fades in or out with the page. */
+
+[data-article-image] {
+  view-transition-name: vt-media;
+}
+
+[data-tag-header] {
+  view-transition-name: vt-tag;
+}
+
+.site-header {
+  view-transition-name: vt-header;
+}
+
+[data-header-logo] {
+  view-transition-name: vt-logo;
+}
+
+/* Home page, before docking: the header has no logo, the hero wordmark stands for it */
+.site-header[data-dock="undocked"] [data-header-logo] {
+  view-transition-name: none;
+}
+
+:root:has(.site-header[data-dock="undocked"]) #hero-wordmark {
+  view-transition-name: vt-logo;
+}
+
+/* The pages: a short cross-fade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: ease;
+}
+
+/* Moving pictures and headers: 320 ms, the picture keeps covering its box (both ratios differ) */
+::view-transition-group(vt-media),
+::view-transition-group(vt-tag),
+::view-transition-group(vt-logo) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-group(vt-media),
+::view-transition-group(vt-tag) {
+  overflow: clip;
+  border-radius: var(--radius-m);
+}
+
+::view-transition-old(vt-media),
+::view-transition-new(vt-media),
+::view-transition-old(vt-tag),
+::view-transition-new(vt-tag) {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The header does not move: no cross-fade of its two states either */
+::view-transition-group(vt-header) {
+  animation-duration: 0s;
+}
+
+::view-transition-old(vt-header) {
+  display: none;
+}
+
+::view-transition-new(vt-header) {
+  animation: none;
+}

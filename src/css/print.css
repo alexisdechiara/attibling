@@ -1,0 +1,307 @@
+/** Print (generic page, reference document and post: page.hbs, pages/document.hbs, post.hbs, loaded with
+   media="print"). The screen stylesheets are media="screen", so on paper the page starts from the browser's
+   defaults: this sheet keeps only the title, the date and the text, in black on white, in the site's font
+   (Onest), and prints the address of each external link after it. The header, the footer, the table of
+   contents (no page numbers on paper), the buttons and, on a post, the feature image, the share links, the
+   author box, comments and recommendations are left out. */
+
+@page {
+  margin: 18mm 16mm 20mm;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+  color: #000;
+  font-family: var(
+    --gh-font-body,
+    Onest,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif
+  );
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+
+/* Only the main content: the skip link, header, footer, announcement bar and Ghost's own roots
+   (Portal, search) are direct children of <body> too */
+body > :not(main),
+.document-toc,
+.document__print,
+.heading-link,
+.heading-link__toast,
+.sr-only:empty,
+.skip-link,
+.page-article__figure,
+iframe,
+video,
+audio,
+.kg-embed-card,
+.kg-video-card,
+.kg-audio-card,
+.kg-signup-card,
+.kg-button-card,
+.article-header__media,
+.article-header__avatar,
+.article-header__bookmark,
+.article-toc,
+.summary-teaser,
+.series__list,
+.series__nav,
+.series__count-short,
+.series__bar,
+.series-line,
+.article-share,
+.author-box,
+.article-comments,
+.article-related,
+.progress-button,
+.reading-settings,
+.code-block__bar,
+.embed-facade,
+.embed-remembered {
+  display: none !important;
+}
+
+/* An embed, which cannot show on paper: the line embeds.js puts before it (what it is, its address) */
+.embed-print[hidden] {
+  display: block !important;
+  margin: 0 0 6pt;
+  padding: 4pt 6pt;
+  border: 0.5pt solid #999;
+  font-size: 9pt;
+  overflow-wrap: anywhere;
+}
+
+/* Post: title, tag, author and date, then the text; « Publié le · Mis à jour le » at the end */
+.article-header {
+  margin-block-end: 14pt;
+  padding-block-end: 8pt;
+  border-block-end: 0.75pt solid #000;
+}
+
+.article-header__tags,
+.article-header__meta,
+.article-dates {
+  font-size: 9pt;
+}
+
+.article-header__tag {
+  text-decoration: none;
+}
+
+main {
+  margin: 0;
+  padding: 0;
+}
+
+/* The title of a page whose « Show title » is off stays on paper */
+.sr-only {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+  white-space: normal !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+dt,
+th,
+.document__updated {
+  font-family: Onest, "Helvetica Neue", Arial, sans-serif;
+}
+
+h1 {
+  margin: 0 0 4pt;
+  font-size: 22pt;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.document__lead,
+.page-article__excerpt {
+  margin: 4pt 0 0;
+  color: #333;
+  font-size: 11.5pt;
+}
+
+.document__header,
+.page-article__header {
+  margin-block-end: 14pt;
+  padding-block-end: 8pt;
+  border-block-end: 0.75pt solid #000;
+}
+
+.document__updated {
+  margin: 8pt 0 0;
+  font-size: 9pt;
+}
+
+h2 {
+  margin: 16pt 0 4pt;
+  font-size: 14pt;
+  line-height: 1.25;
+}
+
+h3 {
+  margin: 12pt 0 3pt;
+  font-size: 11.5pt;
+  line-height: 1.3;
+}
+
+h4 {
+  margin: 10pt 0 2pt;
+  font-size: 10.5pt;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  break-after: avoid;
+  break-inside: avoid;
+}
+
+p,
+li {
+  orphans: 3;
+  widows: 3;
+}
+
+p {
+  margin: 0 0 6pt;
+}
+
+ul,
+ol {
+  margin: 0 0 6pt;
+  padding-inline-start: 16pt;
+}
+
+li + li {
+  margin-block-start: 2pt;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* The address of an external link, unless the link already reads as its address (page.js) */
+.gh-content a[data-print-href]::after {
+  content: " (" attr(data-print-href) ")";
+  font-size: 8.5pt;
+  overflow-wrap: anywhere;
+}
+
+code {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+pre {
+  padding: 6pt;
+  border: 0.5pt solid #999;
+  white-space: pre-wrap;
+  break-inside: avoid;
+}
+
+blockquote {
+  margin: 0 0 6pt;
+  padding-inline-start: 10pt;
+  border-inline-start: 1pt solid #999;
+  font-style: italic;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  break-inside: avoid;
+}
+
+figcaption {
+  font-size: 8.5pt;
+}
+
+hr {
+  border: 0;
+  border-block-start: 0.5pt solid #999;
+}
+
+/* Tables and definitions: ruled, never cut through a row or a pair */
+.table-scroll {
+  overflow: visible !important;
+}
+
+table {
+  width: 100%;
+  margin: 0 0 8pt;
+  border-collapse: collapse;
+  font-size: 9pt;
+}
+
+td code {
+  white-space: nowrap;
+}
+
+th,
+td {
+  padding: 3pt 4pt;
+  border: 0.5pt solid #999;
+  text-align: start;
+  vertical-align: top;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tr,
+dl {
+  break-inside: avoid;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2pt 12pt;
+  margin: 0 0 8pt;
+  padding: 6pt 8pt;
+  border: 0.5pt solid #999;
+}
+
+dt {
+  font-size: 9pt;
+  font-weight: 600;
+}
+
+dd {
+  margin: 0;
+}
+
+/* Ghost's callout and toggle cards: their text, framed */
+.kg-callout-card,
+.kg-toggle-card {
+  margin: 0 0 8pt;
+  padding: 6pt 8pt;
+  border: 0.5pt solid #999;
+}
+
+.kg-toggle-content {
+  display: block !important;
+}

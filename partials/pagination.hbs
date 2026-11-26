@@ -1,19 +1,15 @@
 {{!--
-This pagination template is used to navigate through newer and older articles.
+Pagination: Ghost's {{pagination}} helper renders this partial with page, pages, prev and next.
+« Plus récents » / « Plus anciens » pill links around « Page N sur M »; nothing when there is one page.
 --}}
-
-<div class="l-wrapper">
-  <nav class="m-pagination" aria-label="{{t "Pagination"}}">
+{{#match pages ">" 1}}
+  <nav class="pagination container" aria-label="{{t "Pagination"}}">
     {{#if prev}}
-      <a href="{{page_url prev}}" class="m-icon-button filled in-pagination-left" aria-label="{{t "Newer posts"}}">
-        <span class="icon-arrow-left"></span>
-      </a>
+      <a class="button button--ghost pagination__link" href="{{page_url prev}}" rel="prev">{{> "icons/arrow-left" class="icon-flip-rtl"}}<span>{{t "Newer posts"}}</span></a>
     {{/if}}
-    <span class="m-pagination__text">{{t "Page"}} {{page}} {{t "of"}} {{pages}}</span>
+    <span class="pagination__status">{{t "Page {page} of {pages}" page=page pages=pages}}</span>
     {{#if next}}
-      <a href="{{page_url next}}" class="m-icon-button filled in-pagination-right" aria-label="{{t "Older posts"}}">
-        <span class="icon-arrow-right"></span>
-      </a>
+      <a class="button button--ghost pagination__link" href="{{page_url next}}" rel="next"><span>{{t "Older posts"}}</span>{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
     {{/if}}
   </nav>
-</div>
+{{/match}}

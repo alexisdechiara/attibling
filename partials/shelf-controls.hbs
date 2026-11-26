@@ -1,0 +1,9 @@
+{{!--
+Previous / next buttons of a shelf (a row of tiles that scrolls sideways). Put it in the
+[data-shelf] element, after its .js-slider-track list. The buttons stay hidden until the script
+(setUpShelves in src/js/helpers.js) runs; each scrolls by one view and hides at its end.
+Parameters:
+  label="..."   name of the row, appended to the buttons' labels (« Articles suivants : Jeux vidéo »)
+--}}
+<button type="button" class="icon-button icon-button--scrim shelf__button shelf__button--prev js-slider-prev" aria-label="{{t "Previous posts"}}{{#if label}}: {{label}}{{/if}}" hidden>{{> "icons/chevron-right" class="icon-flip"}}</button>
+<button type="button" class="icon-button icon-button--scrim shelf__button shelf__button--next js-slider-next" aria-label="{{t "Next posts"}}{{#if label}}: {{label}}{{/if}}" hidden>{{> "icons/chevron-right"}}</button>

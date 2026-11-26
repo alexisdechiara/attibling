@@ -1,0 +1,28 @@
+{{!--
+Icon of a section (tag) on the « À propos » page, chosen from words in the tag's SLUG (first match wins;
+documented in docs/guide-auteur.md so authors can pick a slug or rely on the default):
+  actu, news, info-                       → newspaper
+  jeu, game, gaming, esport               → game controller
+  anime, manga, serie, film, cinema, video, tv → screen
+  dossier, guide, long                    → folder
+  ia, ai-, intelligence                   → sparkle
+  test, review, avis                      → check in a circle
+  informatique, tech, code, dev, program, web → code brackets
+  anything else                           → hash
+Inside a tag context.
+--}}
+{{#match slug "~" "actu"}}{{> "icons/newspaper"}}{{else}}{{#match slug "~" "news"}}{{> "icons/newspaper"}}{{else}}{{#match slug "~^" "info-"}}{{> "icons/newspaper"}}{{else}}
+{{#match slug "~" "jeu"}}{{> "icons/gamepad"}}{{else}}{{#match slug "~" "game"}}{{> "icons/gamepad"}}{{else}}{{#match slug "~" "esport"}}{{> "icons/gamepad"}}{{else}}
+{{#match slug "~" "anime"}}{{> "icons/screen"}}{{else}}{{#match slug "~" "manga"}}{{> "icons/screen"}}{{else}}{{#match slug "~" "serie"}}{{> "icons/screen"}}{{else}}{{#match slug "~" "film"}}{{> "icons/screen"}}{{else}}{{#match slug "~" "cinema"}}{{> "icons/screen"}}{{else}}{{#match slug "~" "video"}}{{> "icons/screen"}}{{else}}{{#match slug "~" "tv"}}{{> "icons/screen"}}{{else}}
+{{#match slug "~" "dossier"}}{{> "icons/folder"}}{{else}}{{#match slug "~" "guide"}}{{> "icons/folder"}}{{else}}{{#match slug "~" "long"}}{{> "icons/folder"}}{{else}}
+{{#match slug "ia"}}{{> "icons/sparkle"}}{{else}}{{#match slug "~^" "ia-"}}{{> "icons/sparkle"}}{{else}}{{#match slug "~$" "-ia"}}{{> "icons/sparkle"}}{{else}}{{#match slug "ai"}}{{> "icons/sparkle"}}{{else}}{{#match slug "~^" "ai-"}}{{> "icons/sparkle"}}{{else}}{{#match slug "~" "intelligence"}}{{> "icons/sparkle"}}{{else}}
+{{#match slug "~" "test"}}{{> "icons/check-circle"}}{{else}}{{#match slug "~" "review"}}{{> "icons/check-circle"}}{{else}}{{#match slug "~" "avis"}}{{> "icons/check-circle"}}{{else}}
+{{#match slug "~" "informatique"}}{{> "icons/code"}}{{else}}{{#match slug "~" "tech"}}{{> "icons/code"}}{{else}}{{#match slug "~" "code"}}{{> "icons/code"}}{{else}}{{#match slug "~" "dev"}}{{> "icons/code"}}{{else}}{{#match slug "~" "program"}}{{> "icons/code"}}{{else}}{{#match slug "~" "web"}}{{> "icons/code"}}{{else}}
+{{> "icons/hash"}}
+{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}
+{{/match}}{{/match}}{{/match}}
+{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}
+{{/match}}{{/match}}{{/match}}
+{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}
+{{/match}}{{/match}}{{/match}}
+{{/match}}{{/match}}{{/match}}

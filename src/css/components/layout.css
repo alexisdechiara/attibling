@@ -1,0 +1,225 @@
+/** Layout pieces: section header, shelves (rows that scroll sideways), post and tag grids,
+   page heading, pagination */
+
+.section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-2);
+  min-height: 40px;
+  margin-block-end: var(--space-2);
+}
+
+.section-header__title {
+  color: var(--color-text);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+
+  @media (width >= 48rem) {
+    font-size: var(--text-2xl);
+  }
+
+  a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.section-header__note {
+  color: var(--color-text-muted);
+  font-size: var(--text-m);
+  font-weight: var(--weight-medium);
+}
+
+.section-header__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--target);
+  margin-inline-start: auto;
+  padding-inline: var(--space-3) 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  font-weight: var(--weight-semibold);
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+
+  /* Desktop: right after the note, as on the boards */
+  @media (width >= 48rem) {
+    margin-inline-start: var(--space-2);
+  }
+}
+
+.section-header--divider {
+  align-items: center;
+  padding-block-end: var(--space-1);
+  margin-block-end: var(--space-5);
+  border-block-end: 1px solid var(--color-border);
+
+  .section-header__more {
+    margin-inline-start: auto;
+  }
+}
+
+/* Home sections: vertical rhythm */
+.home-section {
+  margin-block-start: var(--space-9);
+
+  @media (width >= 48rem) {
+    margin-block-start: var(--space-10);
+  }
+}
+
+/* Shelf: a row of tiles that scrolls sideways, from the container's start to the viewport's end,
+   with previous / next buttons (helpers.js setUpSlider). */
+.shelf {
+  position: relative;
+}
+
+.shelf__track {
+  display: flex;
+  gap: var(--space-4);
+  /* Room above the tiles for their hover lift and shadow (the scroll container clips); the negative
+     margin keeps the row where it was */
+  margin: calc(var(--space-2) - var(--space-5)) 0 0;
+  padding-block: var(--space-5) var(--space-7);
+  padding-inline: max(var(--gutter), calc((100% - var(--page-max)) / 2));
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: max(var(--gutter), calc((100% - var(--page-max)) / 2));
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.shelf__item {
+  /* Contains the absolutely positioned bits of its tile (visually hidden text included), which would
+     otherwise escape the scrolling track and widen the page */
+  position: relative;
+  flex: 0 0 clamp(250px, 72vw, 305px);
+  scroll-snap-align: start;
+}
+
+.shelf__button {
+  position: absolute;
+  inset-block-start: calc(var(--shelf-media-height, 172px) / 2 - var(--target) / 2 + var(--space-2));
+  z-index: 2;
+  display: none;
+
+  @media (hover: hover) and (width >= 48rem) {
+    display: inline-grid;
+  }
+
+  &:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.shelf__button--prev {
+  inset-inline-start: var(--space-4);
+
+  .icon {
+    transform: scaleX(-1);
+  }
+
+  &:dir(rtl) .icon {
+    transform: none;
+  }
+}
+
+.shelf__button--next {
+  inset-inline-end: var(--space-4);
+
+  &:dir(rtl) .icon {
+    transform: scaleX(-1);
+  }
+}
+
+/* Post grid (page 2+, tag and author pages, related posts) */
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-8) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Tag tiles grid */
+.tag-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+
+  @media (width >= 48rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  @media (width >= 75rem) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* Heading of list pages (page 2+) */
+.page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding-block: var(--space-7) var(--space-6);
+}
+
+.page-heading__title {
+  font-size: var(--h1-size);
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+  line-height: var(--h1-leading);
+}
+
+.page-heading__note {
+  color: var(--color-text-muted);
+  font-size: var(--text-m);
+  font-weight: var(--weight-medium);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-9);
+}
+
+.pagination__status {
+  color: var(--color-text-muted);
+  font-size: var(--text-m);
+  font-weight: var(--weight-medium);
+}
+
+.pagination__link {
+  border: 1px solid var(--color-border);
+}

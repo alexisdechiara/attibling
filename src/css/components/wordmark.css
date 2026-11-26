@@ -1,0 +1,131 @@
+/** Wordmark (partials/wordmark.hbs): GEEKly letters, the site logo image, or the site title */
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--color-text);
+  font-family: var(--font-onest);
+  font-size: 24px;
+  font-weight: var(--weight-black);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.wordmark__letters {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.wordmark__g {
+  color: var(--wordmark-g);
+}
+
+.wordmark__e1 {
+  color: var(--wordmark-e1);
+}
+
+.wordmark__e2 {
+  color: var(--wordmark-e2);
+}
+
+.wordmark__k {
+  color: var(--wordmark-k);
+}
+
+.wordmark__script {
+  position: relative;
+  inset-block-start: 0.06em;
+  margin-inline-start: 1px;
+  color: var(--wordmark-script);
+  font-family: var(--font-script);
+  font-size: 1.12em;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Logo image: the dark-mode logo replaces it in dark mode */
+.wordmark__image {
+  display: block;
+  width: auto;
+  height: 34px;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.wordmark__image--dark,
+:root[data-theme="dark"] .wordmark__image--light {
+  display: none;
+}
+
+:root[data-theme="dark"] .wordmark__image--dark {
+  display: block;
+}
+
+/* A site logo drawn for dark backgrounds (src/js/logo-ink.js sets data-ink="light": white ink on
+   transparency): on light surfaces its white parts take the "ly" ink colour, its colours stay. Dark mode
+   and images (on-media) show it as it is. */
+:root[data-theme="light"]
+  .wordmark--logo[data-ink="light"]:not(.wordmark--on-media)
+  .wordmark__image:not(.wordmark__image--dark) {
+  filter: url("#attibling-logo-ink");
+}
+
+.logo-ink-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.logo-ink-filter__ink {
+  flood-color: var(--wordmark-script);
+}
+
+.wordmark--footer .wordmark__image {
+  height: 32px;
+}
+
+/* Hero: its size is --hero-mark (src/css/home/hero.css: 148px at 1440px, 68px on a phone); the "ly"
+   keeps its descender inside the box so the tagline can sit right under it. No shadow on the letters:
+   the hero's veil carries their contrast. */
+.wordmark--hero {
+  font-size: var(--hero-mark, clamp(62px, 8.4vw, 120px));
+  letter-spacing: -0.02em;
+
+  .wordmark__script {
+    display: inline-block;
+    inset-block-start: 0;
+    margin-inline-start: 0.033em;
+    padding-block-end: 0.4em;
+    line-height: 1;
+  }
+
+  &.wordmark--text {
+    font-size: clamp(40px, 6vw, 88px);
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .wordmark__image {
+    height: clamp(64px, 10vw, 140px);
+    max-width: min(560px, 100%);
+  }
+}
+
+/* Over images and dark surfaces: white text, white "ly", the dark-mode logo */
+.wordmark--on-media {
+  color: var(--color-on-media);
+
+  .wordmark__script {
+    color: var(--wordmark-script-on-media);
+  }
+
+  &:has(.wordmark__image--dark) .wordmark__image--light {
+    display: none;
+  }
+
+  .wordmark__image--dark {
+    display: block;
+  }
+}

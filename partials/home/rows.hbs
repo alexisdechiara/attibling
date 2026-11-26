@@ -1,0 +1,22 @@
+{{!--
+Rows by tag, under « Les plus lus » (the markup is in rows-body.hbs). The sequence of forms is fixed by the
+theme so that two neighbouring rows never share a form (Final-rangees-catalogue):
+  1. shelf of 16:9 tiles   (row 1)          4. numbered text list, by date   (row 3)
+  2. tag tiles « Tags » (most used tags) 5. collection banner             (row 4)
+  3. 2:3 posters           (row 2)          6. one large post + four          (row 5)
+Which tag fills each row: the theme setting « Home row N » (home_row_1 ... home_row_5, a tag slug,
+Ghost Admin > Settings > Design > Homepage) when it is set; otherwise the Nth most used public tag.
+A setting naming no existing public tag (e.g. "none") removes its row; a tag without posts has no row.
+A tag pinned by one row never fills another: when the Nth most used tag is pinned in a setting (any row),
+the row that would fall back on it is left out, so no tag appears twice (and every id row-<slug> is unique).
+The five most used tags are queried once, and only when a row has no setting; each row without setting
+takes its place in that one result. A row with a setting queries its own tag.
+--}}
+{{#match (concat "," @custom.home_row_1 "," @custom.home_row_2 "," @custom.home_row_3 "," @custom.home_row_4 "," @custom.home_row_5 ",") "~" ",,"}}
+  {{!-- The block of {{#get}} changes the context: {{#with ..}} gives it back --}}
+  {{#get "tags" filter="visibility:public" include="count.posts" order="count.posts desc" limit="5" as |toptags|}}{{#with ..}}
+    {{> "home/rows-body" toptags=toptags}}
+  {{/with}}{{/get}}
+{{else}}
+  {{> "home/rows-body"}}
+{{/match}}

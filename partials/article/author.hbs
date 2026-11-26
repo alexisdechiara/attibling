@@ -1,0 +1,37 @@
+{{!--
+Author box (post context), from the primary author's profile (Ghost Admin > Settings > Staff): photo,
+name, bio, « À propos » (a page whose slug is the theme setting about_page, or a-propos / about when it
+is empty; no link when no such page exists) and « Tous ses articles » (the author's page). Parts with
+no data are left out. soloAuthor=true (post.hbs, single-author site): no link to the author page at all
+(name and photo are plain text, no « Tous ses articles »).
+--}}
+{{#primary_author}}
+  <section class="author-box container" aria-labelledby="author-box-name">
+    <div class="author-box__inner">
+      {{#if ../soloAuthor}}<span class="author-box__avatar" aria-hidden="true">{{else}}<a class="author-box__avatar" href="{{url}}" tabindex="-1" aria-hidden="true">{{/if}}
+        {{#if profile_image}}
+          <img src="{{img_url profile_image size="s" format="webp"}}" alt="" width="100" height="100" loading="lazy" decoding="async">
+        {{else}}
+          <span>{{> "icons/user"}}</span>
+        {{/if}}
+      {{#if ../soloAuthor}}</span>{{else}}</a>{{/if}}
+      <div class="author-box__body">
+        <p class="author-box__eyebrow">{{t "Written by"}}</p>
+        <h2 class="author-box__name" id="author-box-name">{{#if ../soloAuthor}}{{name}}{{else}}<a href="{{url}}">{{name}}</a>{{/if}}</h2>
+        {{#if bio}}<p class="author-box__bio">{{bio}}</p>{{/if}}
+        <p class="author-box__links">
+          {{#if @custom.about_page}}
+            {{#get "pages" filter="slug:{{@custom.about_page}}" limit="1" as |about|}}
+              {{#foreach about}}<a class="button button--outline" href="{{url}}">{{t "About"}}</a>{{/foreach}}
+            {{/get}}
+          {{else}}
+            {{#get "pages" filter="slug:[a-propos,about]" limit="1" as |about|}}
+              {{#foreach about}}<a class="button button--outline" href="{{url}}">{{t "About"}}</a>{{/foreach}}
+            {{/get}}
+          {{/if}}
+          {{#unless ../soloAuthor}}<a class="button" href="{{url}}">{{t "All their posts"}}</a>{{/unless}}
+        </p>
+      </div>
+    </div>
+  </section>
+{{/primary_author}}

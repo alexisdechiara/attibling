@@ -1,54 +1,50 @@
 {{!--
-This template is used for the posts that are marked as pages.
+Generic page (« Mentions légales », any static page): a calm reading column. The title, the excerpt and
+the feature image show unless the page's « Show title and feature image » setting is off
+(@page.show_title_and_feature_image); the text uses the reading font and Ghost's cards keep their
+widths (wide, full). An empty page body shows nothing more than its heading.
+Printed (css/print.css): the title and the text only, in black on white, with the address of each link.
+Long reference pages (legal notice, privacy…) can use the « Document » template instead
+(custom-document.hbs, partials/pages/document.hbs): last-updated date, table of contents, print button.
 --}}
 
-{{!-- This block preloads specific assets for the post page --}}
 {{#contentFor "preload"}}
-  <link rel="preload" href="{{asset "css/post.css"}}" as="style" />
-  <link rel="preload" href="{{asset "js/page.js"}}" as="script" />
+  <link rel="preload" href="{{asset "css/page.css"}}" as="style" />
 {{/contentFor}}
 
-{{!-- This block loads specific styles for the post page --}}
 {{#contentFor "styles"}}
-  <link rel="stylesheet" type="text/css" href="{{asset "css/post.css"}}" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{asset "css/page.css"}}" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{asset "css/print.css"}}" media="print" />
 {{/contentFor}}
 
-{{!-- The tag below means: insert everything in this file
-into the {body} of the default.hbs template --}}
 {{!< default}}
 
-{{!-- Special header.hbs partial to generate the <header> tag --}}
-{{#post}}
-  {{> header background=feature_image}}
-{{/post}}
+{{> header}}
 
-<main class="main-wrap">
-  {{!-- Everything inside the #post tags pulls data from the post --}}
+<main id="main" class="site-main page-main">
   {{#post}}
-    {{!-- Inject styles of the hero image to make it responsive --}}
-    {{> hero background=feature_image}}
-    <div class="m-hero__content" data-animate="fade-down">
-      <h1 class="m-hero-title bigger">{{title}}</h1>
-      {{#if custom_excerpt}}
-        <p class="m-hero-description">{{custom_excerpt}}</p>
-      {{/if}}
-    </div>
-    </section>
-    <article>
-      <div class="l-content">
-        <div class="l-wrapper in-post" data-animate="fade-up">
-          <div class="l-post-content">
-            <div class="pos-relative js-post-content">
-              {{content}}
-            </div>
-          </div>
-        </div>
+    <article class="page-article">
+      {{#match @page.show_title_and_feature_image}}
+        <header class="page-article__header">
+          <h1 class="page-article__title">{{title}}</h1>
+          {{#if custom_excerpt}}<p class="page-article__excerpt">{{custom_excerpt}}</p>{{/if}}
+        </header>
+        {{#if feature_image}}
+          <figure class="page-article__figure">
+            <img class="page-article__image"{{> "image/srcset" image=feature_image widths="large" srcSize="l"}} sizes="(max-width: 1100px) 100vw, 1040px" alt="{{#if feature_image_alt}}{{feature_image_alt}}{{/if}}" fetchpriority="high">
+            {{#if feature_image_caption}}<figcaption>{{feature_image_caption}}</figcaption>{{/if}}
+          </figure>
+        {{/if}}
+      {{else}}
+        <h1 class="sr-only">{{title}}</h1>
+      {{/match}}
+      <div class="page-content gh-content js-post-content">
+        {{content}}
       </div>
     </article>
   {{/post}}
 </main>
 
-{{!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs --}}
 {{#contentFor "scripts"}}
-  <script defer src="{{asset "js/page.js"}}"></script>
+  <script type="module" async src="{{asset "js/page.js"}}"></script>
 {{/contentFor}}

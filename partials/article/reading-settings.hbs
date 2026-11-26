@@ -1,0 +1,144 @@
+{{!--
+« Réglages d'affichage » (members only, theme setting reading_settings): a popover under the gear button
+of the header (partials/article/settings-button.hbs) on wide screens, a bottom sheet on phones. Every
+control is a native form field; src/js/reading-settings.js saves the choices in localStorage
+("attibling-reading", only what differs from the defaults) and writes them on <html> as
+data-reading-<name>="<value>" (theme, heading, body, width, size, leading, align, links, cover, style,
+summary); default.hbs applies the saved ones before the first paint, src/css/article/reading.css reads them.
+--}}
+<div class="reading-settings" id="reading-settings" popover role="dialog" aria-labelledby="reading-settings-title" data-reading-settings>
+  <div class="reading-settings__head">
+    <span class="reading-settings__grip" aria-hidden="true"></span>
+    <h2 class="reading-settings__title" id="reading-settings-title">{{t "Display settings"}}</h2>
+    <button type="button" class="icon-button reading-settings__close" popovertarget="reading-settings" popovertargetaction="hide" aria-label="{{t "Close"}}" data-reading-close>{{> "icons/close"}}</button>
+  </div>
+
+  <form class="reading-settings__form" data-reading-form>
+    <div class="reading-field">
+      <label class="reading-field__label" for="reading-theme">{{t "Palette"}}</label>
+      {{!-- Plain selects cannot draw the swatch inside the option: this one, over the select, follows the
+      checked option (CSS :has); the customizable select draws its own and hides it --}}
+      <div class="reading-select-wrap">
+      <span class="reading-swatch reading-select__swatch" aria-hidden="true"></span>
+      <select class="reading-select reading-select--theme" id="reading-theme" name="theme">
+        <button type="button"><selectedcontent></selectedcontent></button>
+        <option value="geekly" selected><span class="reading-swatch reading-swatch--geekly" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{@site.title}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "site palette (default)"}}</span></span></option>
+        <option value="desert"><span class="reading-swatch reading-swatch--desert" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{t "Desert"}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "sand paper, brown ink"}}</span></span></option>
+        <option value="ink"><span class="reading-swatch reading-swatch--ink" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{t "Ink"}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "black and white, highest contrast"}}</span></span></option>
+        <option value="forest"><span class="reading-swatch reading-swatch--forest" aria-hidden="true"></span><span class="reading-option"><span class="reading-option__name">{{t "Forest"}}</span><span class="reading-option__sep"> — </span><span class="reading-option__note">{{t "soft green, dark ink"}}</span></span></option>
+      </select>
+      </div>
+    </div>
+
+    <div class="reading-row">
+      <div class="reading-field">
+        <label class="reading-field__label" for="reading-heading">{{t "Heading font"}}</label>
+        <select class="reading-select" id="reading-heading" name="heading">
+          <option value="default" selected>Onest</option>
+          <option value="space-grotesk">Space Grotesk</option>
+          <option value="libre-baskerville">Libre Baskerville</option>
+          <option value="poppins">Poppins</option>
+          <option value="lora">Lora</option>
+          <option value="jetbrains-mono">JetBrains Mono</option>
+        </select>
+      </div>
+      <div class="reading-field">
+        <label class="reading-field__label" for="reading-body">{{t "Text font"}}</label>
+        <select class="reading-select" id="reading-body" name="body">
+          <option value="default" selected>Literata</option>
+          <option value="merriweather">Merriweather</option>
+          <option value="ibm-plex-serif">IBM Plex Serif</option>
+          <option value="inter">Inter</option>
+          <option value="noto-sans">Noto Sans</option>
+          <option value="fira-mono">Fira Mono</option>
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Article width"}}</legend>
+      <div class="segmented segmented--3">
+        <label><input type="radio" name="width" value="s">{{t "S"}}</label>
+        <label><input type="radio" name="width" value="m" checked>{{t "M"}}</label>
+        <label><input type="radio" name="width" value="l">{{t "L"}}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Text size"}}</legend>
+      <div class="segmented segmented--3">
+        <label><input type="radio" name="size" value="s">{{t "S"}}</label>
+        <label><input type="radio" name="size" value="m" checked>{{t "M"}}</label>
+        <label><input type="radio" name="size" value="l">{{t "L"}}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Line spacing"}}</legend>
+      <div class="segmented segmented--3">
+        <label><input type="radio" name="leading" value="tight">{{t "Tight"}}</label>
+        <label><input type="radio" name="leading" value="normal" checked>{{t "Normal"}}</label>
+        <label><input type="radio" name="leading" value="airy">{{t "Airy"}}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Alignment"}}</legend>
+      <div class="segmented segmented--4">
+        <label title="{{t "Justified"}}"><input type="radio" name="align" value="justify" checked>{{> "icons/align-justify"}}<span class="sr-only">{{t "Justified"}}</span></label>
+        <label title="{{t "Left"}}"><input type="radio" name="align" value="start">{{> "icons/align-left"}}<span class="sr-only">{{t "Left"}}</span></label>
+        <label title="{{t "Centred"}}"><input type="radio" name="align" value="center">{{> "icons/align-center"}}<span class="sr-only">{{t "Centred"}}</span></label>
+        <label title="{{t "Right"}}"><input type="radio" name="align" value="end">{{> "icons/align-right"}}<span class="sr-only">{{t "Right"}}</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Link style"}}</legend>
+      <div class="segmented segmented--2">
+        <label><input type="radio" name="links" value="color" checked>{{t "Colour"}}</label>
+        <label><input type="radio" name="links" value="underline">{{t "Underlined"}}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Cover image"}}</legend>
+      <div class="segmented segmented--2">
+        <label><input type="radio" name="cover" value="show" checked>{{t "Show"}}</label>
+        <label><input type="radio" name="cover" value="hide">{{t "Hide"}}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Article style"}}</legend>
+      <div class="style-choice">
+        <label><input type="radio" name="style" value="card"><span class="style-choice__art style-choice__art--card" aria-hidden="true"><span></span><span></span><span></span></span>{{t "Card"}}</label>
+        <label><input type="radio" name="style" value="immersive"><span class="style-choice__art style-choice__art--immersive" aria-hidden="true"><span></span><span></span><span></span></span>{{t "Immersive"}}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "“In short” summary"}}</legend>
+      <div class="segmented segmented--2">
+        <label><input type="radio" name="summary" value="show" checked>{{t "Show"}}</label>
+        <label><input type="radio" name="summary" value="hide">{{t "Hide"}}</label>
+      </div>
+    </fieldset>
+
+    {{!-- Not a display setting: where the member stops reading, for « Reprendre la lecture » on the
+    home page (on by default; off clears the list). Kept apart from the others (src/js/privacy/choices.js,
+    "attibling-privacy"), so « Réinitialiser » leaves it alone; also in the « Cookies et confidentialité »
+    panel. --}}
+    <fieldset class="reading-field">
+      <legend class="reading-field__label">{{t "Remember where I stop"}}</legend>
+      <div class="segmented segmented--2">
+        <label><input type="radio" name="progress" value="on" checked>{{t "Yes"}}</label>
+        <label><input type="radio" name="progress" value="off">{{t "No"}}</label>
+      </div>
+    </fieldset>
+
+    <div class="reading-settings__foot">
+      <span class="reading-settings__note">{{t "Saved in this browser"}}</span>
+      <button type="button" class="reading-settings__reset" data-reading-reset>{{> "icons/reset"}}{{t "Reset"}}</button>
+    </div>
+  </form>
+</div>

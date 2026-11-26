@@ -1,0 +1,13 @@
+{{!--
+Author's avatar: the profile picture in a disc, or a person icon on a tinted disc without one.
+Inside an author context. Decorative (the name is always written next to it).
+Parameters:
+  avatarClass="..."   extra classes (sizes are set by the page's CSS through this class)
+--}}
+<span class="avatar{{#if avatarClass}} {{avatarClass}}{{/if}}{{#unless profile_image}} avatar--empty{{/unless}}" aria-hidden="true">
+  {{#if profile_image}}
+    <img class="avatar__image" src="{{img_url profile_image size="s" format="webp"}}" alt="" loading="lazy" decoding="async">
+  {{else}}
+    {{> "icons/user"}}
+  {{/if}}
+</span>

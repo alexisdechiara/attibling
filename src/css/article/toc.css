@@ -1,0 +1,153 @@
+/** Table of contents (partials/article/toc.hbs, tocbot): a « Sommaire » disclosure at the top of the
+   text; style « Carte » on wide screens (≥ 75rem): sticky in the margin, its summary hidden and the
+   disclosure kept open by post.js. */
+
+.article-toc {
+  grid-row: 1;
+  margin-block-end: var(--space-6);
+  font-family: var(--font-ui);
+  font-size: var(--text-nav);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* With JavaScript, already in place at the first paint when the text has two headings or more, so the
+   text does not move down when post.js shows it (over the reset's [hidden] rule, hence !important).
+   Only headings the script lists (article/toc.js): those of cards are never direct children of the text,
+   and the author leaves one out with .js-toc-ignore */
+:root[data-js]
+  .article-body:has([data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore))
+  .article-toc[hidden] {
+  display: block !important;
+}
+
+.article-toc__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  .icon {
+    font-size: 1.125rem;
+  }
+}
+
+.article-toc__chevron {
+  transition: transform var(--duration-s) ease;
+}
+
+.article-toc[open] .article-toc__chevron {
+  transform: rotate(180deg);
+}
+
+.article-toc__nav {
+  margin-block-start: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.article-toc__title {
+  display: none;
+}
+
+/* The header slides away on a fast scroll down (data-hidden, app.js): the table of contents, which sticks
+   under it, follows. The offset is overridden here, on the table itself, and not on :root where
+   site-header.css defines it, so that hiding the header restyles this element only. */
+:root:has(.site-header[data-hidden]) .article-toc {
+  --header-offset: 0px;
+}
+
+/* Wide screens, style « Carte »: in the margin, sticky */
+@media (width >= 75rem) {
+  .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
+    /* The margin column along the whole article body (its four rows, layout.css): the disclosure is as
+       tall as its list and sticks inside that area, so it stops at the end of the article instead of
+       sliding over the author box and the comments. It sticks itself: a sticky list inside it would scroll
+       away with it. The offset follows the header when it hides (--header-offset, app.js) */
+    z-index: 1;
+    grid-column: main-end / full-end;
+    grid-row: 1 / -1;
+    margin: 0;
+    padding-inline-start: var(--space-9);
+    position: sticky;
+    inset-block-start: calc(var(--header-offset, var(--header-height)) + var(--space-6));
+    align-self: start;
+    transition: inset-block-start var(--duration-m) var(--ease-out);
+
+    .article-toc__toggle {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
+    .article-toc__nav {
+      width: min(100%, 224px);
+      max-height: calc(100vh - var(--header-offset, var(--header-height)) - var(--space-9));
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: none;
+      box-shadow: none;
+    }
+
+    .article-toc__title {
+      display: block;
+      margin-block-end: var(--space-4);
+      color: var(--color-text-secondary);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-medium);
+    }
+  }
+}
+
+/* A wide text (L, src/css/article/reading.css) leaves no room in the margin below 90rem: the table of
+   contents goes back above the text as a « Sommaire » button, and does not stick there. Same selector as
+   the rule above plus the width, so that every declaration here wins over it */
+@media (75rem <= width < 90rem) {
+  :root[data-reading-width="l"]
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"])
+    .article-toc {
+    position: static;
+    grid-column: main;
+    grid-row: 1;
+    margin-block-end: var(--space-6);
+    padding: 0;
+
+    .article-toc__toggle {
+      display: inline-flex;
+    }
+
+    .article-toc__title {
+      display: none;
+    }
+
+    .article-toc__nav {
+      width: auto;
+      max-height: none;
+      margin-block-start: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      overflow: visible;
+      background: var(--color-surface);
+      box-shadow: var(--shadow-1);
+    }
+  }
+}

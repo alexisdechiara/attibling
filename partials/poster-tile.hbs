@@ -1,0 +1,21 @@
+{{!--
+Poster tile: a 2:3 picture (the post's vignette, see vignette/image.hbs: its feature image cropped
+upright; an image set for sharing is shown whole over the blurred feature image, as it usually carries
+its own text and an upright crop would cut it), or, without any image, a typographic poster (tinted surface with the title in large type); the title under it. One link;
+members get a bookmark button. Use inside a post context.
+Parameters:
+  pill="..." | "none"   as post-tile.hbs (default « Format long » for long reads)
+  eager=true            load the picture at once
+  nobookmark=true       no bookmark button
+  class="..."           extra classes
+--}}
+<article class="tile tile--poster{{> "vignette/missing" noImage=" tile--no-image"}}{{#if class}} {{class}}{{/if}}" data-post-tile>
+  <a class="tile__link" href="{{url}}">
+    <span class="tile__media">
+      {{> "vignette/image" imgClass="tile__image" widths="small" srcSize="m" sizes="calc(clamp(150px, 40vw, 216px) * 2.667)" eager=eager backdrop=true placeholder="tile"}}
+    </span>
+    <h3 class="tile__title">{{title}}</h3>
+    {{> tile-pill}}
+  </a>
+  {{#unless nobookmark}}{{> bookmark-button}}{{/unless}}
+</article>

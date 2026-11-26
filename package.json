@@ -1,11 +1,23 @@
 {
+	"name": "attibling",
+	"version": "2.0.0",
+	"description": "A magazine theme for Ghost 6: featured hero, rows by tag, series, reading settings, light and dark modes.",
 	"author": {
 		"email": "pro@alexisdechiara.fr",
 		"name": "Alexis De Chiara",
 		"url": "https://geekly.blog/"
 	},
+	"license": "MIT",
+	"keywords": [
+		"ghost",
+		"theme",
+		"ghost-theme"
+	],
+	"engines": {
+		"ghost": ">=6.0.0"
+	},
 	"config": {
-		"posts_per_page": 10,
+		"posts_per_page": 7,
 		"card_assets": {
 			"exclude": [
 				"bookmark",
@@ -19,44 +31,154 @@
 			"xs": {
 				"width": 100
 			},
+			"w220": {
+				"width": 220
+			},
 			"s": {
 				"width": 300
+			},
+			"w400": {
+				"width": 400
+			},
+			"w500": {
+				"width": 500
 			},
 			"m": {
 				"width": 600
 			},
+			"w800": {
+				"width": 800
+			},
 			"l": {
 				"width": 1000
 			},
+			"w1400": {
+				"width": 1400
+			},
+			"banner": {
+				"width": 1400,
+				"height": 392
+			},
 			"xl": {
 				"width": 2000
+			},
+			"banner-xl": {
+				"width": 2000,
+				"height": 560
 			}
 		},
 		"custom": {
 			"dark_mode_logo": {
-				"type": "image"
+				"type": "image",
+				"description": "Light version of the logo, for dark mode and the home banner image."
 			},
-			"enable_native_search": {
+			"page_transitions": {
 				"type": "boolean",
-				"default": false
-			},
-			"search_api_key": {
-				"type": "text"
-			},
-			"disable_fade_animation": {
-				"type": "boolean",
-				"default": false
+				"default": true,
+				"description": "Animated transitions between pages, where the browser supports them (never with reduced motion)."
 			},
 			"use_geekly_logo": {
 				"type": "boolean",
 				"default": false,
-				"group": "homepage"
+				"group": "homepage",
+				"description": "The coloured GEEKly wordmark instead of the site logo or title (header, home, footer)."
+			},
+			"arrival_animation": {
+				"type": "boolean",
+				"default": true,
+				"group": "homepage",
+				"description": "Home: the GEEKly wordmark arrives letter by letter, on the first visit only (a fade for a logo)."
+			},
+			"subscribe_url": {
+				"type": "text",
+				"default": "",
+				"description": "Forces where « Subscribe » leads. Empty: the page newsletter, abonnement or subscribe, else Portal."
+			},
+			"home_row_1": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 1 (shelf of 16:9 tiles). Empty: most used tag. none: hide the row."
+			},
+			"home_row_2": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 2 (2:3 posters). Empty: 2nd most used tag. none: hide the row."
+			},
+			"home_row_3": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 3 (numbered list). Empty: 3rd most used tag. none: hide the row."
+			},
+			"home_row_4": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 4 (collection banner). Empty: 4th most used tag. none: hide the row."
+			},
+			"home_row_5": {
+				"type": "text",
+				"default": "",
+				"group": "homepage",
+				"description": "Tag slug for row 5 (one large post and four). Empty: 5th most used tag. none: hide the row."
+			},
+			"article_style": {
+				"type": "select",
+				"options": [
+					"Card",
+					"Immersive"
+				],
+				"default": "Card",
+				"group": "post",
+				"description": "Default look of posts. A post can force it with the internal tag #immersif or #carte."
+			},
+			"reading_settings": {
+				"type": "boolean",
+				"default": true,
+				"group": "post",
+				"description": "Members get the display settings (theme, fonts, width, size…) on posts."
+			},
+			"summary_for_visitors": {
+				"type": "boolean",
+				"default": false,
+				"group": "post",
+				"description": "Show the « En bref » summary to visitors too (members only when off)."
+			},
+			"embed_consent": {
+				"type": "boolean",
+				"default": true,
+				"group": "post",
+				"description": "YouTube, X and other embeds load only when the reader clicks. Off: they load with the page."
+			},
+			"about_page": {
+				"type": "text",
+				"default": "",
+				"group": "post",
+				"description": "Slug of the page linked as « About » in the author box. Empty: a-propos or about."
+			},
+			"consent_notice": {
+				"type": "select",
+				"options": [
+					"None",
+					"Notice",
+					"Banner"
+				],
+				"default": "Notice",
+				"description": "Notice/Banner: embeds ask in place, a card asks for data-consent tools. None: one click per embed."
+			},
+			"consent_tools": {
+				"type": "boolean",
+				"default": false,
+				"description": "Lets analytics and ad tools marked data-consent load after consent. On only if you add one."
+			},
+			"about_tags": {
+				"type": "text",
+				"default": "",
+				"description": "About page sections: tag slugs separated by commas. Empty: the 6 most used tags."
 			}
 		}
-	},
-	"description": "Fusion between liebling and attila themes",
-	"engines": {
-		"ghost": ">=5.0.0"
 	},
 	"gpm": {
 		"type": "theme",
@@ -68,16 +190,41 @@
 			"Responsive"
 		]
 	},
-	"keywords": [
-		"ghost",
-		"theme",
-		"ghost-theme"
-	],
-	"license": "MIT",
-	"name": "attibling",
 	"screenshots": {
 		"desktop": "assets/screenshot-desktop.webp",
 		"mobile": "assets/screenshot-mobile.webp"
 	},
-	"version": "1.1.0"
+	"scripts": {
+		"dev": "vp build --watch",
+		"build": "vp build",
+		"check": "vp check",
+		"test": "vp test",
+		"zip": "zip -r attibling.zip . -x '.*' '.*/*' 'node_modules/*' 'src/*' 'docs/*' 'README.md' 'PRODUCT.md' 'CLAUDE.md' 'attibling.zip' 'package-lock.json' 'vite.config.mjs'",
+		"deploy": "vp run build && vp run zip && node src/deploy/index.js",
+		"order-locales": "node src/order-locales.js",
+		"ghost": "docker compose -f src/docker-compose.yml up",
+		"demo:install": "bash src/demo/install.sh",
+		"demo:start": "bash src/demo/start.sh",
+		"demo:stop": "bash src/demo/stop.sh",
+		"demo:sync": "bash src/demo/sync-theme.sh",
+		"demo:images": "bash src/demo/images.sh",
+		"demo:seed": "node src/demo/seed.mjs"
+	},
+	"dependencies": {
+		"medium-zoom": "^1.1.0",
+		"tocbot": "^4.29.0"
+	},
+	"devDependencies": {
+		"@fontsource-variable/literata": "^5.3.0",
+		"@fontsource-variable/onest": "^5.3.1",
+		"@tryghost/admin-api": "^1.13.12",
+		"dotenv": "^16.4.5",
+		"handlebars": "^4.7.8",
+		"playwright": "1.63.0",
+		"vite-plus": "1.7.0"
+	},
+	"overrides": {
+		"vite": "npm:@voidzero-dev/vite-plus-core@8.3.8000",
+		"vitest": "5.1.0"
+	}
 }

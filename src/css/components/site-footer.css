@@ -1,0 +1,157 @@
+/** Site footer (partials/footer.hbs): a top row (wordmark and tagline; navigation, social accounts
+   and RSS) and a quiet bar across the width (copyright; « Publié avec Ghost », JavaScript licence) */
+
+.site-footer {
+  margin-block-start: var(--space-11);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+}
+
+.site-footer__inner {
+  padding-block: var(--space-9) 0;
+}
+
+/* Top row: the brand on the inline start, the navigation on the inline end; stacked on phones */
+.site-footer__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5) var(--space-9);
+  padding-block-end: var(--space-8);
+}
+
+.site-footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  max-width: 22rem;
+}
+
+.site-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  border-radius: var(--radius-s);
+}
+
+.site-footer__tagline {
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* The links and the social icons on one line that wraps, ending at the inline end edge */
+.site-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1) var(--space-4);
+
+  .nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-secondary);
+    font-weight: var(--weight-medium);
+
+    &:hover {
+      background: var(--color-surface-muted);
+      color: var(--color-text);
+    }
+  }
+
+  .icon-button {
+    font-size: 1.125rem;
+  }
+}
+
+/* Phones and tablets: the brand above the navigation, both from the inline start */
+@media (width < 64rem) {
+  .site-footer__top {
+    flex-direction: column;
+  }
+
+  .site-footer__nav {
+    justify-content: flex-start;
+    margin-inline-start: calc(-1 * var(--space-3));
+  }
+}
+
+/* The bar: small muted text, the copyright on the inline start, the legal links on the inline end */
+.site-footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 var(--space-6);
+  padding-block: var(--space-2) var(--space-6);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-s);
+
+  @media (width < 48rem) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.site-footer__copyright {
+  display: flex;
+  align-items: center;
+  min-height: var(--target);
+}
+
+.site-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  li + li::before {
+    content: "·" / "";
+    margin-inline: var(--space-2);
+  }
+
+  /* Links in the muted bar: the accent colour tells them apart, the underline comes on hover/focus */
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    border-radius: 4px;
+    color: var(--color-accent);
+    text-underline-offset: 3px;
+
+    &:is(:hover, :focus-visible) {
+      text-decoration: underline;
+    }
+  }
+
+  @media (width < 48rem) {
+    flex-direction: column;
+    align-items: flex-start;
+
+    li + li::before {
+      content: none;
+    }
+  }
+}

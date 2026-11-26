@@ -1,0 +1,98 @@
+/** Style « Immersif »: the header image from edge to edge with the title over it, the text across the
+   page width (minus the gutters; capped at 1808px, its width on a 1920px screen, so only ultrawide
+   screens get margins), images of the text from edge to edge, the series box and « En bref » side by
+   side (stacked under about 900px), the table of contents as a « Sommaire » button at the top.
+
+   The style in force: the member's choice (data-reading-style on <html>, display settings), otherwise
+   the post's data-style (internal tag #immersif / #carte, else the theme setting article_style). The
+   « Largeur » setting narrows the text: S 864px, M 1200px, L full width (default; reading.css). */
+
+.article:is(:root[data-reading-style="immersive"] *, :root:not([data-reading-style]) [data-style="immersive"]) {
+  --measure: 1808px;
+  --wide-extra: 0px;
+  --text-start: max(var(--gutter), (100% - var(--measure)) / 2);
+
+  .article-header {
+    max-width: none;
+    padding: 0;
+  }
+
+  .article-header__card {
+    min-height: clamp(440px, 43vw, 820px);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .article-header__media {
+    inset: 0;
+    width: auto;
+
+    &::after {
+      background:
+        linear-gradient(0deg, rgb(17 19 24 / 0.92) 0%, rgb(17 19 24 / 0.55) 40%, transparent 75%),
+        linear-gradient(to right, rgb(17 19 24 / 0.6) 0%, transparent 55%);
+    }
+  }
+
+  :dir(rtl) & .article-header__media::after {
+    background:
+      linear-gradient(0deg, rgb(17 19 24 / 0.92) 0%, rgb(17 19 24 / 0.55) 40%, transparent 75%),
+      linear-gradient(to left, rgb(17 19 24 / 0.6) 0%, transparent 55%);
+  }
+
+  /* Phones: the title covers most of the picture's height; a deeper shade keeps it legible (AA) */
+  @media (width < 48rem) {
+    .article-header__media::after,
+    :dir(rtl) & .article-header__media::after {
+      background: linear-gradient(
+        0deg,
+        color-mix(in srgb, var(--color-media) 94%, transparent) 0%,
+        color-mix(in srgb, var(--color-media) 80%, transparent) 55%,
+        color-mix(in srgb, var(--color-media) 30%, transparent) 85%,
+        color-mix(in srgb, var(--color-media) 15%, transparent) 100%
+      );
+    }
+  }
+
+  .article-header__content {
+    width: 100%;
+    max-width: none;
+    padding-inline: var(--text-start);
+  }
+
+  .article-header__content > * {
+    max-width: 760px;
+  }
+
+  :is(.article-header--no-image, :root[data-reading-cover="hide"] .article-header) .article-header__content {
+    padding-inline: var(--text-start);
+  }
+
+  .article-header__caption {
+    max-width: none;
+  }
+
+  /* Series box and « En bref » side by side when there is room for both (about 900px) */
+  .article-intro {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  }
+
+  /* Images, galleries and their captions from edge to edge */
+  .gh-content > :is(.kg-image-card, .kg-gallery-card) {
+    grid-column: full;
+
+    img {
+      width: 100%;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    figcaption {
+      padding-inline: var(--gutter);
+    }
+  }
+
+  .gh-content > .kg-gallery-card .kg-gallery-image img {
+    border-radius: 0;
+  }
+}

@@ -1,0 +1,15 @@
+{{!-- Home row « feature »: the tag's latest post large (4:3) and the next four in a 2 × 2 grid. Tag context (rows.hbs). --}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="5" as |rowposts|}}{{#if rowposts}}
+  <section class="home-section row row--feature container" aria-labelledby="row-{{../slug}}">
+    {{> section-header title=../name titleUrl=../url id=(concat "row-" ../slug) note=(plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")) url=../url}}
+    <ul class="feature-grid" role="list">
+      {{#foreach rowposts}}
+        {{#if @first}}
+          <li class="feature-grid__lead">{{> post-tile size="l" ratio="4-3" meta="time" sizes="(max-width: 1023px) calc(92vw * 1.334), (max-width: 1443px) calc((92vw - 48px) * 0.5493), 703px"}}</li>
+        {{else}}
+          <li>{{> post-tile size="s" meta="time" sizes="(max-width: 1023px) calc((92vw - 16px) / 2), (max-width: 1443px) calc((92vw - 48px) / 3.4), 376px"}}</li>
+        {{/if}}
+      {{/foreach}}
+    </ul>
+  </section>
+{{/if}}{{/get}}

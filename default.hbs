@@ -1,188 +1,253 @@
 <!DOCTYPE html>
-<html lang="{{@site.locale}}">
+{{!-- data-member: a signed-in member, with their uuid (members-only features in the scripts, src/js/store.js;
+the script below ties the members' lists to that member);
+data-consent: the fallback consent mode of the theme setting consent_notice (src/js/privacy/choices.js) --}}
+<html lang="{{@site.locale}}"{{#match @site.locale "~^" "ar"}} dir="rtl"{{/match}}{{#match @site.locale "~^" "fa"}} dir="rtl"{{/match}}{{#match @site.locale "~^" "he"}} dir="rtl"{{/match}}{{#if @member}} data-member="{{@member.uuid}}"{{/if}}{{#match @custom.consent_notice "Notice"}} data-consent="notice"{{/match}}{{#match @custom.consent_notice "Banner"}} data-consent="banner"{{/match}}>
   <head>
     {{!-- Document Settings --}}
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     {{!-- Base Meta --}}
-    <title>{{meta_title}}</title>
+    <title>{{{block "title"}}}{{meta_title}}</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark">
+    {{!-- Single-author site: the author page repeats the home's list, keep it out of search results --}}
+    {{#is "author"}}{{#get "authors" limit="1" fields="id" as |siteAuthors authorPages|}}{{#match authorPages.total 1}}<meta name="robots" content="noindex, follow" />{{/match}}{{/get}}{{/is}}
+    {{!-- Other pages that ask not to be indexed: {{#contentFor "robots"}} (« À lire plus tard », partials/pages/saved.hbs) --}}
+    {{{block "robots"}}}
 
-    {{!-- Preload assets --}}
+    {{!-- Preload assets (the style sheets only: the scripts wait for the first paint, see the end of <body>) --}}
     <link rel="preload" href="{{asset "css/app.css"}}" as="style" />
-    <link rel="preload" href="{{asset "js/manifest.js"}}" as="script" />
-    <link rel="preload" href="{{asset "js/vendor.js"}}" as="script" />
-    <link rel="preload" href="{{asset "js/app.js"}}" as="script" />
 
     {{!-- This #block helper will try to preload page-specific assets --}}
     {{{block "preload"}}}
 
-    {{!-- Styles & Scripts --}}
+    {{!-- Before the first paint: the theme mode (data-theme light | dark, from localStorage "theme",
+    "auto" or nothing following the system), and the home subscription block closed for good
+    (data-promo-closed, localStorage "attibling-promo-closed"); on article pages, the members' display
+    settings (data-reading-*, localStorage "attibling-reading", see src/js/reading-settings.js). --}}
+    <script>
+      // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
+      (function () {
+        var root = document.documentElement
+        // Scripts run: the CSS may hide what they will show (e.g. the home header logo until it docks)
+        root.setAttribute('data-js', '')
+        // The members' lists and settings stay in this browser, tied to one member by a fingerprint of
+        // their id ("attibling-member", never the id itself): another member, or nobody (signed out from
+        // Portal, session expired), clears them before anything reads them. Lists kept before this rule
+        // go to the first member who signs in.
+        try {
+          var who = root.getAttribute('data-member') || ''
+          var mark = ''
+          if (who) {
+            var h = 2166136261
+            for (var c = 0; c < who.length; c++) h = Math.imul(h ^ who.charCodeAt(c), 16777619) >>> 0
+            mark = h.toString(36)
+          }
+          var owner = localStorage.getItem('attibling-member')
+          if (owner !== null && owner !== mark) {
+            var keys = ['attibling-saved', 'attibling-progress', 'attibling-privacy', 'attibling-reading', 'attibling-member']
+            for (var k = 0; k < keys.length; k++) localStorage.removeItem(keys[k])
+          }
+          if (mark && owner !== mark) localStorage.setItem('attibling-member', mark)
+        } catch (e) {}
+        var theme = null
+        var promo = null
+        try {
+          theme = localStorage.getItem('theme')
+          promo = localStorage.getItem('attibling-promo-closed')
+        } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        root.setAttribute('data-theme', theme)
+        if (promo) root.setAttribute('data-promo-closed', '')
+        {{#is "home"}}{{#if @custom.arrival_animation}}
+        // First page of the home: the arrival animation of the hero wordmark (src/css/home/intro.css), the
+        // first time this browser arrives on the site, then never again (localStorage "attibling-intro";
+        // without working storage it never plays, rather than on every page). Not when coming from another
+        // page of the site (that is no arrival, and the page transition already moves the logo), never with
+        // reduced motion. Any click, key, wheel, touch or scroll ends it at once; it is over in 780 ms.
+        try {
+          if (
+            !localStorage.getItem('attibling-intro') &&
+            document.referrer.indexOf(location.origin + '/') &&
+            !matchMedia('(prefers-reduced-motion: reduce)').matches
+          ) {
+            localStorage.setItem('attibling-intro', '1')
+            root.setAttribute('data-intro', '{{#if @custom.use_geekly_logo}}play{{else}}sober{{/if}}')
+            var events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll']
+            var done = function () {
+              root.removeAttribute('data-intro')
+              for (var i = 0; i < events.length; i++) removeEventListener(events[i], done, true)
+            }
+            for (var i = 0; i < events.length; i++) addEventListener(events[i], done, { capture: true, passive: true })
+            setTimeout(done, 900)
+          }
+        } catch (e) {}
+        {{/if}}{{/is}}
+        {{#is "post"}}{{#if @custom.reading_settings}}
+        // Article pages, members: the display settings ("attibling-reading", src/js/reading-settings.js)
+        // as data-reading-<name> on <html>, and the chosen fonts (fonts.bunny.net, as Ghost's own)
+        try {
+          var r = (root.hasAttribute('data-member') && JSON.parse(localStorage.getItem('attibling-reading'))) || {}
+          var f = []
+          var font = function (v, w) { if (typeof v == 'string' && v != 'default' && /^[a-z-]+$/.test(v)) f.push(v + w) }
+          for (var k in r) {
+            if (/^[a-z]+$/.test(k) && /^[a-z0-9-]+$/.test(r[k])) root.setAttribute('data-reading-' + k, r[k])
+          }
+          font(r.heading, ':400,700')
+          font(r.body, ':400,400i,700')
+          if (f.length) {
+            var l = document.createElement('link')
+            l.rel = 'stylesheet'
+            l.href = 'https://fonts.bunny.net/css?family=' + f.join('|') + '&display=swap'
+            l.setAttribute('data-reading-fonts', '')
+            document.head.appendChild(l)
+          }
+        } catch (e) {}
+        {{/if}}{{/is}}
+        {{#is "page"}}{{#if @custom.reading_settings}}
+        // Pages, members: only the link style of the display settings (src/css/article/links.css),
+        // so a member who chose « Soulignés » on posts gets it in the pages too
+        try {
+          var pr = root.hasAttribute('data-member') && JSON.parse(localStorage.getItem('attibling-reading'))
+          if (pr && pr.links == 'underline') root.setAttribute('data-reading-links', 'underline')
+        } catch (e) {}
+        {{/if}}{{/is}}
+      })()
+      // @license-end
+    </script>
+
+    {{!-- Fonts, served by the theme itself (no font service is contacted): Onest everywhere, Literata
+    on posts only, both variable and split by script (partials/fonts.hbs, generated by
+    src/fonts/build-fonts.py). Japanese, Korean and Chinese text uses the reader's system fonts.
+    Ghost's custom fonts (Admin > Design) replace them through --gh-font-heading / --gh-font-body. --}}
+    {{> fonts}}
+
+    {{!-- Pacifico, the "ly" of the GEEKLY wordmark (use_geekly_logo), served by the theme (this
+    @font-face is here so the URL works for a Ghost installed in a subdirectory); it is only
+    downloaded when the wordmark is shown. The file holds only the letters l and y (3 KB instead of
+    78 KB for the whole font; OFL-1.1, assets/fonts/pacifico/OFL.txt). With the wordmark on, it is on the
+    first screen of every page: the file is preloaded, as otherwise the browser only asks for it once the
+    style sheets have arrived and the wordmark is laid out (the "ly" would then change face late). --}}
+    {{#if @custom.use_geekly_logo}}
+      <link rel="preload" href="{{asset "fonts/pacifico/pacifico-ly.woff2"}}" as="font" type="font/woff2" crossorigin>
+    {{/if}}
     <style>
-      /* These font-faces are here to make fonts work if the Ghost instance is installed in a subdirectory */
-
-      /* Google fonts */
-      // Noto Sans & Serif + Pacifico & Poppins
-      @import url('https://api.fonts.coollabs.io/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');      
-      // Pacifico
-      @import url('https://api.fonts.coollabs.io/css2?family=Pacifico&display=swap');
-      // Poppins
-      @import url('https://api.fonts.coollabs.io/css2?family=Poppins:wght@600;700&display=swap');      
-      // Montserrat
-      @import url('https://api.fonts.coollabs.io/css2?family=Montserrat:ital,wght@0,700;1,700&display=swap');
-
-      // Noto Color Emoji
-      @import url('https://api.fonts.coollabs.io/css2?family=Noto+Color+Emoji&display=swap');
-
-      
-      /* source-sans-pro-regular */
       @font-face {
-        font-family: 'Source Sans Pro';
+        font-family: 'Pacifico';
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: local('SourceSansPro-Regular'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-regular.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-regular.woff'}}") format('woff');
-      }
-      
-
-      /* source-sans-pro-600 */
-      @font-face {
-        font-family: 'Source Sans Pro';
-        font-style: normal;
-        font-weight: 600;
-        font-display: swap;
-        src: local('SourceSansPro-SemiBold'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-600.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-600.woff'}}") format('woff');
-      }
-      
-
-      /* source-sans-pro-700 */
-      @font-face {
-        font-family: 'Source Sans Pro';
-        font-style: normal;
-        font-weight: 700;
-        font-display: swap;
-        src: local('SourceSansPro-Bold'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-700.woff2'}}") format('woff2'),
-            url("{{asset 'fonts/source-sans-pro/latin/source-sans-pro-700.woff'}}") format('woff');
-      }
-
-      /* iconmoon */
-      @font-face {
-        font-family: 'icomoon';
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
-        src: url("{{asset 'fonts/icomoon/icomoon.eot?101fc3'}}");
-        src: url("{{asset 'fonts/icomoon/icomoon.eot?101fc3#iefix'}}") format('embedded-opentype'),
-        url("{{asset 'fonts/icomoon/icomoon.ttf?101fc3'}}") format('truetype'),
-        url("{{asset 'fonts/icomoon/icomoon.woff?101fc3'}}") format('woff'),
-        url("{{asset 'fonts/icomoon/icomoon.svg?101fc3#icomoon'}}") format('svg');
+        src: local('Pacifico-Regular'), url("{{asset 'fonts/pacifico/pacifico-ly.woff2'}}") format('woff2');
+        unicode-range: U+006C, U+0079;
       }
     </style>
-
-    {{!-- tocbot script --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="{{asset "css/app.css"}}" media="screen" />
 
     {{!-- This #block helper will inject a stylesheet for a specific page --}}
     {{{block "styles"}}}
 
-    {{!-- This #block helper will pull data from the hero partial
-    to inject styles of the hero image to make it responsive --}}
-    {{{block "herobackground"}}}
-
     {{!-- This tag outputs SEO meta+structured data and other important settings --}}
     {{ghost_head}}
 
-    {{!-- This style overrides the accent color to match the one from the Admin --}}
-    <style>
-      :root {
-        --primary-subtle-color: var(--ghost-accent-color) !important;
-      }
-    </style>
-
-    {{!-- These variables are used to make the search form work --}}
-    <script>
-      // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
-      const ghostHost = "{{@site.url}}"
-      // @license-end
-    </script>
-
-    {{#if @custom.enable_native_search}}
-      <script>
-        const nativeSearchEnabled = true
-      </script>
-    {{/if}}
-
-    {{#if @custom.search_api_key}}
-      <script>
-        const ghostSearchApiKey = "{{@custom.search_api_key}}"
-      </script>
-    {{/if}}
-
-    {{!-- This variable disbale the fade animation when it's enabled --}}
-    {{#if @custom.disable_fade_animation}}
-      <style>
-        :root {
-          --show-fade-animation: 0;
+    {{!-- "Embed consent" setting (on by default), posts and pages: third-party embeds (YouTube, X,
+    Vimeo… in the post HTML) load only when the reader asks. This policy, placed after {{ghost_head}}
+    (Ghost's own scripts and the site's header code injection are already requested), forbids frames
+    and scripts from other sites in the rest of the page, so the browser never contacts them, even
+    without JavaScript; it keeps what Ghost needs (cdn.jsdelivr.net for Portal, search and comments;
+    Stripe, hCaptcha and Turnstile, which Portal may load). The reader's choice loads the embed in the
+    site's own page assets/html/embed.html, which has no such policy (src/js/embeds.js,
+    partials/embed-consent.hbs). Until the script replaces them, the blocked frames are hidden; without
+    JavaScript a sentence takes their place. Only when the owner turns on « Consent tools » (setting
+    consent_tools, off by default) in the fallback consent mode, the common analytics / tag / ads services
+    are added (partials/privacy/consent-hosts.hbs), for the scripts gated with data-consent. --}}
+    {{#is "post, page"}}{{#if @custom.embed_consent}}
+      <meta http-equiv="Content-Security-Policy" content="frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://*.hcaptcha.com https://challenges.cloudflare.com{{> "privacy/consent-hosts" kind="frame"}}; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://js.stripe.com https://*.hcaptcha.com https://challenges.cloudflare.com{{> "privacy/consent-hosts" kind="script"}}; object-src 'none'; base-uri 'self'">
+      <style>main iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"], [data-embed-frame]) { visibility: hidden; }</style>
+      <noscript><style>
+        main iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"]) { display: none !important; }
+        main figure.kg-embed-card:has(> iframe[src]:not([src^="/"], [src^="about:"], [src^="{{@site.url}}"]))::before {
+          content: "{{{t "This external content only loads when you ask for it: turn on JavaScript to show it."}}}";
+          display: block; padding: 24px; border: 1px dashed; border-radius: 12px; font-family: system-ui, sans-serif; font-size: 15px; text-align: center; opacity: 0.8;
         }
-      </style>
-    {{/if}}
+      </style></noscript>
+    {{/if}}{{/is}}
 
-    {{!-- This script sets the correct theme mode (light or dark) --}}
-    {{!-- <script>
-      if (typeof Storage !== 'undefined') {
-        if (localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark') {
-          document.documentElement.setAttribute('data-theme', 'dark')
-        } else if () {
-          document.documentElement.setAttribute('data-theme', 'light')
-        }
-        if (localStorage.getItem("theme")) {
-          if (localStorage.getItem("theme") === "light") {
-            document.documentElement.setAttribute('data-theme', 'light')
-          } else if (localStorage.getItem("theme") === "dark") {
-            document.documentElement.setAttribute('data-theme', 'dark')
-          } else {
-            $setAutoTheme();
-            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)")) {
-              document.documentElement.setAttribute('data-theme', 'dark')
-            } else {
-              document.documentElement.setAttribute('data-theme', 'light')
-            }
-          }
-        } else {
-          $setAutoTheme();
-        }
-      }
-    </script> --}}
+    {{!-- "Page transitions" setting: the browser animates from one page to the next (cross-document
+    View Transitions, where supported, never with reduced motion); the named pairs and the timing
+    are in src/css/components/transitions.css, the clicked tile is named by src/js/transitions.js. --}}
+    {{#if @custom.page_transitions}}
+      <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+    {{/if}}
   </head>
   <body class="{{body_class}}">
+    {{!-- Skip link: first focusable element; every template gives its <main> id="main" --}}
+    <a class="sr-only skip-link" href="#main">{{t "Skip to content"}}</a>
+
     {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}
     {{{body}}}
-
-    {{!-- Search form --}}
-    {{^if @custom.enable_native_search}}
-      {{> search}}
-    {{/if}}
 
     {{!-- The footer --}}
     {{> footer}}
 
-    {{!-- Common scripts shared between pages --}}
-    <script defer src="{{asset "js/manifest.js"}}"></script>
-    <script defer src="{{asset "js/vendor.js"}}"></script>
-    <script defer src="{{asset "js/app.js"}}"></script>
+    {{!-- Third-party embeds on click: the facade and its strings (setting embed_consent) --}}
+    {{#is "post, page"}}{{#if @custom.embed_consent}}{{> embed-consent}}{{/if}}{{/is}}
 
-    {{!-- The #block helper will pull in data from the #contentFor other template files --}}
-    {{{block "scripts"}}}
+    {{!-- Fallback consent mode (setting consent_notice: Notice or Banner): the notice's template, shown
+    only when a script gated with data-consent waits for an answer (src/js/privacy/); embeds ask in their
+    own facade. None: never. The preferences panel is in the footer. --}}
+    {{#match @custom.consent_notice "Notice"}}{{> "privacy/notice"}}{{/match}}
+    {{#match @custom.consent_notice "Banner"}}{{> "privacy/notice"}}{{/match}}
+
+    {{!-- The theme's scripts: app.js, shared between pages, and the page's own (the "scripts" blocks of
+    the templates). Nothing the first screen shows depends on them: what must happen before the first paint
+    is in the inline scripts of <head> (theme mode, arrival animation, reading settings, the « Tags » grid).
+    So they are kept in a <template>, which the browser neither downloads nor runs, and the script below
+    puts them in the page once the first screen is painted (first-contentful-paint): until then the network
+    and the processor are left to the style sheets, the fonts and the picture of the first screen, on a slow
+    connection as on a fast one, where these modules used to run before the first paint and delay it.
+    At DOMContentLoaded at the latest (after Ghost's deferred scripts; it comes first when they are in the
+    browser's cache, and a tab opened in the background paints nothing): always before the load event, which
+    waits for them, as it always did. The browser follows the address's fragment (#a-heading,
+    #ghost-comments) until that event, so what the scripts add above the target does not move it away.
+    Each one is an async module: it runs as soon as it has arrived, without waiting in the deferred queue
+    behind Ghost's own scripts from {{ghost_head}} (Portal, search, comments: ~800 KB on a phone). They
+    depend neither on each other's order nor on Ghost's scripts; each entry starts once the page is parsed
+    (onReady, src/js/helpers.js). --}}
+    <template data-theme-scripts>
+      <script type="module" async src="{{asset "js/app.js"}}"></script>
+      {{{block "scripts"}}}
+    </template>
+    <script>
+      // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
+      (function () {
+        var scripts = document.currentScript.previousElementSibling
+        var start = function () {
+          if (!scripts) return
+          // A copy: the browser runs the scripts of a copy it is given, not those the parser left in the template
+          var copy = scripts.content.cloneNode(true)
+          scripts.remove()
+          scripts = null
+          document.body.appendChild(copy)
+        }
+        try {
+          new PerformanceObserver(function (list, observer) {
+            if (list.getEntriesByName('first-contentful-paint').length) {
+              observer.disconnect()
+              start()
+            }
+          }).observe({ type: 'paint', buffered: true })
+        } catch (e) {
+          start()
+        }
+        document.addEventListener('DOMContentLoaded', start)
+      })()
+      // @license-end
+    </script>
 
     {{!-- Ghost outputs important scripts and data with this tag --}}
     {{ghost_foot}}

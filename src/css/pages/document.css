@@ -1,0 +1,254 @@
+/** Reference document (partials/pages/document.hbs): legal notice, privacy, terms. A calm column for
+   people who scan for one answer: title, last-updated date and print button, a « Sommaire » (a
+   disclosure above the text; sticky beside it on wide screens), sections separated by a thin rule, and
+   the who / where / how-to-reach definitions (<dl>) set out as one compact block. */
+
+.document {
+  --document-column: var(--page-measure, 38.25rem);
+  --document-toc: 15rem;
+  display: grid;
+  grid-template-columns: minmax(0, var(--document-column));
+  justify-content: center;
+  width: calc(100% - 2 * var(--gutter));
+  margin-inline: auto;
+  padding-block: var(--space-8) var(--space-9);
+
+  @media (width >= 48rem) {
+    padding-block-start: var(--space-11);
+  }
+
+  /* The text: the generic page's column (pages/content.css) in a single track; wide and full cards
+     keep to the column */
+  .page-content {
+    grid-template-columns: [full-start wide-start main-start] minmax(0, 1fr) [main-end wide-end full-end];
+  }
+}
+
+/* Header: title, lead, then the date and « Imprimer » on one line above a rule */
+.document__header {
+  padding-block-end: var(--space-6);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.document__title {
+  font-size: var(--h1-size);
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+  line-height: var(--h1-leading);
+}
+
+.document__lead {
+  margin-block-start: var(--space-4);
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--text-xl);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.document__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin-block-start: var(--space-5);
+  font-family: var(--font-ui);
+}
+
+.document__title ~ .document__meta {
+  margin-block-start: var(--space-6);
+}
+
+.document__updated {
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+
+  time {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.document__print {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--text-m);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-s) ease,
+    background-color var(--duration-s) ease;
+
+  /* Phones rarely print: the browser's own menu is enough there */
+  &[hidden] {
+    display: none;
+  }
+
+  @media (width < 40rem) {
+    display: none;
+  }
+
+  &:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-muted);
+  }
+
+  .icon {
+    font-size: 1.125rem;
+  }
+}
+
+/* « Sommaire »: a disclosure between the header and the text */
+.document-toc {
+  margin-block-start: var(--space-6);
+  font-family: var(--font-ui);
+  font-size: var(--text-nav);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* With JavaScript, already in place at the first paint when the text has two headings or more, so the
+   text does not move down when document.js shows it (over the reset's [hidden] rule, hence !important) */
+:root[data-js] .document:has(.document__content > :is(h2, h3) ~ :is(h2, h3)) .document-toc[hidden] {
+  display: block !important;
+}
+
+.document-toc__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  .icon {
+    font-size: 1.125rem;
+  }
+}
+
+.document-toc__chevron {
+  transition: transform var(--duration-s) ease;
+}
+
+.document-toc[open] .document-toc__chevron {
+  transform: rotate(180deg);
+}
+
+.document-toc__nav {
+  margin-block-start: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+}
+
+.document-toc__title {
+  display: none;
+}
+
+.document__content {
+  margin-block-start: var(--space-8);
+}
+
+/* Sections: a thin rule above each h2, more room above than below */
+.document__content > h2 {
+  margin-block-start: 1.75em;
+  padding-block-start: 1.25em;
+  border-block-start: 1px solid var(--color-border);
+}
+
+/* The first section follows the header's own rule */
+.document__content > h2:first-of-type {
+  padding-block-start: 0;
+  border: 0;
+}
+
+.document__content > h2:first-child {
+  margin-block-start: 0;
+}
+
+/* The who / where / how-to-reach block: one framed group of definitions */
+.document__content > dl:not([class]) {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+}
+
+/* Wide screens: the table of contents sticks beside the text, its summary hidden and the disclosure
+   kept open by document.js */
+@media (width >= 72rem) {
+  .document {
+    grid-template-columns: minmax(0, var(--document-column)) var(--document-toc);
+    column-gap: var(--space-11);
+    max-width: var(--page-max);
+  }
+
+  .document__header,
+  .document__content {
+    grid-column: 1;
+  }
+
+  .document-toc {
+    /* The column beside the whole text. The disclosure itself sticks (its content box is only as tall
+       as the list, so a sticky list inside it would not move) */
+    position: sticky;
+    inset-block-start: calc(var(--header-height) + var(--space-6));
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin: 0;
+
+    .document-toc__toggle {
+      display: none;
+    }
+
+    .document-toc__nav {
+      max-height: calc(100vh - var(--header-height) - var(--space-9));
+      margin: 0;
+      padding: var(--space-2) 0 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border: 0;
+      background: none;
+    }
+
+    /* Only the h3 of the current section (tocbot marks the others is-collapsed) */
+    .toc .is-collapsed {
+      display: none;
+    }
+
+    .document-toc__title {
+      display: block;
+      margin-block-end: var(--space-4);
+      color: var(--color-text-secondary);
+      font-size: var(--text-m);
+      font-weight: var(--weight-semibold);
+    }
+  }
+
+  .document__content {
+    grid-row: 2;
+  }
+}

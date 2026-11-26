@@ -1,0 +1,9 @@
+{{!--
+« Cookies et confidentialité »: used by the Ghost page whose slug is "cookies" (this file), "confidentialite"
+(page-confidentialite.hbs) or any page given the « Privacy » template (custom-privacy.hbs). The Document
+layout (title, last update, table of contents, print), the author's text, then the theme's live sections:
+what this browser holds, the reader's choices, everything the site may keep. See partials/pages/document.hbs
+and partials/privacy/page.hbs; the text to paste: docs/cookies-proposition.md.
+--}}
+{{!< default}}
+{{> "pages/document" privacy=true}}

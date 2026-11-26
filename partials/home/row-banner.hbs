@@ -1,0 +1,30 @@
+{{!-- Home row « banner »: a full-width card on the tag's feature image (Ghost Admin > Tags > the tag >
+Tag image; darkened for contrast) or, without one, a dark designed surface; « Tag · N articles » on
+one line above the tag's name, « Tout voir », and the tag's latest 3 posts (their vignettes, see vignette/image.hbs). Tag context (rows.hbs). --}}
+{{#get "posts" filter="tag:{{slug}}" include="tags" limit="3" as |rowposts|}}{{#if rowposts}}
+  <section class="home-section row row--banner container" aria-labelledby="row-{{../slug}}">
+    <div class="banner{{#if ../feature_image}} banner--image{{else}} banner--no-image{{/if}}">
+      {{#if ../feature_image}}
+        <picture>
+          {{> "image/banner-source" image=../feature_image}}
+          <img class="banner__image"{{> "image/srcset" image=../feature_image widths="large" srcSize="l"}} sizes="(max-width: 479px) 772px, (max-width: 767px) max(92vw, 669px), max(92vw, 780px)" alt="" loading="lazy" decoding="async">
+        </picture>
+      {{/if}}
+      <div class="banner__intro">
+        <p class="banner__kicker"><span>{{t "Tag"}}</span><span class="banner__dot" aria-hidden="true">·</span><span class="banner__count">{{plural ../count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</span></p>
+        <h2 class="banner__title" id="row-{{../slug}}">{{../name}}</h2>
+        <a class="button button--glass banner__more" href="{{../url}}">{{t "See all"}}<span class="sr-only"> ({{../name}})</span>{{> "icons/arrow-right" class="icon-flip-rtl"}}</a>
+      </div>
+      <ul class="banner__posts" role="list">
+        {{#foreach rowposts}}
+          <li>
+            <a class="banner__post" href="{{url}}">
+              {{> "vignette/image" imgClass="banner__post-image" widths="small" srcSize="s" sizes="(max-width: 767px) 85vw, (max-width: 1023px) calc((92vw - 72px) / 3), (max-width: 1443px) calc((92vw - 512px) / 3), 272px"}}
+              <span class="banner__post-title">{{title}}</span>
+            </a>
+          </li>
+        {{/foreach}}
+      </ul>
+    </div>
+  </section>
+{{/if}}{{/get}}

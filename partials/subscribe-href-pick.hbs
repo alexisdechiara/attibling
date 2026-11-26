@@ -1,0 +1,6 @@
+{{~!-- Inside subscribe-href.hbs: the link to the subscription page found, else Portal's window. --~}}
+{{~#foreach found limit="1"~}}
+  href="{{url}}{{../fragment}}" data-subscribe-page
+{{~else~}}
+  href="#/portal/{{portal}}" data-portal="{{portal}}"
+{{~/foreach~}}

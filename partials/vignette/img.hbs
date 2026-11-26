@@ -1,0 +1,11 @@
+{{!-- The <img> of a vignette (used by vignette/image.hbs only; parameters documented there).
+vignetteSrc is the chosen image, vignetteSocial whether it is an image set for sharing that differs
+from the feature image. Every one is served as WebP (image/srcset.hbs). --}}
+{{~#if vignetteSocial}}{{#if backdrop~}}
+  <img class="vignette-backdrop" src="{{#if feature_image}}{{img_url feature_image size="s" format="webp"}}{{else}}{{img_url vignetteSrc size="s" format="webp"}}{{/if}}" alt="" aria-hidden="true" loading="lazy" decoding="async">
+{{~/if}}{{/if~}}
+<img class="{{imgClass}}{{#if vignetteSocial}}{{#if backdrop}} vignette--whole{{/if}}{{/if}}"
+  {{~#if srcSize}}{{> "image/srcset" image=vignetteSrc}}{{else}}{{> "image/srcset" image=vignetteSrc srcSize="m"}}{{/if}}
+  {{~#if sizes}} sizes="{{sizes}}"{{else if defaultSizes}} sizes="{{defaultSizes}}"{{/if}} alt=""
+  {{~#if eager}} fetchpriority="high"{{else match priority "auto"}}{{else}} loading="lazy"{{/if}} decoding="async"
+  {{~#if vignetteSocial}} data-vignette="social"{{/if}}>

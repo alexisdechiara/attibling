@@ -1,0 +1,9 @@
+{{!-- The markup of summary-teaser.hbs (subscribePages, subscribePagesKnown: see subscribe-href.hbs) --}}
+<section class="summary-teaser" aria-labelledby="summary-teaser-title" data-summary-teaser>
+  <h2 class="summary-teaser__title" id="summary-teaser-title">{{> "icons/lock"}}{{t "In short"}}</h2>
+  <p class="summary-teaser__text">{{t "Summary reserved for members."}}</p>
+  <p class="summary-teaser__actions">
+    {{> subscribe-link class="button button--primary" label=(t "Subscribe")}}
+    {{> signin-link class="summary-teaser__login"}}
+  </p>
+</section>

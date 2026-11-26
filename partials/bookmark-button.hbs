@@ -1,0 +1,23 @@
+{{!--
+Bookmark (« À lire plus tard ») button, members only: nothing is rendered for visitors. Inside a
+post context. The button stays hidden until the store (src/js/store.js) is usable: app.js then shows
+it, sets aria-pressed from the saved list and saves or removes the post on click (data-* attributes
+describe the post for the list of the home page and the « À lire plus tard » page).
+One name for the feature, « À lire plus tard »: the button's label (and accessible name, with the post's
+title on tiles); a post in the list reads « Dans À lire plus tard », with aria-pressed="true".
+On tiles it sits in the top inline-start corner of the picture; on desktop it shows on hover or
+keyboard focus of the tile, and a saved post keeps a small filled mark at rest; on touch screens it
+is always shown, smaller.
+Parameters:
+  labelled=true   button with a visible text (« À lire plus tard » / « Dans À lire plus tard »), for the article
+                  header; default: a round icon button for tiles
+  bookmarkClass="..."   extra classes (named so, as a partial's parameters reach the partials it calls)
+--}}
+{{#if @member}}
+  <button type="button" class="bookmark{{#if labelled}} bookmark--labelled{{/if}}{{#if bookmarkClass}} {{bookmarkClass}}{{/if}}" data-bookmark aria-pressed="false" hidden
+    data-url="{{url}}" data-title="{{title}}" data-image="{{> "vignette/url"}}" data-tag="{{primary_tag.name}}" data-reading-time="{{reading_time minute="1" minutes="%"}}"
+    {{#unless labelled}}aria-label="{{t "Read later: {title}" title=title}}"{{/unless}}>
+    <span class="bookmark__icon" aria-hidden="true">{{> "icons/bookmark" class="bookmark__off"}}{{> "icons/bookmark-filled" class="bookmark__on"}}</span>
+    {{#if labelled}}<span class="bookmark__label bookmark__off">{{t "Read later"}}</span><span class="bookmark__label bookmark__on">{{t "In Read later"}}</span>{{/if}}
+  </button>
+{{/if}}

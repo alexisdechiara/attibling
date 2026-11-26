@@ -1,0 +1,76 @@
+{{!--
+Body of the « Tags » page (page-tags.hbs, custom-tags.hbs). Inside the page's template context.
+
+Heading: the page's title, the number of tags, its content (or excerpt) as an introduction, « Mélanger ».
+Then every public tag that has posts as a cell of a bento grid (partials/tags/cell.hbs), most posts first.
+Ghost returns at most 100 tags per {{#get}}: a second query covers tags 101 to 200.
+The server's order with the first cells large is the result without JavaScript. An inline script of
+<head> (partials/tags/prepaint.hbs, built from src/js/tags/layout.js; in the "preload" block, ahead of the
+style sheets) arranges the grid as soon as the parser has built it, before the first paint, and asks for
+the pictures of its first rows without waiting for the style sheets: a new arrangement on each visit,
+the same one when coming back. The script right after the grid completes the pictures of the first
+screen once the page is laid out. src/js/tags.js adds
+« Mélanger » and the previews, which list each tag's latest posts from the <template> below (the 200
+latest posts, fetched once: see docs/guide-auteur.md, « Page Tags »).
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/tags.css"}}" as="style" />
+  {{> "tags/prepaint"}}
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/tags.css"}}" media="screen" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" async src="{{asset "js/tags.js"}}"></script>
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main tags-page" data-tags-page
+  data-i18n-latest="{{t "Latest posts"}}" data-i18n-more="{{t "See the tag"}}" data-i18n-close="{{t "Close"}}">
+  <div class="container">
+    {{#post}}
+      <header class="tags-header">
+        <div class="tags-header__text">
+          <h1 class="tags-header__title">{{title}}</h1>
+          <p class="tags-header__count" data-tags-count></p>
+          {{#if html}}
+            <div class="tags-header__intro">{{content}}</div>
+          {{else if custom_excerpt}}
+            <p class="tags-header__intro">{{custom_excerpt}}</p>
+          {{/if}}
+        </div>
+        <button type="button" class="button tags-shuffle" data-tags-shuffle hidden>{{> "icons/shuffle"}}{{t "Shuffle"}}</button>
+      </header>
+    {{/post}}
+
+    <ul class="tag-bento" role="list" data-tag-bento data-i18n-one="{{t "1 tag"}}" data-i18n-many="{{t "% tags"}}">
+      {{!-- A second query only when the first one is full (more than 100 public tags) --}}
+      {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="count.posts desc" as |firsttags pagination|}}
+        {{#foreach tags}}{{#match count.posts ">" 0}}{{#has number="1"}}{{> "tags/cell" size="feature"}}{{else}}{{#has number="2,3"}}{{> "tags/cell" size="wide"}}{{else}}{{> "tags/cell"}}{{/has}}{{/has}}{{/match}}{{/foreach}}
+        {{#match pagination.pages ">" 1}}
+          {{#get "tags" limit="100" page="2" include="count.posts" filter="visibility:public" order="count.posts desc"}}
+            {{#foreach tags}}{{#match count.posts ">" 0}}{{> "tags/cell"}}{{/match}}{{/foreach}}
+          {{/get}}
+        {{/match}}
+      {{/get}}
+    </ul>
+    <script>window.attiblingTags && attiblingTags()</script>
+
+    <div class="tags-empty">
+      <p class="tags-empty__text">{{t "No tags found"}}</p>
+      <a class="button button--inverse" href="{{@site.url}}/archives/">{{t "All posts"}}</a>
+    </div>
+
+    <p class="tags-footer"><a class="tags-footer__link" href="{{@site.url}}/archives/">{{t "Every post, by date"}}{{> "icons/arrow-right" class="icon-flip-rtl"}}</a></p>
+
+    <p class="sr-only" aria-live="polite" data-tags-status data-i18n-shuffled="{{t "Tags shuffled"}}"></p>
+
+    {{!-- Latest posts of each tag for the previews: the 200 latest posts with their tags, grouped by
+    src/js/tags.js; a tag whose posts are all older shows its count only --}}
+    <template data-tags-recent>
+      {{#get "posts" limit="100" include="tags"}}{{> "tags/recent"}}{{/get}}
+      {{#get "posts" limit="100" page="2" include="tags"}}{{> "tags/recent"}}{{/get}}
+    </template>
+  </div>
+</main>

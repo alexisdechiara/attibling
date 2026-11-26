@@ -1,0 +1,678 @@
+/** Site header (partials/header.hbs): sticky bar, navigation, « Plus » popover, phone pills and menu sheet */
+
+.site-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--duration-m) ease,
+    box-shadow var(--duration-m) ease,
+    transform var(--duration-m) var(--ease-out);
+
+  /* Out of the way on a fast scroll down (app.js), back on the way up or when focus enters it */
+  &[data-hidden] {
+    transform: translateY(calc(-100% - 40px)); /* its shadow too */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition:
+      background-color var(--duration-m) ease,
+      box-shadow var(--duration-m) ease;
+  }
+
+  /* Once the page has scrolled (app.js): translucent, blurred, with a line and a shadow */
+  &[data-scrolled] {
+    background: var(--color-header-glass);
+    box-shadow:
+      inset 0 -1px 0 var(--color-border),
+      var(--shadow-header);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
+/* The room the header takes at the top of the window: sticky parts below it (the article's table of
+   contents) follow it when it hides. The table of contents alone changes it (article/toc.css): a
+   custom property changed on :root would restyle the whole document at every hide and show */
+:root {
+  --header-offset: var(--header-height);
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: 60px;
+
+  @media (width >= 48rem) {
+    height: var(--header-height);
+  }
+}
+
+/* The logo keeps its place while it is hidden on the home page, so the navigation never moves */
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-width: 88px;
+  min-height: var(--target);
+  border-radius: var(--radius-s);
+  transition:
+    opacity var(--duration-s) ease,
+    visibility 0s;
+}
+
+/* Docking (home page, src/js/dock.js). The wordmark is either in the hero or in the header:
+   data-dock="undocked"   the logo is hidden (and out of the tab order), the hero wordmark shows;
+   data-dock="docked"     the logo shows, the hero wordmark is hidden (still read: it is the h1);
+   data-dock-flight       the logo flies between the two (the script moves it), the hero wordmark is
+                          hidden; --dock-p (0 → 1) turns its "ly" from the hero's white to the header's
+                          colour.
+   Reduced motion: no flight, the two swap with a short fade. Without the script (no data-js on <html>)
+   the logo shows once the page has scrolled 240 px where scroll-driven animations exist, else always. */
+.site-header[data-dock] .site-header__logo .wordmark {
+  transform-origin: top left;
+  will-change: transform;
+
+  &:dir(rtl) {
+    transform-origin: top right;
+  }
+
+  .wordmark__script {
+    color: color-mix(
+      in srgb,
+      var(--wordmark-script-on-media) calc((1 - var(--dock-p, 1)) * 100%),
+      var(--wordmark-script)
+    );
+  }
+}
+
+:root[data-js] .site-header[data-dock="undocked"]:not([data-dock-flight]) .site-header__logo {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-s) ease,
+    visibility 0s var(--duration-s);
+}
+
+:root:has(.site-header[data-dock="docked"]) #hero-wordmark,
+:root:has(.site-header[data-dock-flight]) #hero-wordmark {
+  opacity: 0;
+}
+
+#hero-wordmark {
+  transition: opacity var(--duration-s) ease;
+}
+
+/* The flight replaces the fades: the logo and the hero wordmark change at once */
+.site-header[data-dock-flight] .site-header__logo,
+:root:has(.site-header[data-dock-flight]) #hero-wordmark {
+  transition: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  :root:not([data-js]) .site-header[data-dock] .site-header__logo {
+    animation: dock-without-script steps(1, end) both;
+    animation-timeline: scroll(root);
+    animation-range: 0 240px;
+  }
+}
+
+@keyframes dock-without-script {
+  from {
+    visibility: hidden;
+  }
+}
+
+/* Main navigation (desktop) */
+.site-nav {
+  display: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  /* Items that do not fit move to « Plus » (app.js); the margin keeps the focus rings visible */
+  overflow: clip;
+  overflow-clip-margin: 6px;
+
+  @media (width >= 48rem) {
+    display: block;
+  }
+}
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.site-nav .nav-link,
+.nav-pills .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding-inline: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-medium);
+  transition:
+    background-color var(--duration-s) ease,
+    color var(--duration-s) ease;
+
+  &:hover {
+    color: var(--color-text);
+    background: var(--color-surface-muted);
+  }
+
+  &[aria-current="page"] {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+}
+
+/* The « Plus » button anchors its popover */
+.site-nav__more-button {
+  anchor-name: --site-more;
+
+  &[aria-expanded="true"],
+  &:has(+ :popover-open) {
+    color: var(--color-text);
+  }
+}
+
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+.site-header__subscribe {
+  position: relative;
+  margin-inline-start: var(--space-2);
+
+  /* A 44px target, the 40px look of the small button */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px 0;
+  }
+}
+
+/* Narrowest phones (320 px, or a 400 % zoom): « S'abonner » and « Compte » leave the bar, which
+   would otherwise overflow and push the menu button off screen; both are in the menu sheet */
+.site-header__subscribe,
+.site-header__account {
+  @media (width < 23rem) {
+    display: none;
+  }
+}
+
+/* Phones: no theme switch in the bar (it is in the menu sheet), the menu button instead */
+.site-header__theme {
+  display: none;
+
+  @media (width >= 48rem) {
+    display: inline-grid;
+  }
+}
+
+.site-header__menu-button {
+  @media (width >= 48rem) {
+    display: none;
+  }
+}
+
+/* Popovers shared by the header menus: a raised card under their button */
+.menu-popover {
+  min-width: 220px;
+  max-width: min(320px, calc(100vw - 32px));
+  margin: 0;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-popover);
+
+  .nav-list:not([hidden]) + .nav-list {
+    margin-block-start: 6px;
+    padding-block-start: 6px;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--target);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-s);
+    color: var(--color-text-secondary);
+    font-size: var(--text-nav);
+    font-weight: var(--weight-medium);
+
+    &:hover,
+    &[aria-current="page"] {
+      background: var(--color-surface-muted);
+      color: var(--color-text);
+    }
+  }
+}
+
+/* The « Plus » popover: in the top layer, below its button. CSS anchor positioning places it where
+   supported; elsewhere app.js sets --dropdown-top/left (data-placed), and toggles .is-open where the
+   Popover API is missing. */
+.site-more {
+  display: none;
+  position: fixed;
+  inset: auto;
+  top: var(--dropdown-top, 0);
+  left: var(--dropdown-left, 0);
+  z-index: 60;
+  translate: -50% 0;
+  opacity: 0;
+  transition:
+    opacity var(--duration-m),
+    display var(--duration-m) allow-discrete,
+    overlay var(--duration-m) allow-discrete;
+
+  &:is(:popover-open, .is-open) {
+    display: block;
+    opacity: 1;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+}
+
+@supports (position-area: bottom) {
+  .site-more:not([data-placed]) {
+    position-anchor: --site-more;
+    position-area: bottom;
+    top: auto;
+    left: auto;
+    margin-block-start: 10px;
+    translate: none;
+  }
+}
+
+/* Phones: the navigation as pills that scroll sideways under the bar */
+.nav-pills {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (width >= 48rem) {
+    display: none;
+  }
+}
+
+.nav-pills__list {
+  display: flex;
+  gap: var(--space-2);
+  width: max-content;
+  padding: 0 var(--gutter) var(--space-2);
+
+  .nav-link {
+    min-height: var(--target);
+    height: auto;
+    background: var(--color-surface);
+  }
+}
+
+/* Phones: the menu sheet, from the inline end edge */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  inset-inline-start: auto;
+  width: min(360px, 100vw);
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-3) var(--space-4) var(--space-6);
+  border: 0;
+  overflow-y: auto;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-popover);
+  opacity: 0;
+  translate: 24px 0;
+  transition:
+    opacity var(--duration-m),
+    translate var(--duration-m) var(--ease-out),
+    display var(--duration-m) allow-discrete,
+    overlay var(--duration-m) allow-discrete;
+
+  &:dir(rtl) {
+    translate: -24px 0;
+  }
+
+  &:is(:popover-open, .is-open) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    opacity: 1;
+    translate: 0 0;
+
+    @starting-style {
+      opacity: 0;
+      translate: 24px 0;
+    }
+  }
+
+  &::backdrop {
+    background: var(--color-backdrop);
+  }
+
+  &:not([popover]) {
+    display: none;
+  }
+
+  &.is-open:not([popover]) {
+    display: flex;
+    z-index: 70;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    translate: 0 0;
+  }
+
+  .nav-list:not([hidden]) + .nav-list {
+    margin-block-start: var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-s);
+    font-size: var(--text-l);
+    font-weight: var(--weight-semibold);
+
+    &[aria-current="page"] {
+      background: var(--color-surface-muted);
+    }
+  }
+}
+
+:root:has(.mobile-menu:popover-open) {
+  overflow: hidden;
+}
+
+.mobile-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--target);
+}
+
+.mobile-menu__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: auto;
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+
+  .button {
+    flex: 1;
+  }
+}
+
+/* Theme switch: only the icon of the current mode is shown (app.js) */
+.theme-switch__state {
+  display: inline-grid;
+  place-items: center;
+}
+
+/* « ••• » (header-discover.hbs): recent posts and tags. Desktop: a panel under the bar, as wide as the
+   page (in the top layer; app.js sets --discover-top to the bar's bottom and toggles .is-open where the
+   Popover API is missing). Phones: the same sections in the menu sheet. */
+.site-nav__discover-button {
+  width: 44px;
+  padding-inline: 0;
+  justify-content: center;
+
+  .icon {
+    font-size: 1.25rem;
+  }
+
+  &[aria-expanded="true"],
+  &:has(+ :popover-open) {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+  }
+}
+
+.discover {
+  display: none;
+  position: fixed;
+  inset: auto;
+  top: var(--discover-top, var(--header-height));
+  left: 50%;
+  z-index: 60;
+
+  width: min(var(--page-max), 100vw - 2 * var(--gutter));
+  max-height: calc(100dvh - var(--discover-top, var(--header-height)) - var(--space-4));
+  margin: var(--space-2) 0 0;
+  padding: var(--space-6) var(--space-7);
+  overflow-y: auto;
+  border: 0;
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  color: var(--color-text);
+  /* The popover shadow, pulled down so that it stays within the gap under the bar (the margin above):
+     a shadow that reached the bar was cut off along its edge in Firefox */
+  box-shadow:
+    0 2px 6px var(--shadow-color-3),
+    0 18px 32px -8px var(--shadow-color-2);
+  opacity: 0;
+  translate: -50% -8px;
+  transition:
+    opacity var(--duration-m) ease,
+    translate var(--duration-m) var(--ease-out),
+    display var(--duration-m) allow-discrete,
+    overlay var(--duration-m) allow-discrete;
+
+  &:is(:popover-open, .is-open) {
+    display: block;
+    opacity: 1;
+    translate: -50% 0;
+
+    @starting-style {
+      opacity: 0;
+      translate: -50% -8px;
+    }
+  }
+
+  &:not([popover]):not(.is-open) {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    &:is(:popover-open, .is-open) {
+      translate: -50% 0;
+    }
+  }
+
+  @media (width < 48rem) {
+    &,
+    &:is(:popover-open, .is-open) {
+      display: none;
+    }
+  }
+}
+
+/* Stacked: the recent posts, then the tags under them (as the earlier theme's submenu) */
+.discover__inner {
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* One line: the word « Tags », the tags, then « Tous les tags » pushed to the far end */
+.discover__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-6);
+
+  /* The word is set apart from the links it names: a hairline after it, as tall as a line of text */
+  .discover__title {
+    flex: none;
+    margin: 0;
+    padding-inline-end: var(--space-6);
+    border-inline-end: 1px solid var(--color-border);
+    line-height: 1.5rem;
+  }
+}
+
+.discover__title {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--text-s);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.discover__posts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+
+  .row-item {
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+  }
+
+  .row-item__title {
+    font-size: var(--text-nav);
+  }
+}
+
+/* The desktop panel: the posts as small cards (thumbnail above the title), six in one row on wide
+   screens, three per row below */
+.discover .discover__posts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+
+  @media (width >= 72rem) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .row-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding-block: 0;
+  }
+
+  .row-item__media {
+    width: 100%;
+  }
+
+  .row-item__title {
+    font-size: var(--text-m);
+    line-height: 1.35;
+  }
+
+  .row-item .tile__meta {
+    font-size: var(--text-xs);
+  }
+}
+
+/* Tags: plain links (no pills), lighter than the word « Tags » beside them. In the desktop panel they
+   keep to one line: a tag that does not fit wraps out of sight, « Tous les tags » lists them all */
+.discover__tags {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0 var(--space-6);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.discover .discover__head {
+  flex-wrap: nowrap;
+}
+
+.discover .discover__tags {
+  max-height: var(--target);
+  overflow: hidden;
+}
+
+.discover__tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-medium);
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition:
+    color var(--duration-s) ease,
+    text-decoration-color var(--duration-s) ease;
+
+  &:hover {
+    color: var(--color-accent);
+    text-decoration-line: underline;
+    text-decoration-color: currentcolor;
+  }
+}
+
+.discover__all {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+  white-space: nowrap;
+  min-height: var(--target);
+  color: var(--color-accent);
+  font-size: var(--text-m);
+  font-weight: var(--weight-semibold);
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+/* Phones: in the menu sheet, under the navigation */
+.mobile-menu__discover {
+  display: grid;
+  gap: var(--space-5);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+
+  .row-item__media {
+    width: 96px;
+  }
+
+  .discover__tags {
+    gap: 0 var(--space-5);
+  }
+}

@@ -1,0 +1,99 @@
+{{!--
+Body of the « Archives » page (page-archives.hbs for the slug "archives", custom-archives.hbs for any
+other slug). Inside the page's template context.
+
+Every published post, newest first, as text rows (day, title, section, reading time). Ghost returns at
+most 100 posts per {{#get}}, so the list is fetched in pages of 100: the first query says how many pages
+there are (its pagination), and only those are fetched (up to page="10": 1 000 posts; add a block to go
+further). Past 1 000 posts a last row says how many posts are not listed.
+archives.js groups the rows by year and month and shows the filter bar (year buttons, title search,
+« Tag » list, live count); without JavaScript the bar stays hidden and the full list stays readable.
+?tag=<slug> (any tag, internal ones included, e.g. ?tag=hash-serie-avent for the series #serie-avent)
+shows only that tag's posts, oldest first: « Voir toute la série » links here.
+The page's own title is the heading; its content (optional) shows under it as an introduction.
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/archives.css"}}" as="style" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/archives.css"}}" media="screen" />
+{{/contentFor}}
+{{#contentFor "scripts"}}
+  <script type="module" async src="{{asset "js/archives.js"}}" onerror="document.documentElement.setAttribute('data-archives-failed', '')"></script>
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main archives" data-archives
+  data-i18n-none="{{t "No posts"}}" data-i18n-one="{{t "1 post"}}" data-i18n-many="{{t "% posts"}}"
+  data-i18n-all="{{t "All years"}}" data-i18n-older="{{t "Previous year: %"}}" data-i18n-series="{{t "Series: %"}}" data-i18n-tag="{{t "Tag: %"}}">
+  <div class="container">
+    {{#post}}
+      <header class="archives__header">
+        <p class="archives__kicker">{{t "All posts, newest first"}}</p>
+        <h1 class="archives__title">{{title}}</h1>
+        {{#if html}}<div class="archives__intro">{{content}}</div>{{/if}}
+      </header>
+    {{/post}}
+
+    <div class="archives-bar" data-archives-bar hidden>
+      <div class="archives-bar__years" role="group" aria-labelledby="archives-years-label">
+        <span class="archives-bar__label" id="archives-years-label">{{t "Year"}}</span>
+        <div class="archives-bar__year-list" data-archives-years></div>
+      </div>
+      <div class="archives-bar__search">
+        <label class="sr-only" for="archives-search">{{t "Search a title"}}</label>
+        {{> "icons/search"}}
+        <input class="archives-bar__input" id="archives-search" type="search" placeholder="{{t "Search a title"}}" autocomplete="off" data-archives-search>
+      </div>
+      <div class="archives-bar__select">
+        <label class="archives-bar__select-label" for="archives-tag">{{t "Tag"}}</label>
+        <select class="archives-bar__select-input" id="archives-tag" data-archives-tag>
+          <option value="">{{t "All tags"}}</option>
+          {{#get "tags" limit="100" include="count.posts" filter="visibility:public" order="count.posts desc"}}
+            {{#foreach tags}}{{#match count.posts ">" 0}}<option value="{{slug}}">{{name}} ({{count.posts}})</option>{{/match}}{{/foreach}}
+          {{/get}}
+        </select>
+        {{> "icons/chevron-down"}}
+      </div>
+      <p class="archives-bar__count" aria-live="polite" data-archives-count></p>
+    </div>
+
+    {{!-- Names of the internal tags, for the heading of ?tag=hash-serie-… (a series is named by its description,
+    as its box on the posts: « Pixel & Mémoire · total: 6 ») --}}
+    {{#get "tags" limit="100" filter="visibility:internal"}}
+      <ul hidden data-archives-internal>{{#foreach tags visibility="internal"}}<li data-slug="{{slug}}" data-description="{{description}}">{{name}}</li>{{/foreach}}</ul>
+    {{/get}}
+
+    <div class="archives-filter" data-archives-filter hidden>
+      <p class="archives-filter__label" data-archives-filter-label></p>
+      <button type="button" class="button button--ghost button--s archives-filter__clear" data-archives-clear>{{> "icons/close"}}{{t "All posts"}}</button>
+    </div>
+
+    <div class="archives__body">
+      {{#get "posts" limit="100" page="1" include="tags" as |firstposts pagination|}}
+        <ol class="archives-list" role="list" data-archives-list>
+          {{> "archives/items"}}
+          {{#match pagination.pages ">" 1}}{{#get "posts" limit="100" page="2" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 2}}{{#get "posts" limit="100" page="3" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 3}}{{#get "posts" limit="100" page="4" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 4}}{{#get "posts" limit="100" page="5" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 5}}{{#get "posts" limit="100" page="6" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 6}}{{#get "posts" limit="100" page="7" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 7}}{{#get "posts" limit="100" page="8" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 8}}{{#get "posts" limit="100" page="9" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+          {{#match pagination.pages ">" 9}}{{#get "posts" limit="100" page="10" include="tags"}}{{> "archives/items"}}{{/get}}{{/match}}
+        </ol>
+        {{!-- Beyond 1 000 posts the older ones are not listed: say so (outside the list, which archives.js rebuilds) --}}
+        {{#match pagination.pages ">" 10}}<p class="archives__cap" role="note" data-archives-cap>{{t "Only the {shown} most recent posts are listed ({total} in all)." shown="1000" total=pagination.total}}</p>{{/match}}
+      {{else}}
+        <ol class="archives-list" role="list" data-archives-list></ol>
+      {{/get}}
+      <p class="archives__empty" data-archives-empty hidden>{{t "No post matches these filters."}}</p>
+      <nav class="archives-yearnav" aria-label="{{t "Years"}}" data-archives-yearnav hidden>
+        <button type="button" class="button archives-yearnav__newer" data-archives-newer hidden></button>
+        <button type="button" class="button button--inverse archives-yearnav__older" data-archives-older hidden></button>
+      </nav>
+    </div>
+  </div>
+</main>

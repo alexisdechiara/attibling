@@ -1,0 +1,41 @@
+{{!--
+Body of the « Auteurs » page (page-authors.hbs, custom-authors.hbs). Inside the page's template
+context. Heading = the page's title and excerpt; then one card per author (avatar, name, number of
+posts, bio, links), most published first. Ghost returns at most 100 authors per query.
+--}}
+{{#contentFor "preload"}}
+  <link rel="preload" href="{{asset "css/listing.css"}}" as="style" />
+{{/contentFor}}
+{{#contentFor "styles"}}
+  <link rel="stylesheet" type="text/css" href="{{asset "css/listing.css"}}" media="screen" />
+{{/contentFor}}
+
+{{> header}}
+
+<main id="main" class="site-main listing">
+  <div class="container">
+    {{#post}}
+      <header class="page-heading listing-heading">
+        <h1 class="page-heading__title">{{title}}</h1>
+        {{#if custom_excerpt}}<p class="listing-heading__lead">{{custom_excerpt}}</p>{{/if}}
+      </header>
+    {{/post}}
+    {{#get "authors" limit="100" include="count.posts" order="count.posts desc"}}
+      <ul class="author-grid" role="list">
+        {{#foreach authors}}
+          <li>
+            <article class="author-card">
+              {{> author-avatar avatarClass="author-card__avatar"}}
+              <div class="author-card__body">
+                <h2 class="author-card__name"><a class="author-card__link" href="{{url}}">{{name}}</a></h2>
+                <p class="author-card__count">{{plural count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}{{#if location}} · {{location}}{{/if}}</p>
+                {{#if bio}}<p class="author-card__bio">{{bio}}</p>{{/if}}
+                {{> author-links linksClass="author-card__links"}}
+              </div>
+            </article>
+          </li>
+        {{/foreach}}
+      </ul>
+    {{/get}}
+  </div>
+</main>

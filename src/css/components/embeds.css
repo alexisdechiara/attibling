@@ -1,0 +1,217 @@
+/** Third-party embeds on click (setting embed_consent; src/js/embeds.js, partials/embed-consent.hbs).
+    The facade: a poster at the embed's ratio (a video) or the post's own text (X, Instagram…), then one
+    line on what loading it means, « always show » and a link to the provider. Light / dark through the
+    tokens; the poster is a dark media surface in both modes. */
+.embed-facade {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  text-align: start;
+  hyphens: manual;
+  container-type: inline-size;
+}
+
+.embed-facade__poster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  aspect-ratio: var(--embed-ratio, 16 / 9);
+  padding: clamp(var(--space-4), 4cqi, var(--space-7));
+  background:
+    radial-gradient(120% 90% at 88% 0%, color-mix(in srgb, var(--color-accent) 38%, transparent), transparent 62%),
+    var(--color-media);
+  color: var(--color-on-media);
+  color-scheme: dark;
+
+  > * {
+    margin: 0;
+  }
+}
+
+/* The provider's name: a pill */
+.embed-facade__provider {
+  background: var(--color-on-media-glass);
+  color: var(--color-on-media);
+}
+
+/* The video's title, as Ghost stored it (the frame's title) */
+.embed-facade__title {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: 36ch;
+  font-family: var(--font-heading);
+  font-size: clamp(var(--text-l), 4.2cqi, var(--text-3xl));
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  text-wrap: balance;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.embed-facade__load {
+  margin-top: var(--space-1);
+  background: var(--color-on-media);
+  color: var(--color-media);
+  white-space: normal;
+  text-align: start;
+  line-height: 1.2;
+  --color-focus: var(--color-focus-on-media);
+
+  .icon {
+    flex: none;
+  }
+}
+
+.embed-facade__consent {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  font-size: var(--text-s);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+
+  p {
+    margin: 0;
+  }
+}
+
+.embed-facade__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--space-5);
+}
+
+.embed-facade__always {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  cursor: pointer;
+
+  input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--color-accent);
+  }
+}
+
+.embed-facade__open {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--target);
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+/* A post (X, Instagram…): the quote card Ghost's markup already holds, no dark poster */
+.embed-facade--quote .embed-facade__poster {
+  aspect-ratio: auto;
+  align-items: stretch;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  background: none;
+  color: var(--color-text);
+  color-scheme: inherit;
+
+  .embed-facade__provider {
+    align-self: flex-start;
+    background: var(--color-inverse);
+    color: var(--color-on-inverse);
+  }
+
+  .embed-facade__load {
+    align-self: flex-start;
+    background: var(--color-inverse);
+    color: var(--color-on-inverse);
+    --color-focus: var(--color-accent);
+  }
+}
+
+.embed-facade blockquote {
+  margin: 0;
+  padding: 0 0 0 var(--space-4);
+  border: 0;
+  border-inline-start: 3px solid var(--color-border-strong);
+  font-family: var(--font-reading);
+  font-size: var(--text-l);
+  font-style: normal;
+  line-height: 1.55;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+
+  p {
+    margin: 0 0 var(--space-2);
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+/* A frame of its own height, or with no size (forms, widgets): no fixed ratio */
+.embed-facade--free .embed-facade__poster {
+  aspect-ratio: auto;
+  min-height: 12rem;
+}
+
+/* The embed once loaded, in the site's own frame */
+iframe[data-embed-frame] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 0;
+  border-radius: var(--radius-m);
+}
+
+.embed-frame--auto {
+  height: 12rem;
+  border-radius: 0;
+}
+
+/* Under an embed shown because of « always show »: take the choice back */
+.embed-remembered {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-s);
+  text-align: start;
+}
+
+.embed-remembered__stop {
+  min-height: var(--target);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+@media print {
+  .embed-facade__consent,
+  .embed-remembered {
+    display: none;
+  }
+}

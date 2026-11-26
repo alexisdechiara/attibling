@@ -1,0 +1,84 @@
+/** Arrival animation of the home page (started and ended by the script in default.hbs)
+
+   <html data-intro="play">   the coloured GEEKly wordmark arrives in the hero, 780 ms: the letters
+     G E E K rise into place one after the other (0, 70, 140 and 210 ms, 420 ms each), "ly" follows like
+     a signature (320 ms, 460 ms), while the whole wordmark settles from slightly larger.
+   <html data-intro="sober">  logo image or plain title: the hero logo fades and grows in, 600 ms
+   The script removes the attribute when it is over (or at the reader's first click, key, wheel, touch
+   or scroll); everything here is keyed to it, so the page is untouched without it.
+
+   Cheap by construction: no layer over the page (it is painted and usable from the first frame, the
+   hero picture included), and only opacity and transform are animated, on the hero wordmark's own
+   letters: the compositor does it all, nothing is laid out or painted again and nothing shifts. */
+
+:root[data-intro="play"] #hero-wordmark .wordmark__letters {
+  transform-origin: 0 100%;
+  animation: intro-settle 780ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+
+  &:dir(rtl) {
+    transform-origin: 100% 100%;
+  }
+
+  /* Flex items of the wordmark: each can be transformed without changing the line */
+  > span {
+    animation: intro-letter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  > .wordmark__e1 {
+    animation-delay: 70ms;
+  }
+
+  > .wordmark__e2 {
+    animation-delay: 140ms;
+  }
+
+  > .wordmark__k {
+    animation-delay: 210ms;
+  }
+
+  > .wordmark__script {
+    transform-origin: 0 70%;
+    animation: intro-script 460ms cubic-bezier(0.2, 0.8, 0.2, 1) 320ms backwards;
+  }
+}
+
+/* Logo image or plain site title: a short fade and growth of the hero logo, nothing else */
+:root[data-intro="sober"] .hero__title {
+  animation: intro-sober 600ms var(--ease-out) backwards;
+}
+
+@keyframes intro-settle {
+  from {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes intro-letter {
+  from {
+    opacity: 0;
+    transform: translateY(0.24em) scale(0.92);
+  }
+}
+
+@keyframes intro-script {
+  from {
+    opacity: 0;
+    transform: translateY(0.1em) rotate(-8deg) scale(0.9);
+  }
+}
+
+@keyframes intro-sober {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+/* Never with reduced motion (the script does not start it either) */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-intro] .hero__title,
+  :root[data-intro] #hero-wordmark .wordmark__letters,
+  :root[data-intro] #hero-wordmark .wordmark__letters > span {
+    animation: none !important;
+  }
+}

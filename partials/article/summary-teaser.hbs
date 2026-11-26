@@ -1,0 +1,18 @@
+{{!--
+« En bref » for visitors (post context): the summary itself is the author's HTML card
+<ol class="en-bref"> in the content, shown to members only; a visitor sees this teaser instead, and only
+when the post has such a card (CSS :has()). Not rendered when the theme setting summary_for_visitors is on.
+The two buttons (« S'abonner », « Se connecter ») share one lookup of the subscription page
+(subscribe-href.hbs), unless the setting subscribe_url gives it.
+--}}
+{{#unless @member}}{{#unless @custom.summary_for_visitors}}
+  {{#if @custom.subscribe_url}}
+    {{> article/summary-teaser-body}}
+  {{else}}
+    {{#get "pages" filter="slug:[newsletter,abonnement,subscribe]" limit="1" as |subscribepages|}}
+      {{> article/summary-teaser-body subscribePages=subscribepages subscribePagesKnown=true}}
+    {{else}}
+      {{> article/summary-teaser-body}}
+    {{/get}}
+  {{/if}}
+{{/unless}}{{/unless}}

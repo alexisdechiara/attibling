@@ -1,0 +1,704 @@
+/** Privacy (src/js/privacy/, partials/privacy/): the footer's « Cookies et confidentialité » button, the
+    preferences panel (a modal <dialog>, a bottom sheet on phones), its switches, the fallback consent
+    notice (« Notice »: a small card in the bottom corner; « Banner »: a bar across the bottom), and the
+    live sections of the « Cookies et confidentialité » page. Tokens only: light and dark follow. */
+
+/* Footer: the button looks like the bar's other links; nothing at all when there is neither a page
+   nor JavaScript */
+.site-footer__privacy:not(:has(a, button:not([hidden]))) {
+  display: none;
+}
+
+.site-footer__privacy-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+}
+
+/* --- Switches (checkbox role=switch, wrapped in its label) ------------------------------------------ */
+.privacy-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--target);
+  padding-block: var(--space-2);
+  cursor: pointer;
+
+  &[hidden] {
+    display: none;
+  }
+
+  input {
+    flex: none;
+    position: relative;
+    width: 44px;
+    height: 26px;
+    margin: 0;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    appearance: none;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-s) ease,
+      border-color var(--duration-s) ease;
+
+    /* The knob */
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block-start: 3px;
+      inset-inline-start: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--color-text-secondary);
+      transition:
+        translate var(--duration-s) var(--ease-out),
+        background-color var(--duration-s) ease;
+    }
+
+    &:checked {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+
+      &::before {
+        background: var(--color-on-accent);
+        translate: 18px 0;
+      }
+    }
+
+    &:dir(rtl):checked::before {
+      translate: -18px 0;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--color-focus);
+      outline-offset: var(--focus-ring-offset);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    input,
+    input::before {
+      transition: none;
+    }
+  }
+}
+
+.privacy-switch__text {
+  display: grid;
+  gap: 2px;
+}
+
+.privacy-switch__label {
+  color: var(--color-text);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
+}
+
+.privacy-switch__hint {
+  color: var(--color-text-secondary);
+  font-size: var(--text-s);
+  line-height: 1.45;
+}
+
+/* --- Groups of the panel and the page ------------------------------------------------------------- */
+.privacy-controls {
+  display: grid;
+  gap: var(--space-5);
+  font-family: var(--font-ui);
+}
+
+.privacy-group {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &[hidden] {
+    display: none;
+  }
+
+  /* A rule between the groups shown (a hidden group in between does not count) */
+  &:not([hidden]) ~ &:not([hidden]) {
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--color-border);
+  }
+}
+
+/* A legend floated out of the fieldset's border, so it lays out as an ordinary heading */
+.privacy-group__title {
+  float: inline-start;
+  width: 100%;
+  margin: 0 0 var(--space-1);
+  padding: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: var(--text-l);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* « Service par service », inside « Contenus intégrés », under the switch for all of them: set in from
+   the edge, so the services read as the details of that switch */
+.privacy-subgroup {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  padding-inline-start: var(--space-4);
+  border: 0;
+  border-inline-start: 2px solid var(--color-border);
+}
+
+.privacy-subgroup__title {
+  float: inline-start;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+}
+
+.privacy-group__note,
+.privacy-group__empty {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  line-height: 1.5;
+}
+
+/* « Tout refuser » / « Tout accepter »: the same size, the same look, side by side */
+.privacy-group__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+
+/* The answers, in the notice and the panel (the owner's choice, see docs/guide-auteur.md): « Tout
+   accepter » solid in the ink of the page (black on light, white on dark, the reader themes' ink on
+   posts), « Tout refuser » outlined in the same ink — same size, same row, same type, a real button */
+.consent-accept,
+.consent-refuse {
+  border: 2px solid var(--color-inverse);
+  font-size: var(--text-nav);
+  font-weight: var(--weight-semibold);
+}
+
+.consent-accept {
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+}
+
+.consent-refuse {
+  background: transparent;
+  color: var(--color-inverse);
+}
+
+/* While the notice shows (notice.js measures the room it takes at the bottom of the window): an element
+   reached with the keyboard scrolls into view above it (and above « back to the top »), never under it.
+   A scroll margin on the controls, as article/progress.css does, not a scroll padding on the page,
+   which would shrink the view timeline of the reading ring. */
+:root[data-consent-shown] :is(a, button, input, select, textarea, summary, [tabindex]):not([data-consent-notice] *) {
+  scroll-margin-block-end: calc(var(--consent-notice-space, 0px) + 52px + 2 * var(--space-5));
+}
+
+/* At the end of the page there is nothing left to scroll: the room the notice takes is added after the
+   footer, so its last links can come above the notice too (only below the content: nothing moves) */
+:root[data-consent-shown] body {
+  padding-block-end: var(--consent-notice-space, 0px);
+}
+
+/* The article's « back to the top » button: above the banner on wide screens; on phones, where it would
+   only land on the content (or an embed's buttons) above the notice, it waits until the notice is gone */
+:root[data-consent-shown="banner"] .progress-button {
+  inset-block-end: calc(var(--consent-notice-space, 0px) + var(--space-3));
+}
+
+@media (width < 40rem) {
+  :root[data-consent-shown] .progress-button {
+    visibility: hidden;
+  }
+}
+
+/* The main content, focused by the script when the element that had the focus went away (the notice
+   answered): no ring around the whole page */
+main[tabindex="-1"]:focus {
+  outline: none;
+}
+
+.privacy-clear {
+  justify-self: start;
+  margin-block-start: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+}
+
+/* --- The panel ------------------------------------------------------------------------------------- */
+.privacy-panel {
+  width: min(30rem, calc(100% - 2 * var(--gutter)));
+  max-height: min(44rem, calc(100dvh - 2 * var(--space-6)));
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  box-shadow: var(--shadow-popover);
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background: var(--color-backdrop);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &[open] {
+      animation: privacy-in var(--duration-m) var(--ease-out);
+    }
+  }
+
+  /* Phones: a bottom sheet */
+  @media (width < 48rem) {
+    width: 100%;
+    max-width: none;
+    max-height: 88dvh;
+    margin: auto 0 0;
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+
+    @media (prefers-reduced-motion: no-preference) {
+      &[open] {
+        animation-name: privacy-sheet-in;
+      }
+    }
+  }
+}
+
+@keyframes privacy-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+@keyframes privacy-sheet-in {
+  from {
+    translate: 0 100%;
+  }
+}
+
+.privacy-panel__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  position: relative;
+  padding: var(--space-4) var(--space-4) var(--space-3) var(--space-6);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.privacy-panel__grip {
+  display: none;
+
+  @media (width < 48rem) {
+    display: block;
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-start: 50%;
+    width: 36px;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--color-border-strong);
+    translate: -50% 0;
+  }
+}
+
+.privacy-panel__title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.015em;
+}
+
+.privacy-panel__body {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-6) var(--space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.privacy-panel__intro {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  line-height: 1.5;
+}
+
+.privacy-panel__foot {
+  padding: var(--space-3) var(--space-6) var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.privacy-panel__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--target);
+  color: var(--color-accent);
+  font-size: var(--text-m);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+
+  &:is(:hover, :focus-visible) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* --- The fallback consent notice ------------------------------------------------------------------ */
+.consent-notice {
+  position: fixed;
+  inset-block-end: var(--space-4);
+  inset-inline-start: var(--space-4);
+  z-index: 80;
+  display: grid;
+  gap: var(--space-3);
+  width: min(26rem, calc(100% - 2 * var(--space-4)));
+  /* A short window (zoomed in, large text): never more than half of it, the rest scrolls inside */
+  max-height: 50dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  box-shadow: var(--shadow-popover);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: privacy-in var(--duration-l) var(--ease-out);
+  }
+
+  /* Phones: across the bottom, above the browser's own bar */
+  @media (width < 40rem) {
+    inset-inline: var(--space-3);
+    inset-block-end: max(var(--space-3), env(safe-area-inset-bottom));
+    width: auto;
+  }
+}
+
+/* « Banner »: a bar across the bottom of the window, text and buttons on one line on wide screens */
+.consent-notice--banner {
+  inset-inline: 0;
+  inset-block-end: 0;
+  width: auto;
+  padding: var(--space-4) max(var(--gutter), calc((100% - var(--page-max)) / 2));
+  border-width: 1px 0 0;
+  border-radius: 0;
+
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-8);
+    padding-inline-end: calc(max(var(--gutter), calc((100% - var(--page-max)) / 2)) + var(--target));
+  }
+
+  @media (width < 40rem) {
+    inset-inline: 0;
+    inset-block-end: 0;
+    padding-block-end: max(var(--space-4), env(safe-area-inset-bottom));
+  }
+}
+
+.consent-notice__title {
+  margin: 0;
+  padding-inline-end: var(--target);
+  font-family: var(--font-heading);
+  font-size: var(--text-l);
+  font-weight: var(--weight-bold);
+  line-height: 1.3;
+}
+
+.consent-notice__body {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  line-height: 1.5;
+}
+
+.consent-notice__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+
+  .consent-notice--banner & {
+    /* Side by side at the width of the longer one: the same size */
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+/* « Cookies et confidentialité », in the sentence: opens the preferences panel */
+.consent-notice__more {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+  line-height: 1.5;
+}
+
+.consent-notice__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.consent-notice__close {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-end: var(--space-2);
+}
+
+/* --- An embed waiting for consent (src/js/embeds.js, consent_notice ≠ None) -------------------------------
+   « Accepter et afficher » solid (on the dark poster: light ink), « Afficher seulement celui-ci » outlined
+   in the poster's text colour; side by side, stacked when the embed is narrow */
+.embed-facade__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.embed-facade--ask {
+  .embed-facade__accept {
+    margin: 0;
+    /* The size of its neighbour (button--l), not the notice's */
+    font-size: var(--text-base);
+    white-space: normal;
+    text-align: start;
+    line-height: 1.2;
+    --color-focus: var(--color-focus-on-media);
+  }
+
+  .embed-facade__poster .embed-facade__load {
+    margin: 0;
+    border: 2px solid currentColor;
+    background: transparent;
+    color: inherit;
+  }
+
+  /* The quote card of a post (X…): the page's colours */
+  &.embed-facade--quote .embed-facade__accept {
+    --color-focus: var(--color-accent);
+  }
+
+  /* Narrow embeds: the title gives its room to the explanation and the buttons */
+  @container (width < 30rem) {
+    .embed-facade__title {
+      display: none;
+    }
+
+    .embed-facade__buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+}
+
+/* --- Under an embed: « Gérer mes choix » -------------------------------------------------------------- */
+.embed-facade__manage {
+  min-height: var(--target);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+/* --- The « Cookies et confidentialité » page ------------------------------------------------------------ */
+.privacy-page {
+  display: grid;
+  gap: 1.25em;
+  margin-block-start: 2.5em;
+
+  > h2 {
+    margin-block: 1em 0;
+  }
+
+  > h2:first-child {
+    margin-block-start: 0;
+  }
+
+  .privacy-group__title {
+    font-size: var(--text-xl);
+  }
+}
+
+.privacy-stored {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+
+  > * {
+    margin: 0;
+    width: 100%;
+  }
+
+  .privacy-clear {
+    width: auto;
+  }
+}
+
+.privacy-page__empty {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-m);
+  color: var(--color-text-secondary);
+}
+
+.privacy-page__cookie,
+.privacy-page__nojs {
+  color: var(--color-text-secondary);
+  font-size: var(--text-m);
+}
+
+.privacy-page__links a {
+  color: var(--color-accent);
+}
+
+.privacy-stored__clear {
+  justify-self: start;
+  grid-column: 2;
+  min-height: var(--target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-s);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-muted);
+  }
+}
+
+.privacy-page__controls {
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+
+  @media (width < 40rem) {
+    padding: var(--space-4);
+  }
+}
+
+/* The page's two tables (what this browser holds, everything the site may keep) read as stacked rows at
+   every width: the reading column is too narrow for their four or five columns, and a scrolling box
+   would hide « Durée ». pages/content.css stacks them on phones; the same layout from 40rem up. */
+@media (width >= 40rem) {
+  .page-content .privacy-page .table-scroll--stack {
+    overflow: visible;
+    background: none;
+
+    table {
+      min-width: 0;
+    }
+
+    :is(table, tbody, tr, td) {
+      display: block;
+    }
+
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    tr {
+      padding-block: var(--space-3);
+      border-block-end: 1px solid var(--color-border);
+    }
+
+    td {
+      display: grid;
+      grid-template-columns: 8rem minmax(0, 1fr);
+      gap: var(--space-4);
+      padding: var(--space-1) 0;
+      border: 0;
+    }
+
+    td::before {
+      content: attr(data-label);
+      color: var(--color-text-muted);
+      font-size: var(--text-s);
+      font-weight: var(--weight-semibold);
+      line-height: 1.7;
+    }
+
+    td:first-child {
+      display: block;
+      padding-block-end: var(--space-2);
+      color: var(--color-text);
+      font-weight: var(--weight-semibold);
+
+      &::before {
+        content: none;
+      }
+    }
+
+    code {
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+  }
+}

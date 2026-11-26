@@ -1,0 +1,40 @@
+/** People: the author's avatar (author-avatar.hbs) and links (author-links.hbs), shared by the author,
+   authors and « À propos » pages */
+
+.avatar {
+  --avatar-size: 48px;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: calc(var(--avatar-size) * 0.42);
+}
+
+.avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.author-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.author-links__link {
+  background: var(--color-surface-muted);
+  font-size: 1.125rem;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}

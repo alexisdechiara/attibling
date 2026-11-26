@@ -1,0 +1,12 @@
+{{!--
+« Publié le … · Mis à jour le … » line at the end of the article (post context), only when the post
+carries the internal tag #mis-a-jour (Ghost's updated_at changes on every save, even for a typo).
+--}}
+{{#has tag="#mis-a-jour"}}
+  <p class="article-dates">
+    {{> "icons/refresh"}}
+    <span>{{t "Published on"}} <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="LL"}}</time></span>
+    <span class="article-dates__dot" aria-hidden="true">·</span>
+    <strong>{{t "Updated on"}} <time datetime="{{date updated_at format="YYYY-MM-DD"}}">{{date updated_at format="LL"}}</time></strong>
+  </p>
+{{/has}}

@@ -1,0 +1,21 @@
+{{!--
+One cell of the « À propos » bento: a rubric (tag), inside a tag context fetched with include="count.posts",
+in the <ul class="about-rubrics">. The tag's name is the link to the tag page; the whole cell is clickable
+(the link's ::after covers it). With a feature image: the image behind a scrim, text in light ink; without:
+a tinted surface (cycled by position) with the rubric's icon. The description and the count are optional
+lines. The cell's size comes from its position in the list (src/css/about.css).
+Its sizes attribute is the width of the cell's box (about/rubric-sizes.hbs).
+The first three cells are on the first screen (phone and desktop): their pictures load at once, the
+first one (the largest) first; the others load lazily.
+--}}
+<li class="about-rubric{{#if feature_image}} about-rubric--image{{/if}}">
+  {{#if feature_image}}
+    <img class="about-rubric__image"{{> "image/srcset" image=feature_image widths="medium" srcSize="m"}} sizes="{{> "about/rubric-sizes"}}" alt=""{{#has number="1"}} fetchpriority="high"{{else}}{{#has number="2,3"}}{{else}} loading="lazy"{{/has}}{{/has}} decoding="async">
+  {{/if}}
+  <span class="about-rubric__icon" aria-hidden="true">{{> "about/tag-icon"}}</span>
+  <div class="about-rubric__body">
+    <h3 class="about-rubric__name"><a class="about-rubric__link" href="{{url}}">{{name}}</a></h3>
+    {{#if description}}<p class="about-rubric__text">{{description}}</p>{{/if}}
+    <p class="about-rubric__count">{{plural count.posts empty=(t "No posts") singular=(t "1 post") plural=(t "% posts")}}</p>
+  </div>
+</li>

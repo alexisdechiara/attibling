@@ -1,384 +1,235 @@
-import $ from "jquery";
-import Headroom from "headroom.js";
-import tippy from "tippy.js";
-import "tippy.js/dist/tippy.css";
-import shave from "shave";
-import GhostContentAPI from "@tryghost/content-api";
-import Fuse from "fuse.js/dist/fuse.basic.esm.min.js";
-import Swiper, { FreeMode, A11y } from "swiper";
-import "swiper/css";
-import { isRTL, formatDate, isMobile } from "./helpers";
+import { containFocus, isRTL, onReady, setUpPopover, throttleToFrame } from "./helpers";
+import { setUpBookmarks } from "./store";
+import { setUpPrefetch } from "./prefetch";
+import { setUpTransitions } from "./transitions";
+import { setUpPortalLinks } from "./portal-links";
+import { setUpLogoInk } from "./logo-ink";
+import { setUpPrivacy } from "./privacy";
+import { setUpRecommendations } from "./recommendations";
 
-$(() => {
+// Before Ghost's Portal script binds its links: sign-up / sign-in go to the theme's page (portal-links.js)
+setUpPortalLinks();
+
+// Theme mode: "light", "dark" or "auto" (follows the system), stored in localStorage "theme".
+// default.hbs applies it before the first paint; the switch cycles auto -> dark -> light -> auto.
+const setUpThemeSwitch = () => {
+	const switches = document.querySelectorAll(".js-switch-theme");
+	const system = window.matchMedia("(prefers-color-scheme: dark)");
+	const stored = () => {
+		try {
+			return localStorage.getItem("theme");
+		} catch {
+			return null;
+		}
+	};
+	const apply = (mode, persist) => {
+		const resolved = mode === "auto" ? (system.matches ? "dark" : "light") : mode;
+		document.documentElement.setAttribute("data-theme", resolved);
+		if (persist) {
+			try {
+				localStorage.setItem("theme", mode);
+			} catch {
+				// The choice only lasts for this page
+			}
+		}
+		document.querySelectorAll("[data-theme-state]").forEach(icon => {
+			icon.hidden = icon.dataset.themeState !== mode;
+		});
+	};
+	const current = () => (["light", "dark"].includes(stored()) ? stored() : "auto");
+
+	switches.forEach(el =>
+		el.addEventListener("click", () => {
+			const next = { auto: "dark", dark: "light", light: "auto" }[current()];
+			apply(next, true);
+			// Ghost's native comments draw their own frame: reload it in the new mode
+			const comments = document.querySelector(".js-native-comments > div > iframe");
+			comments?.contentDocument?.location.reload();
+		}),
+	);
+	system.addEventListener("change", () => {
+		if (current() === "auto") apply("auto", false);
+	});
+	apply(current(), false);
+};
+
+// Header: the "scrolled" look once the page leaves the top, and out of the way on a fast scroll down
+// (data-hidden), back on the way up, with the thresholds of the earlier theme (headroom.js): more than
+// 40 px down (20 px up) between two frames, always shown within 15 px of the top. It never hides while
+// a menu, a popover (« Plus », •••, the display settings) or the phone sheet is open, while focus is in
+// the header (focusing one of its controls brings it back), nor before it has scrolled past its own
+// place (Ghost's announcement bar above it included). Reduced motion: it disappears without sliding.
+export const HEADROOM = { down: 40, up: 20, top: 15 };
+const setUpHeader = header => {
+	let lastY = Math.round(window.scrollY);
+	const menuOpen = () => {
+		if (document.querySelector(".is-open")) return true;
+		try {
+			return Boolean(document.querySelector(":popover-open"));
+		} catch {
+			return false; // no Popover API: the menus use .is-open
+		}
+	};
+	const show = () => header.removeAttribute("data-hidden");
+	const update = () => {
+		const y = Math.round(window.scrollY);
+		const max = document.documentElement.scrollHeight - window.innerHeight;
+		header.toggleAttribute("data-scrolled", y > 4);
+		// Ignore the rubber-band overscroll of touch screens
+		if (y < 0 || y > max) return;
+		const delta = y - lastY;
+		lastY = y;
+		const bar = document.getElementById("announcement-bar-root");
+		const place = (bar && bar.nextElementSibling === header ? bar.offsetHeight : 0) + header.offsetHeight;
+		if (y <= HEADROOM.top) show();
+		else if (delta > HEADROOM.down && y > place) {
+			if (!menuOpen() && !header.contains(document.activeElement)) header.setAttribute("data-hidden", "");
+		} else if (delta < -HEADROOM.up) show();
+	};
+	update();
+	window.addEventListener("scroll", throttleToFrame(update), { passive: true });
+	header.addEventListener("focusin", show);
+};
+
+// Main navigation: the items that do not fit in the bar move to the « Plus » popover (copies; the
+// originals are hidden), and back when there is room again. « Plus » shows when it has something.
+const setUpNavOverflow = header => {
+	const list = header.querySelector("[data-nav-list]");
+	const more = header.querySelector("[data-nav-more]");
+	const overflow = header.querySelector("[data-nav-overflow]");
+	if (!list || !more || !overflow) return;
+	const items = [...list.querySelectorAll(":scope > [data-nav-item]")];
+	const hasSecondary = Boolean(header.querySelector("[data-more-menu] .nav-list--secondary"));
+	const nav = list.closest("nav");
+
+	const layout = () => {
+		items.forEach(item => (item.hidden = false));
+		overflow.replaceChildren();
+		more.hidden = !hasSecondary;
+		if (!nav || nav.offsetParent === null) return;
+		const fits = () => list.scrollWidth <= nav.clientWidth + 1;
+		const moved = [];
+		if (!fits()) more.hidden = false;
+		for (let i = items.length - 1; i >= 0 && !fits(); i--) {
+			items[i].hidden = true;
+			moved.unshift(items[i]);
+		}
+		moved.forEach(item => {
+			const copy = item.cloneNode(true);
+			copy.hidden = false;
+			copy.removeAttribute("data-nav-item");
+			overflow.append(copy);
+		});
+		overflow.hidden = moved.length === 0;
+		more.hidden = !hasSecondary && moved.length === 0;
+	};
+
+	// The bar's room depends on its other parts: lay it out when the bar changes size
+	new ResizeObserver(throttleToFrame(layout)).observe(header.querySelector(".site-header__bar") || header);
+	layout();
+};
+
+// Ghost's announcement bar (a deferred script of {{ghost_head}} adds #announcement-bar-root at the start
+// of <body>) goes right before the header, after the skip link, and scrolls away with the page. This
+// async module usually runs before that script: once more at DOMContentLoaded, which follows it.
+const placeAnnouncementBar = header => {
+	const place = () => {
+		const bar = document.getElementById("announcement-bar-root");
+		if (bar && header.previousElementSibling !== bar) header.before(bar);
+	};
+	place();
+	if (document.readyState !== "complete") document.addEventListener("DOMContentLoaded", place, { once: true });
+};
+
+// Third-party embeds on click (setting embed_consent: default.hbs renders the policy and the facade's
+// template on posts and pages). The module (embeds.js) is downloaded only when the page has such an
+// embed: a frame or an embed card's script from another site.
+const setUpEmbedFacades = () => {
+	const main = document.querySelector("main");
+	if (!main || !document.getElementById("embed-facade")) return;
+	const external = [...main.querySelectorAll("iframe[src], figure.kg-embed-card script[src]")].some(el => {
+		try {
+			const url = new URL(el.getAttribute("src"), location.href);
+			return /^https?:$/.test(url.protocol) && url.origin !== location.origin;
+		} catch {
+			return false;
+		}
+	});
+	if (external) import("./embeds").then(({ setUpEmbeds }) => setUpEmbeds(main));
+};
+
+onReady(() => {
 	if (isRTL()) {
-		$("html").attr("dir", "rtl").addClass("rtl");
+		document.documentElement.setAttribute("dir", "rtl");
+		document.documentElement.classList.add("rtl");
 	}
 
-	const $body = $("body");
-	const $header = $(".js-header");
-	const $openMenu = $(".js-open-menu");
-	const $closeMenu = $(".js-close-menu");
-	const $menu = $(".js-menu");
-	const $toggleSubmenu = $(".js-toggle-submenu");
-	const $submenuOption = $(".js-submenu-option")[0];
-	const $submenu = $(".js-submenu");
-	const $recentSlider = $(".js-recent-slider");
-	const $openSecondaryMenu = $(".js-open-secondary-menu");
-	const $openSearch = $(".js-open-search");
-	const $closeSearch = $(".js-close-search");
-	const $search = $(".js-search");
-	const $inputSearch = $(".js-input-search");
-	const $searchResults = $(".js-search-results");
-	const $searchNoResults = $(".js-no-results");
-	const $themeSwitcher = $(".js-switch-theme");
-	const $mainNav = $(".js-main-nav");
-	const $mainNavLeft = $(".js-main-nav-left");
-	const $newsletterElements = $(".js-newsletter");
-	const $nativeComments = $(".js-native-comments > div > iframe")[0];
-	const $darkColorsScheme = window.matchMedia("(prefers-color-scheme: dark)");
+	const header = document.getElementById("site-header");
+	setUpPrivacy();
+	setUpEmbedFacades();
+	setUpThemeSwitch();
+	setUpLogoInk();
+	setUpBookmarks();
+	setUpTransitions();
+	setUpPrefetch();
+	// Members: the « ••• » menu recommends posts by what they read (the pool is rendered for them only)
+	setUpRecommendations();
 
-	let fuse = null;
-	let submenuIsOpen = false;
-	let secondaryMenuTippy = null;
+	if (header) {
+		placeAnnouncementBar(header);
+		setUpHeader(header);
+		setUpNavOverflow(header);
 
-	const showSubmenu = () => {
-		$header.addClass("submenu-is-active");
-		$toggleSubmenu.addClass("active");
-		$submenu.removeClass("closed").addClass("opened");
-	};
+		const moreButton = header.querySelector("[data-more-button]");
+		const moreMenu = header.querySelector("[data-more-menu]");
+		if (moreButton && moreMenu) setUpPopover(moreButton, moreMenu);
 
-	const hideSubmenu = () => {
-		$header.removeClass("submenu-is-active");
-		$toggleSubmenu.removeClass("active");
-		$submenu.removeClass("opened").addClass("closed");
-	};
-
-	const toggleScrollVertical = () => {
-		$body.toggleClass("no-scroll-y");
-	};
-
-	const tryToRemoveNewsletter = () => {
-		if (typeof disableNewsletter !== "undefined" && disableNewsletter) {
-			$newsletterElements.remove();
-		}
-	};
-
-  const trySearchFeature = () => {
-    if (typeof ghostSearchApiKey !== 'undefined' && typeof nativeSearchEnabled === 'undefined') {
-      getAllPosts(ghostHost, ghostSearchApiKey);
-    } else {
-      $openSearch.css('visibility', 'hidden');
-      $closeSearch.remove();
-      $search.remove();
-    }
-  };
-
-	const getAllPosts = (host, key) => {
-		const api = new GhostContentAPI({
-			url: host,
-			key,
-			version: "v5.0",
-		});
-		const allPosts = [];
-		const fuseOptions = {
-			shouldSort: true,
-			ignoreLocation: true,
-			findAllMatches: true,
-			includeScore: true,
-			minMatchCharLength: 2,
-			keys: ["title", "custom_excerpt", "tags.name"],
-		};
-
-		api.posts
-			.browse({
-				limit: "all",
-				include: "tags",
-				fields: "id, title, url, published_at, custom_excerpt",
-			})
-			.then(posts => {
-				for (let i = 0, len = posts.length; i < len; i++) {
-					allPosts.push(posts[i]);
-				}
-
-				fuse = new Fuse(allPosts, fuseOptions);
-			})
-			.catch(err => {
-				console.log(err);
-			});
-	};
-
-	const toggleDesktopTopbarOverflow = disableOverflow => {
-		if (!isMobile()) {
-			if (disableOverflow) {
-				$mainNav.addClass("toggle-overflow");
-				$mainNavLeft.addClass("toggle-overflow");
-			} else {
-				$mainNav.removeClass("toggle-overflow");
-				$mainNavLeft.removeClass("toggle-overflow");
-			}
-		}
-	};
-
-	$openMenu.on("click", () => {
-		$header.addClass("mobile-menu-opened");
-		$menu.addClass("opened");
-		toggleScrollVertical();
-	});
-
-	$closeMenu.on("click", () => {
-		$header.removeClass("mobile-menu-opened");
-		$menu.removeClass("opened");
-		toggleScrollVertical();
-	});
-
-	$toggleSubmenu.on("click", () => {
-		submenuIsOpen = !submenuIsOpen;
-
-		if (submenuIsOpen) {
-			showSubmenu();
-			$header.removeClass("covered");
-		} else {
-			hideSubmenu();
-			changeHeaderBackground();
-		}
-	});
-
-	$openSearch.on("click", () => {
-		$search.addClass("opened");
-		setTimeout(() => {
-			$inputSearch.trigger("focus");
-		}, 400);
-		toggleScrollVertical();
-	});
-
-	$closeSearch.on("click", () => {
-		$inputSearch.trigger("blur");
-		$search.removeClass("opened");
-		toggleScrollVertical();
-	});
-
-	$inputSearch.on("keyup", () => {
-		if ($inputSearch.val().length > 0 && fuse) {
-			const results = fuse.search($inputSearch.val());
-			const bestResults = results.filter(result => {
-				if (result.score <= 0.5) {
-					return result;
-				}
-			});
-
-			let htmlString = "";
-
-			if (bestResults.length > 0) {
-				for (let i = 0, len = bestResults.length; i < len; i++) {
-					htmlString += `
-          <article class="m-result">\
-            <a href="${bestResults[i].item.url}" class="m-result__link">\
-              <h3 class="m-result__title">${bestResults[i].item.title}</h3>\
-              <span class="m-result__date">${formatDate(bestResults[i].item.published_at)}</span>\
-            </a>\
-          </article>`;
-				}
-
-				$searchNoResults.hide();
-				$searchResults.html(htmlString);
-				$searchResults.show();
-			} else {
-				$searchResults.html("");
-				$searchResults.hide();
-				$searchNoResults.show();
-			}
-		} else {
-			$searchResults.html("");
-			$searchResults.hide();
-			$searchNoResults.hide();
-		}
-	});
-
-	$themeSwitcher.on("click", () => {
-		if (localStorage.getItem("theme") === "light") {
-			$setAutoTheme();
-		} else if (localStorage.getItem("theme") === "dark") {
-			$setLightTheme();
-		} else {
-			$setDarkTheme();
-		}
-
-		if ($nativeComments) {
-			$nativeComments.contentDocument.location.reload(true);
-		}
-	});
-
-	const $resetThemeIcons = () => {
-		$(".light-theme-icon").css("display", "none");
-		$(".dark-theme-icon").css("display", "none");
-		$(".auto-theme-icon").css("display", "none");
-	};
-
-	const $setLightTheme = () => {
-		$resetThemeIcons();
-		$("html").attr("data-theme", "light");
-		localStorage.setItem("theme", "light");
-		$(".light-theme-icon").css("display", "block");
-	};
-
-	const $setDarkTheme = () => {
-		$resetThemeIcons();
-		$("html").attr("data-theme", "dark");
-		localStorage.setItem("theme", "dark");
-		$(".dark-theme-icon").css("display", "block");
-	};
-
-	const $setAutoTheme = () => {
-		if (window.matchMedia && $darkColorsScheme.matches) {
-			$("html").attr("data-theme", "dark");
-		} else {
-			$("html").attr("data-theme", "light");
-		}
-		$resetThemeIcons();
-		localStorage.setItem("theme", "auto");
-		$(".auto-theme-icon").css("display", "block");
-	};
-
-	$darkColorsScheme.addEventListener("change", () => {
-		$setAutoTheme();
-	});
-
-	$themeSwitcher.on("mouseenter", () => {
-		toggleDesktopTopbarOverflow(true);
-	});
-
-	$themeSwitcher.on("mouseleave", () => {
-		toggleDesktopTopbarOverflow(false);
-	});
-
-	$(window).on("click", e => {
-		if (submenuIsOpen) {
-			if ($submenuOption && !$submenuOption.contains(e.target)) {
-				submenuIsOpen = false;
-				hideSubmenu();
-			}
-		}
-	});
-
-	$(document).on("keyup", e => {
-		if (e.key === "Escape" && $search.hasClass("opened")) {
-			$closeSearch.trigger("click");
-		}
-	});
-
-	if (localStorage.getItem("theme")) {
-		if (localStorage.getItem("theme") === "light") {
-			$setLightTheme();
-		} else if (localStorage.getItem("theme") === "dark") {
-			$setDarkTheme();
-		} else {
-			$setAutoTheme();
-		}
-	} else {
-		$setAutoTheme();
-	}
-
-	$(window).on("scroll", () => {
-		changeHeaderBackground();
-	});
-
-	const changeHeaderBackground = () => {
-		if ($header.hasClass("with-picture")) {
-			if ($header.offset().top < $header.height()) {
-				$header.addClass("covered");
-			} else {
-				$header.removeClass("covered");
-			}
-		} else {
-			$header.removeClass("covered");
-		}
-	};
-
-	if ($header.length > 0) {
-		const headroom = new Headroom($header[0], {
-			tolerance: {
-				down: 40,
-				up: 20,
-			},
-			offset: 15,
-			onUnpin: () => {
-				if (!isMobile() && secondaryMenuTippy) {
-					const desktopSecondaryMenuTippy = secondaryMenuTippy[0];
-
-					if (desktopSecondaryMenuTippy && desktopSecondaryMenuTippy.state.isVisible) {
-						desktopSecondaryMenuTippy.hide();
-					}
-				}
-			},
-		});
-		headroom.init();
-	}
-
-	if ($recentSlider.length > 0) {
-		const recentSwiper = new Swiper(".js-recent-slider", {
-			modules: [FreeMode, A11y],
-			freeMode: true,
-			slidesPerView: "auto",
-			a11y: true,
-			on: {
-				init: function () {
-					shave(".js-recent-article-title", 50);
+		// « ••• »: recent posts and tags, a panel right under the bar
+		const discoverButton = header.querySelector("[data-discover-button]");
+		const discover = header.querySelector("[data-discover-menu]");
+		if (discoverButton && discover) {
+			const place = () =>
+				discover.style.setProperty("--discover-top", `${Math.round(header.getBoundingClientRect().bottom)}px`);
+			let panel = null;
+			const onScroll = throttleToFrame(place);
+			panel = setUpPopover(discoverButton, discover, {
+				place: false,
+				onToggle: open => {
+					discoverButton.setAttribute("aria-expanded", String(open));
+					if (open) {
+						place();
+						window.addEventListener("scroll", onScroll, { passive: true });
+					} else window.removeEventListener("scroll", onScroll);
 				},
-			},
-		});
-	}
-
-	if ($openSecondaryMenu.length > 0) {
-		const template = document.getElementById("secondary-navigation-template");
-
-		secondaryMenuTippy = tippy(".js-open-secondary-menu", {
-			appendTo: document.body,
-			content: template.innerHTML,
-			allowHTML: true,
-			arrow: true,
-			trigger: "click",
-			interactive: true,
-			onShow() {
-				toggleDesktopTopbarOverflow(true);
-			},
-			onHidden() {
-				toggleDesktopTopbarOverflow(false);
-			},
-		});
-	}
-
-	tippy(".js-tooltip");
-
-	shave(".js-article-card-title", 100);
-	shave(".js-article-card-title-no-image", 250);
-
-	tryToRemoveNewsletter();
-	trySearchFeature();
-
-	var cover = $(".m-hero__picture");
-	var coverPosition = 0;
-
-	function prlx() {
-		if (cover.length >= 1) {
-			var windowPosition = $(window).scrollTop();
-			windowPosition > 0 ? (coverPosition = Math.floor(windowPosition * 0.5)) : (coverPosition = 0);
-			cover.css({
-				"-webkit-transform": "translate3d(0, " + coverPosition + "px, 0)",
-				transform: "translate3d(0, " + coverPosition + "px, 0)",
+			});
+			// Following a link closes it (a link to the page being read included)
+			discover.addEventListener("click", event => {
+				if (event.target.closest("a")) panel.close();
 			});
 		}
 	}
-	prlx();
 
-	$(window).on({
-		scroll: function () {
-			prlx();
-		},
-		resize: function () {
-			prlx();
-		},
-		orientationchange: function () {
-			prlx();
-		},
-	});
+	// Phones: the menu sheet (a popover: Escape and a click outside close it). It covers the page, so
+	// the page is inert while it is open: focus stays in it, then goes back to the menu button.
+	const menuButton = document.querySelector("[data-menu-button]");
+	const menu = document.querySelector("[data-mobile-menu]");
+	if (menuButton && menu) {
+		const modal = containFocus(menu);
+		const sheet = setUpPopover(menuButton, menu, {
+			place: false,
+			onToggle: open => {
+				modal(open);
+				menuButton.setAttribute("aria-expanded", String(open));
+				if (open) requestAnimationFrame(() => menu.querySelector("[data-menu-close]")?.focus());
+			},
+		});
+		menu.querySelector("[data-menu-close]")?.addEventListener("click", () => {
+			if (!Object.hasOwn(HTMLElement.prototype, "popover")) sheet.close();
+			menuButton.focus();
+		});
+		// Following a link inside the page closes the sheet
+		menu.addEventListener("click", event => {
+			if (event.target.closest("a")) sheet.close();
+		});
+	}
 });

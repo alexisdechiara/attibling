@@ -1,0 +1,13 @@
+{{!--
+Table of contents, filled by tocbot (post.js) from the h2 and h3 of the content; hidden when the post
+has fewer than two headings. Style « Carte » on wide screens: sticky in the margin; smaller screens and
+style « Immersif »: a « Sommaire » disclosure at the top of the text (post.js keeps it open on wide
+screens, where its summary is hidden).
+--}}
+<details class="article-toc" data-toc hidden>
+  <summary class="article-toc__toggle">{{> "icons/summary"}}<span>{{t "Summary"}}</span>{{> "icons/chevron-down" class="article-toc__chevron"}}</summary>
+  <nav class="article-toc__nav" aria-label="{{t "Table of contents"}}">
+    <p class="article-toc__title" aria-hidden="true">{{t "Summary"}}</p>
+    <div class="toc" data-toc-list></div>
+  </nav>
+</details>

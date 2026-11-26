@@ -1,0 +1,32 @@
+/** tocbot's lists (the table of contents of articles, article/toc.css, and of reference documents,
+   pages/document.css): a rail of links, the current section marked. */
+.toc {
+  .toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-list .toc-list {
+    padding-inline-start: var(--space-4);
+  }
+
+  .toc-link {
+    display: block;
+    padding-block: 6px;
+    padding-inline: var(--space-4) 0;
+    border-inline-start: 2px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.45;
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  .is-active-link {
+    border-inline-start-color: var(--color-accent);
+    color: var(--color-text);
+    font-weight: var(--weight-bold);
+  }
+}
