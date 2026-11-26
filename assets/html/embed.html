@@ -23,6 +23,8 @@
       html, body { margin: 0; padding: 0; background: transparent; }
       body { display: flex; flex-direction: column; align-items: center; }
       body > iframe { display: block; width: 100%; height: 100vh; border: 0; }
+      /* A chart's container (Flourish, Infogram, StatCounter…) takes the column's width, as in the article */
+      body > div { align-self: stretch; }
     </style>
     <script>
       // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
@@ -64,13 +66,18 @@
             if (focus) player.focus();
           } else if (typeof message.markup === "string") {
             document.body.innerHTML = message.markup;
-            // Scripts written by innerHTML do not run: re-create them
-            document.querySelectorAll("script").forEach(old => {
-              const script = document.createElement("script");
-              for (const { name, value } of old.attributes) script.setAttribute(name, value);
-              script.textContent = old.textContent;
-              old.replaceWith(script);
-            });
+            // Scripts written by innerHTML do not run: re-create them, one after the other as a page
+            // being read would (a chart's inline call needs the library the script before it loads)
+            (async () => {
+              for (const old of document.body.querySelectorAll("script")) {
+                const script = document.createElement("script");
+                for (const { name, value } of old.attributes) script.setAttribute(name, value);
+                script.textContent = old.textContent;
+                const loaded = script.src && new Promise(done => (script.onload = script.onerror = done));
+                old.replaceWith(script);
+                await loaded;
+              }
+            })();
           }
           new ResizeObserver(fit).observe(document.body);
           fit();
