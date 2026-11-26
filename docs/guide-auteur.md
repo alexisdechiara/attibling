@@ -1294,7 +1294,9 @@ ensuite avec `/` + le nom du snippet.
 
 - **Carte** (par défaut) : l'image à la une dans une carte sombre arrondie, le titre posé dessus ; le texte
   dans une colonne de lecture (Literata, environ 60 à 72 caractères par ligne, justifié sur ordinateur et
-  aligné à gauche sur téléphone) ; le sommaire dans la marge de droite sur grand écran.
+  aligné à gauche sur téléphone) ; sur grand écran, le sommaire dans une carte à droite du texte, le texte
+  et le sommaire étant centrés ensemble dans la page. L'image à la une remplit toute la carte d'en-tête ;
+  elle est assombrie surtout sous le titre (en bas à gauche), le haut de la carte la laissant voir.
 - **Immersif** : l'image d'en-tête d'un bord à l'autre, le texte et les images sur toute la largeur de la
   page (moins les marges) ; sur un écran très large, seul le texte est plafonné à 1 808 px et centré.
   L'encadré de série et « En bref » se placent côte à côte (l'un sous l'autre sous 900 px environ), et le
@@ -1314,7 +1316,15 @@ Qui décide, du plus fort au plus faible :
   le titre s'affiche sur le fond de la page.
 - Légende de l'image à la une : celle saisie dans Ghost sous l'image (« Add a caption »).
 - Sommaire : construit automatiquement à partir des intertitres H2 et H3 ; il n'apparaît qu'à partir de deux
-  intertitres. Rien à faire.
+  intertitres. Rien à faire. Un filet gris court le long des entrées ; l'entrée de la partie lue est en bleu
+  sur un fond bleu clair. Les H2 sont les sections, les H3 leurs sous-sections, en retrait et plus petites :
+  une section qui a des sous-sections porte un bouton qui les replie (et les déplie), pour voir les sections
+  suivantes sans faire défiler la carte ; pendant la lecture d'une sous-section repliée, c'est sa section
+  qui est marquée. Pour un sommaire lisible, gardez cette hiérarchie : H2 pour les grandes parties, H3
+  dessous (un H1 dans le texte n'entre pas au sommaire).
+- Largeur des images (carte *Image* de l'éditeur, style « Carte ») : *Regular* est plus étroite que le texte
+  (70 % de la colonne, centrée ; la largeur du texte sur téléphone), *Wide* a la largeur du texte, *Full*
+  celle de la page.
 - Anneau de progression en bas à droite : il se remplit pendant la lecture ; un clic remonte en haut.
 - En fin d'article : la ligne « Publié le · Mis à jour le » (voir plus bas), la ligne « Précédent /
   Suivant » de la série (toujours le dernier élément), les mots clés (tags publics) et le partage (X,

@@ -17,12 +17,12 @@ Stable hooks (page transitions): [data-article-image] (the picture), [data-artic
     {{#if feature_image}}
       <div class="article-header__media">
         {{!-- sizes: the picture's box in the post's own style. « Carte »: the card is the page container
-        (92vw, 1328px at most), the picture its whole width on phones and 76 % of it from 48rem
+        (92vw, 1328px at most), the picture its whole width
         (src/css/article/layout.css). « Immersif »: the page width. A member who chose the other style
         in the display settings gets the right width from src/js/reading-settings.js. --}}
         <img class="article-header__image" data-article-image
           {{~> "image/srcset" image=feature_image widths="large" srcSize="l"}}
-          sizes="{{#has tag="#immersif"}}100vw{{else}}{{#has tag="#carte"}}(max-width: 767px) max(92vw, 711px), (max-width: 1443px) max(70vw, 711px), 1000px{{else}}{{#match @custom.article_style "Immersive"}}100vw{{else}}(max-width: 767px) max(92vw, 711px), (max-width: 1443px) max(70vw, 711px), 1000px{{/match}}{{/has}}{{/has}}"
+          sizes="{{#has tag="#immersif"}}100vw{{else}}{{#has tag="#carte"}}(max-width: 1443px) 92vw, 1328px{{else}}{{#match @custom.article_style "Immersive"}}100vw{{else}}(max-width: 1443px) 92vw, 1328px{{/match}}{{/has}}{{/has}}"
           alt="{{#if feature_image_alt}}{{feature_image_alt}}{{/if}}" fetchpriority="high" decoding="async">
       </div>
     {{/if}}

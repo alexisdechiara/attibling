@@ -219,6 +219,19 @@
     box-shadow: var(--shadow-1);
   }
 
+  /* The three widths of a picture (the editor's « Regular », « Wide » and « Full »): narrower than the
+     text and centred, as wide as the text, as wide as the page. On phones a regular picture keeps the
+     width of the text: 70 % of a narrow column would be too small to read. Style « Carte » only: in
+     « Immersif » pictures spread across the page. */
+  @media (width >= 48rem) {
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"])
+      &
+      > .kg-image-card:not(.kg-width-wide, .kg-width-full) {
+      justify-self: center;
+      width: 70%;
+    }
+  }
+
   figcaption {
     margin-block-start: var(--space-3);
     padding-inline: var(--space-4);

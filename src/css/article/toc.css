@@ -2,6 +2,12 @@
    text; style « Carte » on wide screens (≥ 75rem): sticky in the margin, its summary hidden and the
    disclosure kept open by post.js. */
 
+/* The card's width beside the text, and the gap between the two (wide screens, below) */
+.article {
+  --toc-width: 16rem;
+  --toc-gap: 4rem;
+}
+
 .article-toc {
   grid-row: 1;
   margin-block-end: var(--space-6);
@@ -62,6 +68,88 @@
   box-shadow: var(--shadow-1);
 }
 
+/* The entries of the card: one grey rail down their start, as in the earlier theme, the current section
+   marked on it in the accent colour. Sections (h2) and their sub-sections (h3) read apart: a section is
+   set in the text colour with room above it, a sub-section is set in, smaller and quieter. The room is
+   padding, not margin, so the rail is never broken. */
+.article-toc .toc {
+  .toc-link {
+    padding-block: 10px 5px;
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+  }
+
+  .toc-list .toc-list .toc-link {
+    padding-block: 4px;
+    padding-inline-start: calc(2 * var(--space-4));
+    color: var(--color-text-secondary);
+    font-size: 0.9375em;
+    font-weight: var(--weight-regular, 400);
+  }
+
+  .toc-list .toc-list > .toc-list-item:last-child > .toc-link {
+    padding-block-end: var(--space-2);
+  }
+
+  /* The current section: the accent on the rail, and a light blue ground that ends rounded. Also the
+     section whose folded sub-sections hold the current one. (As specific as the sub-section rule above,
+     which it follows.) */
+  .toc-list .toc-link.is-active-link,
+  .toc-list .toc-list .toc-link.is-active-link,
+  .toc-list .toc-list-item[data-folded]:has(.is-active-link) > .toc-link {
+    border-inline-start-color: var(--color-accent);
+    border-start-end-radius: var(--radius-s);
+    border-end-end-radius: var(--radius-s);
+    background: var(--color-accent-softer);
+    color: var(--color-accent);
+    font-weight: var(--weight-bold);
+  }
+
+  /* A section with sub-sections: its link, then the fold button at the end of the line */
+  .toc-list-item:has(> .toc-fold) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+
+    > .toc-list {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .toc-fold {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin-block-start: 5px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-s);
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-surface-muted);
+      color: var(--color-text);
+    }
+
+    .icon {
+      font-size: 1.125rem;
+      transform: rotate(180deg);
+      transition: transform var(--duration-s) ease;
+
+      @media (prefers-reduced-motion: reduce) {
+        transition: none;
+      }
+    }
+
+    &[aria-expanded="false"] .icon {
+      transform: none;
+    }
+  }
+}
+
 .article-toc__title {
   display: none;
 }
@@ -73,8 +161,20 @@
   --header-offset: 0px;
 }
 
-/* Wide screens, style « Carte »: in the margin, sticky */
+/* Wide screens, style « Carte »: a card beside the text, sticky */
 @media (width >= 75rem) {
+  /* The text and its table of contents are centred as one block: the body grid (layout.css) keeps a
+     track of the table's width and gap at its end, so the text moves towards the start by half of it and
+     the table never sits against the edge of the window. Only where the table shows (same test as the
+     first-paint rule above). Set on the article, so that what follows the text and shares its column (the
+     author box, the comments: layout.css) moves with it */
+  :root[data-js]
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
+      .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
+    ) {
+    --toc-space: calc(var(--toc-gap) + var(--toc-width));
+  }
+
   .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
     /* The margin column along the whole article body (its four rows, layout.css): the disclosure is as
        tall as its list and sticks inside that area, so it stops at the end of the article instead of
@@ -84,7 +184,7 @@
     grid-column: main-end / full-end;
     grid-row: 1 / -1;
     margin: 0;
-    padding-inline-start: var(--space-9);
+    padding-inline-start: var(--toc-gap);
     position: sticky;
     inset-block-start: calc(var(--header-offset, var(--header-height)) + var(--space-6));
     align-self: start;
@@ -98,23 +198,26 @@
       transition: none;
     }
 
+    /* A card as the site's other cards: raised surface, hairline, soft shadow */
     .article-toc__nav {
-      width: min(100%, 224px);
+      width: min(100%, var(--toc-width));
       max-height: calc(100vh - var(--header-offset, var(--header-height)) - var(--space-9));
       margin: 0;
-      padding: 0;
+      padding: var(--space-5);
       overflow-y: auto;
       overscroll-behavior: contain;
-      background: none;
-      box-shadow: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-l);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-1);
     }
 
     .article-toc__title {
       display: block;
-      margin-block-end: var(--space-4);
-      color: var(--color-text-secondary);
-      font-size: var(--text-2xl);
-      font-weight: var(--weight-medium);
+      margin: 0 0 var(--space-3);
+      color: var(--color-text);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
     }
   }
 }
@@ -123,6 +226,14 @@
    contents goes back above the text as a « Sommaire » button, and does not stick there. Same selector as
    the rule above plus the width, so that every declaration here wins over it */
 @media (75rem <= width < 90rem) {
+  /* No table beside the text: no room kept for it (one more attribute on :root than the rule above) */
+  :root[data-js][data-reading-width="l"]
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
+      .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
+    ) {
+    --toc-space: 0px;
+  }
+
   :root[data-reading-width="l"]
     .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"])
     .article-toc {
@@ -146,6 +257,8 @@
       margin-block-start: var(--space-3);
       padding: var(--space-4) var(--space-5);
       overflow: visible;
+      border: 0;
+      border-radius: var(--radius-m);
       background: var(--color-surface);
       box-shadow: var(--shadow-1);
     }

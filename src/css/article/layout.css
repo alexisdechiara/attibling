@@ -11,7 +11,9 @@
   --article-measure: 36;
   --measure: calc(var(--article-measure) * var(--article-font-size));
   --article-align: start;
-  --wide-extra: 120px;
+  /* A « wide » card is as wide as the text, a regular picture narrower (content.css), a « full » one
+     the page: no margin beside the text for wide cards */
+  --wide-extra: 0px;
 }
 
 @media (width >= 48rem) {
@@ -75,22 +77,29 @@
   object-position: 50% 30%;
 }
 
+/* From 48rem the picture fills the card and the shade follows the text, as on the home hero: a light,
+   even veil over the whole picture, and a deep one that spreads from the corner where the title sits
+   (bottom, inline start) and fades towards the top and the far side, so the top of the card shows the
+   picture and the title keeps a dark ground. Ramps in several steps: no visible edge. */
 @media (width >= 48rem) {
-  .article-header__media {
-    inset-inline-start: auto;
-    width: 76%;
-
-    &::after {
-      background:
-        linear-gradient(to right, var(--color-media) 0%, rgb(17 19 24 / 0.72) 26%, transparent 58%),
-        linear-gradient(0deg, rgb(17 19 24 / 0.7) 0%, transparent 38%);
-    }
+  .article-header__media::after {
+    background:
+      radial-gradient(
+        ellipse 78% 105% at 0% 100%,
+        rgb(17 19 24 / 0.94) 0%,
+        rgb(17 19 24 / 0.9) 22%,
+        rgb(17 19 24 / 0.78) 38%,
+        rgb(17 19 24 / 0.56) 54%,
+        rgb(17 19 24 / 0.3) 70%,
+        rgb(17 19 24 / 0.1) 86%,
+        transparent 100%
+      ),
+      linear-gradient(0deg, rgb(17 19 24 / 0.55) 0%, rgb(17 19 24 / 0.2) 22%, transparent 42%),
+      linear-gradient(0deg, rgb(17 19 24 / 0.18), rgb(17 19 24 / 0.18));
   }
 
   :dir(rtl) .article-header__media::after {
-    background:
-      linear-gradient(to left, var(--color-media) 0%, rgb(17 19 24 / 0.72) 26%, transparent 58%),
-      linear-gradient(0deg, rgb(17 19 24 / 0.7) 0%, transparent 38%);
+    transform: scaleX(-1);
   }
 }
 
@@ -270,15 +279,18 @@
 }
 
 /* Body grid ---------------------------------------------------------------------------------- */
-/* Columns shared with .gh-content (subgrid): full | wide | main | wide | full */
+/* Columns shared with .gh-content (subgrid): full | wide | main | wide | full. --toc-space is the room
+   the table of contents takes beside the text (toc.css; 0 without one): a last track of that width, so
+   the two margins that share the rest stay equal and the text and its table are centred together */
 .article-body {
   display: grid;
   grid-template-columns:
     [full-start] minmax(var(--gutter), 1fr)
     [wide-start] minmax(0, var(--wide-extra))
-    [main-start] min(var(--measure), 100% - 2 * var(--gutter))
+    [main-start] min(var(--measure), 100% - 2 * var(--gutter) - var(--toc-space, 0px))
     [main-end] minmax(0, var(--wide-extra))
     [wide-end] minmax(var(--gutter), 1fr)
+    var(--toc-space, 0px)
     [full-end];
   /* One row each, placed by number: table of contents (toc.css), intro, text, end. The text's row is the
      flexible one: in the margin the table of contents spans the four rows, and a list taller than a short
@@ -340,6 +352,8 @@
   margin-block-start: var(--space-11);
   border-block: 1px solid var(--color-border);
   max-width: none;
+  /* In the text's column, which stands off-centre beside a table of contents (--toc-space, toc.css) */
+  padding-inline-end: calc(var(--gutter) + var(--toc-space, 0px));
 }
 
 .author-box__inner {
@@ -429,6 +443,7 @@
 .article-comments {
   max-width: none;
   padding-block: var(--space-10) var(--space-4);
+  padding-inline-end: calc(var(--gutter) + var(--toc-space, 0px));
 }
 
 .article-comments__inner {

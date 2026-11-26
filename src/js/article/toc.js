@@ -8,6 +8,36 @@
 // src/css/article/toc.css that shows the box before this script runs counts the same headings.
 const IGNORED = ".js-toc-ignore, .en-bref, .kg-card *";
 
+// A section (h2) with sub-sections (h3) gets a button that folds them away, so a long table shows the
+// sections below without scrolling. Open at first; the state lasts for the page. tocbot only changes
+// classes when the reader scrolls, never this attribute. While a folded section is being read, the CSS
+// marks the section itself (src/css/article/toc.css).
+const setUpFolds = toc => {
+	const list = toc.querySelector("[data-toc-list]");
+	const chevron = toc.querySelector("[data-toc-chevron]");
+	if (!list || !chevron) return;
+	list.querySelectorAll(":scope > .toc-list > .toc-list-item").forEach(item => {
+		const link = item.querySelector(":scope > .toc-link");
+		const sub = item.querySelector(":scope > .toc-list");
+		if (!link || !sub) return;
+		const button = document.createElement("button");
+		button.type = "button";
+		button.className = "toc-fold";
+		button.append(chevron.content.cloneNode(true));
+		const label = folded =>
+			(folded ? list.dataset.unfold : list.dataset.fold).replace("{section}", link.textContent.trim());
+		const set = folded => {
+			sub.hidden = folded;
+			item.toggleAttribute("data-folded", folded);
+			button.setAttribute("aria-expanded", String(!folded));
+			button.setAttribute("aria-label", label(folded));
+		};
+		set(false);
+		button.addEventListener("click", () => set(!sub.hidden));
+		link.after(button);
+	});
+};
+
 export const setUpToc = (toc, content) => {
 	if (!toc || !content) return;
 	// Only the headings tocbot will list: a « Sommaire » box with nothing under it helps nobody
@@ -34,6 +64,7 @@ export const setUpToc = (toc, content) => {
 				collapseDepth: 6,
 			}),
 		)
+		.then(() => setUpFolds(toc))
 		.catch(() => {});
 
 	// In the margin the CSS makes the disclosure itself sticky (src/css/article/toc.css)

@@ -101,7 +101,7 @@ export const apply = settings => {
 // « Immersif », 76 % of the card in « Carte »), and the browser would keep a rendition too small or too large
 const HEADER_SIZES = {
 	immersive: "100vw",
-	card: "(max-width: 767px) max(92vw, 711px), (max-width: 1443px) max(70vw, 711px), 1000px",
+	card: "(max-width: 1443px) 92vw, 1328px",
 };
 const sizeHeaderPicture = (article, style) => {
 	const picture = article?.querySelector("[data-article-image]");
