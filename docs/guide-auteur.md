@@ -1592,6 +1592,14 @@ avec sous chaque contenu ainsi affiché « Ne plus afficher automatiquement… �
 Dans tous les cas : rien n'est demandé au service avant l'accord, l'accord se retire aussi simplement qu'il se
 donne (panneau, « Ne plus afficher automatiquement… » sous chaque contenu affiché sans clic).
 
+**Graphiques collés dans une carte HTML** (Flourish, Infogram, Google Trends, StatCounter… : le code
+« Embed » du service, collé dans une carte `/html`) : ils ont le même encadré, avec le nom du service, le
+titre du graphique quand le code le donne et « Voir sur Flourish ». Le thème reconnaît une carte HTML dont le
+script vient d'un autre site, ou en appelle un ; une carte HTML sans script externe (« En bref », fiche de
+test, tableau) n'est pas concernée. Si un graphique reste vide après le clic, vérifiez d'abord que son code
+fonctionne encore chez le service : un ancien code Google Trends, par exemple, peut pointer vers une
+bibliothèque que Google a retirée ; il faut alors recopier le code « Intégrer » à jour.
+
 Pour une publication X (ou Instagram, Threads…), le texte de la publication, que Ghost garde dans l'article,
 reste lisible dans l'encadré, avec le bouton dessous. Pas de miniature YouTube : l'image vient elle aussi des
 serveurs de Google (`i.ytimg.com`), donc elle n'apparaît qu'après le clic.

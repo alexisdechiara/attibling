@@ -7,7 +7,9 @@
 // shown inside assets/html/embed.html, a page of the site without that policy: YouTube from
 // youtube-nocookie.com (privacy-enhanced mode) with autoplay, an X post through X's own frame, the other
 // frames as Ghost wrote them; any other embed that needs its provider's script runs in a sandbox (an
-// origin of its own, cut off from the site). Shown without a click: what privacy/choices.js `embeds.allowed(id)` says — the
+// origin of its own, cut off from the site). An HTML card (« /html » in the editor) that needs another
+// site's script — a chart from Flourish, Infogram, Google Trends, StatCounter… — is such an embed too: the
+// policy blocks its script, so without a facade the chart would just be missing. Shown without a click: what privacy/choices.js `embeds.allowed(id)` says — the
 // service's own choice (« Toujours afficher », kept in localStorage "attibling-embeds", taken back under
 // each embed it loaded or in the « Cookies et confidentialité » panel), else the answer for « Contenus
 // intégrés » (setting consent_notice ≠ None), which each facade asks for itself: no consent notice for
@@ -107,6 +109,48 @@ export const PROVIDERS = [
 		host: /(^|\.)(codepen\.io|cdpn\.io)$/,
 		link: url => url.href.replace(/\/embed\/(preview\/)?/, "/pen/"),
 	},
+	// Charts written in an HTML card with the provider's script. `page`: the chart's own address, from the
+	// card's elements (« View on … »)
+	{
+		id: "flourish",
+		name: "Flourish",
+		kind: "content",
+		host: /(^|\.)(flourish\.studio|flo\.uri\.sh)$/,
+		page: elements => {
+			const id = find(elements, "[data-src]")?.dataset.src.match(/^(visualisation|story)\/\d+/)?.[0];
+			return id && `https://public.flourish.studio/${id}/`;
+		},
+	},
+	{
+		id: "infogram",
+		name: "Infogram",
+		kind: "content",
+		host: /(^|\.)infogram\.com$/,
+		page: elements => {
+			const id = find(elements, ".infogram-embed[data-id]")?.dataset.id;
+			return id && /^[\w-]+$/.test(id) && `https://e.infogram.com/${id}`;
+		},
+		// Infogram's page does not start in a sandbox (it needs its own origin): shown as a player, a frame
+		// of Infogram's site, at a fixed height since only Infogram's loader knows the chart's
+		player: elements => {
+			const id = find(elements, ".infogram-embed[data-id]")?.dataset.id;
+			return id && /^[\w-]+$/.test(id) && `https://e.infogram.com/${id}?src=embed`;
+		},
+	},
+	{
+		id: "google-trends",
+		name: "Google Trends",
+		kind: "content",
+		host: /^trends\.google\.[a-z.]+$/,
+		page: elements => {
+			const query = elements
+				.map(el => el.textContent)
+				.join("")
+				.match(/"exploreQuery":"([^"\\]+)"/)?.[1];
+			return query && `https://trends.google.com/trends/explore?${query}`;
+		},
+	},
+	{ id: "statcounter", name: "StatCounter", kind: "content", host: /(^|\.)statcounter\.com$/ },
 ];
 
 // Permissions the player may need (Ghost's oEmbed frames ask for the same)
@@ -131,12 +175,50 @@ const isThirdParty = value => {
 	return !!url && url.origin !== location.origin;
 };
 
+const knownProvider = url => PROVIDERS.find(p => p.host.test(url.hostname));
+
 const providerFor = url => {
-	const known = PROVIDERS.find(p => p.host.test(url.hostname));
+	const known = knownProvider(url);
 	if (known) return known;
 	const host = url.hostname.replace(/^www\./, "");
 	return { id: host, name: host, kind: "content" };
 };
+
+// The first element matching a selector among elements and their descendants
+const find = (elements, selector) => {
+	for (const el of elements) {
+		const match = el.matches(selector) ? el : el.querySelector(selector);
+		if (match) return match;
+	}
+	return null;
+};
+
+// The HTML cards of the content: Ghost writes each between two comments, without a wrapper
+const htmlCards = root => {
+	const cards = [];
+	const comments = document.createTreeWalker(root, NodeFilter.SHOW_COMMENT);
+	while (comments.nextNode()) {
+		if (comments.currentNode.data.trim() !== "kg-card-begin: html") continue;
+		const nodes = [];
+		let node = comments.currentNode.nextSibling;
+		while (node && !(node.nodeType === 8 && node.data.trim() === "kg-card-end: html")) {
+			nodes.push(node);
+			node = node.nextSibling;
+		}
+		// Without its closing comment the card's end is unknown: left alone
+		if (node && nodes.length) cards.push(nodes);
+	}
+	return cards;
+};
+
+// The addresses of other sites an inline script names (a loader it adds itself, the service it calls)
+const namedIn = script =>
+	(script.textContent.match(/https?:\/\/[^\s"'`\\<>)]+/g) || [])
+		.map(parse)
+		.filter(url => url && isThirdParty(url.href));
+
+// A text an attribute holds, entities decoded (Infogram writes its title encoded twice)
+const decoded = text => new DOMParser().parseFromString(text || "", "text/html").documentElement.textContent.trim();
 
 // The width / height ratio of a frame, from its attributes (as helpers.js setEmbedRatios)
 const ratioOf = frame => {
@@ -162,6 +244,38 @@ const findEmbeds = root => {
 		embeds.push({ container: figure, nodes, frame, scripts, provider: providerFor(source), source });
 		figure.querySelectorAll("iframe").forEach(f => seen.add(f));
 	});
+	// HTML cards whose script comes from another site, or names one (an inline loader, as Infogram's; a
+	// call to a library another card loads, as Google Trends'): the whole card is the embed. A card with
+	// only a frame is left to the frames below; one with only its own inline script is left alone.
+	const loaders = new Map();
+	for (const nodes of htmlCards(root)) {
+		const elements = nodes.filter(node => node.nodeType === 1);
+		if (elements.some(el => el.closest("figure.kg-embed-card, [data-embed-facade]"))) continue;
+		const all = elements.flatMap(el => [...(el.matches("script") ? [el] : []), ...el.querySelectorAll("script")]);
+		const scripts = all.filter(s => s.hasAttribute("src") && isThirdParty(s.getAttribute("src")));
+		const named = all.filter(s => !s.hasAttribute("src")).flatMap(namedIn);
+		const sources = [...scripts.map(s => parse(s.getAttribute("src"))), ...named];
+		if (!sources.length) continue;
+		const source = sources.find(knownProvider) || sources[0];
+		const provider = providerFor(source);
+		// The library a later card of the same service calls is the one its first card loaded
+		if (scripts.length && !loaders.has(provider.id)) loaders.set(provider.id, scripts);
+		const prelude = scripts.length ? [] : loaders.get(provider.id) || [];
+		const title = decoded(find(elements, "[data-title]")?.dataset.title);
+		embeds.push({
+			container: null,
+			nodes,
+			elements,
+			prelude,
+			frame: null,
+			scripts,
+			provider,
+			source,
+			title,
+			card: true,
+		});
+		elements.forEach(el => (el.matches("iframe") ? [el] : el.querySelectorAll("iframe")).forEach(f => seen.add(f)));
+	}
 	root.querySelectorAll("iframe[src]").forEach(frame => {
 		if (seen.has(frame) || frame.hasAttribute("data-embed-frame") || !isThirdParty(frame.getAttribute("src"))) return;
 		const source = parse(frame.getAttribute("src"));
@@ -174,6 +288,18 @@ const findEmbeds = root => {
 const linkOf = embed => {
 	const { provider, frame, nodes, source } = embed;
 	if (frame) return provider.link ? provider.link(new URL(source.href)) : source.href;
+	if (embed.card) {
+		// The chart's own page when the card gives it, else a link of the card to the service (« Source :
+		// … »), else the service's site: never the address of a script
+		const own = provider.page?.(embed.elements);
+		const page = own && parse(own);
+		if (page) return page.href;
+		const links = embed.elements
+			.flatMap(el => [...(el.matches("a[href]") ? [el] : []), ...el.querySelectorAll("a[href]")])
+			.map(a => parse(a.getAttribute("href")))
+			.filter(url => url && (provider.host ? provider.host.test(url.hostname) : url.hostname === source.hostname));
+		return links.at(-1)?.href || `${source.origin}/`;
+	}
 	const quote = nodes.find(node => node.nodeType === 1 && node.matches("blockquote, div"));
 	const permalink = quote?.getAttribute("cite") || quote?.dataset?.instgrmPermalink;
 	if (permalink && parse(permalink)) return permalink;
@@ -202,7 +328,7 @@ const fill = (text, provider) => text.replaceAll("{provider}", provider.name);
 // YouTube » / « Publication X » in the page's language instead, nothing for other content.
 const titleOf = (embed, strings) => {
 	const { provider, frame } = embed;
-	const title = frame?.getAttribute("title")?.trim() || "";
+	const title = frame?.getAttribute("title")?.trim() || embed.title || "";
 	const name = provider.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 	const generic = new RegExp(`^(${name})?\\s*(video|vidéo|post|tweet)?\\s*(player|embed)?$`, "i");
 	if (!generic.test(title)) return title;
@@ -247,6 +373,12 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		} else {
 			frame.className = "embed-frame embed-frame--auto";
 		}
+		// A chart of an HTML card that its service shows in a frame of its own site (PROVIDERS `player`)
+		const direct = embed.card ? provider.player?.(embed.elements) : null;
+		if (direct) {
+			frame.className = "embed-frame";
+			frame.style.height = "min(80vh, 30rem)";
+		}
 
 		// What the frame page shows (assets/html/embed.html takes it by message, nothing else): a player,
 		// a frame of the provider's site; or, for a scripted embed (Instagram, TikTok…), the markup as
@@ -261,6 +393,8 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			const src = provider.load ? provider.load(url) : url;
 			if (clicked && provider.kind === "video") src.searchParams.set("autoplay", "1");
 			message = { player: { src: src.href, title: title || undefined, allow: ALLOW, focus: clicked } };
+		} else if (direct) {
+			message = { player: { src: direct, title: title || undefined, allow: ALLOW, focus: clicked } };
 		} else if (tweet) {
 			const src = new URL("https://platform.twitter.com/embed/Tweet.html");
 			src.searchParams.set("id", tweet);
@@ -270,10 +404,12 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 			message = { player: { src: src.href, allow: ALLOW, maxWidth: "550px", resize: "x", focus: clicked } };
 		} else {
 			frame.setAttribute("sandbox", SANDBOX);
-			message = { markup: embed.nodes.map(node => node.outerHTML ?? node.textContent).join("") };
+			// `prelude`: the library an HTML card calls without loading it (another card of the page does)
+			const markup = [...(embed.prelude || []), ...embed.nodes].map(node => node.outerHTML ?? node.textContent);
+			message = { markup: markup.join("") };
 		}
 		// The frame takes the height of what it shows (no ratio, no height of its own)
-		if (!ratio && !original) fitting.add(frame);
+		if (!ratio && !original && !direct) fitting.add(frame);
 		frame.addEventListener(
 			"load",
 			() => {
@@ -332,7 +468,8 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		const titleText = titleOf(embed, strings);
 		const title = facade.querySelector("[data-embed-title]");
 		const quote = !frame && nodes.find(node => node.nodeType === 1 && node.matches("blockquote"));
-		if (frame && titleText) title.textContent = titleText;
+		const titled = (frame || embed.card) && titleText;
+		if (titled) title.textContent = titleText;
 		else title.remove();
 		const poster = facade.querySelector("[data-embed-poster]");
 		if (quote) {
@@ -346,7 +483,7 @@ export const setUpEmbeds = (root = document.querySelector("main")) => {
 		const checkbox = facade.querySelector("[data-embed-always]");
 		// A named group (« Contenu de YouTube — title »), its buttons described by the note: read in that
 		// order, and « Afficher seulement celui-ci » says which content it shows, even out of context
-		const name = fill(strings.frameTitle, provider) + (frame && titleText ? ` — ${titleText}` : "");
+		const name = fill(strings.frameTitle, provider) + (titled ? ` — ${titleText}` : "");
 		facade.setAttribute("role", "group");
 		facade.setAttribute("aria-label", name);
 		// On paper (print.css), where neither the facade nor a frame can show: one line, before the embed,

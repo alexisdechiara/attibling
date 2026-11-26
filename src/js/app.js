@@ -143,11 +143,13 @@ const placeAnnouncementBar = header => {
 
 // Third-party embeds on click (setting embed_consent: default.hbs renders the policy and the facade's
 // template on posts and pages). The module (embeds.js) is downloaded only when the page has such an
-// embed: a frame or an embed card's script from another site.
+// embed: a frame or a script from another site (an embed card's, or an HTML card's: a chart from
+// Flourish, StatCounter…), or an inline script of the content that names another site (the loader an
+// Infogram or Google Trends card writes). embeds.js then looks closer at what each one is.
 const setUpEmbedFacades = () => {
 	const main = document.querySelector("main");
 	if (!main || !document.getElementById("embed-facade")) return;
-	const external = [...main.querySelectorAll("iframe[src], figure.kg-embed-card script[src]")].some(el => {
+	const external = [...main.querySelectorAll("iframe[src], script[src]")].some(el => {
 		try {
 			const url = new URL(el.getAttribute("src"), location.href);
 			return /^https?:$/.test(url.protocol) && url.origin !== location.origin;
@@ -155,7 +157,11 @@ const setUpEmbedFacades = () => {
 			return false;
 		}
 	});
-	if (external) import("./embeds").then(({ setUpEmbeds }) => setUpEmbeds(main));
+	const named = () =>
+		[...main.querySelectorAll(".gh-content script:not([src])")].some(script =>
+			(script.textContent.match(/https?:\/\/[^\s"'`\\<>)/]+/g) || []).some(origin => origin !== location.origin),
+		);
+	if (external || named()) import("./embeds").then(({ setUpEmbeds }) => setUpEmbeds(main));
 };
 
 onReady(() => {

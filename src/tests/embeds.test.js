@@ -329,6 +329,126 @@ describe("third-party embeds", () => {
 		await dispose();
 	});
 
+	it("give an HTML card that needs another site's script a facade too, instead of a chart that is just missing", async () => {
+		// Charts as their services give them to paste in an HTML card (« /html »): a script of the service
+		// (Flourish), an inline loader that adds one (Infogram), a library one card loads and the next ones
+		// call (Google Trends), a chart with its « Source » link (StatCounter). Ghost writes each card
+		// between two comments. An HTML card with only the theme's own markup is not an embed.
+		const card = html => `<!--kg-card-begin: html-->\n${html}\n<!--kg-card-end: html-->`;
+		const FLOURISH = card(
+			'<div class="flourish-embed flourish-chart" data-src="visualisation/15749715"><script src="https://public.flourish.studio/resources/embed.js"></script></div>',
+		);
+		const INFOGRAM = card(
+			'<div class="infogram-embed" data-id="8e254a83-7550" data-type="interactive" data-title="Formats d&amp;#39;images"></div><script>!function(e,n,i,s){var o=e.getElementsByTagName(n)[0],r=e.createElement(n);r.async=1,r.id=i,r.src="https://e.infogram.com/js/dist/embed-loader-min.js",o.parentNode.insertBefore(r,o)}(document,"script","infogram-async");</script>',
+		);
+		const TRENDS_CALL =
+			'<script type="text/javascript">trends.embed.renderExploreWidget("TIMESERIES", {"comparisonItem":[{"keyword":"Geek"}]}, {"exploreQuery":"date=all&q=Geek","guestPath":"https://trends.google.com:443/trends/embed/"});</script>';
+		const TRENDS = card(
+			`<script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/3197_RC01/embed_loader.js"></script> ${TRENDS_CALL}`,
+		);
+		const TRENDS_NEXT = card(TRENDS_CALL);
+		const STATCOUNTER = card(
+			'<div id="chart" style="width: 100%; height: 400px;"></div><p>Source: <a href="https://gs.statcounter.com/os-version-market-share">StatCounter Global Stats</a></p><script src="https://www.statcounter.com/js/fusioncharts.js"></script>',
+		);
+		const OWN = card('<div class="note-maison">Une note.</div><script>document.body.dataset.own = "ran";</script>');
+		const html = `<p>Intro.</p>${FLOURISH}<p>a</p>${INFOGRAM}<p>b</p>${TRENDS}<p>c</p>${TRENDS_NEXT}<p>d</p>${STATCOUNTER}${OWN}<p>Fin.</p>`;
+		const { page, requests, errors, dispose } = await open({ render: facadeOnly({ html }) });
+		await waitFor(() =>
+			page
+				.locator("[data-embed-facade]")
+				.count()
+				.then(n => n === 5),
+		);
+		// In the article itself the two Google Trends calls fail, their library being blocked: the only
+		// errors of the page, and what the reader's browser logs too
+		assert.deepEqual(
+			errors.map(error => error.message),
+			["trends is not defined", "trends is not defined"],
+		);
+		errors.length = 0;
+		await page.waitForTimeout(300);
+		const contacted = () =>
+			requests.filter(url => /flourish|infogram|gstatic|trends\.google|statcounter/.test(new URL(url).host));
+		assert.deepEqual(contacted(), [], "nothing asked from the services before the reader asks");
+		const shown = await facades(page);
+		assert.deepEqual(
+			shown.map(f => [f.provider, f.label, f.title, f.link]),
+			[
+				["flourish", "Afficher le contenu de Flourish", null, "https://public.flourish.studio/visualisation/15749715/"],
+				["infogram", "Afficher le contenu de Infogram", "Formats d'images", "https://e.infogram.com/8e254a83-7550"],
+				[
+					"google-trends",
+					"Afficher le contenu de Google Trends",
+					null,
+					"https://trends.google.com/trends/explore?date=all&q=Geek",
+				],
+				[
+					"google-trends",
+					"Afficher le contenu de Google Trends",
+					null,
+					"https://trends.google.com/trends/explore?date=all&q=Geek",
+				],
+				[
+					"statcounter",
+					"Afficher le contenu de StatCounter",
+					null,
+					"https://gs.statcounter.com/os-version-market-share",
+				],
+			],
+		);
+		// The theme's own card stays in the article, and nothing of the cards is left beside the facades
+		assert.equal(await page.locator(".note-maison").count(), 1);
+		assert.equal(await page.evaluate(() => document.body.dataset.own), "ran");
+		assert.equal(await page.locator(".flourish-embed, .infogram-embed, #chart").count(), 0);
+
+		// On the reader's request each card runs in the sandboxed frame page, with its markup and script;
+		// the second Google Trends card gets the library the first one loads
+		// (the card's inline call runs only once that library has loaded, as in a page being read)
+		await page.route(/flourish|infogram|gstatic|statcounter|trends\.google/, route =>
+			setTimeout(
+				() =>
+					route.fulfill({
+						contentType: "text/javascript",
+						body: "window.trends = { embed: { renderExploreWidget: kind => (document.body.dataset.ran = kind) } };",
+					}),
+				200,
+			),
+		);
+		const second = page.locator('[data-provider="google-trends"]').nth(1);
+		await second.locator("[data-embed-load]").click();
+		const frame = page.locator('iframe[data-embed-frame="google-trends"]');
+		await frame.waitFor();
+		assert.match(await frame.getAttribute("sandbox"), /allow-scripts/);
+		assert.doesNotMatch(await frame.getAttribute("sandbox"), /allow-same-origin/);
+		const embedFrame = () => page.frames().find(f => f.url().includes("/assets/html/embed.html"));
+		const scripts = await waitFor(
+			() =>
+				embedFrame()?.evaluate(() =>
+					document.body?.dataset.ran
+						? [...document.body.querySelectorAll("script")].map(s => s.getAttribute("src"))
+						: null,
+				) ?? null,
+			{ timeout: 10000 },
+		);
+		assert.deepEqual(scripts, ["https://ssl.gstatic.com/trends_nrtr/3197_RC01/embed_loader.js", null]);
+		assert.equal(await embedFrame().evaluate(() => document.body.dataset.ran), "TIMESERIES");
+		assert.equal(await page.locator("[data-embed-facade]").count(), 4, "the other cards wait for their own click");
+
+		// Infogram's page needs its own origin: a frame of Infogram's site (a player), not the sandbox
+		await page.route("https://e.infogram.com/**", route =>
+			route.fulfill({ contentType: "text/html", body: "<p>chart</p>" }),
+		);
+		await page.locator('[data-provider="infogram"] [data-embed-load]').click();
+		const chart = page.locator('iframe[data-embed-frame="infogram"]');
+		await chart.waitFor();
+		assert.equal(await chart.getAttribute("sandbox"), null);
+		assert.equal(await chart.getAttribute("title"), "Contenu de Infogram — Formats d'images");
+		const player = await waitFor(() => chart.evaluate(f => f.contentDocument?.querySelector("iframe")?.src ?? null));
+		assert.equal(player, "https://e.infogram.com/8e254a83-7550?src=embed");
+		assert.ok((await chart.evaluate(f => f.offsetHeight)) >= 300, "a height of its own");
+		await dispose();
+	});
+
 	it("remember « always show » per provider, load it at once next time, and let the reader take it back", async () => {
 		const { page, dispose } = await open({ render: facadeOnly({ html: HTML }) });
 		const youtube = page.locator('[data-provider="youtube"]');
