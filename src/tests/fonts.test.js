@@ -64,12 +64,33 @@ const axesOf = file => {
 };
 
 const sizeOf = file => fs.statSync(new URL(file, FONTS)).size;
-const LITERATA_FILES = fs
-	.readdirSync(new URL("literata/", FONTS))
-	.filter(name => name.endsWith(".woff2"))
-	.map(name => `literata/${name}`);
+const filesOf = folder =>
+	fs
+		.readdirSync(new URL(`${folder}/`, FONTS))
+		.filter(name => name.endsWith(".woff2"))
+		.map(name => `${folder}/${name}`);
+const LITERATA_FILES = filesOf("literata");
 
-// An article with every kind of text the theme dresses in Literata (the article's own font): paragraphs,
+// The @font-face rules of the page
+const facesOf = page =>
+	page.evaluate(() =>
+		[...document.styleSheets]
+			.flatMap(sheet => [...sheet.cssRules])
+			.filter(rule => rule instanceof CSSFontFaceRule)
+			.map(rule => ({
+				family: rule.style.getPropertyValue("font-family").replaceAll('"', ""),
+				style: rule.style.getPropertyValue("font-style"),
+				weight: rule.style.getPropertyValue("font-weight"),
+				display: rule.style.getPropertyValue("font-display"),
+				src: rule.style.getPropertyValue("src"),
+				range: rule.style.getPropertyValue("unicode-range"),
+			})),
+	);
+const woff2 = requests => requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname);
+const FONT_SERVICE = /fonts\.(googleapis|gstatic)\.com|fonts\.bunny\.net/;
+
+// An article with every kind of text the theme dresses in the article's own font (Literata here, chosen in
+// the display settings; Noto Sans by default): paragraphs,
 // emphasis and bold italic, links, sup and sub (0.83 em), lists, quotes, a table, captions, code, cards,
 // « En bref » and the review card
 const RICH_HTML = [
@@ -90,13 +111,14 @@ const RICH_HTML = [
 	"<section class='footnotes'><ol><li id='fn1'>Une note de bas de page.</li></ol></section>",
 ].join("\n");
 
-// The sizes (px) of every visible text rendered in Literata, roman and italic, for the three text sizes of
-// the reading settings, three widths and both article styles
+// The sizes (px) of every visible text rendered in Literata, roman and italic, for a member who chose it as
+// the text font, for the three text sizes of the reading settings, three widths and both article styles
 const literataSizes = async () => {
 	const sizes = { roman: new Set(), italic: new Set() };
 	for (const article_style of ["Card", "Immersive"]) {
 		const { page, dispose } = await open({
 			render: article({ member: true, html: RICH_HTML, custom: { article_style, consent_notice: "None" } }),
+			storage: { "attibling-reading": JSON.stringify({ body: "literata" }) },
 			viewport: { width: 1440, height: 900 },
 		});
 		for (const width of [360, 768, 1440]) {
@@ -156,10 +178,10 @@ describe("fonts", () => {
 		const { page, requests, dispose } = await open();
 		await page.evaluate(() => document.fonts.ready);
 		const fontRequests = requests.filter(url => /\.woff2|fonts\./.test(url)).map(url => new URL(url).pathname);
-		assert.ok(!requests.some(url => /fonts\.(googleapis|gstatic)\.com|fonts\.bunny\.net/.test(url)), "no font service");
+		assert.ok(!requests.some(url => FONT_SERVICE.test(url)), "no font service");
 		assert.ok(fontRequests.includes("/assets/fonts/onest/onest-latin.woff2"), fontRequests.join());
 		assert.ok(
-			!fontRequests.some(p => /literata|cyrillic|vietnamese/.test(p)),
+			!fontRequests.some(p => /noto-sans|google-sans|literata|cyrillic|vietnamese/.test(p)),
 			`only what the page uses: ${fontRequests}`,
 		);
 		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
@@ -170,17 +192,7 @@ describe("fonts", () => {
 			["/assets/fonts/onest/onest-latin.woff2", "anonymous"],
 			["/assets/fonts/pacifico/pacifico-ly.woff2", "anonymous"],
 		]);
-		const faces = await page.evaluate(() =>
-			[...document.styleSheets]
-				.flatMap(sheet => [...sheet.cssRules])
-				.filter(rule => rule instanceof CSSFontFaceRule)
-				.map(rule => ({
-					family: rule.style.getPropertyValue("font-family").replaceAll('"', ""),
-					display: rule.style.getPropertyValue("font-display"),
-					src: rule.style.getPropertyValue("src"),
-					range: rule.style.getPropertyValue("unicode-range"),
-				})),
-		);
+		const faces = await facesOf(page);
 		const onest = faces.filter(f => f.family === "Onest");
 		assert.equal(onest.length, 5, "latin, latin-ext, cyrillic, cyrillic-ext, vietnamese");
 		for (const face of onest) {
@@ -189,7 +201,10 @@ describe("fonts", () => {
 			assert.ok(face.range, "each subset has its unicode-range");
 		}
 		assert.ok(faces.some(f => f.family === "Onest Fallback" && /local\("Arial"\)/.test(f.src)));
-		assert.ok(!faces.some(f => f.family === "Literata"), "Literata only on posts and pages");
+		assert.ok(
+			!faces.some(f => /Noto Sans|Google Sans|Literata/.test(f.family)),
+			"the articles' fonts are declared on posts only",
+		);
 		assert.equal(await page.evaluate(() => document.fonts.check('16px "Onest"')), true);
 		// The wordmark's Pacifico: only its two letters
 		const pacifico = faces.find(f => f.family.replaceAll("'", "") === "Pacifico");
@@ -217,22 +232,44 @@ describe("fonts", () => {
 		await dispose();
 	});
 
-	it("preload Literata on wide screens only: on phones the article's picture is asked for first", async () => {
+	it("preload the articles' fonts on wide screens only: on phones the article's picture is asked for first", async () => {
 		for (const [viewport, pictureFirst] of [
 			[{ width: 390, height: 844 }, true],
 			[{ width: 1280, height: 800 }, false],
 		]) {
 			const { page, requests, dispose } = await open({ render: article(), viewport });
 			await page.evaluate(() => document.fonts.ready);
-			const font = requests.findIndex(url => url.includes("/literata/literata-latin.woff2"));
 			const picture = requests.findIndex(url => url.includes("photo.svg"));
-			assert.ok(font >= 0 && picture >= 0, requests.join("\n"));
-			assert.equal(picture < font, pictureFirst, `at ${viewport.width}px: ${requests.join("\n")}`);
+			for (const file of ["/google-sans/google-sans-latin.woff2", "/noto-sans/noto-sans-latin.woff2"]) {
+				const font = requests.findIndex(url => url.includes(file));
+				assert.ok(font >= 0 && picture >= 0, requests.join("\n"));
+				assert.equal(picture < font, pictureFirst, `${file} at ${viewport.width}px: ${requests.join("\n")}`);
+			}
 			await dispose();
 		}
 	});
 
-	it("load Literata from the theme on posts, roman preloaded, italic only when the text has some", async () => {
+	it("set articles in Noto Sans (text) and Google Sans (title and headings), the rest of the page in Onest", async () => {
+		const { page, dispose } = await open({
+			render: article({
+				html: "<p>Un paragraphe.</p><h2>Deux</h2><h3>Trois</h3><h4>Quatre</h4><ul><li>Un point</li></ul>",
+			}),
+			viewport: { width: 1440, height: 900 },
+		});
+		const text = [".gh-content > p", ".gh-content li"];
+		const headings = [".article-header__title", ".gh-content > h2", ".gh-content > h3", ".gh-content > h4"];
+		const site = [".site-nav .nav-link", ".article-header__meta", ".article-header__tag", ".site-footer"];
+		const f = await families(page, [...text, ...headings, ...site]);
+		for (const s of text) assert.match(f.theme[s], /^"Noto Sans", "Noto Sans Fallback", /, s);
+		for (const s of headings) assert.match(f.theme[s], /^"Google Sans", "Google Sans Fallback", /, s);
+		for (const s of site) assert.match(f.theme[s], /^Onest,/, s);
+		// Ghost's custom fonts replace them: the heading font in the titles, the body font in the text
+		for (const s of text) assert.equal(f.custom[s], '"Body Test Font", serif', s);
+		for (const s of headings) assert.equal(f.custom[s], '"Heading Test Font", monospace', s);
+		await dispose();
+	});
+
+	it("load Noto Sans and Google Sans from the theme on posts, roman preloaded, italic only when the text has some", async () => {
 		const { page, requests, dispose } = await open({ render: article() });
 		await page.evaluate(() => document.fonts.ready);
 		const preloads = await page.$$eval('link[rel="preload"][as="font"]', els =>
@@ -240,15 +277,68 @@ describe("fonts", () => {
 		);
 		assert.deepEqual(preloads, [
 			"/assets/fonts/onest/onest-latin.woff2",
-			"/assets/fonts/literata/literata-latin.woff2",
+			"/assets/fonts/google-sans/google-sans-latin.woff2",
+			"/assets/fonts/noto-sans/noto-sans-latin.woff2",
 			"/assets/fonts/pacifico/pacifico-ly.woff2",
 		]);
-		const fonts = requests.filter(url => url.endsWith(".woff2")).map(url => new URL(url).pathname);
-		assert.ok(fonts.includes("/assets/fonts/literata/literata-latin.woff2"), fonts.join());
+		const fonts = woff2(requests);
+		assert.ok(fonts.includes("/assets/fonts/noto-sans/noto-sans-latin.woff2"), fonts.join());
+		assert.ok(fonts.includes("/assets/fonts/google-sans/google-sans-latin.woff2"), fonts.join());
 		assert.ok(!fonts.some(p => p.includes("italic")), "no italic in this text");
-		assert.equal(new Set(fonts).size, fonts.length, `each file once (the preload is reused): ${fonts}`);
-		assert.ok(!requests.some(url => /fonts\.(googleapis|gstatic)\.com/.test(url)));
+		assert.ok(!fonts.some(p => p.includes("literata")), "Literata is not the articles' font any more");
+		assert.equal(new Set(fonts).size, fonts.length, `each file once (the preloads are reused): ${fonts}`);
+		assert.ok(!requests.some(url => FONT_SERVICE.test(url)), "no font service");
+		assert.equal(await page.evaluate(() => document.fonts.check('19px "Noto Sans"')), true);
+		assert.equal(await page.evaluate(() => document.fonts.check('700 32px "Google Sans"')), true);
+
+		const faces = await facesOf(page);
+		const noto = faces.filter(f => f.family === "Noto Sans");
+		assert.equal(noto.filter(f => f.style === "normal" && f.weight === "400 700").length, 5, "roman, five subsets");
+		assert.equal(noto.filter(f => f.style === "italic" && f.weight === "400").length, 5, "italic, five subsets");
+		const google = faces.filter(f => f.family === "Google Sans");
+		assert.equal(google.length, 5, "latin, latin-ext, cyrillic, cyrillic-ext, vietnamese");
+		for (const face of [...noto, ...google]) {
+			assert.equal(face.display, "swap");
+			assert.match(face.src, /\/assets\/fonts\/(noto-sans\/noto-sans|google-sans\/google-sans)-[a-z-]+\.woff2/);
+			assert.ok(face.range, "each subset has its unicode-range");
+		}
+		for (const family of ["Noto Sans Fallback", "Google Sans Fallback"])
+			assert.ok(
+				faces.some(f => f.family === family && /local\("Arial"\)/.test(f.src)),
+				family,
+			);
+		assert.ok(!faces.some(f => f.family === "Literata"), "Literata is declared for the members' settings only");
 		await dispose();
+
+		const italic = await open({ render: article({ html: "<p>Un mot en <em>italique</em>.</p>" }) });
+		await italic.page.evaluate(() => document.fonts.ready);
+		assert.ok(
+			woff2(italic.requests).includes("/assets/fonts/noto-sans/noto-sans-italic-latin.woff2"),
+			woff2(italic.requests).join(),
+		);
+		await italic.dispose();
+	});
+
+	it("keep Literata for the members who choose it: served by the theme, never preloaded, no font service", async () => {
+		const member = await open({
+			render: article({ member: true }),
+			storage: { "attibling-reading": JSON.stringify({ body: "literata", heading: "onest" }) },
+		});
+		await member.page.evaluate(() => document.fonts.ready);
+		const literata = (await facesOf(member.page)).filter(f => f.family === "Literata");
+		assert.equal(literata.length, 10, "roman and italic, five subsets");
+		for (const face of literata) assert.match(face.src, /\/assets\/fonts\/literata\/literata-[a-z-]+\.woff2/);
+		const fonts = woff2(member.requests);
+		assert.ok(fonts.includes("/assets/fonts/literata/literata-latin.woff2"), fonts.join());
+		assert.ok(!member.requests.some(url => FONT_SERVICE.test(url)), "no font service");
+		const preloads = await member.page.$$eval('link[rel="preload"][as="font"]', els => els.map(el => el.href));
+		assert.ok(!preloads.some(href => href.includes("literata")), preloads.join());
+		await member.dispose();
+
+		// Declared only where it can be chosen: not when the display settings are off
+		const off = await open({ render: article({ member: true, custom: { reading_settings: false } }) });
+		assert.ok(!(await facesOf(off.page)).some(f => f.family === "Literata"));
+		await off.dispose();
 	});
 
 	it("download another script subset only for its own letters (œ stays in latin, Š needs latin-ext)", async () => {
@@ -263,9 +353,11 @@ describe("fonts", () => {
 		const french = await files("<p>Le cœur de l’œuvre, « en bref ».</p>");
 		assert.ok(!french.some(f => /ext|cyrillic/.test(f)), french.join());
 		const lithuanian = await files("<p>Švitrigailos g. 34, Vilnius</p>");
-		assert.ok(lithuanian.includes("literata-latin-ext.woff2"), lithuanian.join());
-		const russian = await files("<p>Привет, мир</p>");
-		assert.ok(russian.includes("literata-cyrillic.woff2"), russian.join());
+		assert.ok(lithuanian.includes("noto-sans-latin-ext.woff2"), lithuanian.join());
+		assert.ok(!lithuanian.includes("google-sans-latin-ext.woff2"), "no heading needs it");
+		const russian = await files("<h2>Привет</h2><p>Привет, мир</p>");
+		assert.ok(russian.includes("noto-sans-cyrillic.woff2"), russian.join());
+		assert.ok(russian.includes("google-sans-cyrillic.woff2"), russian.join());
 	});
 
 	it("keep in Literata the optical sizes the article uses, and not many more (opsz follows the size in px)", async () => {
@@ -293,6 +385,25 @@ describe("fonts", () => {
 		assert.equal(axesOf("literata/literata-italic-latin.woff2").wght, undefined, "italic: weight 400 only");
 	});
 
+	it("keep the weights the articles use in Noto Sans and Google Sans, and light files", () => {
+		// Text 400 and bold 700 (roman), italic 400; headings 650 to 750 (Google Sans stops at 700)
+		assert.deepEqual(axesOf("noto-sans/noto-sans-latin.woff2"), { wght: [400, 400, 700] });
+		assert.deepEqual(axesOf("google-sans/google-sans-latin.woff2"), { wght: [400, 400, 700] });
+		assert.throws(() => axesOf("noto-sans/noto-sans-italic-latin.woff2"), /no fvar/, "italic: weight 400 only");
+		const under = (file, kb) => assert.ok(sizeOf(file) < kb * 1000, `${file}: ${sizeOf(file)} bytes`);
+		under("noto-sans/noto-sans-latin.woff2", 24);
+		under("noto-sans/noto-sans-italic-latin.woff2", 15);
+		under("google-sans/google-sans-latin.woff2", 38);
+		assert.equal(filesOf("noto-sans").length, 10);
+		assert.equal(filesOf("google-sans").length, 5);
+		for (const folder of ["onest", "noto-sans", "google-sans", "literata"])
+			assert.match(
+				fs.readFileSync(new URL(`${folder}/OFL.txt`, FONTS), "utf8"),
+				/SIL OPEN FONT LICENSE Version 1\.1/,
+				folder,
+			);
+	});
+
 	it("keep the Literata files light: latin under 56 KB (roman) and 34 KB (italic), all ten under 250 KB", () => {
 		assert.ok(sizeOf("literata/literata-latin.woff2") < 56 * 1000, sizeOf("literata/literata-latin.woff2"));
 		assert.ok(
@@ -302,5 +413,21 @@ describe("fonts", () => {
 		assert.equal(LITERATA_FILES.length, 10);
 		const total = LITERATA_FILES.reduce((sum, file) => sum + sizeOf(file), 0);
 		assert.ok(total < 250 * 1000, `all ten Literata files: ${total} bytes`);
+	});
+
+	it("are the ones the author guide and the working rules name", () => {
+		const read = file => fs.readFileSync(new URL(`../../${file}`, import.meta.url), "utf8");
+		const guide = read("docs/guide-auteur.md");
+		assert.match(
+			guide,
+			/\*\*Noto Sans\*\*\s+pour le texte et \*\*Google Sans\*\* pour le titre de l'article et ses intertitres/,
+		);
+		assert.match(guide, /\| Police des titres \| Google Sans, Onest, /);
+		assert.match(guide, /\| Police du texte \| Noto Sans, Literata, /);
+		assert.ok(!/Literata\*\* pour le texte des articles/.test(guide), "Literata is not the articles' font any more");
+		assert.match(
+			read("CLAUDE.md"),
+			/Noto Sans \(texte des articles\) et Google Sans \(titre et intertitres des articles\)/,
+		);
 	});
 });

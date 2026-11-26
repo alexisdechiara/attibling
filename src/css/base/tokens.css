@@ -116,16 +116,19 @@
   --target: 44px; /* minimum touch target */
 
   /* Fonts. Onest everywhere (interface, headings, and the text of every page: generic page,
-     document, « À propos », subscription...); Literata only for the text of articles (posts).
+     document, « À propos », subscription...), except in articles (posts): Noto Sans for their text
+     (--font-reading) and Google Sans for their title and their headings (--font-article-heading).
      Ghost's custom fonts (Admin > Design) set --gh-font-heading and --gh-font-body: the heading font
-     replaces Onest in titles, the body font replaces Onest in the interface and the pages' text, and
-     Literata in the article text. Onest and Literata are served by the theme (partials/fonts.hbs);
-     the "… Fallback" faces are local Arial / Times New Roman resized to their metrics, shown until
+     replaces Onest in titles and Google Sans in the articles' titles, the body font replaces Onest in
+     the interface and the pages' text, and Noto Sans in the article text. All are served by the theme
+     (partials/fonts.hbs); the "… Fallback" faces are local Arial resized to their metrics, shown until
      the font arrives. Japanese, Korean and Chinese text falls back to the system fonts. */
-  --font-onest: Onest, "Onest Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-system: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-onest: Onest, "Onest Fallback", var(--font-system);
   --font-ui: var(--gh-font-body, var(--font-onest));
   --font-heading: var(--gh-font-heading, var(--font-onest));
-  --font-reading: var(--gh-font-body, Literata, "Literata Fallback", Georgia, "Times New Roman", serif);
+  --font-reading: var(--gh-font-body, "Noto Sans", "Noto Sans Fallback", var(--font-system));
+  --font-article-heading: var(--gh-font-heading, "Google Sans", "Google Sans Fallback", var(--font-system));
   --font-script: Pacifico, "Brush Script MT", cursive;
   --font-mono: ui-monospace, Menlo, Consolas, "Roboto Mono", "Liberation Mono", monospace;
 

@@ -3,11 +3,11 @@
 
 /* Reading variables: defaults of the display settings (reading.css changes them) */
 .article {
-  --article-font-heading: var(--font-heading);
+  --article-font-heading: var(--font-article-heading);
   --article-font-body: var(--font-reading);
   --article-font-size: 1.1875rem; /* 19px */
   --article-line-height: 1.72;
-  /* Measure of the text, in ems of the text size: M ≈ 69 characters per line in Literata */
+  /* Measure of the text, in ems of the text size: M ≈ 69 characters per line in Noto Sans */
   --article-measure: 36;
   --measure: calc(var(--article-measure) * var(--article-font-size));
   --article-align: start;

@@ -110,7 +110,7 @@ describe("article page: content", () => {
 		}
 	});
 
-	// About 0.52em per character in Literata at 19px: 60 to 72 characters per line is 31 to 38 em.
+	// About 0.52em per character in Noto Sans at 19px: 60 to 72 characters per line is 31 to 38 em.
 	// (The tests do not load web fonts: the measure is checked in ems of the text size.)
 	it("keeps the text at 60 to 72 characters per line by default, justified on desktop and aligned left on phones", async () => {
 		const measure = async width => {
@@ -132,7 +132,7 @@ describe("article page: content", () => {
 		assert.ok(desktop.ems >= 31 && desktop.ems <= 38, `${desktop.ems} em`);
 		assert.equal(desktop.size, "19px");
 		assert.equal(desktop.align, "justify");
-		assert.match(desktop.family, /^Literata/);
+		assert.match(desktop.family, /^"Noto Sans"/);
 		assert.equal((await measure(390)).align, "start");
 	});
 

@@ -20,7 +20,7 @@ Thème Ghost 6 du blog https://geekly.blog. Répondre en français, en vouvoyant
 
 ## Choix de design à ne pas défaire
 
-Cartes qui se soulèvent au survol ; liens bleus sans soulignement ; « Tags » et non « Mots clés » ; polices Onest (interface) et Literata (texte des articles) ; « ly » du logo en Pacifico ; encart d'abonnement limité à deux lignes ; « Plus ▾ » et « ··· » côte à côte dans l'en-tête ; points du héro espacés de 44 px.
+Cartes qui se soulèvent au survol ; liens bleus sans soulignement ; « Tags » et non « Mots clés » ; polices Onest (interface, tout le site hors articles), Noto Sans (texte des articles) et Google Sans (titre et intertitres des articles), toutes auto-hébergées ; « ly » du logo en Pacifico ; encart d'abonnement limité à deux lignes ; « Plus ▾ » et « ··· » côte à côte dans l'en-tête ; points du héro espacés de 44 px.
 
 ## Instance Ghost de test
 

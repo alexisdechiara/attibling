@@ -2,8 +2,10 @@
    setting changes. src/js/reading-settings.js (and the pre-paint script of default.hbs) write the
    member's choices on <html> as data-reading-<name>="<value>"; nothing is set for the defaults.
      theme    desert | ink | forest   (default: the site's palette)   semantic colour tokens, light and dark
-     heading  space-grotesk | libre-baskerville | poppins | lora | jetbrains-mono   --article-font-heading
-     body     merriweather | ibm-plex-serif | inter | noto-sans | fira-mono         --article-font-body
+     heading  onest | space-grotesk | libre-baskerville | poppins | lora | jetbrains-mono   --article-font-heading
+              (default: Google Sans)
+     body     literata | merriweather | ibm-plex-serif | inter | fira-mono          --article-font-body
+              (default: Noto Sans)
      width    s | m | l     --article-measure (Carte: 31 / 36 / 45 em of the text size; Immersif: 864px /
                             1200px / full width)
      size     s | m | l     --article-font-size 17 / 19 / 21px
@@ -60,7 +62,13 @@
   --color-border: light-dark(#cdd8ca, #2c3a30);
 }
 
-/* Fonts (loaded on demand from fonts.bunny.net by the pre-paint script, as Ghost's custom fonts) */
+/* Fonts. Onest and Literata, the fonts of the articles before Google Sans and Noto Sans, are served by
+   the theme (partials/fonts.hbs); the others are loaded on demand from fonts.bunny.net by the pre-paint
+   script, as Ghost's custom fonts. A saved « noto-sans » (a choice when Literata was the default) has no
+   rule: it is the default now. */
+:root[data-reading-heading="onest"] .article {
+  --article-font-heading: var(--font-onest);
+}
 :root[data-reading-heading="space-grotesk"] .article {
   --article-font-heading: "Space Grotesk", var(--font-onest);
 }
@@ -76,6 +84,9 @@
 :root[data-reading-heading="jetbrains-mono"] .article {
   --article-font-heading: "JetBrains Mono", var(--font-mono);
 }
+:root[data-reading-body="literata"] .article {
+  --article-font-body: Literata, "Literata Fallback", Georgia, "Times New Roman", serif;
+}
 :root[data-reading-body="merriweather"] .article {
   --article-font-body: Merriweather, Georgia, serif;
 }
@@ -84,9 +95,6 @@
 }
 :root[data-reading-body="inter"] .article {
   --article-font-body: Inter, var(--font-onest);
-}
-:root[data-reading-body="noto-sans"] .article {
-  --article-font-body: "Noto Sans", var(--font-onest);
 }
 :root[data-reading-body="fira-mono"] .article {
   --article-font-body: "Fira Mono", var(--font-mono);
