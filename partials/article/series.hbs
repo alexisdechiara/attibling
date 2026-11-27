@@ -10,7 +10,8 @@ l'Avent 2025 · total: 24 ». post.js reads it (data-description): « Partie 12 
 and « 12 parties à venir »; without « total: » the total is the number of published parts. post.js also
 condenses long lists (first, … n parts, previous, current, next, … n parts, last; each « … » button
 unfolds its parts). « Voir toute la série » leads to the Archives page filtered by the series tag
-(/archives/?tag=hash-serie-…, the pages' convention: internal tags have no page of their own).
+(/archives/?tag=hash-serie-…, the pages' convention: internal tags have no page of their own). It only
+shows when a published page has the slug « archives »: without that page the address is a 404.
 Without the script the full list shows and the total is the published count.
 --}}
 {{#foreach tags visibility="internal"}}
@@ -59,7 +60,9 @@ Without the script the full list shows and the total is the published count.
             <span class="series__prev">
               {{> article/series-link parts=parts current=../../id direction="prev"}}
             </span>
-            <a class="series__all" href="{{@site.url}}/archives/?tag={{../slug}}" data-series-all>{{t "See the whole series"}}</a>
+            {{#get "pages" filter="slug:archives" limit="1" fields="id" as |archives|}}
+              {{#if archives}}<a class="series__all" href="{{@site.url}}/archives/?tag={{../../slug}}" data-series-all>{{t "See the whole series"}}</a>{{/if}}
+            {{/get}}
             <span class="series__next">
               {{> article/series-link parts=parts current=../../id direction="next"}}
             </span>

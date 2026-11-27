@@ -557,7 +557,8 @@ Pas à pas :
 
 > Le lien « Tout voir » de « À lire plus tard » (accueil), le bouton « Voir ma liste » de la page
 > d'abonnement et « Voir toute la série » (articles) pointent vers `/favoris/` et `/archives/` : gardez ces
-> slugs, ou prévoyez une redirection (Settings → Labs → Redirects) si vous en choisissez d'autres.
+> slugs, ou prévoyez une redirection (Settings → Labs → Redirects) si vous en choisissez d'autres. « Voir
+> toute la série » ne s'affiche que si la page `archives` existe.
 
 ### Pages de tag
 
@@ -1305,8 +1306,9 @@ ensuite avec `/` + le nom du snippet.
 
 - **Carte** (par défaut) : l'image à la une dans une carte sombre arrondie, le titre posé dessus ; le texte
   dans une colonne de lecture (Noto Sans, environ 60 à 72 caractères par ligne, justifié sur ordinateur et
-  aligné à gauche sur téléphone) ; sur grand écran, le sommaire dans une carte à droite du texte, le texte
-  et le sommaire étant centrés ensemble dans la page. L'image à la une remplit toute la carte d'en-tête ;
+  aligné à gauche sur téléphone) ; sur grand écran, le sommaire dans une carte à droite du texte : le texte
+  s'élargit alors pour que texte et sommaire fassent ensemble la largeur de la carte d'en-tête (les
+  lignes dépassent les 72 caractères ; un membre retrouve une colonne étroite avec la largeur « S »). L'image à la une remplit toute la carte d'en-tête ;
   elle est assombrie surtout sous le titre (en bas à gauche), le haut de la carte la laissant voir.
 - **Immersif** : l'image d'en-tête d'un bord à l'autre, le texte et les images sur toute la largeur de la
   page (moins les marges) ; sur un écran très large, seul le texte est plafonné à 1 808 px et centré.
@@ -1375,8 +1377,8 @@ l'article.
 - Les articles **programmés** ou en **brouillon** n'apparaissent jamais : Ghost ne les donne pas au thème.
   Pendant un calendrier de l'Avent, la liste s'allonge chaque jour toute seule.
 - « Voir toute la série » mène à la page Archives filtrée sur la série (`/archives/?tag=hash-serie-avent`,
-  du plus ancien au plus récent) : la page Archives doit exister avec le slug `archives` (voir
-  [Archives](#archives)). Les tags internes n'ont pas de page à eux.
+  du plus ancien au plus récent). Le lien ne s'affiche que si une page publiée a le slug `archives` (voir
+  [Archives](#archives)) : sans elle, il mènerait à une 404. Les tags internes n'ont pas de page à eux.
 - Une seule partie publiée, ou pas de tag de série : pas d'encadré.
 - Sans JavaScript : la liste complète s'affiche et le total est le nombre de parties publiées.
 - Au plus 100 parties (limite de Ghost par requête).
@@ -1818,7 +1820,7 @@ navigateur du lecteur.
 | Symptôme | Cause et solution |
 |---|---|
 | La page « Archives » (ou « À lire plus tard », « À propos », abonnement) a l'air d'une page ordinaire | Son slug n'est pas le slug par défaut : corrigez **Page URL**, ou choisissez le modèle dans **Template**. |
-| « Voir toute la série », « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `archives` ou `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
+| « Tout voir » ou « Voir ma liste » mènent à une 404 | La page `favoris` n'existe pas, ou a un autre slug : créez-la avec ce slug ou ajoutez une redirection. |
 | Les boutons « S'abonner » ou « Se connecter » ouvrent une fenêtre au lieu de la page | Le site n'a pas de page **publiée** de slug `newsletter`, `abonnement` ou `subscribe`, et le réglage **Subscribe url** est vide : créez la page ou remplissez le réglage. |
 | La fenêtre « Compte » de Ghost a d'autres couleurs que le site | Portal ne prend que la couleur d'accent : Settings → Design & branding → Accent color (voir [Ce qui passe encore par Portal](#ce-qui-passe-encore-par-portal)). |
 | Pas de formulaire sur la page d'abonnement | Inscription fermée ou sur invitation (Settings → Membership), ou vous êtes connecté (vue abonné). |
@@ -1831,7 +1833,7 @@ navigateur du lecteur.
 | L'article « À la une » d'un tag n'est pas le bon | C'est le plus récent des articles du tag marqués **Feature this post** ; retirez la marque des autres. |
 | L'encadré de série n'apparaît pas | Le tag doit être interne (nom commençant par `#`) et commencer par `#serie-` ; il faut au moins deux parties **publiées** portant exactement le même tag. |
 | « Partie 3 sur 3 » alors que la série en compte plus | Ajoutez `total: N` dans la description du tag. |
-| « Voir toute la série » mène à une page 404 | Créez la page Archives (slug `archives`, voir [Archives](#archives)). |
+| « Voir toute la série » n'apparaît pas dans l'encadré de série | Le lien ne s'affiche que si la page Archives existe : créez-la (slug `archives`, voir [Archives](#archives)). |
 | « En bref » ne s'affiche pas | La carte doit être une carte **HTML** (pas un paragraphe) et la liste doit avoir la classe `en-bref` ; un visiteur voit l'encart à la place ; l'abonné l'a peut-être masqué dans ses réglages (« Réinitialiser »). |
 | La fiche de test n'a pas de style | Vérifiez la classe `fiche-test` et que c'est une carte HTML. |
 | La note d'un test n'apparaît pas dans Google | La fiche doit donner une note (`8,5/10`) et un type reconnu dans `data-type` ([fiche de test](#fiche-de-test)). Google reste libre de ne pas l'afficher. |

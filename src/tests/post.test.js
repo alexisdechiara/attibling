@@ -112,9 +112,14 @@ describe("article page: content", () => {
 
 	// About 0.52em per character in Noto Sans at 19px: 60 to 72 characters per line is 31 to 38 em.
 	// (The tests do not load web fonts: the measure is checked in ems of the text size.)
+	// Without a table of contents beside it (a text without headings): beside one, the text takes the
+	// width the table leaves in the header card's (below).
 	it("keeps the text at 60 to 72 characters per line by default, justified on desktop and aligned left on phones", async () => {
 		const measure = async width => {
-			const { page, dispose } = await open({ render: article(), viewport: { width, height: 900 } });
+			const { page, dispose } = await open({
+				render: article({ html: `<p>${"lecture ".repeat(400)}</p>` }),
+				viewport: { width, height: 900 },
+			});
 			const result = await page.evaluate(() => {
 				const p = document.querySelector("[data-article-content] > p");
 				const style = getComputedStyle(p);
@@ -370,6 +375,44 @@ describe("article page: content", () => {
 		}
 	});
 
+	it("makes the text and its table of contents together as wide as the header card, the table 320px wide", async () => {
+		for (const width of [1200, 1440, 1920]) {
+			const { page, dispose } = await open({ render: article(), viewport: { width, height: 900 } });
+			await page.locator("[data-toc-list] a").first().waitFor();
+			const box = await page.evaluate(() => {
+				const rect = selector => document.querySelector(selector).getBoundingClientRect();
+				const [card, text, nav] = [".article-header__card", "[data-article-content] > p", ".article-toc__nav"].map(
+					rect,
+				);
+				return { start: text.left - card.left, end: card.right - nav.right, nav: nav.width, text: text.width };
+			});
+			assert.ok(Math.abs(box.start) <= 1, `${width}px: the text starts ${box.start}px from the card's edge`);
+			assert.ok(Math.abs(box.end) <= 1, `${width}px: the table ends ${box.end}px from the card's edge`);
+			assert.equal(box.nav, 320, `${width}px`);
+			assert.ok(box.text >= 700, `${width}px: ${box.text}px of text`);
+			await dispose();
+		}
+	});
+
+	it("keeps a member's S width beside the table, and never makes L narrower than the default", async () => {
+		const textWidth = async width => {
+			const { page, dispose } = await open({
+				render: article({ member: true }),
+				storage: width ? { "attibling-reading": JSON.stringify({ width }) } : {},
+				viewport: { width: 1440, height: 900 },
+			});
+			await page.locator("[data-toc-list] a").first().waitFor();
+			const result = await page.evaluate(
+				() => document.querySelector("[data-article-content] > p").getBoundingClientRect().width,
+			);
+			await dispose();
+			return result;
+		};
+		const [s, m, l] = [await textWidth("s"), await textWidth(null), await textWidth("l")];
+		assert.equal(Math.round(s), 589, "S: 31 em of 19px");
+		assert.ok(m > s && l >= m, `S ${s}px, default ${m}px, L ${l}px`);
+	});
+
 	it("draws one grey rail down the entries, sets sub-sections apart from sections, and gives the current one a blue ground", async () => {
 		const { page, dispose } = await open({ render: article(), viewport: { width: 1440, height: 900 } });
 		await page.locator("[data-toc-list] a").first().waitFor();
@@ -438,12 +481,23 @@ describe("article page: content", () => {
 				expanded: button.getAttribute("aria-expanded"),
 				subShown: !!button.closest(".toc-list-item").querySelector(":scope > .toc-list a")?.offsetParent,
 				size: Math.min(button.offsetWidth, button.offsetHeight),
+				// One row with the section's link: as tall as it, and no ground of its own under the pointer
+				row: (link => [button.offsetTop - link.offsetTop, button.offsetHeight - link.offsetHeight])(
+					button.previousElementSibling,
+				),
+				ground: getComputedStyle(button).backgroundColor,
 			}));
+		// Read another section first: the button of the current one shares its ground (below)
+		await page.evaluate(() => document.getElementById("conclusion").scrollIntoView({ block: "start" }));
+		await page.locator("[data-toc-list] a.is-active-link", { hasText: "Conclusion" }).waitFor();
+		await fold.hover();
 		assert.deepEqual(await state(), {
 			label: "Replier les sous-sections de Première partie",
 			expanded: "true",
 			subShown: true,
-			size: 32,
+			size: 36,
+			row: [0, 0],
+			ground: "rgba(0, 0, 0, 0)",
 		});
 		await page.evaluate(() => document.getElementById("un-detail").scrollIntoView({ block: "start" }));
 		await page.locator("[data-toc-list] a.is-active-link", { hasText: "Un détail" }).waitFor();
@@ -452,11 +506,22 @@ describe("article page: content", () => {
 			label: "Déplier les sous-sections de Première partie",
 			expanded: "false",
 			subShown: false,
-			size: 32,
+			size: 36,
+			row: [0, 0],
+			// The sub-section being read is out of sight: its section carries the mark, the button inside it
+			ground: "rgb(238, 243, 252)",
 		});
-		// The sub-section being read is out of sight: its section carries the mark
 		const section = page.locator("[data-toc-list] a", { hasText: "Première partie" });
 		assert.equal(await section.evaluate(a => getComputedStyle(a).backgroundColor), "rgb(238, 243, 252)");
+		assert.deepEqual(
+			await page.evaluate(() => {
+				const link = getComputedStyle(document.querySelector("[data-toc-list] .toc-fold").previousElementSibling);
+				const button = getComputedStyle(document.querySelector("[data-toc-list] .toc-fold"));
+				return [link.borderStartEndRadius, button.borderStartEndRadius !== "0px", button.color];
+			}),
+			["0px", true, "rgb(26, 95, 208)"],
+			"the ground ends rounded after the button, which takes the colour of the current section",
+		);
 		// From the keyboard too, and back
 		await fold.focus();
 		await page.keyboard.press("Enter");

@@ -29,9 +29,11 @@ const series = page =>
 			rows,
 			box: links(box),
 			line: links(document.querySelector("[data-series-line]")),
-			all: box.querySelector("[data-series-all]").getAttribute("href"),
+			all: box.querySelector("[data-series-all]")?.getAttribute("href") ?? null,
 		};
 	});
+
+const ARCHIVES = [{ id: "page-archives", title: "Archives", slug: "archives", url: "/archives/" }];
 
 describe("series", () => {
 	before(launch);
@@ -39,7 +41,10 @@ describe("series", () => {
 
 	it("lists a short series in full, with the previous and next parts", async () => {
 		const { page, dispose } = await open({
-			render: article({ series: { published: 4, current: 2, description: "Construire son homelab" } }),
+			render: article({
+				series: { published: 4, current: 2, description: "Construire son homelab" },
+				pages: ARCHIVES,
+			}),
 		});
 		const s = await series(page);
 		assert.equal(s.name, "Construire son homelab");
@@ -57,9 +62,45 @@ describe("series", () => {
 		await dispose();
 	});
 
+	// « Voir toute la série » is the Archives page filtered by the series: a site without that page had a
+	// link to a 404
+	it("leaves « Voir toute la série » out when the site has no Archives page", async () => {
+		const { page, dispose } = await open({ render: article({ series: { published: 4, current: 2 } }) });
+		const s = await series(page);
+		assert.equal(s.all, null);
+		assert.equal(s.box.length, 2, "« Précédent » and « Suivant » stay");
+		await dispose();
+	});
+
+	it("sets the other parts in the text colour and weight, and « Précédent » / « Suivant » without a ground", async () => {
+		const { page, dispose } = await open({ render: article({ series: { published: 4, current: 2 } }) });
+		const look = await page.evaluate(() => {
+			const style = selector => getComputedStyle(document.querySelector(selector));
+			const [part, current, step] = [
+				".series__link .series__title",
+				".series__item--current .series__title",
+				".series__nav .series-step__link",
+			].map(style);
+			return {
+				part: [part.color, part.fontWeight],
+				current: [current.color, current.fontWeight],
+				step: step.backgroundColor,
+			};
+		});
+		assert.deepEqual(look, {
+			part: ["rgb(18, 20, 24)", "400"],
+			current: ["rgb(18, 20, 24)", "700"],
+			step: "rgba(0, 0, 0, 0)",
+		});
+		await dispose();
+	});
+
 	it("fits the series box at 320 px, « Précédent » and « Suivant » whole (WCAG 1.4.10)", async () => {
 		const { page, dispose } = await open({
-			render: article({ series: { published: 4, current: 2, description: "Construire son homelab" } }),
+			render: article({
+				series: { published: 4, current: 2, description: "Construire son homelab" },
+				pages: ARCHIVES,
+			}),
 			viewport: { width: 320, height: 700 },
 		});
 		const fit = await page.evaluate(() => {

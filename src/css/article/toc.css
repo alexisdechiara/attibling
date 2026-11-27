@@ -4,8 +4,8 @@
 
 /* The card's width beside the text, and the gap between the two (wide screens, below) */
 .article {
-  --toc-width: 16rem;
-  --toc-gap: 4rem;
+  --toc-width: 20rem;
+  --toc-gap: 3rem;
 }
 
 .article-toc {
@@ -105,33 +105,45 @@
     font-weight: var(--weight-bold);
   }
 
-  /* A section with sub-sections: its link, then the fold button at the end of the line */
+  /* A section with sub-sections: its link, then the fold button at the end of the line. The two read as
+     one row: the button is as tall as the link, and the ground of the current section runs under both
+     (it ends rounded after the button, not after the link) */
   .toc-list-item:has(> .toc-fold) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
 
     > .toc-list {
       grid-column: 1 / -1;
     }
   }
 
+  /* (As specific as the rule of the current section above, which it follows) */
+  .toc-list .toc-list-item:has(> .toc-fold) > .toc-link.toc-link {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
   .toc-fold {
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
-    margin-block-start: 5px;
-    padding: 0;
+    width: 36px;
+    /* The chevron beside the section's text, which sits low in its link (10px above, 5px below) */
+    padding: 5px 0 0;
     border: 0;
-    border-radius: var(--radius-s);
+    border-start-end-radius: var(--radius-s);
+    border-end-end-radius: var(--radius-s);
     background: none;
     color: var(--color-text-muted);
     cursor: pointer;
 
     &:hover {
-      background: var(--color-surface-muted);
       color: var(--color-text);
+    }
+
+    .toc-link.is-active-link + &,
+    .toc-list-item[data-folded]:has(.is-active-link) > & {
+      background: var(--color-accent-softer);
+      color: var(--color-accent);
     }
 
     .icon {
@@ -173,6 +185,26 @@
       .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
     ) {
     --toc-space: calc(var(--toc-gap) + var(--toc-width));
+  }
+
+  /* The text and its table are together as wide as the header card (the page width): the text takes what
+     the table leaves, wider than its measure. The default width only: a member's S keeps its measure
+     (« Largeur », reading.css), and L, the widest choice, is never narrower than this where it sits
+     beside the table (from 90rem, below) */
+  :root[data-js]:not([data-reading-width])
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
+      .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
+    ) {
+    --measure: calc(var(--page-max) - var(--toc-space));
+  }
+
+  @media (width >= 90rem) {
+    :root[data-js][data-reading-width="l"]
+      .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
+        .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
+      ) {
+      --measure: max(var(--article-measure) * var(--article-font-size), var(--page-max) - var(--toc-space));
+    }
   }
 
   .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
