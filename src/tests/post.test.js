@@ -284,54 +284,45 @@ describe("article page: content", () => {
 		await dispose();
 	});
 
-	it("puts the table of contents back above a wide text (L) below 90rem, as a « Sommaire » button that opens", async () => {
-		const { page, dispose } = await open({
-			render: article({ member: true }),
-			storage: { "attibling-reading": JSON.stringify({ width: "l" }) },
-			viewport: { width: 1300, height: 900 },
-		});
-		await page.waitForTimeout(100);
-		const state = () =>
-			page.evaluate(() => {
+	// Always in sight past phones: the table sticks beside the text on tablets too, whatever the width a
+	// member chose (L used to send it back above the text below 90rem)
+	it("keeps the table of contents sticky beside the text from tablets up, a « Sommaire » button above it on phones only", async () => {
+		const state = async (width, reading) => {
+			const { page, dispose } = await open({
+				render: article({ member: !!reading }),
+				storage: reading ? { "attibling-reading": JSON.stringify(reading) } : {},
+				viewport: { width, height: 900 },
+			});
+			await page.locator("[data-toc-list] a").first().waitFor({ state: "attached" });
+			await page.waitForTimeout(100);
+			const result = await page.evaluate(() => {
 				const box = selector => document.querySelector(selector).getBoundingClientRect();
 				const text = box("[data-article-content] > p");
-				const toc = box("[data-toc]");
-				const end = box(".article-end");
 				const nav = box(".article-toc__nav");
+				const toc = document.querySelector("[data-toc]");
 				return {
-					width: document.documentElement.dataset.readingWidth,
-					position: getComputedStyle(document.querySelector("[data-toc]")).position,
-					open: document.querySelector("[data-toc]").open,
-					toggle: getComputedStyle(document.querySelector(".article-toc__toggle")).display,
-					inColumn: Math.abs(toc.left - text.left) < 1 && toc.right <= text.right + 1,
-					aboveText: toc.bottom <= text.top && toc.height > 0,
-					listInColumn: nav.left >= text.left - 1 && nav.right <= text.right + 1,
-					endInColumn: Math.abs(end.left - text.left) < 1,
+					position: getComputedStyle(toc).position,
+					open: toc.open,
+					toggle: getComputedStyle(document.querySelector(".article-toc__toggle")).display !== "none",
+					beside: nav.width > 0 && nav.left >= text.right,
+					text: text.width >= 440,
+					overflow: document.documentElement.scrollWidth > innerWidth,
 				};
 			});
-		assert.deepEqual(await state(), {
-			width: "l",
+			await dispose();
+			return result;
+		};
+		const beside = { position: "sticky", open: true, toggle: false, beside: true, text: true, overflow: false };
+		for (const width of [768, 1024, 1199]) assert.deepEqual(await state(width), beside, `${width}px`);
+		for (const width of [768, 1300]) assert.deepEqual(await state(width, { width: "l" }), beside, `L at ${width}px`);
+		assert.deepEqual(await state(767), {
 			position: "static",
 			open: false,
-			toggle: "inline-flex",
-			inColumn: true,
-			aboveText: true,
-			listInColumn: true,
-			endInColumn: true,
+			toggle: true,
+			beside: false,
+			text: true,
+			overflow: false,
 		});
-		await page.locator(".article-toc__toggle").click();
-		assert.deepEqual(await state(), {
-			width: "l",
-			position: "static",
-			open: true,
-			toggle: "inline-flex",
-			inColumn: true,
-			aboveText: true,
-			listInColumn: true,
-			endInColumn: true,
-		});
-		assert.equal(await page.locator("[data-toc-list] a").first().isVisible(), true);
-		await dispose();
 	});
 
 	it("centres the text and its table of contents as a pair: a card beside the text, never against the edge of the window", async () => {
@@ -360,7 +351,7 @@ describe("article page: content", () => {
 				Math.abs(box.start - box.end) <= 1,
 				`${width}px: ${box.start}px before the text, ${box.end}px after the table`,
 			);
-			assert.ok(box.gap >= 48, `${width}px: the table stands ${box.gap}px from the text`);
+			assert.ok(box.gap >= 24, `${width}px: the table stands ${box.gap}px from the text`);
 			assert.ok(
 				Math.abs(box.authorStart - box.start) <= 1,
 				`${width}px: the author box stays in the column of the text`,
@@ -375,8 +366,8 @@ describe("article page: content", () => {
 		}
 	});
 
-	it("makes the text and its table of contents together as wide as the header card, the table 320px wide", async () => {
-		for (const width of [1200, 1440, 1920]) {
+	it("makes the text and its table of contents together as wide as the header card, the table up to 320px wide", async () => {
+		for (const width of [768, 1024, 1200, 1440, 1920]) {
 			const { page, dispose } = await open({ render: article(), viewport: { width, height: 900 } });
 			await page.locator("[data-toc-list] a").first().waitFor();
 			const box = await page.evaluate(() => {
@@ -388,8 +379,8 @@ describe("article page: content", () => {
 			});
 			assert.ok(Math.abs(box.start) <= 1, `${width}px: the text starts ${box.start}px from the card's edge`);
 			assert.ok(Math.abs(box.end) <= 1, `${width}px: the table ends ${box.end}px from the card's edge`);
-			assert.equal(box.nav, 320, `${width}px`);
-			assert.ok(box.text >= 700, `${width}px: ${box.text}px of text`);
+			assert.equal(Math.round(box.nav), Math.round(Math.min(320, Math.max(208, 0.223 * width))), `${width}px`);
+			assert.ok(box.text >= (width < 1200 ? 440 : 700), `${width}px: ${box.text}px of text`);
 			await dispose();
 		}
 	});

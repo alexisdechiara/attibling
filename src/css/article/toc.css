@@ -1,11 +1,12 @@
 /** Table of contents (partials/article/toc.hbs, tocbot): a « Sommaire » disclosure at the top of the
-   text; style « Carte » on wide screens (≥ 75rem): sticky in the margin, its summary hidden and the
+   text on phones; style « Carte » from 48rem: sticky in the margin, its summary hidden and the
    disclosure kept open by post.js. */
 
 /* The card's width beside the text, and the gap between the two (wide screens, below) */
 .article {
-  --toc-width: 20rem;
-  --toc-gap: 3rem;
+  /* Narrower on tablets, so that the text keeps the larger share: 208px at 768px, 320px from 1440px */
+  --toc-width: clamp(13rem, 22.3vw, 20rem);
+  --toc-gap: clamp(1.5rem, 3.4vw, 3rem);
 }
 
 .article-toc {
@@ -173,8 +174,9 @@
   --header-offset: 0px;
 }
 
-/* Wide screens, style « Carte »: a card beside the text, sticky */
-@media (width >= 75rem) {
+/* Past phones, style « Carte »: a card beside the text, sticky, always in sight. Phones alone keep the
+   « Sommaire » button above the text, which does not stick */
+@media (width >= 48rem) {
   /* The text and its table of contents are centred as one block: the body grid (layout.css) keeps a
      track of the table's width and gap at its end, so the text moves towards the start by half of it and
      the table never sits against the edge of the window. Only where the table shows (same test as the
@@ -189,8 +191,7 @@
 
   /* The text and its table are together as wide as the header card (the page width): the text takes what
      the table leaves, wider than its measure. The default width only: a member's S keeps its measure
-     (« Largeur », reading.css), and L, the widest choice, is never narrower than this where it sits
-     beside the table (from 90rem, below) */
+     (« Largeur », reading.css), and L, the widest choice, is never narrower than this */
   :root[data-js]:not([data-reading-width])
     .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
       .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
@@ -198,13 +199,11 @@
     --measure: calc(var(--page-max) - var(--toc-space));
   }
 
-  @media (width >= 90rem) {
-    :root[data-js][data-reading-width="l"]
-      .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
-        .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
-      ) {
-      --measure: max(var(--article-measure) * var(--article-font-size), var(--page-max) - var(--toc-space));
-    }
+  :root[data-js][data-reading-width="l"]
+    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
+      .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
+    ) {
+    --measure: max(var(--article-measure) * var(--article-font-size), var(--page-max) - var(--toc-space));
   }
 
   .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]) .article-toc {
@@ -250,49 +249,6 @@
       color: var(--color-text);
       font-size: var(--text-xl);
       font-weight: var(--weight-semibold);
-    }
-  }
-}
-
-/* A wide text (L, src/css/article/reading.css) leaves no room in the margin below 90rem: the table of
-   contents goes back above the text as a « Sommaire » button, and does not stick there. Same selector as
-   the rule above plus the width, so that every declaration here wins over it */
-@media (75rem <= width < 90rem) {
-  /* No table beside the text: no room kept for it (one more attribute on :root than the rule above) */
-  :root[data-js][data-reading-width="l"]
-    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"]):has(
-      .article-body [data-article-content] > :is(h2, h3):not(.js-toc-ignore) ~ :is(h2, h3):not(.js-toc-ignore)
-    ) {
-    --toc-space: 0px;
-  }
-
-  :root[data-reading-width="l"]
-    .article:is(:root[data-reading-style="card"] *, :root:not([data-reading-style]) [data-style="card"])
-    .article-toc {
-    position: static;
-    grid-column: main;
-    grid-row: 1;
-    margin-block-end: var(--space-6);
-    padding: 0;
-
-    .article-toc__toggle {
-      display: inline-flex;
-    }
-
-    .article-toc__title {
-      display: none;
-    }
-
-    .article-toc__nav {
-      width: auto;
-      max-height: none;
-      margin-block-start: var(--space-3);
-      padding: var(--space-4) var(--space-5);
-      overflow: visible;
-      border: 0;
-      border-radius: var(--radius-m);
-      background: var(--color-surface);
-      box-shadow: var(--shadow-1);
     }
   }
 }

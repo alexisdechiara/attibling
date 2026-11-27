@@ -1306,7 +1306,8 @@ ensuite avec `/` + le nom du snippet.
 
 - **Carte** (par défaut) : l'image à la une dans une carte sombre arrondie, le titre posé dessus ; le texte
   dans une colonne de lecture (Noto Sans, environ 60 à 72 caractères par ligne, justifié sur ordinateur et
-  aligné à gauche sur téléphone) ; sur grand écran, le sommaire dans une carte à droite du texte : le texte
+  aligné à gauche sur téléphone) ; à partir de 768 px, le sommaire dans une carte à droite du texte, qui reste
+  visible pendant la lecture (sur téléphone seulement, c'est un bouton « Sommaire » au-dessus du texte) : le texte
   s'élargit alors pour que texte et sommaire fassent ensemble la largeur de la carte d'en-tête (les
   lignes dépassent les 72 caractères ; un membre retrouve une colonne étroite avec la largeur « S »). L'image à la une remplit toute la carte d'en-tête ;
   elle est assombrie surtout sous le titre (en bas à gauche), le haut de la carte la laissant voir.

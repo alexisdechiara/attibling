@@ -1,5 +1,5 @@
 // Table of contents (partials/article/toc.hbs) with tocbot, from the h2 and h3 of the content; shown
-// when there are at least two. Where it sits in the margin (style « Carte », wide screens: the CSS
+// when there are at least two. Where it sits in the margin (style « Carte », past phones: the CSS
 // makes it sticky) the disclosure is kept open; elsewhere it is a « Sommaire » button.
 // tocbot (14 KB) is only fetched when the table will be shown (two headings or more).
 

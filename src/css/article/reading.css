@@ -159,8 +159,6 @@
   display: none;
 }
 
-/* A wide text (L) below 90rem: the table of contents leaves the margin (article/toc.css) */
-
 /* The panel ------------------------------------------------------------------------------- */
 .site-header__settings {
   anchor-name: --reading-settings;
