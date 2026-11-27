@@ -4,7 +4,8 @@
 // The choices are kept in localStorage "attibling-reading" as { name: value }, only those that differ
 // from the defaults, and written on <html> as data-reading-<name>="<value>" (reading.css). The
 // pre-paint script of default.hbs applies them before the first paint on the next pages, with the
-// chosen fonts (fonts.bunny.net, as Ghost's custom fonts). « Réinitialiser » clears everything.
+// chosen fonts (fonts.bunny.net, as Ghost's custom fonts; Onest and Literata are the theme's own files).
+// « Réinitialiser » clears everything.
 import { isAvailable, readingProgress } from "./store";
 import { preferences } from "./privacy/choices";
 import { containFocus } from "./helpers";
@@ -26,6 +27,9 @@ export const NAMES = [
 const VALUE = /^[a-z0-9-]+$/;
 // Families requested from fonts.bunny.net (the pre-paint script asks for the same ones)
 const FONT_WEIGHTS = { heading: ":400,700", body: ":400,400i,700" };
+// Choices that ask fonts.bunny.net for nothing: the fonts the theme serves itself (partials/fonts.hbs).
+// « noto-sans » was a choice of the text font when Literata was the default; it is the default now
+const THEME_FONTS = ["default", "onest", "literata", "noto-sans"];
 const root = document.documentElement;
 
 // Defaults: some depend on the page (the post's style) and the screen (alignment)
@@ -51,7 +55,10 @@ export const read = () => {
 		const value = JSON.parse(localStorage.getItem(KEY) || "{}");
 		if (!value || typeof value !== "object" || Array.isArray(value)) return {};
 		return Object.fromEntries(
-			Object.entries(value).filter(([name, v]) => NAMES.includes(name) && typeof v === "string" && VALUE.test(v)),
+			Object.entries(value).filter(
+				([name, v]) =>
+					NAMES.includes(name) && typeof v === "string" && VALUE.test(v) && !(name === "body" && v === "noto-sans"),
+			),
 		);
 	} catch {
 		return {};
@@ -69,7 +76,7 @@ const write = settings => {
 
 const loadFonts = settings => {
 	const families = ["heading", "body"]
-		.filter(name => settings[name] && settings[name] !== "default")
+		.filter(name => settings[name] && !THEME_FONTS.includes(settings[name]))
 		.map(name => settings[name] + FONT_WEIGHTS[name]);
 	let link = document.querySelector("link[data-reading-fonts]");
 	if (!families.length) {
@@ -101,7 +108,7 @@ export const apply = settings => {
 // « Immersif », 76 % of the card in « Carte »), and the browser would keep a rendition too small or too large
 const HEADER_SIZES = {
 	immersive: "100vw",
-	card: "(max-width: 767px) max(92vw, 711px), (max-width: 1443px) max(70vw, 711px), 1000px",
+	card: "(max-width: 1443px) 92vw, 1328px",
 };
 const sizeHeaderPicture = (article, style) => {
 	const picture = article?.querySelector("[data-article-image]");

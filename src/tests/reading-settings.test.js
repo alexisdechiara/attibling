@@ -240,6 +240,85 @@ describe("display settings: every control", () => {
 		await dispose();
 	});
 
+	it("offer the theme's fonts first: Google Sans and Noto Sans by default, Onest and Literata without a font service", async () => {
+		const { page, requests, dispose } = await open({
+			render: article({ member: true, html: HTML }),
+			viewport: { width: 1440, height: 900 },
+		});
+		await openPanel(page);
+		const options = name =>
+			page.$$eval(`select[name=${name}] option`, els => els.map(el => [el.value, el.textContent.trim()]));
+		assert.deepEqual(await options("heading"), [
+			["default", "Google Sans"],
+			["onest", "Onest"],
+			["space-grotesk", "Space Grotesk"],
+			["libre-baskerville", "Libre Baskerville"],
+			["poppins", "Poppins"],
+			["lora", "Lora"],
+			["jetbrains-mono", "JetBrains Mono"],
+		]);
+		assert.deepEqual(await options("body"), [
+			["default", "Noto Sans"],
+			["literata", "Literata"],
+			["merriweather", "Merriweather"],
+			["ibm-plex-serif", "IBM Plex Serif"],
+			["inter", "Inter"],
+			["fira-mono", "Fira Mono"],
+		]);
+		const family = selector => page.evaluate(s => getComputedStyle(document.querySelector(s)).fontFamily, selector);
+		assert.match(await family("#premiere-partie"), /^"Google Sans"/);
+		assert.match(await family(".article-header__title"), /^"Google Sans"/);
+		assert.match(await family("[data-article-content] > p"), /^"Noto Sans"/);
+
+		await choose(page, "heading", "onest");
+		await choose(page, "body", "literata");
+		assert.match(await family("#premiere-partie"), /^Onest,/);
+		assert.match(await family(".article-header__title"), /^Onest,/);
+		assert.match(await family("[data-article-content] > p"), /^Literata, "Literata Fallback"/);
+		assert.deepEqual(await read(page, () => JSON.parse(localStorage.getItem("attibling-reading"))), {
+			heading: "onest",
+			body: "literata",
+		});
+		// On the next page too (pre-paint script): the theme's own files, nothing from fonts.bunny.net
+		await page.reload();
+		await page.evaluate(() => document.fonts.ready);
+		assert.match(await family("[data-article-content] > p"), /^Literata/);
+		assert.equal(await read(page, () => document.querySelectorAll("link[data-reading-fonts]").length), 0);
+		assert.ok(
+			requests.some(url => url.includes("/assets/fonts/literata/literata-latin.woff2")),
+			"Literata comes from the theme",
+		);
+		assert.deepEqual(
+			requests.filter(url => /fonts\.bunny\.net/.test(url)),
+			[],
+		);
+		await dispose();
+	});
+
+	it("read a saved « Noto Sans » (a choice when Literata was the default) as the default it has become", async () => {
+		const { page, requests, dispose } = await open({
+			render: article({ member: true, html: HTML }),
+			storage: { "attibling-reading": JSON.stringify({ body: "noto-sans", size: "l" }) },
+			viewport: { width: 1440, height: 900 },
+		});
+		await openPanel(page);
+		assert.deepEqual(
+			await read(page, () => ({
+				attribute: document.documentElement.getAttribute("data-reading-body"),
+				size: document.documentElement.getAttribute("data-reading-size"),
+				select: document.querySelector("select[name=body]").value,
+				family: getComputedStyle(document.querySelector("[data-article-content] > p")).fontFamily.split(",")[0],
+			})),
+			{ attribute: null, size: "l", select: "default", family: '"Noto Sans"' },
+		);
+		await choose(page, "leading", "airy");
+		assert.deepEqual(
+			requests.filter(url => /fonts\.bunny\.net/.test(url)),
+			[],
+		);
+		await dispose();
+	});
+
 	it("are applied before the first paint on the next page (no flash)", async () => {
 		const { page, dispose } = await open({
 			render: article({ member: true }),

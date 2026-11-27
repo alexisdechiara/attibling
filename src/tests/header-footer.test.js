@@ -373,10 +373,10 @@ describe("pages use the site's font", () => {
 		});
 	}
 
-	it("articles keep Literata for their text", async () => {
+	it("articles keep their own font, Noto Sans, for their text", async () => {
 		const { page, dispose } = await open({ render: template("post"), viewport: DESKTOP });
 		const family = await page.evaluate(() => getComputedStyle(document.querySelector(".gh-content p")).fontFamily);
-		assert.match(family, /^Literata/);
+		assert.match(family, /^"Noto Sans"/);
 		await dispose();
 	});
 

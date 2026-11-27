@@ -1,5 +1,5 @@
 /** Text written in Ghost's editor on pages (page.hbs, « À propos », notes of the subscription page):
-   a reading column in the site's font (Onest, or Ghost's body font; Literata is for articles only),
+   a reading column in the site's font (Onest, or Ghost's body font; Noto Sans and Google Sans are for articles only),
    and Ghost's cards (image, gallery, embed, callout, toggle,
    bookmark, button, quote, code). Cards keep their widths: .kg-width-wide (wider than the column) and
    .kg-width-full (the whole page width). */

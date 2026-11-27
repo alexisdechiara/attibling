@@ -246,35 +246,45 @@ l'affichage (pas de flash). Rien à régler dans Ghost.
 
 ### Polices du thème et polices personnalisées
 
-Par défaut : **Onest** pour l'interface et les titres, **Literata** pour le texte des articles uniquement (les pages — page ordinaire, document, « À propos », abonnement — sont en Onest comme le reste du site),
-**Pacifico** pour le « ly » du logo. **Les trois sont servies par le site lui-même** (dossier
+Par défaut : **Onest** pour l'interface et les titres de tout le site (menus, boutons, accueil, cartes,
+pages — page ordinaire, document, « À propos », abonnement) ; dans les **articles** seulement, **Noto Sans**
+pour le texte et **Google Sans** pour le titre de l'article et ses intertitres ; **Pacifico** pour le « ly »
+du logo. **Toutes sont servies par le site lui-même** (dossier
 `assets/fonts/` du thème) : le thème ne contacte aucun service de polices (ni Google Fonts, ni un autre), il
 n'y a rien à régler. Ce que le lecteur télécharge :
 
-- Onest et Literata sont des polices « variables » (un seul fichier pour toutes les graisses), découpées par
-  alphabet : latin, latin étendu (polonais, tchèque, turc…), cyrillique, cyrillique étendu, vietnamien. Le
-  navigateur ne télécharge que les morceaux dont la page a besoin : pour un site en français, Onest latin
-  (25 Ko) partout et Literata latin (53 Ko) sur les articles ; l'italique de Literata (33 Ko)
-  seulement si le texte en contient. Literata ne garde que les « corps optiques » de 14 à 28 px (le
-  navigateur adapte le dessin des lettres à la taille du texte, 17 à 21 px dans un article) : le texte
-  s'affiche comme avant, avec des fichiers plus légers. Pacifico ne contient que les lettres « l » et « y » du logo (3 Ko) et
-  n'est téléchargée que si le logo GEEKLY coloré est affiché.
-- Ces deux fichiers sont annoncés au navigateur dès le début de la page (`preload`) : le texte s'affiche tout
-  de suite dans une police système ajustée aux mêmes dimensions (Arial pour Onest, Times New Roman pour
-  Literata), puis la police du thème la remplace sans faire sauter la mise en page.
-- Japonais, coréen, chinois, arabe, hébreu, persan, thaï : ces alphabets ne sont pas dans Onest et Literata,
-  le navigateur prend les polices du système du lecteur (rien n'est téléchargé).
-- Licence : SIL Open Font License 1.1 (fichiers `OFL.txt` à côté des polices), qui autorise cet usage.
+- Onest, Noto Sans et Google Sans sont des polices « variables » (un seul fichier pour toutes les graisses),
+  découpées par alphabet : latin, latin étendu (polonais, tchèque, turc…), cyrillique, cyrillique étendu,
+  vietnamien. Le navigateur ne télécharge que les morceaux dont la page a besoin : pour un site en français,
+  Onest latin (25 Ko) partout ; sur les articles, Noto Sans latin (22 Ko) et Google Sans latin (36 Ko) en
+  plus ; l'italique de Noto Sans (14 Ko) seulement si le texte en contient. Noto Sans ne garde que les
+  graisses de 400 à 700 (du normal au gras), son italique la graisse normale ; Google Sans va de 400 à 700,
+  sans italique (un mot en italique dans un titre est penché par le navigateur). Pacifico ne contient que
+  les lettres « l » et « y » du logo (3 Ko) et n'est téléchargée que si le logo GEEKLY coloré est affiché.
+- Onest latin sur toutes les pages, Google Sans latin et Noto Sans latin sur les articles (sur ordinateur
+  et tablette) sont annoncés au navigateur dès le début de la page (`preload`) : le texte s'affiche tout
+  de suite dans une police système ajustée aux mêmes dimensions (Arial), puis la police du thème la
+  remplace sans faire sauter la mise en page.
+- **Literata**, la police du texte des articles avant Noto Sans, reste proposée aux abonnés dans leurs
+  réglages d'affichage (« Police du texte »), comme Onest pour les titres : elle est toujours servie par le
+  site (53 Ko, italique 33 Ko), et n'est téléchargée que par l'abonné qui la choisit.
+- Japonais, coréen, chinois, arabe, hébreu, persan, thaï : ces alphabets ne sont pas dans les fichiers du
+  thème, le navigateur prend les polices du système du lecteur (rien n'est téléchargé).
+- Licence : SIL Open Font License 1.1 pour toutes, Google Sans comprise (fichiers `OFL.txt` à côté des
+  polices), qui autorise cet usage.
+- Pour mettre les fichiers à jour (développeur) : `npm ci`, puis `python src/fonts/build-fonts.py`
+  (Python 3 avec `fonttools` et `brotli` ; fonctionne sous Linux, Windows et macOS).
 
 **Polices personnalisées de Ghost.** Si vous choisissez des polices dans Settings → Design & branding →
-Brand → *Typography*, la police des titres remplace Onest dans les titres, et la police du corps remplace
-Onest dans l'interface et Literata dans les articles. Le logo garde ses polices. Attention : c'est **Ghost**
+Brand → *Typography*, la police des titres remplace Onest dans les titres et Google Sans dans les titres
+des articles, et la police du corps remplace Onest dans l'interface et Noto Sans dans le texte des
+articles. Le logo garde ses polices. Attention : c'est **Ghost**
 qui charge alors ces polices, depuis **Bunny Fonts** (`fonts.bunny.net`, voir plus bas) ; à mentionner dans vos
 mentions légales si vous vous en servez.
 
 **Les polices choisies par un abonné** dans ses réglages d'affichage (une dizaine de familles, voir
 [Réglages d'affichage](#réglages-daffichage-abonnés)) viennent aussi de Bunny Fonts, et seulement pour
-l'abonné qui en choisit une. Bunny Fonts déclare une politique « zero-tracking and no-logging » (aucun suivi,
+l'abonné qui en choisit une — sauf Onest et Literata, que le site sert lui-même. Bunny Fonts déclare une politique « zero-tracking and no-logging » (aucun suivi,
 aucun journal) et que « no data or logs are ever collected or passed to a third party » ; le service est
 exploité par BunnyWay d.o.o., société établie dans l'Union européenne (Slovénie), et servi par son réseau
 mondial (page https://fonts.bunny.net/about, consultée le 19 novembre 2026). Le navigateur de l'abonné lui
@@ -292,7 +302,8 @@ font, et grossirait le thème pour tous les sites : le thème garde donc Bunny F
 <link href="https://fonts.googleapis.com/css2?family=Noto&family=Pacifico&display=swap" rel="stylesheet">
 ```
 
-Pourquoi : Pacifico est déjà servie par le thème ; « Noto » n'est utilisée nulle part par le thème ; et ces
+Pourquoi : Pacifico est déjà servie par le thème ; cette « Noto » de Google n'est utilisée nulle part (le
+Noto Sans des articles vient du thème) ; et ces
 lignes font contacter Google (fonts.googleapis.com, fonts.gstatic.com) à chaque visite, ce que le thème
 évite désormais. Gardez le reste du champ (la ligne `analytics.geekly.blog` de Plausible, le bloc
 `application/ld+json`). Le petit script qui cherche `.l-post-content h4` et le style `.after-h4` visaient
@@ -1238,12 +1249,12 @@ en visiteur et en abonné.
 
 | Quoi | Depuis | Quand | Qui le décide |
 |---|---|---|---|
-| Polices Onest, Literata, Pacifico | votre site (`/assets/fonts/`) | toujours | thème |
+| Polices Onest, Noto Sans, Google Sans, Literata, Pacifico | votre site (`/assets/fonts/`) | toujours | thème |
 | Portal (abonnement, compte), recherche | `cdn.jsdelivr.net` | toujours | Ghost |
 | Commentaires | `cdn.jsdelivr.net` | articles où ils sont ouverts, quand le lecteur s'en approche (ou suit un lien vers eux) | Ghost (le moment : thème) |
 | Stripe, hCaptcha / Turnstile | `js.stripe.com`… | seulement si Portal en a besoin (paiement, anti-spam) | Ghost |
 | Polices personnalisées (Brand → Typography) | `fonts.bunny.net` | si vous en avez choisi | Ghost |
-| Police de lecture choisie par un abonné | `fonts.bunny.net` | seulement pour l'abonné qui en choisit une | thème |
+| Police de lecture choisie par un abonné | `fonts.bunny.net` | seulement pour l'abonné qui en choisit une (pas pour Onest ni Literata, servies par votre site) | thème |
 | Vidéos YouTube | `youtube-nocookie.com`, puis `googlevideo.com`, `i.ytimg.com`, `google.com`, `gstatic.com`… | **après le clic** du lecteur (ou s'il a choisi « Toujours afficher ») | thème (réglage *Embed consent*) |
 | Publications X, autres contenus intégrés | le service (`platform.twitter.com`, `twimg.com`…) | **après le clic** du lecteur (ou « Toujours afficher ») | thème (réglage *Embed consent*) |
 | Images collées par adresse, images Unsplash | leur site (`images.unsplash.com`…) | quand elles s'affichent | vous (contenu) |
@@ -1293,8 +1304,10 @@ ensuite avec `/` + le nom du snippet.
 ### Les deux styles : « Carte » et « Immersif »
 
 - **Carte** (par défaut) : l'image à la une dans une carte sombre arrondie, le titre posé dessus ; le texte
-  dans une colonne de lecture (Literata, environ 60 à 72 caractères par ligne, justifié sur ordinateur et
-  aligné à gauche sur téléphone) ; le sommaire dans la marge de droite sur grand écran.
+  dans une colonne de lecture (Noto Sans, environ 60 à 72 caractères par ligne, justifié sur ordinateur et
+  aligné à gauche sur téléphone) ; sur grand écran, le sommaire dans une carte à droite du texte, le texte
+  et le sommaire étant centrés ensemble dans la page. L'image à la une remplit toute la carte d'en-tête ;
+  elle est assombrie surtout sous le titre (en bas à gauche), le haut de la carte la laissant voir.
 - **Immersif** : l'image d'en-tête d'un bord à l'autre, le texte et les images sur toute la largeur de la
   page (moins les marges) ; sur un écran très large, seul le texte est plafonné à 1 808 px et centré.
   L'encadré de série et « En bref » se placent côte à côte (l'un sous l'autre sous 900 px environ), et le
@@ -1314,7 +1327,15 @@ Qui décide, du plus fort au plus faible :
   le titre s'affiche sur le fond de la page.
 - Légende de l'image à la une : celle saisie dans Ghost sous l'image (« Add a caption »).
 - Sommaire : construit automatiquement à partir des intertitres H2 et H3 ; il n'apparaît qu'à partir de deux
-  intertitres. Rien à faire.
+  intertitres. Rien à faire. Un filet gris court le long des entrées ; l'entrée de la partie lue est en bleu
+  sur un fond bleu clair. Les H2 sont les sections, les H3 leurs sous-sections, en retrait et plus petites :
+  une section qui a des sous-sections porte un bouton qui les replie (et les déplie), pour voir les sections
+  suivantes sans faire défiler la carte ; pendant la lecture d'une sous-section repliée, c'est sa section
+  qui est marquée. Pour un sommaire lisible, gardez cette hiérarchie : H2 pour les grandes parties, H3
+  dessous (un H1 dans le texte n'entre pas au sommaire).
+- Largeur des images (carte *Image* de l'éditeur, style « Carte ») : *Regular* est plus étroite que le texte
+  (70 % de la colonne, centrée ; la largeur du texte sur téléphone), *Wide* a la largeur du texte, *Full*
+  celle de la page.
 - Anneau de progression en bas à droite : il se remplit pendant la lecture ; un clic remonte en haut.
 - En fin d'article : la ligne « Publié le · Mis à jour le » (voir plus bas), la ligne « Précédent /
   Suivant » de la série (toujours le dernier élément), les mots clés (tags publics) et le partage (X,
@@ -1490,8 +1511,8 @@ qui monte du bas sur téléphone) :
 | Réglage | Choix (défaut en premier) |
 |---|---|
 | Palette | GEEKLY (nom du site), Désert, Encre, Forêt — chacun en clair et en sombre, selon le bouton clair / sombre |
-| Police des titres | Onest, Space Grotesk, Libre Baskerville, Poppins, Lora, JetBrains Mono |
-| Police du texte | Literata, Merriweather, IBM Plex Serif, Inter, Noto Sans, Fira Mono |
+| Police des titres | Google Sans, Onest, Space Grotesk, Libre Baskerville, Poppins, Lora, JetBrains Mono |
+| Police du texte | Noto Sans, Literata, Merriweather, IBM Plex Serif, Inter, Fira Mono |
 | Largeur de l'article | M, S, L (en Immersif : L pleine largeur, M 1 200 px, S 864 px) |
 | Taille du texte | M (19 px), S (17 px), L (21 px) |
 | Interligne | Normal, Serré, Aéré |
@@ -1504,8 +1525,10 @@ qui monte du bas sur téléphone) :
 « Réinitialiser » remet tout par défaut. Les choix sont gardés dans le navigateur de l'abonné (sur cet
 appareil) et appliqués avant l'affichage de la page, sans clignotement. La palette choisie habille toute la page
 de l'article, en-tête et pied de page compris. Les polices autres que celles par défaut ne sont téléchargées
-que si l'abonné les choisit, depuis fonts.bunny.net (le même service que les polices personnalisées de
-Ghost). Pour retirer la roue : réglage **Reading settings** (onglet **Post**). Les visiteurs ne la voient
+que si l'abonné les choisit : Onest et Literata (les polices des articles avant Google Sans et Noto Sans)
+depuis le site lui-même, les autres depuis fonts.bunny.net (le même service que les polices personnalisées
+de Ghost). Un abonné qui avait choisi « Noto Sans » quand Literata était la police par défaut retrouve
+simplement le texte par défaut. Pour retirer la roue : réglage **Reading settings** (onglet **Post**). Les visiteurs ne la voient
 jamais.
 
 **Style des liens.** Par défaut, pour tout le monde (visiteurs compris), les liens du texte des articles et
@@ -1521,8 +1544,9 @@ luminosité entre la couleur des liens et celle du texte est sous le 3:1 que dem
 présentation ; un lecteur qui distingue mal les couleurs choisit « Soulignés ». Les petits liens des zones
 grises (pied de page, mentions sous un formulaire) sont eux aussi en couleur, jamais ni colorés ni soulignés.
 
-Si vous avez choisi des polices personnalisées dans Ghost (Brand → Typography), elles remplacent Onest et
-Literata par défaut ; la liste garde les noms « Onest » et « Literata » pour l'option par défaut.
+Si vous avez choisi des polices personnalisées dans Ghost (Brand → Typography), elles remplacent Google
+Sans et Noto Sans par défaut ; la liste garde les noms « Google Sans » et « Noto Sans » pour l'option par
+défaut.
 
 ### Article réservé aux abonnés
 

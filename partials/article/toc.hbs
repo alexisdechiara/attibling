@@ -8,6 +8,9 @@ screens, where its summary is hidden).
   <summary class="article-toc__toggle">{{> "icons/summary"}}<span>{{t "Summary"}}</span>{{> "icons/chevron-down" class="article-toc__chevron"}}</summary>
   <nav class="article-toc__nav" aria-label="{{t "Table of contents"}}">
     <p class="article-toc__title" aria-hidden="true">{{t "Summary"}}</p>
-    <div class="toc" data-toc-list></div>
+    {{!-- data-fold / data-unfold and the chevron: for the button article/toc.js adds beside each section
+    that has sub-sections, to fold them away and see the sections below --}}
+    <div class="toc" data-toc-list data-fold="{{t "Fold the sub-sections of {section}" section="{section}"}}" data-unfold="{{t "Unfold the sub-sections of {section}" section="{section}"}}"></div>
+    <template data-toc-chevron>{{> "icons/chevron-down"}}</template>
   </nav>
 </details>

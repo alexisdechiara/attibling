@@ -110,7 +110,7 @@ describe("article page: content", () => {
 		}
 	});
 
-	// About 0.52em per character in Literata at 19px: 60 to 72 characters per line is 31 to 38 em.
+	// About 0.52em per character in Noto Sans at 19px: 60 to 72 characters per line is 31 to 38 em.
 	// (The tests do not load web fonts: the measure is checked in ems of the text size.)
 	it("keeps the text at 60 to 72 characters per line by default, justified on desktop and aligned left on phones", async () => {
 		const measure = async width => {
@@ -132,7 +132,7 @@ describe("article page: content", () => {
 		assert.ok(desktop.ems >= 31 && desktop.ems <= 38, `${desktop.ems} em`);
 		assert.equal(desktop.size, "19px");
 		assert.equal(desktop.align, "justify");
-		assert.match(desktop.family, /^Literata/);
+		assert.match(desktop.family, /^"Noto Sans"/);
 		assert.equal((await measure(390)).align, "start");
 	});
 
@@ -327,6 +327,180 @@ describe("article page: content", () => {
 		});
 		assert.equal(await page.locator("[data-toc-list] a").first().isVisible(), true);
 		await dispose();
+	});
+
+	it("centres the text and its table of contents as a pair: a card beside the text, never against the edge of the window", async () => {
+		for (const width of [1200, 1440, 1920]) {
+			const { page, dispose } = await open({ render: article(), viewport: { width, height: 900 } });
+			await page.locator("[data-toc-list] a").first().waitFor();
+			const box = await page.evaluate(() => {
+				const rect = selector => document.querySelector(selector).getBoundingClientRect();
+				const text = rect("[data-article-content] > p");
+				const nav = rect(".article-toc__nav");
+				const author = rect(".author-box__inner");
+				const style = getComputedStyle(document.querySelector(".article-toc__nav"));
+				return {
+					start: text.left,
+					end: innerWidth - nav.right,
+					gap: nav.left - text.right,
+					authorStart: author.left,
+					background: style.backgroundColor,
+					shadow: style.boxShadow !== "none",
+					border: style.borderTopWidth,
+					radius: parseFloat(style.borderTopLeftRadius),
+					overflow: document.documentElement.scrollWidth > innerWidth,
+				};
+			});
+			assert.ok(
+				Math.abs(box.start - box.end) <= 1,
+				`${width}px: ${box.start}px before the text, ${box.end}px after the table`,
+			);
+			assert.ok(box.gap >= 48, `${width}px: the table stands ${box.gap}px from the text`);
+			assert.ok(
+				Math.abs(box.authorStart - box.start) <= 1,
+				`${width}px: the author box stays in the column of the text`,
+			);
+			assert.deepEqual(
+				{ background: box.background, shadow: box.shadow, border: box.border, overflow: box.overflow },
+				{ background: "rgb(255, 255, 255)", shadow: true, border: "1px", overflow: false },
+				`${width}px`,
+			);
+			assert.ok(box.radius >= 12, "rounded as the other cards of the site");
+			await dispose();
+		}
+	});
+
+	it("draws one grey rail down the entries, sets sub-sections apart from sections, and gives the current one a blue ground", async () => {
+		const { page, dispose } = await open({ render: article(), viewport: { width: 1440, height: 900 } });
+		await page.locator("[data-toc-list] a").first().waitFor();
+		const entries = await page.$$eval("[data-toc-list] a", links =>
+			links.map(a => {
+				const style = getComputedStyle(a);
+				return {
+					text: a.textContent.trim(),
+					rail: Math.round(a.getBoundingClientRect().left),
+					railWidth: style.borderInlineStartWidth,
+					railColor: style.borderInlineStartColor,
+					textStart: parseFloat(style.paddingInlineStart),
+					size: parseFloat(style.fontSize),
+					weight: style.fontWeight,
+					sub: !!a.closest(".toc-list .toc-list"),
+				};
+			}),
+		);
+		assert.deepEqual(
+			entries.map(e => [e.text, e.sub]),
+			[
+				["Première partie", false],
+				["Un détail", true],
+				["Deuxième partie", false],
+				["Conclusion", false],
+			],
+		);
+		assert.equal(new Set(entries.map(e => e.rail)).size, 1, "one rail: every entry starts on the same line");
+		const [section, sub] = entries;
+		assert.equal(section.railWidth, "2px");
+		assert.notEqual(section.railColor, "rgba(0, 0, 0, 0)", "the rail shows");
+		assert.ok(sub.textStart > section.textStart, "a sub-section is set in");
+		assert.ok(sub.size < section.size, "and smaller");
+		assert.ok(Number(sub.weight) < Number(section.weight), "and lighter");
+		// The current entry, once its heading is at the top
+		await page.evaluate(() => document.getElementById("un-detail").scrollIntoView({ block: "start" }));
+		const current = page.locator("[data-toc-list] a.is-active-link");
+		await waitFor(async () => (await current.count()) === 1 && (await current.textContent()).trim() === "Un détail");
+		const marked = await current.evaluate(a => {
+			const style = getComputedStyle(a);
+			return {
+				ground: style.backgroundColor,
+				rail: style.borderInlineStartColor,
+				color: style.color,
+				weight: style.fontWeight,
+			};
+		});
+		assert.deepEqual(marked, {
+			ground: "rgb(238, 243, 252)",
+			rail: "rgb(26, 95, 208)",
+			color: "rgb(26, 95, 208)",
+			weight: "700",
+		});
+		await dispose();
+	});
+
+	it("folds the sub-sections of a section with a button, and marks the folded section while one of them is read", async () => {
+		const { page, dispose } = await open({ render: article(), viewport: { width: 1440, height: 900 } });
+		const fold = page.locator("[data-toc-list] .toc-fold");
+		await fold.first().waitFor();
+		// Only « Première partie » has a sub-section
+		assert.equal(await fold.count(), 1);
+		const state = () =>
+			fold.evaluate(button => ({
+				label: button.getAttribute("aria-label"),
+				expanded: button.getAttribute("aria-expanded"),
+				subShown: !!button.closest(".toc-list-item").querySelector(":scope > .toc-list a")?.offsetParent,
+				size: Math.min(button.offsetWidth, button.offsetHeight),
+			}));
+		assert.deepEqual(await state(), {
+			label: "Replier les sous-sections de Première partie",
+			expanded: "true",
+			subShown: true,
+			size: 32,
+		});
+		await page.evaluate(() => document.getElementById("un-detail").scrollIntoView({ block: "start" }));
+		await page.locator("[data-toc-list] a.is-active-link", { hasText: "Un détail" }).waitFor();
+		await fold.click();
+		assert.deepEqual(await state(), {
+			label: "Déplier les sous-sections de Première partie",
+			expanded: "false",
+			subShown: false,
+			size: 32,
+		});
+		// The sub-section being read is out of sight: its section carries the mark
+		const section = page.locator("[data-toc-list] a", { hasText: "Première partie" });
+		assert.equal(await section.evaluate(a => getComputedStyle(a).backgroundColor), "rgb(238, 243, 252)");
+		// From the keyboard too, and back
+		await fold.focus();
+		await page.keyboard.press("Enter");
+		assert.equal((await state()).subShown, true);
+		await dispose();
+	});
+
+	it("gives pictures three widths: narrower than the text, as wide as the text, as wide as the page", async () => {
+		const figure = kind =>
+			`<figure class="kg-card kg-image-card${kind}"><img src="/src/tests/fixtures/photo.svg?content" class="kg-image" alt="" width="1600" height="900" loading="lazy"></figure>`;
+		const html = `<p>Texte.</p>${figure("")}<p>Texte.</p>${figure(" kg-width-wide")}<p>Texte.</p>${figure(" kg-width-full")}<p>Fin.</p>`;
+		const measure = page =>
+			page.evaluate(() => {
+				const text = document.querySelector("[data-article-content] > p").getBoundingClientRect();
+				const [regular, wide, full] = [...document.querySelectorAll("[data-article-content] > .kg-image-card")].map(f =>
+					f.getBoundingClientRect(),
+				);
+				return {
+					regular: Math.round((regular.width / text.width) * 100),
+					regularCentred: Math.abs(regular.left + regular.width / 2 - (text.left + text.width / 2)) < 1,
+					wide: Math.round((wide.width / text.width) * 100),
+					wideStart: Math.round(wide.left - text.left),
+					full: Math.round(full.width - document.documentElement.clientWidth),
+				};
+			});
+		const desktop = await open({ render: article({ html }), viewport: { width: 1440, height: 900 } });
+		assert.deepEqual(await measure(desktop.page), {
+			regular: 70,
+			regularCentred: true,
+			wide: 100,
+			wideStart: 0,
+			full: 0,
+		});
+		await desktop.dispose();
+		// On a phone a regular picture keeps the width of the text
+		const phone = await open({ render: article({ html }), viewport: { width: 390, height: 844 } });
+		assert.deepEqual(await measure(phone.page), {
+			regular: 100,
+			regularCentred: true,
+			wide: 100,
+			wideStart: 0,
+			full: 0,
+		});
+		await phone.dispose();
 	});
 
 	it("has no table of contents with fewer than two headings", async () => {

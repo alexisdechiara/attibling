@@ -432,8 +432,8 @@ describe("pictures: WebP, at the width of their box", () => {
 
 	it("article header: the width of its box, in the style « Carte » and in « Immersif »", async () => {
 		for (const [internal, want, wide] of [
-			// 1009 px wide on a large screen: still the 1000 px rendition
-			[[], "l webp 944", "l webp 1009"],
+			// The picture fills the card (92vw, 1328 px at most): the 1400 px rendition on both screens
+			[[], "w1400 webp 1242", "w1400 webp 1328"],
 			[["#immersif"], "w1400 webp 1350", "xl webp 1920"],
 		]) {
 			const card = await open({ render: article({ internal }), viewport: DESKTOP });
